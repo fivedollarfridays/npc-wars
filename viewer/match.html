@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NPC Wars — Battle Viewer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Silkscreen:wght@400;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131f;
+    --border: #1e1e33;
+    --text: #e0e0f0;
+    --muted: #6a6a8a;
+    --accent: #ff3e6c;
+    --accent2: #00e5ff;
+    --storm: #1a0028;
+    --storm-glow: #8b00ff;
+    --kill: #ff3e3e;
+    --heal: #00ff88;
+    --defend: #4488ff;
+    --grid-line: rgba(255,255,255,0.04);
+    --tile-size: 48px;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  .header {
+    text-align: center;
+    padding: 20px 20px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header h1 {
+    font-family: 'Silkscreen', cursive;
+    font-size: 28px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .match-info {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px;
+  }
+
+  .main {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: flex-start;
+  }
+
+  .arena-wrap {
+    flex-shrink: 0;
+  }
+
+  .arena {
+    position: relative;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  canvas {
+    display: block;
+  }
+
+  .sidebar {
+    flex: 1;
+    min-width: 260px;
+    max-width: 320px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .panel-title {
+    font-family: 'Silkscreen', cursive;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent2);
+    margin-bottom: 8px;
+  }
+
+  .bot-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    font-size: 12px;
+    transition: opacity 0.3s;
+  }
+
+  .bot-row.dead {
+    opacity: 0.3;
+    text-decoration: line-through;
+  }
+
+  .bot-emoji {
+    font-size: 18px;
+    width: 28px;
+    text-align: center;
+  }
+
+  .bot-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .bot-name {
+    font-weight: 700;
+    font-size: 11px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .hp-bar-wrap {
+    height: 4px;
+    background: rgba(255,255,255,0.05);
+    border-radius: 2px;
+    margin-top: 2px;
+    overflow: hidden;
+  }
+
+  .hp-bar {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.3s, background 0.3s;
+  }
+
+  .energy-bar-wrap {
+    height: 2px;
+    background: rgba(255,255,255,0.03);
+    border-radius: 1px;
+    margin-top: 1px;
+    overflow: hidden;
+  }
+
+  .energy-bar {
+    height: 100%;
+    background: var(--accent2);
+    border-radius: 1px;
+    transition: width 0.3s;
+    opacity: 0.5;
+  }
+
+  .bot-hp-text {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: right;
+    min-width: 36px;
+  }
+
+  .kill-feed {
+    max-height: 200px;
+    overflow-y: auto;
+    font-size: 11px;
+  }
+
+  .kill-feed::-webkit-scrollbar { width: 4px; }
+  .kill-feed::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  .kill-entry {
+    padding: 3px 0;
+    color: var(--muted);
+    animation: fadeIn 0.3s;
+  }
+
+  .kill-entry .round-num {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+  }
+
+  .controls button {
+    background: var(--border);
+    border: none;
+    color: var(--text);
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .controls button:hover { background: var(--accent); }
+  .controls button.active { background: var(--accent); }
+
+  .round-display {
+    font-family: 'Silkscreen', cursive;
+    font-size: 14px;
+    color: var(--accent2);
+    min-width: 100px;
+    text-align: center;
+  }
+
+  .speed-btns {
+    display: flex;
+    gap: 4px;
+  }
+
+  .speed-btns button {
+    padding: 4px 8px;
+    font-size: 10px;
+  }
+
+  input[type="range"] {
+    flex: 1;
+    accent-color: var(--accent);
+    height: 4px;
+  }
+
+  .winner-banner {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: bannerIn 0.5s;
+    cursor: pointer;
+  }
+
+  .winner-banner .inner {
+    text-align: center;
+  }
+
+  .winner-banner .trophy { font-size: 80px; }
+  .winner-banner .winner-text {
+    font-family: 'Silkscreen', cursive;
+    font-size: 24px;
+    letter-spacing: 4px;
+    margin-top: 12px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .winner-banner .winner-name {
+    font-size: 18px;
+    margin-top: 8px;
+    color: var(--text);
+  }
+  .winner-banner .dismiss {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 16px;
+  }
+
+  @keyframes bannerIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .load-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .load-screen h2 {
+    font-family: 'Silkscreen', cursive;
+    font-size: 20px;
+    color: var(--accent2);
+  }
+
+  .load-screen input[type="file"] {
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    padding: 40px;
+    border-radius: 12px;
+    color: var(--text);
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .load-screen .or-text {
+    color: var(--muted);
+    font-size: 12px;
+  }
+
+  .load-screen button {
+    background: var(--accent);
+    border: none;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+
+<div id="load-screen" class="load-screen">
+  <h2>NPC WARS</h2>
+  <p style="color: var(--muted); font-size: 12px;">Load a match JSON to watch the replay</p>
+  <input type="file" id="file-input" accept=".json">
+  <div class="or-text">or</div>
+  <button onclick="loadDemo()">Run Demo Match</button>
+</div>
+
+<div id="app" style="display:none;">
+  <div class="header">
+    <h1>NPC WARS</h1>
+    <div class="match-info" id="match-info"></div>
+  </div>
+
+  <div class="main">
+    <div class="arena-wrap">
+      <div class="arena">
+        <canvas id="arena-canvas"></canvas>
+      </div>
+    </div>
+
+    <div class="sidebar">
+      <div class="panel">
+        <div class="panel-title">Combatants</div>
+        <div id="bot-list"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">Kill Feed</div>
+        <div class="kill-feed" id="kill-feed"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button id="play-btn" onclick="togglePlay()">▶</button>
+    <div class="round-display" id="round-display">R0</div>
+    <input type="range" id="scrubber" min="0" max="1" value="0" oninput="scrubTo(this.value)">
+    <div class="speed-btns">
+      <button onclick="setSpeed(1)" id="sp1" class="active">1x</button>
+      <button onclick="setSpeed(2)" id="sp2">2x</button>
+      <button onclick="setSpeed(4)" id="sp4">4x</button>
+    </div>
+  </div>
+
+  <div class="winner-banner" id="winner-banner" style="display:none" onclick="dismissWinner()">
+    <div class="inner">
+      <div class="trophy" id="winner-emoji"></div>
+      <div class="winner-text">WINNER</div>
+      <div class="winner-name" id="winner-name"></div>
+      <div class="dismiss">click to dismiss</div>
+    </div>
+  </div>
+</div>
+
+<script>
+let matchData = null;
+let currentRound = 0;
+let playing = false;
+let playInterval = null;
+let speed = 1;
+const TILE_SIZE = 48;
+const EMOJI_SIZE = 32;
+
+// Canvas refs
+let canvas, ctx;
+
+document.getElementById('file-input').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      matchData = JSON.parse(ev.target.result);
+      initViewer();
+    } catch(err) {
+      alert('Invalid JSON file');
+    }
+  };
+  reader.readAsText(file);
+});
+
+function loadDemo() {
+  // Check if there's a match file in the URL params
+  const params = new URLSearchParams(window.location.search);
+  const matchFile = params.get('match');
+  if (matchFile) {
+    fetch(matchFile)
+      .then(r => r.json())
+      .then(data => { matchData = data; initViewer(); })
+      .catch(() => alert('Could not load match file'));
+    return;
+  }
+  alert('No demo match available. Load a JSON file or pass ?match=path/to/match.json');
+}
+
+function initViewer() {
+  document.getElementById('load-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+
+  canvas = document.getElementById('arena-canvas');
+  ctx = canvas.getContext('2d');
+
+  const gridSize = matchData.grid_size;
+  canvas.width = gridSize * TILE_SIZE;
+  canvas.height = gridSize * TILE_SIZE;
+
+  document.getElementById('match-info').textContent =
+    `Match #${matchData.match_id} — ${matchData.players.length} bots — ${matchData.duration_rounds} rounds`;
+
+  const scrubber = document.getElementById('scrubber');
+  scrubber.max = matchData.rounds.length - 1;
+  scrubber.value = 0;
+
+  // Build bot list
+  buildBotList();
+
+  // Render first frame
+  currentRound = 0;
+  renderRound(0);
+}
+
+function buildBotList() {
+  const container = document.getElementById('bot-list');
+  container.innerHTML = '';
+  matchData.players.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'bot-row';
+    row.id = `bot-${p.emoji}`;
+    row.innerHTML = `
+      <div class="bot-emoji">${p.emoji}</div>
+      <div class="bot-info">
+        <div class="bot-name">${p.name}</div>
+        <div class="hp-bar-wrap"><div class="hp-bar" id="hp-${p.emoji}" style="width:100%;background:var(--heal);"></div></div>
+        <div class="energy-bar-wrap"><div class="energy-bar" id="en-${p.emoji}" style="width:100%;"></div></div>
+      </div>
+      <div class="bot-hp-text" id="hptxt-${p.emoji}">100</div>
+    `;
+    container.appendChild(row);
+  });
+}
+
+function renderRound(idx) {
+  if (!matchData || idx < 0 || idx >= matchData.rounds.length) return;
+
+  const round = matchData.rounds[idx];
+  const gridSize = matchData.grid_size;
+  const stormBorder = round.storm_border;
+
+  // Clear
+  ctx.fillStyle = '#0d0d18';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Draw storm overlay
+  if (stormBorder > 0) {
+    ctx.fillStyle = 'rgba(80, 0, 140, 0.35)';
+    // Top strip
+    ctx.fillRect(0, 0, canvas.width, stormBorder * TILE_SIZE);
+    // Bottom strip
+    ctx.fillRect(0, (gridSize - stormBorder) * TILE_SIZE, canvas.width, stormBorder * TILE_SIZE);
+    // Left strip
+    ctx.fillRect(0, stormBorder * TILE_SIZE, stormBorder * TILE_SIZE, (gridSize - 2 * stormBorder) * TILE_SIZE);
+    // Right strip
+    ctx.fillRect((gridSize - stormBorder) * TILE_SIZE, stormBorder * TILE_SIZE, stormBorder * TILE_SIZE, (gridSize - 2 * stormBorder) * TILE_SIZE);
+
+    // Storm border line
+    ctx.strokeStyle = 'rgba(139, 0, 255, 0.6)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(
+      stormBorder * TILE_SIZE,
+      stormBorder * TILE_SIZE,
+      (gridSize - 2 * stormBorder) * TILE_SIZE,
+      (gridSize - 2 * stormBorder) * TILE_SIZE
+    );
+  }
+
+  // Draw grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= gridSize; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i * TILE_SIZE, 0);
+    ctx.lineTo(i * TILE_SIZE, canvas.height);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, i * TILE_SIZE);
+    ctx.lineTo(canvas.width, i * TILE_SIZE);
+    ctx.stroke();
+  }
+
+  // Draw bots
+  ctx.font = `${EMOJI_SIZE}px serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  round.positions.forEach(pos => {
+    const px = pos.x * TILE_SIZE + TILE_SIZE / 2;
+    const py = pos.y * TILE_SIZE + TILE_SIZE / 2;
+
+    if (!pos.alive) {
+      // Dead: show skull with reduced opacity
+      ctx.globalAlpha = 0.2;
+      ctx.fillText('💀', px, py - 2);
+      ctx.globalAlpha = 1;
+      return;
+    }
+
+    // Draw emoji
+    ctx.fillText(pos.emoji, px, py - 4);
+
+    // HP bar under emoji
+    const barWidth = TILE_SIZE - 8;
+    const barHeight = 3;
+    const barX = pos.x * TILE_SIZE + 4;
+    const barY = pos.y * TILE_SIZE + TILE_SIZE - 8;
+    const hpPct = Math.max(0, pos.hp / 100);
+
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(barX, barY, barWidth, barHeight);
+
+    const hpColor = hpPct > 0.5 ? '#00ff88' : hpPct > 0.25 ? '#ffaa00' : '#ff3e3e';
+    ctx.fillStyle = hpColor;
+    ctx.fillRect(barX, barY, barWidth * hpPct, barHeight);
+
+    // Action indicator
+    const action = pos.action;
+    if (action.startsWith('attack')) {
+      // Red flash around tile
+      ctx.strokeStyle = 'rgba(255, 62, 62, 0.5)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(pos.x * TILE_SIZE + 2, pos.y * TILE_SIZE + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+    } else if (action === 'defend') {
+      ctx.strokeStyle = 'rgba(68, 136, 255, 0.5)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(pos.x * TILE_SIZE + 2, pos.y * TILE_SIZE + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+    } else if (action === 'rest') {
+      ctx.strokeStyle = 'rgba(0, 255, 136, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(pos.x * TILE_SIZE + 2, pos.y * TILE_SIZE + 2, TILE_SIZE - 4, TILE_SIZE - 4);
+    }
+  });
+
+  // Draw hit effects
+  round.events.forEach(evt => {
+    if (evt.type === 'hit') {
+      // Find target position
+      const target = round.positions.find(p => p.emoji === evt.target);
+      if (target) {
+        ctx.fillStyle = `rgba(255, 62, 62, 0.3)`;
+        ctx.fillRect(target.x * TILE_SIZE, target.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+
+        // Damage number
+        ctx.font = '12px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#ff3e3e';
+        ctx.fillText(`-${evt.damage}`, target.x * TILE_SIZE + TILE_SIZE / 2, target.y * TILE_SIZE - 2);
+        ctx.font = `${EMOJI_SIZE}px serif`;
+      }
+    }
+  });
+
+  // Update sidebar
+  updateSidebar(round);
+
+  // Update controls
+  document.getElementById('round-display').textContent = `R${round.round}`;
+  document.getElementById('scrubber').value = idx;
+
+  // Add kill feed entries for this round
+  updateKillFeed(round);
+}
+
+function updateSidebar(round) {
+  round.positions.forEach(pos => {
+    const row = document.getElementById(`bot-${pos.emoji}`);
+    if (!row) return;
+
+    if (!pos.alive) {
+      row.classList.add('dead');
+    } else {
+      row.classList.remove('dead');
+    }
+
+    const hpBar = document.getElementById(`hp-${pos.emoji}`);
+    const enBar = document.getElementById(`en-${pos.emoji}`);
+    const hpTxt = document.getElementById(`hptxt-${pos.emoji}`);
+
+    if (hpBar) {
+      const pct = Math.max(0, pos.hp / 100) * 100;
+      hpBar.style.width = pct + '%';
+      hpBar.style.background = pct > 50 ? 'var(--heal)' : pct > 25 ? '#ffaa00' : 'var(--kill)';
+    }
+    if (enBar) {
+      enBar.style.width = Math.max(0, pos.energy / 100) * 100 + '%';
+    }
+    if (hpTxt) {
+      hpTxt.textContent = Math.max(0, pos.hp);
+    }
+  });
+}
+
+const shownKills = new Set();
+
+function updateKillFeed(round) {
+  const container = document.getElementById('kill-feed');
+
+  round.events.forEach(evt => {
+    if (evt.type === 'kill') {
+      const key = `${evt.round}-${evt.victim}`;
+      if (shownKills.has(key)) return;
+      shownKills.add(key);
+
+      const entry = document.createElement('div');
+      entry.className = 'kill-entry';
+      entry.innerHTML = `<span class="round-num">R${evt.round}</span> ${evt.attacker} → ${evt.victim}`;
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    }
+  });
+}
+
+function togglePlay() {
+  if (playing) {
+    stopPlay();
+  } else {
+    startPlay();
+  }
+}
+
+function startPlay() {
+  playing = true;
+  document.getElementById('play-btn').textContent = '⏸';
+  if (currentRound >= matchData.rounds.length - 1) {
+    currentRound = 0;
+    shownKills.clear();
+    document.getElementById('kill-feed').innerHTML = '';
+  }
+  playInterval = setInterval(() => {
+    currentRound++;
+    if (currentRound >= matchData.rounds.length) {
+      stopPlay();
+      showWinner();
+      return;
+    }
+    renderRound(currentRound);
+  }, 1000 / speed);
+}
+
+function stopPlay() {
+  playing = false;
+  document.getElementById('play-btn').textContent = '▶';
+  clearInterval(playInterval);
+}
+
+function setSpeed(s) {
+  speed = s;
+  document.querySelectorAll('.speed-btns button').forEach(b => b.classList.remove('active'));
+  document.getElementById(`sp${s}`).classList.add('active');
+  if (playing) {
+    clearInterval(playInterval);
+    playInterval = setInterval(() => {
+      currentRound++;
+      if (currentRound >= matchData.rounds.length) {
+        stopPlay();
+        showWinner();
+        return;
+      }
+      renderRound(currentRound);
+    }, 1000 / speed);
+  }
+}
+
+function scrubTo(val) {
+  const idx = parseInt(val);
+  currentRound = idx;
+  // Reset kill feed up to this point
+  shownKills.clear();
+  document.getElementById('kill-feed').innerHTML = '';
+  for (let i = 0; i <= idx; i++) {
+    updateKillFeed(matchData.rounds[i]);
+  }
+  renderRound(idx);
+}
+
+function showWinner() {
+  const winner = matchData.winner;
+  const player = matchData.players.find(p => p.emoji === winner);
+  document.getElementById('winner-emoji').textContent = winner;
+  document.getElementById('winner-name').textContent = player ? player.name : 'Unknown';
+  document.getElementById('winner-banner').style.display = 'flex';
+}
+
+function dismissWinner() {
+  document.getElementById('winner-banner').style.display = 'none';
+}
+
+// Auto-load from URL param
+window.addEventListener('load', () => {
+  const params = new URLSearchParams(window.location.search);
+  const matchFile = params.get('match');
+  if (matchFile) {
+    fetch(matchFile)
+      .then(r => r.json())
+      .then(data => { matchData = data; initViewer(); })
+      .catch(err => console.error('Failed to load match:', err));
+  }
+});
+</script>
+</body>
+</html>
