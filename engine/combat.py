@@ -20,6 +20,13 @@ REST_ENERGY_RESTORE = 20
 # Defend bonus
 DEFEND_BONUS = 10
 
+ACTION_COSTS = {
+    "move": MOVE_COST,
+    "attack": ATTACK_COST,
+    "defend": DEFEND_COST,
+    "rest": REST_COST,
+}
+
 # Storm damage
 STORM_DAMAGE = 10
 
@@ -30,11 +37,19 @@ MAX_ENERGY = 100
 # Failure tracking
 MAX_CONSECUTIVE_FAILURES = 3
 
+__all__ = [
+    "STARTING_HP", "STARTING_ENERGY", "STARTING_ATTACK_POWER", "STARTING_DEFENSE",
+    "MOVE_COST", "ATTACK_COST", "DEFEND_COST", "REST_COST", "ACTION_COSTS",
+    "REST_HEAL", "REST_ENERGY_RESTORE", "DEFEND_BONUS", "STORM_DAMAGE",
+    "MAX_HP", "MAX_ENERGY", "MAX_CONSECUTIVE_FAILURES",
+    "Bot", "calculate_damage", "resolve_deaths",
+]
+
 
 class Bot:
     """Runtime state for a bot in a match."""
 
-    def __init__(self, name: str, emoji: str, bio: str, author: str, decide_func, x: int, y: int):
+    def __init__(self, *, name: str, emoji: str, bio: str, author: str, decide_func, x: int, y: int):
         self.name = name
         self.emoji = emoji
         self.bio = bio
@@ -48,8 +63,6 @@ class Bot:
         self.defense = STARTING_DEFENSE
         self.alive = True
         self.consecutive_failures = 0
-        self.action = None  # Set each round
-
         # Stats tracking
         self.kills = 0
         self.damage_dealt = 0
@@ -60,20 +73,9 @@ class Bot:
         """Check if bot has enough energy for any action (move is cheapest at 5)."""
         return self.energy >= MOVE_COST
 
-    def force_rest(self):
-        """Force rest when out of energy."""
-        self.hp = min(MAX_HP, self.hp + REST_HEAL)
-        self.energy = min(MAX_ENERGY, self.energy + REST_ENERGY_RESTORE)
-
     def apply_action_cost(self, action_type: str):
         """Deduct energy for an action."""
-        costs = {
-            "move": MOVE_COST,
-            "attack": ATTACK_COST,
-            "defend": DEFEND_COST,
-            "rest": REST_COST,
-        }
-        self.energy -= costs.get(action_type, 0)
+        self.energy = max(0, self.energy - ACTION_COSTS.get(action_type, 0))
 
     def to_enemy_dict(self) -> dict:
         """Bot info visible to other bots."""

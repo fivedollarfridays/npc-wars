@@ -7,13 +7,18 @@ BOT_EMOJI = "🎲"
 BOT_BIO = "embrace the void"
 BOT_AUTHOR = "npcwars"
 
+# Bot-local RNG seeded per round for reproducibility
+_rng = random.Random()
+
 
 def decide(state):
+    # Seed from round + position for deterministic behavior per match state
+    _rng.seed(hash((state["round"], state["me"]["x"], state["me"]["y"])))
     directions = ["north", "south", "east", "west"]
     actions = [
-        ("move", random.choice(directions)),
-        ("attack", random.choice(directions)),
+        ("move", _rng.choice(directions)),
+        ("attack", _rng.choice(directions)),
         ("rest",),
         ("defend",),
     ]
-    return random.choice(actions)
+    return _rng.choice(actions)
