@@ -5,8 +5,8 @@
 ## Active Plan
 
 **Plan:** NPC Wars Full Build — 5 Sprints
-**Status:** Planned, ready for S1
-**Current Sprint:** S3 (Discord Bot)
+**Status:** S4 complete, ready for S5
+**Current Sprint:** S4 complete — ready to merge
 
 ## Plans Overview
 
@@ -81,6 +81,15 @@
 | T5.3 | Auto-publish CLI: render + upload in one command | 20 | feature | pending |
 
 ## What Was Just Done
+
+### Session: 2026-03-12 -- Sprint 4 /reviewing-code fixes
+
+- video/colors.py: added _FONT (shared cached font), HP threshold comment noting divergence from viewer/match.html
+- video_sprites/overlay/effects: now import _FONT from colors — single source
+- video_effects: removed dead constants (HIT_FLASH_COLOR was RGBA/mismatched, STORM_FLASH_COLOR/MISS_COLOR unused); added HIT_FLASH_OUTLINE (correct RGB); extracted _handle_flash_and_damage to eliminate _handle_attack/_handle_storm copy-paste
+- video_grid: replaced _is_storm_tile with engine.grid.is_in_storm; collapsed two draw calls per storm cell into one (fill+outline)
+- video_render.encode_frames: now streams frames one-at-a-time to ffmpeg stdin (no bytearray buffer, no O(n²) copies); added schema comment on bots/positions dual-key
+- 409 tests passing, ruff clean, arch check clean
 
 ### Session: 2026-03-12 -- Sprint 4 /simplify cleanup
 
