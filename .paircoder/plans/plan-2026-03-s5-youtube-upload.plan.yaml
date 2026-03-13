@@ -1,0 +1,10 @@
+id: plan-2026-03-s5-youtube-upload
+title: 'S5: YouTube Auto-Upload'
+type: feature
+status: planned
+created_at: '2026-03-12T20:07:06.617901'
+skills:
+- planning-with-pm
+goals:
+- Automate match video upload to YouTube
+- Complete the content machine flywheel

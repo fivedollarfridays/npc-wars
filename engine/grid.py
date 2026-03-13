@@ -3,6 +3,11 @@
 import math
 import random
 
+__all__ = [
+    "calculate_grid_size", "spawn_positions", "get_storm_border",
+    "is_in_storm", "is_valid_position", "DIRECTIONS", "apply_direction",
+]
+
 
 def calculate_grid_size(player_count: int) -> int:
     """Auto-calculate grid size from player count."""

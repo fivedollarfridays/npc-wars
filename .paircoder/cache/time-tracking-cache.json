@@ -1,0 +1,176 @@
+{
+  "T1.1": {
+    "entries": [
+      {
+        "id": "local-20260312201516",
+        "task_id": "T1.1",
+        "description": "T1.1: Test grid module: bounds, directions, storm border calc",
+        "start": "2026-03-12T20:15:16.958271",
+        "end": "2026-03-12T20:17:40.745479",
+        "duration_seconds": 143.787208,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 143.787208
+  },
+  "T1.2": {
+    "entries": [
+      {
+        "id": "local-20260312201853",
+        "task_id": "T1.2",
+        "description": "T1.2: Test combat module: Bot class, damage calc, death priority",
+        "start": "2026-03-12T20:18:53.056761",
+        "end": "2026-03-12T20:21:37.878534",
+        "duration_seconds": 164.821773,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 164.821773
+  },
+  "T1.3": {
+    "entries": [
+      {
+        "id": "local-20260312202142",
+        "task_id": "T1.3",
+        "description": "T1.3: Test state module: state dict builder",
+        "start": "2026-03-12T20:21:42.848946",
+        "end": "2026-03-12T20:22:21.334614",
+        "duration_seconds": 38.485668,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 38.485668
+  },
+  "T1.4": {
+    "entries": [
+      {
+        "id": "local-20260312202225",
+        "task_id": "T1.4",
+        "description": "T1.4: Test sandbox: action validation, timeout, failure tracking",
+        "start": "2026-03-12T20:22:25.710357",
+        "end": "2026-03-12T20:23:06.287035",
+        "duration_seconds": 40.576678,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 40.576678
+  },
+  "T1.5": {
+    "entries": [
+      {
+        "id": "local-20260312202312",
+        "task_id": "T1.5",
+        "description": "T1.5: Test loader: bot discovery, validation, error handling",
+        "start": "2026-03-12T20:23:12.492715",
+        "end": "2026-03-12T20:23:52.423990",
+        "duration_seconds": 39.931275,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 39.931275
+  },
+  "T1.6": {
+    "entries": [
+      {
+        "id": "local-20260312202402",
+        "task_id": "T1.6",
+        "description": "T1.6: Test match_writer: JSON output structure",
+        "start": "2026-03-12T20:24:02.822187",
+        "end": "2026-03-12T20:24:34.932408",
+        "duration_seconds": 32.110221,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 32.110221
+  },
+  "T1.7": {
+    "entries": [
+      {
+        "id": "local-20260312202440",
+        "task_id": "T1.7",
+        "description": "T1.7: Test game loop: full match end-to-end with seeded bots",
+        "start": "2026-03-12T20:24:40.709241",
+        "end": "2026-03-12T20:25:30.879507",
+        "duration_seconds": 50.170266,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 50.170266
+  },
+  "T1.8": {
+    "entries": [
+      {
+        "id": "local-20260312202536",
+        "task_id": "T1.8",
+        "description": "T1.8: Bug: fix Bot.force_rest dead code path",
+        "start": "2026-03-12T20:25:36.306680",
+        "end": "2026-03-12T20:26:36.497180",
+        "duration_seconds": 60.1905,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 60.1905
+  },
+  "T1.9": {
+    "entries": [
+      {
+        "id": "local-20260312202647",
+        "task_id": "T1.9",
+        "description": "T1.9: Bug: seed ChaosBot random for reproducibility",
+        "start": "2026-03-12T20:26:47.558548",
+        "end": "2026-03-12T20:27:49.044292",
+        "duration_seconds": 61.485744,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 61.485744
+  },
+  "T1.10": {
+    "entries": [
+      {
+        "id": "local-20260312202758",
+        "task_id": "T1.10",
+        "description": "T1.10: Bug: prevent energy going negative",
+        "start": "2026-03-12T20:27:58.536326",
+        "end": "2026-03-12T20:28:49.240530",
+        "duration_seconds": 50.704204,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 50.704204
+  },
+  "T1.11": {
+    "entries": [
+      {
+        "id": "local-20260312202857",
+        "task_id": "T1.11",
+        "description": "T1.11: Bug: add tiebreaker for 200-round cap draws",
+        "start": "2026-03-12T20:28:57.090727",
+        "end": "2026-03-12T20:30:01.870646",
+        "duration_seconds": 64.779919,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 64.779919
+  },
+  "T1.12": {
+    "entries": [
+      {
+        "id": "local-20260312203013",
+        "task_id": "T1.12",
+        "description": "T1.12: Bug: fix kill attribution to killing blow",
+        "start": "2026-03-12T20:30:13.518725",
+        "end": "2026-03-12T20:31:57.441921",
+        "duration_seconds": 103.923196,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 103.923196
+  },
+  "_active": {
+    "task_id": "T1.2",
+    "timer_id": "local-20260312204736",
+    "description": "T1.2: Test combat module: Bot class, damage calc, death priority",
+    "start": "2026-03-12T20:47:36.899917"
+  }
+}

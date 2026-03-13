@@ -1,0 +1,70 @@
+{
+  "task_types": {
+    "chore": {
+      "task_type": "chore",
+      "sample_count": 7,
+      "avg_tokens": 2261.4285714285716,
+      "std_dev": 1253.5182324895293,
+      "p80_tokens": 3316.890923184755,
+      "avg_duration_seconds": 67.28571428571428,
+      "success_rate": 1.0,
+      "recommended_model": "haiku",
+      "model": "aggregate",
+      "recommended_effort": "high",
+      "_m2_tokens": 10999155.714285715,
+      "_m2_duration": 35329.428571428565,
+      "estimation_mape": 3111.149350526047,
+      "estimation_sample_count": 7
+    },
+    "chore:claude-opus-4-6": {
+      "task_type": "chore",
+      "sample_count": 7,
+      "avg_tokens": 2261.4285714285716,
+      "std_dev": 1253.5182324895293,
+      "p80_tokens": 3316.890923184755,
+      "avg_duration_seconds": 67.28571428571428,
+      "success_rate": 1.0,
+      "recommended_model": "haiku",
+      "model": "claude-opus-4-6",
+      "recommended_effort": "high",
+      "_m2_tokens": 10999155.714285715,
+      "_m2_duration": 35329.428571428565,
+      "estimation_mape": 3111.149350526047,
+      "estimation_sample_count": 7
+    },
+    "bugfix": {
+      "task_type": "bugfix",
+      "sample_count": 3,
+      "avg_tokens": 1926.0,
+      "std_dev": 249.84128295113013,
+      "p80_tokens": 2136.3663602448514,
+      "avg_duration_seconds": 65.33333333333333,
+      "success_rate": 1.0,
+      "recommended_model": "haiku",
+      "model": "aggregate",
+      "recommended_effort": "high",
+      "_m2_tokens": 187262.0,
+      "_m2_duration": 92.66666666666663,
+      "estimation_mape": 1009.8223027510135,
+      "estimation_sample_count": 3
+    },
+    "bugfix:claude-opus-4-6": {
+      "task_type": "bugfix",
+      "sample_count": 3,
+      "avg_tokens": 1926.0,
+      "std_dev": 249.84128295113013,
+      "p80_tokens": 2136.3663602448514,
+      "avg_duration_seconds": 65.33333333333333,
+      "success_rate": 1.0,
+      "recommended_model": "haiku",
+      "model": "claude-opus-4-6",
+      "recommended_effort": "high",
+      "_m2_tokens": 187262.0,
+      "_m2_duration": 92.66666666666663,
+      "estimation_mape": 1009.8223027510135,
+      "estimation_sample_count": 3
+    }
+  },
+  "last_calibrated": "2026-03-13T01:28:49.245061+00:00",
+  "total_records": 10
+}

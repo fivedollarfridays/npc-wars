@@ -1,0 +1,10 @@
+id: plan-2026-03-s4-video-renderer
+title: 'S4: Video Renderer'
+type: feature
+status: planned
+created_at: '2026-03-12T20:07:05.496382'
+skills:
+- planning-with-pm
+goals:
+- 'Build match visualization pipeline: Pillow frames to ffmpeg MP4'
+- Grid rendering, bot sprites, storm effects, scoreboard overlay

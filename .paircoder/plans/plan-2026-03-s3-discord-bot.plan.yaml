@@ -1,0 +1,10 @@
+id: plan-2026-03-s3-discord-bot
+title: 'S3: Discord Bot'
+type: feature
+status: planned
+created_at: '2026-03-12T20:07:04.090824'
+skills:
+- planning-with-pm
+goals:
+- Build Discord bot for community interaction
+- Implement emoji claims, match announcements, results display

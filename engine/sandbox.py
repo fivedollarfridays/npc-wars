@@ -7,6 +7,11 @@ For production (community PRs), upgrade to subprocess isolation.
 import threading
 import traceback
 
+__all__ = [
+    "BotExecutionError", "execute_decide",
+    "VALID_DIRECTIONS", "VALID_ACTIONS", "validate_action",
+]
+
 
 class BotExecutionError(Exception):
     pass

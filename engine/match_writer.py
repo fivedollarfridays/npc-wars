@@ -4,6 +4,8 @@ import json
 import os
 from datetime import datetime, timezone
 
+__all__ = ["write_match", "build_match_data"]
+
 
 def write_match(match_data: dict, results_dir: str) -> str:
     """Write match data to a JSON file. Returns the filepath."""

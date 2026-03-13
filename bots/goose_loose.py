@@ -8,6 +8,33 @@ BOT_BIO = "the goose is loose"
 BOT_AUTHOR = "kmasty"
 
 
+def _attack_adjacent(dx, dy):
+    """Return attack action for an adjacent enemy, or None."""
+    if dx == 1:
+        return ("attack", "east")
+    if dx == -1:
+        return ("attack", "west")
+    if dy == 1:
+        return ("attack", "south")
+    if dy == -1:
+        return ("attack", "north")
+    return None
+
+
+def _apply_storm_pull(dx, dy, me, grid_size, storm_border):
+    """Adjust dx/dy toward center when near storm edge. Only overrides if pull is non-zero."""
+    center = grid_size // 2
+    cx_pull = center - me["x"]
+    cy_pull = center - me["y"]
+    if me["x"] < storm_border + 1 or me["x"] >= grid_size - storm_border - 1:
+        if cx_pull != 0:
+            dx = cx_pull
+    if me["y"] < storm_border + 1 or me["y"] >= grid_size - storm_border - 1:
+        if cy_pull != 0:
+            dy = cy_pull
+    return dx, dy
+
+
 def decide(state):
     me = state["me"]
     enemies = state["enemies"]
@@ -18,48 +45,27 @@ def decide(state):
         return ("rest",)
 
     # Find closest wounded enemy (prefer low HP targets)
-    def enemy_score(e):
-        dist = abs(e["x"] - me["x"]) + abs(e["y"] - me["y"])
-        return e["hp"] + dist * 5  # Prefer close + wounded
-
-    target = min(enemies, key=enemy_score)
+    target = min(enemies, key=lambda e: e["hp"] + (abs(e["x"] - me["x"]) + abs(e["y"] - me["y"])) * 5)
     dx = target["x"] - me["x"]
     dy = target["y"] - me["y"]
     dist = abs(dx) + abs(dy)
 
-    # If low energy, rest up
     if me["energy"] < 20:
         return ("rest",)
 
-    # If low HP and not cornered, defend
     if me["hp"] < 30 and dist <= 2:
         return ("defend",)
 
-    # If adjacent, attack
     if dist == 1:
-        if dx == 1:
-            return ("attack", "east")
-        elif dx == -1:
-            return ("attack", "west")
-        elif dy == 1:
-            return ("attack", "south")
-        elif dy == -1:
-            return ("attack", "north")
+        attack = _attack_adjacent(dx, dy)
+        if attack:
+            return attack
 
-    # Move toward target, but prefer staying near center to avoid storm
-    center = grid_size // 2
-    cx_pull = center - me["x"]
-    cy_pull = center - me["y"]
-
-    # If storm is active and we're near edge, prioritize moving to center
+    # Apply storm pull when storm is active
     if storm_border > 0:
-        if me["x"] < storm_border + 1 or me["x"] >= grid_size - storm_border - 1:
-            dx = cx_pull
-        if me["y"] < storm_border + 1 or me["y"] >= grid_size - storm_border - 1:
-            dy = cy_pull
+        dx, dy = _apply_storm_pull(dx, dy, me, grid_size, storm_border)
 
-    # Move toward target
+    # Move toward target (or center if storm-pulled)
     if abs(dx) >= abs(dy):
         return ("move", "east" if dx > 0 else "west")
-    else:
-        return ("move", "south" if dy > 0 else "north")
+    return ("move", "south" if dy > 0 else "north")
