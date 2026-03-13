@@ -52,10 +52,8 @@ def _main(argv: list[str] | None = None) -> int:
     try:
         from video.video_render import render_match_video
 
-        for i in range(1, rounds + 1):
-            print(f"  Frame {i}/{rounds}...", end="\r", flush=True)
         render_match_video(match_data, output_path, fps=args.fps)
-        print(f"\nDone: {output_path}")
+        print(f"Done: {output_path}")
         return 0
     except Exception as e:
         print(f"\nError: {e}", file=sys.stderr)

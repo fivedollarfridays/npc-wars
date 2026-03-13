@@ -9,6 +9,8 @@ STORM_FLASH_COLOR = (180, 60, 60, 100)  # storm tint
 DAMAGE_COLOR = (255, 220, 50)           # yellow damage text
 MISS_COLOR = (150, 150, 150)            # grey miss text
 
+_FONT = ImageFont.load_default()
+
 
 def _cell_rect(col: int, row: int, cell_size: int) -> tuple[int, int, int, int]:
     """Return (x0, y0, x1, y1) for a cell."""
@@ -41,8 +43,7 @@ def _draw_damage_number(
     """Draw damage number floating above the cell."""
     x = col * cell_size + cell_size // 2
     y = row * cell_size + cell_size // 4
-    font = ImageFont.load_default()
-    draw.text((x, y), f"-{damage}", fill=DAMAGE_COLOR, font=font, anchor="mm")
+    draw.text((x, y), f"-{damage}", fill=DAMAGE_COLOR, font=_FONT, anchor="mm")
 
 
 def render_effects(

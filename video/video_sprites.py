@@ -3,23 +3,14 @@
 from PIL import Image, ImageDraw, ImageFont
 from typing import Any
 
-# HP bar colors
-HP_HIGH = (50, 200, 50)    # green  -- hp >= 60
-HP_MID = (220, 180, 0)     # yellow -- hp 30-59
-HP_LOW = (200, 40, 40)     # red    -- hp < 30
+from video.colors import hp_color
+
 HP_BG = (40, 40, 40)       # bar background
 DEAD_FILL = (60, 60, 60)   # grey fill for dead bots
 DEAD_X_COLOR = (150, 150, 150)  # cross lines on dead bot
 LABEL_COLOR = (220, 220, 220)
 
-
-def _hp_color(hp: int) -> tuple[int, int, int]:
-    """Return HP bar fill color based on HP percentage."""
-    if hp >= 60:
-        return HP_HIGH
-    if hp >= 30:
-        return HP_MID
-    return HP_LOW
+_FONT = ImageFont.load_default()
 
 
 def _draw_hp_bar(
@@ -43,7 +34,7 @@ def _draw_hp_bar(
     if fill_w > 0:
         draw.rectangle(
             [x0 + 2, bar_y, x0 + 2 + fill_w, bar_y + bar_h],
-            fill=_hp_color(hp),
+            fill=hp_color(hp),
         )
 
 
@@ -55,10 +46,9 @@ def _draw_label(
     text: str,
 ) -> None:
     """Draw emoji/name label centered in cell."""
-    font = ImageFont.load_default()
     tx = x0 + cell_size // 2
     ty = y0 + cell_size // 3
-    draw.text((tx, ty), text, fill=LABEL_COLOR, font=font, anchor="mm")
+    draw.text((tx, ty), text, fill=LABEL_COLOR, font=_FONT, anchor="mm")
 
 
 def _draw_dead(

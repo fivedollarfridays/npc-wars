@@ -94,24 +94,21 @@ def encode_frames(
         "-preset", "fast",
         output_path,
     ]
-    proc = subprocess.Popen(
-        cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-    )
-
+    raw_frames = bytearray()
     for frame in frames:
-        # Pad frame if dimensions are odd
         if frame.size != (padded_w, padded_h):
             padded = Image.new("RGB", (padded_w, padded_h), (0, 0, 0))
             padded.paste(frame, (0, 0))
             frame = padded
-        proc.stdin.write(frame.tobytes())  # type: ignore[union-attr]
+        raw_frames += frame.tobytes()
 
-    proc.stdin.close()  # type: ignore[union-attr]
-    proc.wait()
+    proc = subprocess.Popen(
+        cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    )
+    _, stderr_data = proc.communicate(input=bytes(raw_frames))
 
     if proc.returncode != 0:
-        stderr = proc.stderr.read().decode() if proc.stderr else ""  # type: ignore[union-attr]
-        raise RuntimeError(f"ffmpeg failed: {stderr}")
+        raise RuntimeError(f"ffmpeg failed: {stderr_data.decode()}")
 
     return output_path
 

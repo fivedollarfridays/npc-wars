@@ -3,33 +3,24 @@
 from PIL import Image, ImageDraw, ImageFont
 from typing import Any
 
+from video.colors import hp_color
+
 SIDEBAR_WIDTH = 200
 SIDEBAR_BG = (20, 20, 28)
 TEXT_COLOR = (220, 220, 220)
 ACCENT_COLOR = (100, 160, 255)
 DEAD_COLOR = (80, 80, 80)
 KILL_COLOR = (255, 100, 100)
-HP_HIGH = (50, 200, 50)
-HP_MID = (220, 180, 0)
-HP_LOW = (200, 40, 40)
 SECTION_HEIGHT = 18
 
-
-def _hp_color(hp: int) -> tuple[int, int, int]:
-    """Return HP bar fill color based on HP value."""
-    if hp >= 60:
-        return HP_HIGH
-    if hp >= 30:
-        return HP_MID
-    return HP_LOW
+_FONT = ImageFont.load_default()
 
 
 def _draw_section_header(
     draw: ImageDraw.ImageDraw, x: int, y: int, text: str,
 ) -> int:
     """Draw a section header, return next y position."""
-    font = ImageFont.load_default()
-    draw.text((x + 4, y), text, fill=ACCENT_COLOR, font=font)
+    draw.text((x + 4, y), text, fill=ACCENT_COLOR, font=_FONT)
     return y + SECTION_HEIGHT
 
 
@@ -41,11 +32,10 @@ def _draw_bot_row(
     width: int,
 ) -> int:
     """Draw a single bot row with mini HP bar. Return next y."""
-    font = ImageFont.load_default()
     hp = bot.get("hp", 0)
     label = f"{bot.get('emoji', '?')} {bot['name'][:8]}"
     color = DEAD_COLOR if hp <= 0 else TEXT_COLOR
-    draw.text((x + 4, y), label, fill=color, font=font)
+    draw.text((x + 4, y), label, fill=color, font=_FONT)
     # Mini HP bar
     bar_w = width - 8
     bar_h = 3
@@ -57,7 +47,7 @@ def _draw_bot_row(
         fill = int(bar_w * hp / 100)
         draw.rectangle(
             [x + 4, bar_y, x + 4 + fill, bar_y + bar_h],
-            fill=_hp_color(hp),
+            fill=hp_color(hp),
         )
     return y + SECTION_HEIGHT
 
@@ -66,9 +56,8 @@ def _draw_kill_row(
     draw: ImageDraw.ImageDraw, x: int, y: int, kill: dict[str, Any],
 ) -> int:
     """Draw a kill feed entry. Return next y."""
-    font = ImageFont.load_default()
     text = f"{kill['killer']}\u2192{kill['victim']}"
-    draw.text((x + 4, y), text, fill=KILL_COLOR, font=font)
+    draw.text((x + 4, y), text, fill=KILL_COLOR, font=_FONT)
     return y + SECTION_HEIGHT
 
 
@@ -138,13 +127,12 @@ def render_overlay(
     y = 8
 
     # Round counter
-    font = ImageFont.load_default()
-    draw.text((sx + 4, y), f"Round {round_num}", fill=TEXT_COLOR, font=font)
+    draw.text((sx + 4, y), f"Round {round_num}", fill=TEXT_COLOR, font=_FONT)
     y += SECTION_HEIGHT
 
     # Alive count
     alive = sum(1 for b in bots if b.get("hp", 0) > 0)
-    draw.text((sx + 4, y), f"{alive} alive", fill=ACCENT_COLOR, font=font)
+    draw.text((sx + 4, y), f"{alive} alive", fill=ACCENT_COLOR, font=_FONT)
     y += SECTION_HEIGHT + 4
 
     y = _draw_bot_roster(draw, sx, y, bots, sidebar_width, gh - 4)
