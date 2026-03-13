@@ -17,6 +17,7 @@ class NpcWarsBot(discord.Client):
         super().__init__(intents=intents)
         self.config = config
         self.tree = discord.app_commands.CommandTree(self)
+        self.tree.on_error = self._on_tree_error  # type: ignore[method-assign]
 
     async def setup_hook(self) -> None:
         """Register commands and sync with Discord."""
@@ -28,10 +29,10 @@ class NpcWarsBot(discord.Client):
         """Log when the bot connects."""
         log.info("Logged in as %s", self.user)
 
-    async def on_command_error(
+    async def _on_tree_error(
         self, interaction: discord.Interaction, error: Exception
     ) -> None:
-        """Handle command errors by notifying the user."""
+        """Handle slash command errors by notifying the user."""
         msg = f"❌ Error: {error}"
         if not interaction.response.is_done():
             await interaction.response.send_message(msg, ephemeral=True)

@@ -23,14 +23,23 @@ def load_config() -> dict:
     if not guild_id_raw:
         raise ValueError("Missing required environment variable: GUILD_ID")
 
-    guild_id = int(guild_id_raw)
+    try:
+        guild_id = int(guild_id_raw)
+    except ValueError:
+        raise ValueError(f"GUILD_ID must be a numeric value, got: {guild_id_raw!r}")
 
     announcement_raw = os.environ.get("ANNOUNCEMENT_CHANNEL_ID")
     results_raw = os.environ.get("RESULTS_CHANNEL_ID")
 
+    def _parse_channel(name: str, value: str) -> int:
+        try:
+            return int(value)
+        except ValueError:
+            raise ValueError(f"{name} must be a numeric value, got: {value!r}")
+
     return {
         "bot_token": bot_token,
         "guild_id": guild_id,
-        "announcement_channel_id": int(announcement_raw) if announcement_raw else None,
-        "results_channel_id": int(results_raw) if results_raw else None,
+        "announcement_channel_id": _parse_channel("ANNOUNCEMENT_CHANNEL_ID", announcement_raw) if announcement_raw else None,
+        "results_channel_id": _parse_channel("RESULTS_CHANNEL_ID", results_raw) if results_raw else None,
     }

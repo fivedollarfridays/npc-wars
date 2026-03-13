@@ -7,6 +7,7 @@ __all__ = [
     "format_match_end",
     "format_results",
     "format_leaderboard",
+    "format_roster",
     "format_claim_response",
     "format_unclaim_response",
 ]
@@ -118,6 +119,20 @@ def format_leaderboard(
         "color": COLOR_BLUE,
         "fields": [],
         "footer": f"Page {page}/{total_pages}",
+    }
+
+
+def format_roster(claims: dict[str, str]) -> dict[str, Any]:
+    """Format emoji roster as a plain dict."""
+    if not claims:
+        description = "No emojis claimed yet."
+    else:
+        description = "\n".join(f"{emoji} -> <@{uid}>" for emoji, uid in claims.items())
+    return {
+        "title": "📋 Roster",
+        "description": description,
+        "color": COLOR_BLUE,
+        "fields": [],
     }
 
 

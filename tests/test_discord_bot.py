@@ -138,7 +138,7 @@ class TestHelpCommand:
             content = str(call_kwargs[0][0])
         if call_kwargs[1].get("embed"):
             emb = call_kwargs[1]["embed"]
-            content = emb.description or "" + " ".join(f.value for f in emb.fields)
+            content = (emb.description or "") + " ".join(f.value for f in emb.fields)
         assert "/ping" in content or "ping" in content.lower()
 
 
@@ -163,7 +163,7 @@ class TestStatusCommand:
 
 class TestErrorHandling:
     @pytest.mark.asyncio
-    async def test_on_command_error_sends_message(self):
+    async def test_on_tree_error_sends_message(self):
         from discord_bot.bot import NpcWarsBot
         cfg = {"bot_token": "t", "guild_id": 1,
                "announcement_channel_id": None, "results_channel_id": None}
@@ -173,5 +173,12 @@ class TestErrorHandling:
         interaction.response.send_message = AsyncMock()
         interaction.response.is_done = MagicMock(return_value=False)
         error = Exception("boom")
-        await bot.on_command_error(interaction, error)
+        await bot._on_tree_error(interaction, error)
         interaction.response.send_message.assert_called_once()
+
+    def test_tree_error_handler_is_wired(self):
+        from discord_bot.bot import NpcWarsBot
+        cfg = {"bot_token": "t", "guild_id": 1,
+               "announcement_channel_id": None, "results_channel_id": None}
+        bot = NpcWarsBot(cfg)
+        assert bot.tree.on_error == bot._on_tree_error

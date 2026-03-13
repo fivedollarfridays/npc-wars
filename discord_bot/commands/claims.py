@@ -5,11 +5,15 @@ from discord import app_commands
 
 from data.emoji_claims import claim_emoji, unclaim_emoji, get_claims
 from discord_bot.embeds import to_embed
-from discord_bot.formatters import format_claim_response, format_unclaim_response
+from discord_bot.formatters import format_claim_response, format_unclaim_response, format_roster
 
 
 def _sync_state(state: dict, new_state: dict) -> None:
-    """Sync state dict in-place: add new keys, remove deleted keys."""
+    """Sync state dict in-place: add new keys, remove deleted keys.
+
+    Note: safe from concurrency issues because asyncio is single-threaded and
+    claim_emoji/unclaim_emoji are synchronous — no await between read and write.
+    """
     for key in list(state.keys()):
         if key not in new_state:
             del state[key]
@@ -44,12 +48,7 @@ async def roster_callback(
     interaction: discord.Interaction, state: dict
 ) -> None:
     """Show all claimed emojis."""
-    claims = get_claims(state)
-    if not claims:
-        description = "No emojis claimed yet."
-    else:
-        description = "\n".join(f"{emoji} -> <@{uid}>" for emoji, uid in claims.items())
-    embed = discord.Embed(title="Roster", description=description, color=discord.Color.blue())
+    embed = to_embed(format_roster(get_claims(state)))
     await interaction.response.send_message(embed=embed)
 
 
