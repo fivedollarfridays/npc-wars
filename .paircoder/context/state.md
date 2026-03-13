@@ -5,8 +5,8 @@
 ## Active Plan
 
 **Plan:** NPC Wars Full Build — 5 Sprints
-**Status:** Planned, ready for S1
-**Current Sprint:** S1 (Engine Tests)
+**Status:** S4 complete, ready for S5
+**Current Sprint:** S4 complete — ready to merge
 
 ## Plans Overview
 
@@ -41,36 +41,36 @@
 
 | ID | Title | Cx | Type | Status |
 |----|-------|----|------|--------|
-| T2.1 | Create data/emoji_claims.py (CRUD, uniqueness) | 25 | feature | pending |
-| T2.2 | Create data/leaderboard.py (stats, rankings) | 30 | feature | pending |
-| T2.3 | Create data/match_history.py (index, query) | 25 | feature | pending |
-| T2.4 | Create scripts/validate_bot.py (CI validator) | 30 | feature | pending |
-| T2.5 | Add requirements.txt and pyproject.toml | 10 | chore | pending |
-| T2.6 | GitHub Actions CI: lint, test, coverage gate | 25 | feature | pending |
-| T2.7 | Bot submission PR template + validation workflow | 20 | feature | pending |
-| T2.8 | Add type hints to engine modules | 20 | refactor | pending |
+| T2.1 | Create data/emoji_claims.py (CRUD, uniqueness) | 25 | feature | done ✓ |
+| T2.2 | Create data/leaderboard.py (stats, rankings) | 30 | feature | done ✓ |
+| T2.3 | Create data/match_history.py (index, query) | 25 | feature | done ✓ |
+| T2.4 | Create scripts/validate_bot.py (CI validator) | 30 | feature | done ✓ |
+| T2.5 | Add requirements.txt and pyproject.toml | 10 | chore | done ✓ |
+| T2.6 | GitHub Actions CI: lint, test, coverage gate | 25 | feature | done ✓ |
+| T2.7 | Bot submission PR template + validation workflow | 20 | feature | done ✓ |
+| T2.8 | Add type hints to engine modules | 20 | refactor | done |
 
-### S3: Discord Bot (Pending)
+### S3: Discord Bot (Active)
 
 | ID | Title | Cx | Type | Status |
 |----|-------|----|------|--------|
-| T3.1 | Discord bot scaffold: connection, config, commands | 25 | feature | pending |
-| T3.2 | Emoji claim system: /claim, /unclaim, /roster | 30 | feature | pending |
-| T3.3 | Match announcements: auto-post start/end | 25 | feature | pending |
-| T3.4 | Results display: embed with stats, placements | 20 | feature | pending |
-| T3.5 | Leaderboard command: /leaderboard with pagination | 20 | feature | pending |
-| T3.6 | Message formatter module (testable, no Discord dep) | 25 | feature | pending |
+| T3.1 | Discord bot scaffold: connection, config, commands | 25 | feature | done ✓ |
+| T3.2 | Emoji claim system: /claim, /unclaim, /roster | 30 | feature | done ✓ |
+| T3.3 | Match announcements: auto-post start/end | 25 | feature | done ✓ |
+| T3.4 | Results display: embed with stats, placements | 20 | feature | done ✓ |
+| T3.5 | Leaderboard command: /leaderboard with pagination | 20 | feature | done ✓ |
+| T3.6 | Message formatter module (testable, no Discord dep) | 25 | feature | done ✓ |
 
 ### S4: Video Renderer (Pending)
 
 | ID | Title | Cx | Type | Status |
 |----|-------|----|------|--------|
-| T4.1 | Grid renderer: Pillow frame, cells, storm overlay | 35 | feature | pending |
-| T4.2 | Bot sprites: emoji, HP bars, name labels | 30 | feature | pending |
-| T4.3 | Combat effects: hit flash, death, damage numbers | 35 | feature | pending |
-| T4.4 | Scoreboard overlay: round counter, kill feed | 25 | feature | pending |
-| T4.5 | Video composer: ffmpeg frame-to-MP4 pipeline | 30 | feature | pending |
-| T4.6 | Match video CLI: render JSON to MP4 e2e | 25 | feature | pending |
+| T4.1 | Grid renderer: Pillow frame, cells, storm overlay | 35 | feature | done ✓ |
+| T4.2 | Bot sprites: emoji, HP bars, name labels | 30 | feature | done ✓ |
+| T4.3 | Combat effects: hit flash, death, damage numbers | 35 | feature | done ✓ |
+| T4.4 | Scoreboard overlay: round counter, kill feed | 25 | feature | done ✓ |
+| T4.5 | Video composer: ffmpeg frame-to-MP4 pipeline | 30 | feature | done ✓ |
+| T4.6 | Match video CLI: render JSON to MP4 e2e | 25 | feature | done ✓ |
 
 ### S5: YouTube Upload (Pending)
 
@@ -81,6 +81,162 @@
 | T5.3 | Auto-publish CLI: render + upload in one command | 20 | feature | pending |
 
 ## What Was Just Done
+
+### Session: 2026-03-12 -- Sprint 4 /reviewing-code fixes
+
+- video/colors.py: added _FONT (shared cached font), HP threshold comment noting divergence from viewer/match.html
+- video_sprites/overlay/effects: now import _FONT from colors — single source
+- video_effects: removed dead constants (HIT_FLASH_COLOR was RGBA/mismatched, STORM_FLASH_COLOR/MISS_COLOR unused); added HIT_FLASH_OUTLINE (correct RGB); extracted _handle_flash_and_damage to eliminate _handle_attack/_handle_storm copy-paste
+- video_grid: replaced _is_storm_tile with engine.grid.is_in_storm; collapsed two draw calls per storm cell into one (fill+outline)
+- video_render.encode_frames: now streams frames one-at-a-time to ffmpeg stdin (no bytearray buffer, no O(n²) copies); added schema comment on bots/positions dual-key
+- 409 tests passing, ruff clean, arch check clean
+
+### Session: 2026-03-12 -- Sprint 4 /simplify cleanup
+
+- Created video/colors.py: shared HP_HIGH/HP_MID/HP_LOW constants + hp_color() helper
+- video_sprites.py: imported hp_color from colors.py, removed duplicate constants + _hp_color(), cached font as module-level _FONT
+- video_overlay.py: same — removed duplicated HP constants/_hp_color(), cached _FONT at module level, inline font= locals eliminated
+- video_effects.py: cached ImageFont.load_default() as module-level _FONT (was called per-frame)
+- video_render.py encode_frames(): replaced proc.wait()+late-stderr-read deadlock pattern with communicate(input=all_bytes) — safe even if stderr fills pipe buffer
+- scripts/render_video.py: removed fake progress loop that ran and completed before render_match_video() was called
+- All 409 tests still pass, ruff clean, arch check clean
+
+- **T4.6 done** (auto-updated by hook)
+
+### Session: 2026-03-12 -- T4.6 Match Video CLI
+
+- Created scripts/render_video.py: argparse CLI with _parse_args(), _default_output(), _main()
+- Accepts match JSON path, optional --output and --fps flags
+- Default output: replaces .json with .mp4 (e.g. match_001.json -> match_001.mp4)
+- Error handling: missing file -> exit 1, invalid JSON -> exit 1, render failure -> exit 1
+- Created tests/test_render_video_cli.py: 6 tests via subprocess (produces mp4, default path, custom path, custom fps, missing input, invalid JSON)
+- All 409 tests pass, ruff clean, arch check clean
+- Sprint 4 (Video Renderer) plan now complete
+
+- **T4.5 done** (auto-updated by hook)
+
+### Session: 2026-03-12 -- T4.5 Video Composer
+
+- Created video/video_render.py: frames_from_match(), encode_frames(), render_match_video() pipeline
+- render_frame() composes grid + sprites + effects + overlay per round
+- encode_frames() pipes raw RGB frames to ffmpeg stdin (no temp files), outputs H.264 MP4
+- Handles both "bots" and "positions" keys in round data (real match JSON uses "positions")
+- H.264 even-dimension padding via _pad_even() helper
+- Created tests/test_video_render.py: 6 tests (frames list, count matches rounds, dimensions, creates file, nonzero file, e2e)
+- All 403 tests pass, ruff clean, arch check clean
+
+- **T4.4 done** (auto-updated by hook)
+
+- **T4.3 done** (auto-updated by hook)
+
+### Session: 2026-03-12 -- T4.3 Combat Effects
+
+- Created video/video_effects.py: render_effects() with _draw_hit_flash(), _draw_death_marker(), _draw_damage_number() helpers
+- Event handlers: _handle_attack (flash + damage number), _handle_death (red X), _handle_storm (flash + damage number)
+- Bot positions passed as dict mapping emoji -> (col, row) for cell lookup
+- Colors: pale yellow flash outline, red X for death, yellow damage text
+- Created tests/test_video_effects.py: 8 tests (returns image, hit flash, death marker, damage number, no events unchanged, multiple events same cell, storm damage, modifies in place)
+- All 389 tests pass, ruff clean, arch check clean
+
+- **T4.2 done** (auto-updated by hook)
+
+### Session: 2026-03-12 -- T4.2 Bot Sprite Renderer
+
+- Created video/video_sprites.py: render_bots() with _draw_hp_bar(), _draw_label(), _draw_dead() helpers
+- HP bar colors: green (hp>=60), yellow (hp 30-59), red (hp<30), grey background
+- Dead bots: grey fill + X cross lines, no HP bar or label
+- Labels: emoji or first 2 chars of name, centered in upper cell area
+- Created tests/test_video_sprites.py: 8 tests (2 basic, 1 position, 3 HP bar colors, 1 dead, 1 multiple)
+- All tests pass, ruff clean, arch check clean
+
+- **T4.1 done** (auto-updated by hook)
+
+### Session: 2026-03-12 -- T4.1 Grid Renderer
+
+- Created video/__init__.py (empty package marker)
+- Created video/video_grid.py: render_grid() with _is_storm_tile() and _draw_cells() helpers
+- Dark theme palette: safe=blue-grey (30,35,40), storm=dark-red (80,20,20), grid lines, outer border
+- Storm tiles determined by distance from nearest edge <= storm_border
+- Created tests/test_video_grid.py: 8 tests (4 basics, 4 storm overlay)
+- Added Pillow>=10.0 to pyproject.toml dev extras + video extras and requirements.txt
+- All 357 tests pass, ruff clean, arch check clean
+
+- **T3.6 done** (auto-updated by hook)
+
+### Session: 2026-03-12 -- T3.6 Pure Formatter Module
+
+- Created discord_bot/formatters.py: format_match_start, format_match_end, format_results, format_leaderboard, format_claim_response, format_unclaim_response
+- All functions return plain dicts with keys: title, description, color (hex int), fields, optional footer
+- Zero discord.py dependency -- verified by test_no_discord_import (blocks discord in sys.modules)
+- Created tests/test_formatters.py: 15 tests across 6 test classes
+- All 349 tests pass, ruff clean, arch check clean
+- Sprint 3 (Discord Bot) plan now complete
+
+- **T3.5 done** (auto-updated by hook)
+
+### Session: 2026-03-12 -- T3.5 /leaderboard Command
+
+- Created discord_bot/commands/leaderboard.py: build_leaderboard_embed, leaderboard_callback, register_commands
+- PAGE_SIZE=10 pagination with page clamping (out-of-range pages clamp to valid range)
+- Sort options: wins, kills, win_rate, avg_placement (as app_commands.Choice)
+- Callback accepts optional match_data_list for testability (no filesystem in tests)
+- Empty data path returns ephemeral "No match data available" message
+- Created tests/test_leaderboard_command.py: 8 tests (5 embed, 3 callback)
+- All tests pass, ruff clean, arch check clean
+
+- **T3.4 done** (auto-updated by hook)
+
+- **T3.3 done** (auto-updated by hook)
+
+### Session: 2026-03-12 -- T3.3 Match Announcements
+
+- Created discord_bot/announcements.py: build_match_start_embed, build_match_end_embed (sync), announce_match_start, announce_match_end (async)
+- Start embed: title with match_id, player emoji roster, competitor count, optional seed field
+- End embed: winner in description, duration rounds, last 3 eliminations as "Final Kills"
+- Pure formatting functions -- no Discord API calls needed for embed tests
+- Created tests/test_announcements.py: 9 tests (4 start embed, 2 end embed, 1 seed omission, 2 async send)
+- All 334 tests pass, ruff clean, arch check clean
+
+- **T3.2 done** (auto-updated by hook)
+
+### Session: 2026-03-12 -- T3.2 /claim /unclaim /roster Commands
+
+- Created discord_bot/commands/claims.py: claim_callback, unclaim_callback, roster_callback, register_commands
+- Callbacks accept injected state dict for testability (no file I/O in tests)
+- unclaim_callback syncs state dict in-place (deletes removed keys)
+- roster_callback lists all claims as "emoji -> @user" lines
+- register_commands wraps callbacks in @tree.command decorators with guild binding
+- Created tests/test_claims_commands.py: 9 tests across 4 test classes
+- All tests pass, ruff clean, arch check clean
+
+- **T3.1 done** (auto-updated by hook)
+
+### Session: 2026-03-12 -- T3.1 Discord Bot Scaffold
+
+- Created discord_bot/config.py: load_config() reads BOT_TOKEN, GUILD_ID (required), ANNOUNCEMENT_CHANNEL_ID, RESULTS_CHANNEL_ID (optional) from env vars
+- Created discord_bot/bot.py: NpcWarsBot(discord.Client) with CommandTree, setup_hook, on_ready, on_command_error
+- Created discord_bot/commands/general.py: ping_callback, help_callback (embed), status_callback, register_commands
+- Fixed unused imports in tests/test_discord_bot.py (ruff clean)
+- Added discord.py>=2.3 and pytest-asyncio>=0.23 to pyproject.toml and requirements.txt
+- 17 tests pass, arch check clean, ruff clean
+
+- **T2.8 done** (auto-updated by hook)
+
+- **T2.8 done**: Added type hints to all 8 engine modules so `mypy engine/ --strict` passes with 0 errors. Created `engine/types.py` with shared TypedDicts. No runtime behavior changes.
+
+- **T2.7 done** (auto-updated by hook)
+
+- **T2.6 done** (auto-updated by hook)
+
+- **T2.5 done** (auto-updated by hook)
+
+- **T2.4 done** (auto-updated by hook)
+
+- **T2.3 done** (auto-updated by hook)
+
+- **T2.2 done** (auto-updated by hook)
+
+- **T2.1 done** (auto-updated by hook)
 
 ### Session: 2026-03-12 -- Consider Fixes 12-15
 
@@ -208,13 +364,32 @@
 - Sprint 1 (engine tests) set as active sprint
 - Explored full codebase: 804 LOC engine, 5 example bots, web viewer, zero tests
 - Identified 5 bugs to fix in S1: dead code, unseeded random, negative energy, no tiebreaker, kill attribution
+- T2.1: Created data/emoji_claims.py with claim/unclaim/query/persistence CRUD. 21 tests, all passing.
+- T2.2: Created data/leaderboard.py with aggregate_stats, get_rankings, get_bot_stats, load_match. 22 tests passing.
+- T2.3: Created data/match_history.py with index, pagination, and filtering. 17 tests.
+- T2.4: Created scripts/validate_bot.py with syntax/attr/sandbox/timeout validation. CLI exits 0/1. 14 tests.
+- T2.5: Added pyproject.toml and requirements.txt. ruff check . passes clean, 269 tests.
+- T2.6: Added .github/workflows/ci.yml with lint, test+coverage gate, bot-validate jobs. 11 YAML tests.
+- T2.7: PR template, validate-bot.yml workflow, CONTRIBUTING.md. 16 tests.
+- T2.8: added type hints to all engine modules (engine/types.py + 8 annotated files), mypy --strict passes with 0 errors, all tests green
+- T3.1: Discord bot scaffold complete — NpcWarsBot class, config from env, /ping /help /status commands, error handler, all tests pass
+- T3.2: /claim /unclaim /roster commands implemented, 9 tests pass
+- T3.3: match start/end announcement embeds, announce_match_start/end async functions, 9 tests pass
+- T3.4: /results command with build_results_embed, placements, winner, 7+ tests pass
+- T3.5: /leaderboard command with pagination, sort options, 8 tests pass
+- T3.6: discord_bot/formatters.py with pure format functions, no discord dep, 15 tests pass
+- T4.1: video/video_grid.py render_grid() with storm overlay, 8 tests pass
+- T4.2: video/video_sprites.py render_bots() with HP bars, labels, dead overlay, 8 tests pass
+- T4.3: video/video_effects.py render_effects() with hit flash, death marker, damage numbers, 8 tests pass
+- T4.4: video/video_overlay.py render_overlay() with scoreboard sidebar, round counter, kill feed, 8 tests pass
+- T4.5: video/video_render.py render_match_video() frames->MP4 via ffmpeg pipe, 6 tests pass
+- T4.6: scripts/render_video.py CLI for match JSON -> MP4, 6 tests pass, Sprint 4 complete
+
 
 ## What's Next
 
-1. **S1 COMPLETE** — all 12 tasks done, 166 tests passing
-2. Next: S2 (Data + CI) starting with T2.5 (pyproject.toml) → T2.1–T2.4 → T2.6–T2.8
-3. Note: game.py run_match() exceeds 50-line function limit — needs decomposition in a future refactor
-4. Run `/start-task T2.5` to begin S2
+1. Sprint 5: YouTube Upload (T5.1–T5.3) after Sprint 4 PR merged
+
 
 ## Blockers
 
