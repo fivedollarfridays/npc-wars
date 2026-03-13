@@ -1,0 +1,52 @@
+name: Validate Bot Submission
+
+"on":
+  pull_request:
+    paths:
+      - "bots/**"
+
+jobs:
+  validate:
+    name: Validate submitted bot(s)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
+      - name: Install dependencies
+        run: pip install -e "."
+
+      - name: Find changed bot files
+        id: changed
+        run: |
+          BOTS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'bots/*.py' \
+            | grep -v 'template\.py' | grep -v '^_' || true)
+          echo "bots=$BOTS" >> "$GITHUB_OUTPUT"
+          echo "Changed bots: $BOTS"
+
+      - name: Validate each changed bot
+        run: |
+          BOTS="${{ steps.changed.outputs.bots }}"
+          if [ -z "$BOTS" ]; then
+            echo "No new/modified bot files detected."
+            exit 0
+          fi
+          FAILED=0
+          for bot in $BOTS; do
+            echo "--- Validating $bot ---"
+            python scripts/validate_bot.py "$bot" || FAILED=1
+          done
+          exit $FAILED
