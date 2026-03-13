@@ -11,16 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from engine.loader import load_bots
 from engine.game import run_match
 from engine.match_writer import write_match
-
-
-def get_next_match_id(results_dir):
-    if not os.path.exists(results_dir):
-        return 1
-    files = [f for f in os.listdir(results_dir) if f.startswith("match_") and f.endswith(".json")]
-    if not files:
-        return 1
-    ids = [int(f.replace("match_", "").replace(".json", "")) for f in files]
-    return max(ids) + 1
+from data.match_history import next_match_id
 
 
 def _print_match_result(match_data: dict, filepath: str, viewer_match: str) -> None:
@@ -54,7 +45,7 @@ def main() -> None:
     viewer_dir = os.path.join(project_dir, "viewer")
 
     seed = int(sys.argv[1]) if len(sys.argv) > 1 else None
-    match_id = get_next_match_id(results_dir)
+    match_id = next_match_id(results_dir)
 
     print("🎮 NPC Wars — Loading bots...")
     bot_configs = load_bots(bots_dir)

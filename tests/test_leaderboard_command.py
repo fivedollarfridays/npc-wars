@@ -2,7 +2,7 @@
 
 import discord
 import pytest
-from unittest.mock import AsyncMock, MagicMock
+from tests.conftest import make_mock_interaction
 
 # ---------------------------------------------------------------------------
 # Fixtures
@@ -40,14 +40,6 @@ MATCH_DATA = {
         "\U0001fab3": {"kills": 8, "damage_dealt": 280, "damage_taken": 320},
     },
 }
-
-
-def _make_interaction() -> MagicMock:
-    """Create a mock Discord interaction."""
-    interaction = MagicMock(spec=discord.Interaction)
-    interaction.response = MagicMock()
-    interaction.response.send_message = AsyncMock()
-    return interaction
 
 
 def _many_rankings(n: int) -> list[dict]:
@@ -135,7 +127,7 @@ class TestLeaderboardCallback:
         """Empty match_data_list -> 'No match data' response."""
         from discord_bot.commands.leaderboard import leaderboard_callback
 
-        interaction = _make_interaction()
+        interaction = make_mock_interaction()
         await leaderboard_callback(
             interaction, "/fake/results", match_data_list=[],
         )
@@ -147,7 +139,7 @@ class TestLeaderboardCallback:
         """Default sort (wins) sends an embed with rankings."""
         from discord_bot.commands.leaderboard import leaderboard_callback
 
-        interaction = _make_interaction()
+        interaction = make_mock_interaction()
         await leaderboard_callback(
             interaction, "/fake/results",
             match_data_list=[MATCH_DATA],
@@ -164,7 +156,7 @@ class TestLeaderboardCallback:
         """sort_by='kills' works and title reflects it."""
         from discord_bot.commands.leaderboard import leaderboard_callback
 
-        interaction = _make_interaction()
+        interaction = make_mock_interaction()
         await leaderboard_callback(
             interaction, "/fake/results",
             sort_by="kills",

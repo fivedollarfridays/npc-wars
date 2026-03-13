@@ -1,5 +1,8 @@
 """Tests for youtube/upload.py — metadata generation and video upload pipeline."""
 
+import os
+
+import pytest
 from unittest.mock import MagicMock, patch
 
 SAMPLE_MATCH = {
@@ -228,3 +231,63 @@ class TestUploadVideo:
 
         _, kwargs = mock_media.call_args
         assert kwargs.get("resumable") is True
+
+
+# ---------------------------------------------------------------------------
+# Path traversal guard
+# ---------------------------------------------------------------------------
+
+
+class TestPathTraversalGuard:
+    def test_video_path_traversal_raises(self, tmp_path):
+        """Path traversal in video_path raises ValueError."""
+        from youtube.upload import extract_thumbnail
+
+        video = str(tmp_path / "../../etc/passwd")
+        thumb = str(tmp_path / "thumb.jpg")
+        with pytest.raises(ValueError, match="traversal"):
+            extract_thumbnail(video, thumb, base_dir=str(tmp_path))
+
+    def test_output_path_traversal_raises(self, tmp_path):
+        """Path traversal in output_path raises ValueError."""
+        from youtube.upload import extract_thumbnail
+
+        video = str(tmp_path / "match.mp4")
+        thumb = str(tmp_path / "../../tmp/evil.jpg")
+        with pytest.raises(ValueError, match="traversal"):
+            extract_thumbnail(video, thumb, base_dir=str(tmp_path))
+
+    def test_valid_paths_pass(self, tmp_path):
+        """Paths within base_dir are accepted."""
+        from youtube.upload import extract_thumbnail
+
+        video = str(tmp_path / "match.mp4")
+        thumb = str(tmp_path / "thumb.jpg")
+
+        with patch("youtube.upload.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0)
+            result = extract_thumbnail(video, thumb, base_dir=str(tmp_path))
+        assert result == thumb
+
+    def test_no_base_dir_skips_validation(self, tmp_path):
+        """When base_dir is None (default), no traversal check is done."""
+        from youtube.upload import extract_thumbnail
+
+        with patch("youtube.upload.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0)
+            result = extract_thumbnail("/any/video.mp4", "/any/thumb.jpg")
+        assert result == "/any/thumb.jpg"
+
+    def test_symlink_traversal_blocked(self, tmp_path):
+        """Symlinks that escape base_dir are blocked."""
+        from youtube.upload import extract_thumbnail
+
+        link = tmp_path / "evil_link.mp4"
+        try:
+            os.symlink("/etc/passwd", str(link))
+        except OSError:
+            pytest.skip("Cannot create symlinks")
+
+        thumb = str(tmp_path / "thumb.jpg")
+        with pytest.raises(ValueError, match="traversal"):
+            extract_thumbnail(str(link), thumb, base_dir=str(tmp_path))

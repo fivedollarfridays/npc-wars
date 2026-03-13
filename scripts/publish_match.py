@@ -10,14 +10,14 @@ import argparse
 import json
 import os
 import sys
+from pathlib import Path
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, _PROJECT_ROOT)
 
 from video.video_render import render_match_video
 from youtube.auth import authenticate, get_youtube_service
 from youtube.upload import upload_video
-
-_PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _DEFAULT_SECRETS = os.path.join(_PROJECT_ROOT, "youtube", "client_secrets.json")
 _DEFAULT_TOKEN = os.path.join(_PROJECT_ROOT, "youtube", "token.json")
 
@@ -53,14 +53,14 @@ def _upload(match_data: dict, video_path: str, privacy: str, secrets: str, token
 
 def _main(argv: list[str] | None = None) -> int:
     args = _parse_args(argv)
-
-    if not os.path.exists(args.match_json):
-        print(f"Error: file not found: {args.match_json}", file=sys.stderr)
-        return 1
+    args.match_json = str(Path(args.match_json).resolve())
 
     try:
         with open(args.match_json) as f:
             match_data = json.load(f)
+    except FileNotFoundError:
+        print(f"Error: file not found: {args.match_json}", file=sys.stderr)
+        return 1
     except json.JSONDecodeError as e:
         print(f"Error: invalid JSON in {args.match_json}: {e}", file=sys.stderr)
         return 1
@@ -79,12 +79,12 @@ def _main(argv: list[str] | None = None) -> int:
     except Exception as e:
         print(f"Error uploading video: {e}", file=sys.stderr)
         return 1
-    finally:
-        if not args.keep:
-            try:
-                os.remove(video_path)
-            except FileNotFoundError:
-                pass
+
+    if not args.keep:
+        try:
+            os.remove(video_path)
+        except FileNotFoundError:
+            pass
 
     print(f"Uploaded: https://youtu.be/{video_id}")
     return 0

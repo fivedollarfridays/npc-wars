@@ -7,7 +7,10 @@ from engine.combat import Bot
 __all__ = ["build_state"]
 
 
-def build_state(bot: Bot, all_bots: list[Bot], round_num: int, grid_size: int, storm_border: int) -> dict[str, Any]:
+def build_state(
+    bot: Bot, all_bots: list[Bot], round_num: int, grid_size: int,
+    storm_border: int, bumps_last_round: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     """Build the state dict for a specific bot."""
     enemies = [
         b.to_enemy_dict()
@@ -21,4 +24,5 @@ def build_state(bot: Bot, all_bots: list[Bot], round_num: int, grid_size: int, s
         "round": round_num,
         "grid_size": grid_size,
         "storm_border": storm_border,
+        "bumps_last_round": bumps_last_round or [],
     }

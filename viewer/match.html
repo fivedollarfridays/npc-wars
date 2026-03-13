@@ -331,6 +331,21 @@
     font-size: 13px;
     cursor: pointer;
   }
+
+  @keyframes wallSplat {
+    0% { background-color: rgba(255, 0, 0, 0.6); }
+    100% { background-color: transparent; }
+  }
+
+  @keyframes stormBounce {
+    0% { background-color: rgba(128, 0, 255, 0.6); }
+    100% { background-color: transparent; }
+  }
+
+  @keyframes bumpArrow {
+    0% { opacity: 1; transform: scale(1.2); }
+    100% { opacity: 0; transform: scale(0.8); }
+  }
 </style>
 </head>
 <body>
@@ -399,6 +414,16 @@ let speed = 1;
 const TILE_SIZE = 48;
 const EMOJI_SIZE = 32;
 
+function sanitize(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function validateMatchPath(path) {
+  return /^results\/match_\d{3,}\.json$/.test(path);
+}
+
 // Canvas refs
 let canvas, ctx;
 
@@ -421,14 +446,17 @@ function loadDemo() {
   // Check if there's a match file in the URL params
   const params = new URLSearchParams(window.location.search);
   const matchFile = params.get('match');
-  if (matchFile) {
+  if (matchFile && validateMatchPath(matchFile)) {
     fetch(matchFile)
       .then(r => r.json())
       .then(data => { matchData = data; initViewer(); })
       .catch(() => alert('Could not load match file'));
     return;
+  } else if (matchFile) {
+    alert('Invalid match file path');
+    return;
   }
-  alert('No demo match available. Load a JSON file or pass ?match=path/to/match.json');
+  alert('No demo match available. Load a JSON file or pass ?match=results/match_001.json');
 }
 
 function initViewer() {
@@ -465,9 +493,9 @@ function buildBotList() {
     row.className = 'bot-row';
     row.id = `bot-${p.emoji}`;
     row.innerHTML = `
-      <div class="bot-emoji">${p.emoji}</div>
+      <div class="bot-emoji">${sanitize(p.emoji)}</div>
       <div class="bot-info">
-        <div class="bot-name">${p.name}</div>
+        <div class="bot-name">${sanitize(p.name)}</div>
         <div class="hp-bar-wrap"><div class="hp-bar" id="hp-${p.emoji}" style="width:100%;background:var(--heal);"></div></div>
         <div class="energy-bar-wrap"><div class="energy-bar" id="en-${p.emoji}" style="width:100%;"></div></div>
       </div>
@@ -475,6 +503,14 @@ function buildBotList() {
     `;
     container.appendChild(row);
   });
+}
+
+function directionArrow(dirStr) {
+  const arrows = {
+    '(1,0)': '→', '(-1,0)': '←', '(0,-1)': '↑', '(0,1)': '↓',
+    '(1,-1)': '↗', '(1,1)': '↘', '(-1,1)': '↙', '(-1,-1)': '↖',
+  };
+  return arrows[dirStr] || '•';
 }
 
 function renderRound(idx) {
@@ -577,7 +613,7 @@ function renderRound(idx) {
     }
   });
 
-  // Draw hit effects
+  // Draw hit and bump effects
   round.events.forEach(evt => {
     if (evt.type === 'hit') {
       // Find target position
@@ -589,6 +625,35 @@ function renderRound(idx) {
         // Damage number
         ctx.font = '12px "JetBrains Mono", monospace';
         ctx.fillStyle = '#ff3e3e';
+        ctx.fillText(`-${evt.damage}`, target.x * TILE_SIZE + TILE_SIZE / 2, target.y * TILE_SIZE - 2);
+        ctx.font = `${EMOJI_SIZE}px serif`;
+      }
+    } else if (evt.type === 'bump') {
+      const target = round.positions.find(p => p.emoji === evt.target);
+      if (target) {
+        const arrow = directionArrow(evt.direction);
+        ctx.font = '20px serif';
+        ctx.fillStyle = 'rgba(255, 165, 0, 0.9)';
+        ctx.fillText(arrow, target.x * TILE_SIZE + TILE_SIZE / 2, target.y * TILE_SIZE + TILE_SIZE / 2);
+        ctx.font = `${EMOJI_SIZE}px serif`;
+      }
+    } else if (evt.type === 'wall_splat') {
+      const target = round.positions.find(p => p.emoji === evt.target);
+      if (target) {
+        ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+        ctx.fillRect(target.x * TILE_SIZE, target.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        ctx.font = '12px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#ff3e3e';
+        ctx.fillText(`-${evt.damage}`, target.x * TILE_SIZE + TILE_SIZE / 2, target.y * TILE_SIZE - 2);
+        ctx.font = `${EMOJI_SIZE}px serif`;
+      }
+    } else if (evt.type === 'storm_bounce') {
+      const target = round.positions.find(p => p.emoji === evt.target);
+      if (target) {
+        ctx.fillStyle = 'rgba(128, 0, 255, 0.5)';
+        ctx.fillRect(target.x * TILE_SIZE, target.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        ctx.font = '12px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#aa44ff';
         ctx.fillText(`-${evt.damage}`, target.x * TILE_SIZE + TILE_SIZE / 2, target.y * TILE_SIZE - 2);
         ctx.font = `${EMOJI_SIZE}px serif`;
       }
@@ -639,6 +704,7 @@ const shownKills = new Set();
 
 function updateKillFeed(round) {
   const container = document.getElementById('kill-feed');
+  const rn = round.round;
 
   round.events.forEach(evt => {
     if (evt.type === 'kill') {
@@ -648,7 +714,49 @@ function updateKillFeed(round) {
 
       const entry = document.createElement('div');
       entry.className = 'kill-entry';
-      entry.innerHTML = `<span class="round-num">R${evt.round}</span> ${evt.attacker} → ${evt.victim}`;
+      entry.innerHTML = `<span class="round-num">R${evt.round}</span> ${sanitize(evt.attacker)} \u2192 ${sanitize(evt.victim)}`;
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    } else if (evt.type === 'bump') {
+      const key = `bump-${rn}-${evt.pusher}-${evt.target}`;
+      if (shownKills.has(key)) return;
+      shownKills.add(key);
+
+      const entry = document.createElement('div');
+      entry.className = 'kill-entry';
+      const span = document.createElement('span');
+      span.className = 'round-num';
+      span.textContent = 'R' + rn;
+      entry.appendChild(span);
+      entry.appendChild(document.createTextNode(' ' + evt.pusher + ' bumped ' + evt.target));
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    } else if (evt.type === 'wall_splat') {
+      const key = `wsplat-${rn}-${evt.target}`;
+      if (shownKills.has(key)) return;
+      shownKills.add(key);
+
+      const entry = document.createElement('div');
+      entry.className = 'kill-entry';
+      const span = document.createElement('span');
+      span.className = 'round-num';
+      span.textContent = 'R' + rn;
+      entry.appendChild(span);
+      entry.appendChild(document.createTextNode(' ' + evt.target + ' wall splat! (-' + evt.damage + ' HP)'));
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    } else if (evt.type === 'storm_bounce') {
+      const key = `sbounce-${rn}-${evt.target}`;
+      if (shownKills.has(key)) return;
+      shownKills.add(key);
+
+      const entry = document.createElement('div');
+      entry.className = 'kill-entry';
+      const span = document.createElement('span');
+      span.className = 'round-num';
+      span.textContent = 'R' + rn;
+      entry.appendChild(span);
+      entry.appendChild(document.createTextNode(' ' + evt.target + ' bounced into storm! (-' + evt.damage + ' HP)'));
       container.appendChild(entry);
       container.scrollTop = container.scrollHeight;
     }
@@ -734,7 +842,7 @@ function dismissWinner() {
 window.addEventListener('load', () => {
   const params = new URLSearchParams(window.location.search);
   const matchFile = params.get('match');
-  if (matchFile) {
+  if (matchFile && validateMatchPath(matchFile)) {
     fetch(matchFile)
       .then(r => r.json())
       .then(data => { matchData = data; initViewer(); })

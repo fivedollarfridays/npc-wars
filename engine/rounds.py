@@ -6,8 +6,9 @@ from typing import Any
 from engine.combat import (
     Bot, STORM_DAMAGE, REST_HEAL, REST_ENERGY_RESTORE, DEFEND_BONUS,
     MAX_HP, MAX_ENERGY, MAX_CONSECUTIVE_FAILURES, STARTING_DEFENSE,
-    calculate_damage,
+    KILL_BOUNTY_ENERGY, calculate_damage,
 )
+from engine.bumpers import resolve_bumps
 from engine.grid import is_in_storm, is_valid_position, apply_direction
 from engine.state import build_state
 from engine.sandbox import execute_decide, validate_action
@@ -26,6 +27,7 @@ _Event = dict[str, Any]
 def resolve_decisions(
     alive_bots: list[Bot], bots: list[Bot], round_num: int,
     grid_size: int, storm_border: int,
+    bumps_last_round: list[_Event] | None = None,
 ) -> tuple[_ActionsMap, set[str]]:
     """Phase 1: All bots decide their action. Returns (actions, forced_rest)."""
     actions: _ActionsMap = {}
@@ -37,7 +39,8 @@ def resolve_decisions(
             bot.consecutive_failures = 0
             continue
 
-        state = build_state(bot, bots, round_num, grid_size, storm_border)
+        state = build_state(bot, bots, round_num, grid_size, storm_border,
+                            bumps_last_round=bumps_last_round)
         raw_action = execute_decide(bot.decide_func, state)
         action = validate_action(raw_action)
 
@@ -63,15 +66,27 @@ def resolve_defense(alive_bots: list[Bot], actions: _ActionsMap) -> None:
             bot.defense = DEFEND_BONUS
 
 
-def resolve_movement(alive_bots: list[Bot], actions: _ActionsMap, grid_size: int) -> None:
-    """Phase 3: Apply move actions."""
+def resolve_movement(
+    alive_bots: list[Bot], actions: _ActionsMap, grid_size: int,
+    all_bots: list[Bot] | None = None, storm_border: int = 0,
+) -> list[_Event]:
+    """Phase 3: Apply move actions and resolve bump collisions."""
+    movers: list[tuple[Bot, int, int]] = []
     for bot in alive_bots:
         action = actions.get(bot.emoji)
         if action and action[0] == "move":
             new_x, new_y = apply_direction(bot.x, bot.y, action[1])
             if is_valid_position(new_x, new_y, grid_size):
-                bot.x = new_x
-                bot.y = new_y
+                movers.append((bot, new_x, new_y))
+
+    bump_events, blocked = resolve_bumps(movers, all_bots or alive_bots, grid_size, storm_border)
+
+    for bot, new_x, new_y in movers:
+        if bot.emoji not in blocked:
+            bot.x = new_x
+            bot.y = new_y
+
+    return bump_events
 
 
 def resolve_attacks(alive_bots: list[Bot], actions: _ActionsMap) -> list[_Event]:
@@ -161,6 +176,7 @@ def attribute_kills(
             for b in bots:
                 if b.emoji == killer_emoji:
                     b.kills += 1
+                    b.energy = min(b.energy + KILL_BOUNTY_ENERGY, MAX_ENERGY)
         round_events.append({"type": "kill", "attacker": killer_emoji or "unknown",
                              "victim": elim["emoji"], "round": round_num})
 

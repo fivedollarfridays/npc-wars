@@ -3,6 +3,7 @@
 import json
 import os
 import sys
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -235,3 +236,68 @@ class TestMainErrors:
             rc = _main([match_path])
 
         assert rc == 1
+
+
+# ---------------------------------------------------------------------------
+# Path canonicalization
+# ---------------------------------------------------------------------------
+
+
+class TestPathCanonicalization:
+    """match_json path should be resolved before deriving video_path."""
+
+    def test_relative_path_resolved_for_video(self, tmp_path: Path) -> None:
+        """Passing a relative path with '..' still derives video_path from resolved path."""
+        from scripts.publish_match import _main
+
+        sub = tmp_path / "sub"
+        sub.mkdir()
+        match_file = sub / "match_007.json"
+        _write_match(str(match_file))
+
+        # Build a relative-looking path with ..
+        relative_path = str(sub / ".." / "sub" / "match_007.json")
+
+        captured = {}
+
+        def fake_render(match_data, output_path, **kwargs):
+            captured["video_path"] = output_path
+
+        with (
+            patch("scripts.publish_match.render_match_video", side_effect=fake_render),
+            patch("scripts.publish_match.authenticate", return_value=MagicMock()),
+            patch("scripts.publish_match.get_youtube_service", return_value=MagicMock()),
+            patch("scripts.publish_match.upload_video", return_value="vid_123"),
+        ):
+            rc = _main([relative_path])
+
+        assert rc == 0
+        # video_path should be derived from the resolved (canonical) path
+        resolved_base = str(match_file.with_suffix(""))
+        assert captured["video_path"] == resolved_base + ".mp4"
+
+    def test_video_path_has_no_dotdot(self, tmp_path: Path) -> None:
+        """video_path should never contain '..' components."""
+        from scripts.publish_match import _main
+
+        sub = tmp_path / "sub"
+        sub.mkdir()
+        match_file = sub / "match_007.json"
+        _write_match(str(match_file))
+
+        relative_path = str(sub / ".." / "sub" / "match_007.json")
+
+        captured = {}
+
+        def fake_render(match_data, output_path, **kwargs):
+            captured["video_path"] = output_path
+
+        with (
+            patch("scripts.publish_match.render_match_video", side_effect=fake_render),
+            patch("scripts.publish_match.authenticate", return_value=MagicMock()),
+            patch("scripts.publish_match.get_youtube_service", return_value=MagicMock()),
+            patch("scripts.publish_match.upload_video", return_value="vid_123"),
+        ):
+            _main([relative_path])
+
+        assert ".." not in captured["video_path"]

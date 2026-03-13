@@ -4,10 +4,12 @@ import json
 
 
 from data.match_history import (
+    get_all_matches,
     get_latest_match,
     get_match,
     index_matches,
     list_matches,
+    next_match_id,
 )
 
 
@@ -164,3 +166,74 @@ class TestGetLatestMatch:
 
     def test_returns_none_when_empty(self, tmp_path):
         assert get_latest_match(str(tmp_path)) is None
+
+
+# --- next_match_id ---
+
+
+class TestNextMatchId:
+    def test_returns_1_for_nonexistent_dir(self, tmp_path):
+        assert next_match_id(str(tmp_path / "nope")) == 1
+
+    def test_returns_1_for_empty_dir(self, tmp_path):
+        assert next_match_id(str(tmp_path)) == 1
+
+    def test_returns_max_plus_one(self, tmp_path):
+        _write_match(tmp_path, 3)
+        _write_match(tmp_path, 1)
+        assert next_match_id(str(tmp_path)) == 4
+
+    def test_uses_filenames_not_json_content(self, tmp_path):
+        """next_match_id should work even with invalid JSON content."""
+        # Write a file with valid name but broken JSON
+        (tmp_path / "match_005.json").write_text("not valid json")
+        assert next_match_id(str(tmp_path)) == 6
+
+    def test_ignores_non_match_files(self, tmp_path):
+        _write_match(tmp_path, 2)
+        (tmp_path / "notes.txt").write_text("ignore")
+        (tmp_path / "config.json").write_text("{}")
+        assert next_match_id(str(tmp_path)) == 3
+
+    def test_handles_large_ids(self, tmp_path):
+        (tmp_path / "match_999.json").write_text("{}")
+        assert next_match_id(str(tmp_path)) == 1000
+
+
+# --- get_all_matches ---
+
+
+class TestGetAllMatches:
+    def test_empty_dir_returns_empty(self, tmp_path):
+        assert get_all_matches(str(tmp_path)) == []
+
+    def test_missing_dir_returns_empty(self, tmp_path):
+        assert get_all_matches(str(tmp_path / "nonexistent")) == []
+
+    def test_loads_all_match_data(self, tmp_path):
+        _write_match(tmp_path, 1, winner="🅰️")
+        _write_match(tmp_path, 2, winner="🅱️")
+        results = get_all_matches(str(tmp_path))
+        assert len(results) == 2
+        # Returns full match dicts, not index entries
+        assert "rounds" in results[0]
+        assert "players" in results[0]
+
+    def test_sorted_by_match_id(self, tmp_path):
+        _write_match(tmp_path, 3)
+        _write_match(tmp_path, 1)
+        _write_match(tmp_path, 2)
+        results = get_all_matches(str(tmp_path))
+        assert [m["match_id"] for m in results] == [1, 2, 3]
+
+    def test_skips_non_json_files(self, tmp_path):
+        _write_match(tmp_path, 1)
+        (tmp_path / "notes.txt").write_text("ignore me")
+        assert len(get_all_matches(str(tmp_path))) == 1
+
+    def test_skips_invalid_json(self, tmp_path):
+        _write_match(tmp_path, 1)
+        (tmp_path / "match_002.json").write_text("not valid json")
+        results = get_all_matches(str(tmp_path))
+        assert len(results) == 1
+        assert results[0]["match_id"] == 1

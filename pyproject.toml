@@ -45,6 +45,10 @@ ignore = [
     "E701",  # Multiple statements on one line — intentional compact bot dispatch style
 ]
 
+[tool.ruff.lint.per-file-ignores]
+"scripts/publish_match.py" = ["E402"]  # sys.path.insert before project imports
+"youtube/auth.py" = ["E402"]  # logging setup before google imports
+
 [tool.mypy]
 python_version = "3.13"
 strict = false

@@ -2,7 +2,9 @@
 
 import discord
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import patch
+
+from tests.conftest import make_mock_interaction
 
 MATCH = {
     "match_id": 1,
@@ -20,14 +22,6 @@ MATCH = {
 }
 
 
-def _make_interaction() -> MagicMock:
-    """Create a mock Discord interaction."""
-    interaction = MagicMock(spec=discord.Interaction)
-    interaction.response = MagicMock()
-    interaction.response.send_message = AsyncMock()
-    return interaction
-
-
 # ---------------------------------------------------------------------------
 # results_callback
 # ---------------------------------------------------------------------------
@@ -39,7 +33,7 @@ class TestResultsCallback:
         """No match_id given -> loads latest match, sends embed with winner."""
         from discord_bot.commands.results import results_callback
 
-        interaction = _make_interaction()
+        interaction = make_mock_interaction()
         with patch("discord_bot.commands.results.get_latest_match", return_value=MATCH) as mock_latest, \
              patch("discord_bot.commands.results.get_match") as mock_get:
             await results_callback(interaction, "/fake/results")
@@ -55,7 +49,7 @@ class TestResultsCallback:
         """match_id=1 -> loads that match, shows it."""
         from discord_bot.commands.results import results_callback
 
-        interaction = _make_interaction()
+        interaction = make_mock_interaction()
         with patch("discord_bot.commands.results.get_match", return_value=MATCH) as mock_get, \
              patch("discord_bot.commands.results.get_latest_match") as mock_latest:
             await results_callback(interaction, "/fake/results", match_id=1)
@@ -69,7 +63,7 @@ class TestResultsCallback:
         """results_dir has no matches -> 'no matches found' response."""
         from discord_bot.commands.results import results_callback
 
-        interaction = _make_interaction()
+        interaction = make_mock_interaction()
         with patch("discord_bot.commands.results.get_latest_match", return_value=None):
             await results_callback(interaction, "/fake/results")
         msg = interaction.response.send_message.call_args[0][0]
@@ -80,7 +74,7 @@ class TestResultsCallback:
         """match_id that doesn't exist -> 'match not found' response."""
         from discord_bot.commands.results import results_callback
 
-        interaction = _make_interaction()
+        interaction = make_mock_interaction()
         with patch("discord_bot.commands.results.get_match", return_value=None):
             await results_callback(interaction, "/fake/results", match_id=999)
         msg = interaction.response.send_message.call_args[0][0]

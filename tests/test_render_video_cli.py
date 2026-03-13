@@ -127,3 +127,32 @@ class TestCliInvalidJson:
         result = _run_cli(str(bad))
         assert result.returncode == 1
         assert "invalid json" in result.stderr.lower() or "error" in result.stderr.lower()
+
+
+class TestCliFpsBounds:
+    """Test --fps validation: must be 1-60 inclusive."""
+
+    def test_fps_zero_exits_1(self, match_json: Path) -> None:
+        result = _run_cli(str(match_json), "--fps", "0")
+        assert result.returncode == 1
+        assert "fps" in result.stderr.lower()
+
+    def test_fps_negative_exits_1(self, match_json: Path) -> None:
+        result = _run_cli(str(match_json), "--fps", "-5")
+        assert result.returncode == 1
+        assert "fps" in result.stderr.lower()
+
+    def test_fps_above_max_exits_1(self, match_json: Path) -> None:
+        result = _run_cli(str(match_json), "--fps", "61")
+        assert result.returncode == 1
+        assert "fps" in result.stderr.lower()
+
+    def test_fps_min_accepted(self, match_json: Path, tmp_path: Path) -> None:
+        output = tmp_path / "fps1.mp4"
+        result = _run_cli(str(match_json), "--fps", "1", "--output", str(output))
+        assert result.returncode == 0, f"stderr: {result.stderr}"
+
+    def test_fps_max_accepted(self, match_json: Path, tmp_path: Path) -> None:
+        output = tmp_path / "fps60.mp4"
+        result = _run_cli(str(match_json), "--fps", "60", "--output", str(output))
+        assert result.returncode == 0, f"stderr: {result.stderr}"

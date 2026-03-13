@@ -1,22 +1,25 @@
 """Load bot modules from the bots/ directory."""
 
-import importlib.abc
-import importlib.util
+import logging
 import os
 from typing import Any
+
+from engine.bot_scanner import load_bot_module
+
+log = logging.getLogger(__name__)
 
 
 def _load_single_bot(filepath: str, filename: str) -> dict[str, Any] | None:
     """Load and validate a single bot module. Returns dict or None."""
     try:
-        spec = importlib.util.spec_from_file_location(f"bot_{filename[:-3]}", filepath)
-        if spec is None or not isinstance(spec.loader, importlib.abc.Loader):
-            print(f"WARNING: Failed to load {filename}: invalid module spec")
-            return None
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        module = load_bot_module(filepath, f"bot_{filename[:-3]}")
+    except ValueError as e:
+        for msg in str(e).split("; "):
+            log.warning("%s: %s", filename, msg)
+        log.warning("Skipping %s — blocked by AST pre-scan", filename)
+        return None
     except Exception as e:
-        print(f"WARNING: Failed to load {filename}: {e}")
+        log.warning("Failed to load %s: %s", filename, e)
         return None
 
     name = getattr(module, "BOT_NAME", None)
@@ -24,7 +27,7 @@ def _load_single_bot(filepath: str, filename: str) -> dict[str, Any] | None:
     decide = getattr(module, "decide", None)
 
     if not name or not emoji or not callable(decide):
-        print(f"WARNING: Skipping {filename} — missing required attributes")
+        log.warning("Skipping %s — missing required attributes", filename)
         return None
 
     return {"name": name, "emoji": emoji, "bio": getattr(module, "BOT_BIO", ""),
@@ -37,7 +40,7 @@ def _deduplicate_emojis(bots: list[dict[str, Any]]) -> list[dict[str, Any]]:
     unique: list[dict[str, Any]] = []
     for bot in bots:
         if bot["emoji"] in seen:
-            print(f"WARNING: Skipping {bot['name']} — duplicate emoji {bot['emoji']}")
+            log.warning("Skipping %s — duplicate emoji %s", bot["name"], bot["emoji"])
             continue
         seen.add(bot["emoji"])
         unique.append(bot)

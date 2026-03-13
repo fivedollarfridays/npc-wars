@@ -55,15 +55,15 @@ def get_storm_border(round_num: int) -> int:
     Returns the number of tiles from edge that are in the storm.
     0 = no storm, 1 = outermost ring is storm, etc.
     """
-    if round_num <= 20:
+    if round_num <= 9:
         return 0
-    elif round_num <= 40:
+    elif round_num <= 29:
         # Closing: moves in 1 tile per 5 rounds
-        return (round_num - 20) // 5
+        return (round_num - 9) // 5
     else:
         # Endgame: moves in 1 tile per 2 rounds, continuing from where closing left off
-        closing_border = 4  # (40-20)//5 = 4 tiles in by end of closing
-        return closing_border + (round_num - 40) // 2
+        closing_border = 4  # (29-9)//5 = 4 tiles in by end of closing
+        return closing_border + (round_num - 29) // 2
 
 
 def is_in_storm(x: int, y: int, grid_size: int, storm_border: int) -> bool:

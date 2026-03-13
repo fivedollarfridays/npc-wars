@@ -5,17 +5,17 @@ from typing import Any, Callable
 # Starting stats (identical for all bots)
 STARTING_HP = 100
 STARTING_ENERGY = 100
-STARTING_ATTACK_POWER = 15
+STARTING_ATTACK_POWER = 25
 STARTING_DEFENSE = 0
 
 # Action costs
 MOVE_COST = 5
-ATTACK_COST = 15
+ATTACK_COST = 10
 DEFEND_COST = 10
 REST_COST = 0
 
 # Rest healing
-REST_HEAL = 10
+REST_HEAL = 5
 REST_ENERGY_RESTORE = 20
 
 # Defend bonus
@@ -31,6 +31,12 @@ ACTION_COSTS = {
 # Storm damage
 STORM_DAMAGE = 10
 
+# Bumper physics
+WALL_SPLAT_DAMAGE = 10
+
+# Kill bounty
+KILL_BOUNTY_ENERGY = 30
+
 # HP / Energy caps
 MAX_HP = 100
 MAX_ENERGY = 100
@@ -41,9 +47,10 @@ MAX_CONSECUTIVE_FAILURES = 3
 __all__ = [
     "STARTING_HP", "STARTING_ENERGY", "STARTING_ATTACK_POWER", "STARTING_DEFENSE",
     "MOVE_COST", "ATTACK_COST", "DEFEND_COST", "REST_COST", "ACTION_COSTS",
-    "REST_HEAL", "REST_ENERGY_RESTORE", "DEFEND_BONUS", "STORM_DAMAGE",
+    "REST_HEAL", "REST_ENERGY_RESTORE", "DEFEND_BONUS", "STORM_DAMAGE", "WALL_SPLAT_DAMAGE",
+    "KILL_BOUNTY_ENERGY",
     "MAX_HP", "MAX_ENERGY", "MAX_CONSECUTIVE_FAILURES",
-    "Bot", "calculate_damage", "resolve_deaths",
+    "Bot", "calculate_damage", "resolve_deaths", "get_round_bonus_attack",
 ]
 
 
@@ -99,6 +106,16 @@ class Bot:
             "attack_power": self.attack_power,
             "defense": self.defense,
         }
+
+
+def get_round_bonus_attack(round_num: int) -> int:
+    """Calculate bonus attack power from round-based scaling.
+
+    +2 attack per 10 rounds after round 15.
+    """
+    if round_num <= 15:
+        return 0
+    return ((round_num - 15) // 10) * 2
 
 
 def calculate_damage(attacker: Bot, defender: Bot) -> int:

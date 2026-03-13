@@ -33,6 +33,10 @@ def _main(argv: list[str] | None = None) -> int:
     """Entry point. Returns exit code."""
     args = _parse_args(argv)
 
+    if not 1 <= args.fps <= 60:
+        print(f"Error: --fps must be between 1 and 60, got {args.fps}", file=sys.stderr)
+        return 1
+
     if not os.path.exists(args.match_json):
         print(f"Error: file not found: {args.match_json}", file=sys.stderr)
         return 1

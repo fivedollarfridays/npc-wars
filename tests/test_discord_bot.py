@@ -4,6 +4,8 @@ import os
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
 
+from tests.conftest import make_bot_config
+
 
 # ---------------------------------------------------------------------------
 # Config
@@ -75,16 +77,14 @@ class TestBotStructure:
 
     def test_bot_has_tree(self):
         from discord_bot.bot import NpcWarsBot
-        cfg = {"bot_token": "t", "guild_id": 1,
-               "announcement_channel_id": None, "results_channel_id": None}
+        cfg = make_bot_config()
         bot = NpcWarsBot(cfg)
         import discord
         assert isinstance(bot.tree, discord.app_commands.CommandTree)
 
     def test_bot_stores_config(self):
         from discord_bot.bot import NpcWarsBot
-        cfg = {"bot_token": "tok", "guild_id": 7,
-               "announcement_channel_id": None, "results_channel_id": None}
+        cfg = make_bot_config()
         bot = NpcWarsBot(cfg)
         assert bot.config is cfg
 
@@ -165,8 +165,7 @@ class TestErrorHandling:
     @pytest.mark.asyncio
     async def test_on_tree_error_sends_message(self):
         from discord_bot.bot import NpcWarsBot
-        cfg = {"bot_token": "t", "guild_id": 1,
-               "announcement_channel_id": None, "results_channel_id": None}
+        cfg = make_bot_config()
         bot = NpcWarsBot(cfg)
         interaction = MagicMock()
         interaction.response = MagicMock()
@@ -176,9 +175,56 @@ class TestErrorHandling:
         await bot._on_tree_error(interaction, error)
         interaction.response.send_message.assert_called_once()
 
+    @pytest.mark.asyncio
+    async def test_on_tree_error_sends_generic_message(self):
+        """Error handler must NOT expose raw exception text to users."""
+        from discord_bot.bot import NpcWarsBot
+        cfg = make_bot_config()
+        bot = NpcWarsBot(cfg)
+        interaction = MagicMock()
+        interaction.response = MagicMock()
+        interaction.response.send_message = AsyncMock()
+        interaction.response.is_done = MagicMock(return_value=False)
+        error = Exception("secret database password leaked")
+        await bot._on_tree_error(interaction, error)
+        msg = interaction.response.send_message.call_args[0][0]
+        assert "secret database password leaked" not in msg
+        assert "internal error" in msg.lower()
+
+    @pytest.mark.asyncio
+    async def test_on_tree_error_logs_full_exception(self):
+        """Error handler must log the full exception server-side."""
+        from discord_bot.bot import NpcWarsBot
+        cfg = make_bot_config()
+        bot = NpcWarsBot(cfg)
+        interaction = MagicMock()
+        interaction.response = MagicMock()
+        interaction.response.send_message = AsyncMock()
+        interaction.response.is_done = MagicMock(return_value=False)
+        error = Exception("detailed error info")
+        with patch("discord_bot.bot.log") as mock_log:
+            await bot._on_tree_error(interaction, error)
+            mock_log.exception.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_on_tree_error_followup_generic_message(self):
+        """If response already sent, uses followup with generic message."""
+        from discord_bot.bot import NpcWarsBot
+        cfg = make_bot_config()
+        bot = NpcWarsBot(cfg)
+        interaction = MagicMock()
+        interaction.response = MagicMock()
+        interaction.response.is_done = MagicMock(return_value=True)
+        interaction.followup = MagicMock()
+        interaction.followup.send = AsyncMock()
+        error = Exception("secret info")
+        await bot._on_tree_error(interaction, error)
+        interaction.followup.send.assert_called_once()
+        msg = interaction.followup.send.call_args[0][0]
+        assert "secret info" not in msg
+
     def test_tree_error_handler_is_wired(self):
         from discord_bot.bot import NpcWarsBot
-        cfg = {"bot_token": "t", "guild_id": 1,
-               "announcement_channel_id": None, "results_channel_id": None}
+        cfg = make_bot_config()
         bot = NpcWarsBot(cfg)
         assert bot.tree.on_error == bot._on_tree_error
