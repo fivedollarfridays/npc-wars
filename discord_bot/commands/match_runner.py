@@ -40,7 +40,7 @@ async def run_match_callback(
         run_match, bot_configs, match_id=match_id, seed=seed,
     )
 
-    write_match(match_data, results_dir)
+    await asyncio.to_thread(write_match, match_data, results_dir)
 
     winner = match_data.get("winner", "unknown")
     rounds = match_data.get("duration_rounds", "?")

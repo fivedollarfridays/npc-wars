@@ -12,13 +12,13 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 
-SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+SCOPES = ("https://www.googleapis.com/auth/youtube.upload",)
 
 
 def authenticate(
     client_secrets_path: str,
     token_path: str,
-    scopes: list[str] = SCOPES,
+    scopes: tuple[str, ...] | list[str] = SCOPES,
 ) -> Credentials:
     """Return valid YouTube API credentials.
 

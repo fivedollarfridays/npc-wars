@@ -1,6 +1,7 @@
 """YouTube upload pipeline — metadata generation, thumbnail extraction, video upload."""
 
 import os
+import re
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -8,6 +9,7 @@ from typing import Any
 from googleapiclient.http import MediaFileUpload
 
 YOUTUBE_CATEGORY_GAMING = "20"  # YouTube Data API category ID for Gaming
+_TIMESTAMP_RE = re.compile(r"^\d{2}:\d{2}:\d{2}(\.\d+)?$")
 
 
 def _player_name(emoji: str, players: list[dict]) -> str:
@@ -44,7 +46,7 @@ def build_metadata(match_data: dict) -> dict:
     title = f"NPC Wars Match #{match_id} — {winner_name} wins!"
 
     player_lines = "\n".join(
-        f"  {p.get('emoji', '')} {p['name']} by {p.get('author', '?')} — {p.get('bio', '')}" for p in players
+        f"  {p.get('emoji', '')} {p.get('name', '?')} by {p.get('author', '?')} — {p.get('bio', '')}" for p in players
     )
     description = (
         f"Match #{match_id} — {duration} rounds\n\n"
@@ -53,7 +55,7 @@ def build_metadata(match_data: dict) -> dict:
         f"Eliminations:\n{_format_elim_lines(eliminations, players)}\n\n"
         f"#NPCWars #BattleRoyale #AIBots"
     )
-    tags = ["NPC Wars", "npc-wars", "Battle Royale", "AI Bots", "gaming"] + [p["name"] for p in players]
+    tags = ["NPC Wars", "npc-wars", "Battle Royale", "AI Bots", "gaming"] + [p.get("name", "?") for p in players]
     return {"title": title, "description": description, "tags": tags, "category_id": YOUTUBE_CATEGORY_GAMING}
 
 
@@ -84,9 +86,11 @@ def extract_thumbnail(
         output_path on success.
 
     Raises:
-        ValueError: If a path escapes base_dir (path traversal).
+        ValueError: If timestamp format is invalid, or a path escapes base_dir.
         RuntimeError: If ffmpeg exits with a non-zero return code.
     """
+    if not _TIMESTAMP_RE.match(timestamp):
+        raise ValueError(f"Invalid timestamp format: {timestamp!r} (expected HH:MM:SS[.fraction])")
     if base_dir is not None:
         _validate_path(video_path, base_dir)
         _validate_path(output_path, base_dir)

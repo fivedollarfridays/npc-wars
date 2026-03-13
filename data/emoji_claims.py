@@ -56,13 +56,13 @@ def is_claimed(state: dict[str, str], emoji: str) -> bool:
 def load_claims(path: str) -> dict[str, str]:
     """Load claims from a JSON file. Returns empty dict if file missing."""
     try:
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
-    except FileNotFoundError:
+    except (FileNotFoundError, json.JSONDecodeError):
         return {}
 
 
 def save_claims(state: dict[str, str], path: str) -> None:
     """Persist claims state to a JSON file."""
-    with open(path, "w") as f:
+    with open(path, "w", encoding="utf-8") as f:
         json.dump(state, f, indent=2)

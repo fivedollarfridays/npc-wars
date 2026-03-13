@@ -426,6 +426,8 @@ function validateMatchPath(path) {
 
 // Canvas refs
 let canvas, ctx;
+// Emoji -> numeric index lookup for safe element IDs
+let emojiIndex = {};
 
 document.getElementById('file-input').addEventListener('change', (e) => {
   const file = e.target.files[0];
@@ -488,18 +490,21 @@ function initViewer() {
 function buildBotList() {
   const container = document.getElementById('bot-list');
   container.innerHTML = '';
-  matchData.players.forEach(p => {
+  emojiIndex = {};
+  matchData.players.forEach((p, idx) => {
+    emojiIndex[p.emoji] = idx;
     const row = document.createElement('div');
     row.className = 'bot-row';
-    row.id = `bot-${p.emoji}`;
+    row.id = `bot-${idx}`;
+    row.dataset.emoji = p.emoji;
     row.innerHTML = `
       <div class="bot-emoji">${sanitize(p.emoji)}</div>
       <div class="bot-info">
         <div class="bot-name">${sanitize(p.name)}</div>
-        <div class="hp-bar-wrap"><div class="hp-bar" id="hp-${p.emoji}" style="width:100%;background:var(--heal);"></div></div>
-        <div class="energy-bar-wrap"><div class="energy-bar" id="en-${p.emoji}" style="width:100%;"></div></div>
+        <div class="hp-bar-wrap"><div class="hp-bar" id="hp-${idx}" style="width:100%;background:var(--heal);"></div></div>
+        <div class="energy-bar-wrap"><div class="energy-bar" id="en-${idx}" style="width:100%;"></div></div>
       </div>
-      <div class="bot-hp-text" id="hptxt-${p.emoji}">100</div>
+      <div class="bot-hp-text" id="hptxt-${idx}">100</div>
     `;
     container.appendChild(row);
   });
@@ -673,7 +678,9 @@ function renderRound(idx) {
 
 function updateSidebar(round) {
   round.positions.forEach(pos => {
-    const row = document.getElementById(`bot-${pos.emoji}`);
+    const idx = emojiIndex[pos.emoji];
+    if (idx === undefined) return;
+    const row = document.getElementById(`bot-${idx}`);
     if (!row) return;
 
     if (!pos.alive) {
@@ -682,9 +689,9 @@ function updateSidebar(round) {
       row.classList.remove('dead');
     }
 
-    const hpBar = document.getElementById(`hp-${pos.emoji}`);
-    const enBar = document.getElementById(`en-${pos.emoji}`);
-    const hpTxt = document.getElementById(`hptxt-${pos.emoji}`);
+    const hpBar = document.getElementById(`hp-${idx}`);
+    const enBar = document.getElementById(`en-${idx}`);
+    const hpTxt = document.getElementById(`hptxt-${idx}`);
 
     if (hpBar) {
       const pct = Math.max(0, pos.hp / 100) * 100;
@@ -714,7 +721,7 @@ function updateKillFeed(round) {
 
       const entry = document.createElement('div');
       entry.className = 'kill-entry';
-      entry.innerHTML = `<span class="round-num">R${evt.round}</span> ${sanitize(evt.attacker)} \u2192 ${sanitize(evt.victim)}`;
+      entry.innerHTML = `<span class="round-num">R${sanitize(String(evt.round))}</span> ${sanitize(evt.attacker)} \u2192 ${sanitize(evt.victim)}`;
       container.appendChild(entry);
       container.scrollTop = container.scrollHeight;
     } else if (evt.type === 'bump') {

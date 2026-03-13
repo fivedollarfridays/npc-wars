@@ -1,21 +1,26 @@
 """Main match engine for NPC Wars."""
 
 import random
+from pathlib import Path
 from typing import Any
 
 from engine.combat import Bot, resolve_deaths, STARTING_ATTACK_POWER, get_round_bonus_attack
 from engine.grid import calculate_grid_size, spawn_positions, get_storm_border
 from engine.match_writer import build_match_data
 from engine.discord_integration import notify_match_start, notify_match_end
+from data.player_profiles import update_profiles_after_match
 from engine.rounds import (
     resolve_decisions, resolve_defense, resolve_movement,
-    resolve_attacks, apply_storm_damage, apply_energy_and_rest,
-    attribute_kills, build_round_record,
+    resolve_attacks, resolve_ranged_attacks, resolve_taunt,
+    apply_storm_damage, apply_energy_and_rest,
+    attribute_kills, build_round_record, build_pos_map,
 )
 
 __all__ = ["MAX_ROUNDS", "run_match"]
 
 MAX_ROUNDS = 200  # Safety limit
+
+_PROGRESSION_FIELDS = ("unlocked_actions", "line_budget", "win_streak")
 
 
 def _create_bots(
@@ -25,11 +30,15 @@ def _create_bots(
     bots = []
     for i, config in enumerate(bot_configs):
         x, y = positions[i]
-        bots.append(Bot(
+        bot_obj = Bot(
             name=config["name"], emoji=config["emoji"],
             bio=config["bio"], author=config.get("author", "unknown"),
             decide_func=config["decide_func"], x=x, y=y,
-        ))
+        )
+        for fld in _PROGRESSION_FIELDS:
+            if fld in config:
+                setattr(bot_obj, fld, config[fld])
+        bots.append(bot_obj)
     return bots
 
 
@@ -68,7 +77,11 @@ def _execute_round(
     bump_events = resolve_movement(
         alive_bots, actions, grid_size, all_bots=bots, storm_border=storm_border,
     )
-    round_events = bump_events + resolve_attacks(alive_bots, actions)
+    taunt_events = resolve_taunt(alive_bots, actions)
+    pos_map = build_pos_map(alive_bots)
+    round_events = bump_events + resolve_attacks(alive_bots, actions, pos_map)
+    round_events.extend(taunt_events)
+    round_events.extend(resolve_ranged_attacks(alive_bots, actions, pos_map))
     round_events.extend(apply_storm_damage(alive_bots, grid_size, storm_border))
     apply_energy_and_rest(alive_bots, actions, forced_rest)
 
@@ -83,7 +96,10 @@ def _execute_round(
     return round_data, round_elims, bump_events
 
 
-def run_match(bot_configs: list[dict[str, Any]], match_id: int = 1, seed: int | None = None) -> dict[str, Any]:
+def run_match(
+    bot_configs: list[dict[str, Any]], match_id: int = 1,
+    seed: int | None = None, profiles_path: Path | None = None,
+) -> dict[str, Any]:
     """Run a complete match. Returns match data dict."""
     rng = random.Random(seed)
     grid_size = calculate_grid_size(len(bot_configs))
@@ -124,4 +140,8 @@ def run_match(bot_configs: list[dict[str, Any]], match_id: int = 1, seed: int | 
         winner_emoji=winner_emoji, stats=stats, duration_rounds=round_num,
     )
     notify_match_end(match_data)
+
+    if profiles_path is not None:
+        update_profiles_after_match(profiles_path, players, winner_emoji)
+
     return match_data

@@ -16,7 +16,7 @@ def write_match(match_data: dict[str, Any], results_dir: str) -> str:
     filename = f"match_{match_id:03d}.json"
     filepath = os.path.join(results_dir, filename)
 
-    with open(filepath, "w") as f:
+    with open(filepath, "w", encoding="utf-8") as f:
         json.dump(match_data, f, indent=2)
 
     return filepath

@@ -6,6 +6,7 @@ import random
 __all__ = [
     "calculate_grid_size", "spawn_positions", "get_storm_border",
     "is_in_storm", "is_valid_position", "DIRECTIONS", "apply_direction",
+    "direction_toward",
 ]
 
 
@@ -91,3 +92,15 @@ def apply_direction(x: int, y: int, direction: str) -> tuple[int, int]:
     """Apply a movement direction to a position."""
     dx, dy = DIRECTIONS[direction]
     return x + dx, y + dy
+
+
+def direction_toward(from_x: int, from_y: int, to_x: int, to_y: int) -> str:
+    """Compute cardinal direction from one position toward another.
+
+    Ties broken by x-axis. Same position returns "west" (arbitrary).
+    """
+    dx = to_x - from_x
+    dy = to_y - from_y
+    if abs(dx) >= abs(dy):
+        return "east" if dx > 0 else "west"
+    return "south" if dy > 0 else "north"
