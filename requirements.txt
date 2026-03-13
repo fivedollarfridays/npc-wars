@@ -4,11 +4,14 @@
 # Dev / CI dependencies
 pytest>=9.0
 pytest-cov>=7.0
+pytest-asyncio>=0.23
 ruff>=0.14
 mypy>=1.19
 pyyaml>=6.0
 
+# S3: Discord bot
+discord.py>=2.3
+
 # Future sprint dependencies (uncomment when sprint work begins):
-# discord.py>=2.3       # S3: Discord bot
 # Pillow>=10.0          # S4: Video renderer
 # google-api-python-client>=2.0  # S5: YouTube upload
