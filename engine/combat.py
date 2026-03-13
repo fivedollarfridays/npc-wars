@@ -13,6 +13,10 @@ MOVE_COST = 5
 ATTACK_COST = 10
 DEFEND_COST = 10
 REST_COST = 0
+RANGED_ATTACK_COST = 20
+RANGED_ATTACK_DAMAGE = 15
+TAUNT_COST = 10
+DASH_COST = 15
 
 # Rest healing
 REST_HEAL = 5
@@ -26,6 +30,9 @@ ACTION_COSTS = {
     "attack": ATTACK_COST,
     "defend": DEFEND_COST,
     "rest": REST_COST,
+    "ranged_attack": RANGED_ATTACK_COST,
+    "taunt": TAUNT_COST,
+    "dash": DASH_COST,
 }
 
 # Storm damage
@@ -37,6 +44,9 @@ WALL_SPLAT_DAMAGE = 10
 # Kill bounty
 KILL_BOUNTY_ENERGY = 30
 
+# Taunt range
+TAUNT_RANGE = 2
+
 # HP / Energy caps
 MAX_HP = 100
 MAX_ENERGY = 100
@@ -44,11 +54,17 @@ MAX_ENERGY = 100
 # Failure tracking
 MAX_CONSECUTIVE_FAILURES = 3
 
+# Progression defaults (single source for Bot and PlayerProfile)
+DEFAULT_UNLOCKED_ACTIONS = frozenset({"move", "attack", "rest", "defend"})
+DEFAULT_LINE_BUDGET = 50
+
 __all__ = [
     "STARTING_HP", "STARTING_ENERGY", "STARTING_ATTACK_POWER", "STARTING_DEFENSE",
-    "MOVE_COST", "ATTACK_COST", "DEFEND_COST", "REST_COST", "ACTION_COSTS",
+    "MOVE_COST", "ATTACK_COST", "DEFEND_COST", "REST_COST",
+    "RANGED_ATTACK_COST", "RANGED_ATTACK_DAMAGE", "ACTION_COSTS",
     "REST_HEAL", "REST_ENERGY_RESTORE", "DEFEND_BONUS", "STORM_DAMAGE", "WALL_SPLAT_DAMAGE",
-    "KILL_BOUNTY_ENERGY",
+    "KILL_BOUNTY_ENERGY", "TAUNT_COST", "TAUNT_RANGE", "DASH_COST",
+    "DEFAULT_UNLOCKED_ACTIONS", "DEFAULT_LINE_BUDGET",
     "MAX_HP", "MAX_ENERGY", "MAX_CONSECUTIVE_FAILURES",
     "Bot", "calculate_damage", "resolve_deaths", "get_round_bonus_attack",
 ]
@@ -77,6 +93,11 @@ class Bot:
         self.damage_dealt = 0
         self.damage_taken = 0
         self.rounds_survived = 0
+        self.taunt_target: str | None = None
+        # Progression fields (defaults match sandbox.BASE_ACTIONS / BUDGET_BASE)
+        self.unlocked_actions: list[str] = sorted(DEFAULT_UNLOCKED_ACTIONS)
+        self.line_budget: int = DEFAULT_LINE_BUDGET
+        self.win_streak: int = 0
 
     def can_act(self) -> bool:
         """Check if bot has enough energy for any action (move is cheapest at 5)."""
@@ -105,6 +126,9 @@ class Bot:
             "energy": self.energy,
             "attack_power": self.attack_power,
             "defense": self.defense,
+            "unlocked_actions": list(self.unlocked_actions),
+            "line_budget": self.line_budget,
+            "win_streak": self.win_streak,
         }
 
 

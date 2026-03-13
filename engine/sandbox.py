@@ -8,11 +8,14 @@ import logging
 import multiprocessing
 from typing import Any, Callable
 
+from engine.combat import DEFAULT_UNLOCKED_ACTIONS
+
 log = logging.getLogger(__name__)
 
 __all__ = [
     "BotExecutionError", "execute_decide",
     "VALID_DIRECTIONS", "VALID_ACTIONS", "validate_action",
+    "BASE_ACTIONS", "ACTION_UNLOCK_THRESHOLDS",
 ]
 
 _STATUS_OK = "ok"
@@ -69,6 +72,14 @@ def execute_decide(decide_func: Callable[..., Any], state: dict[str, Any], timeo
         queue.join_thread()
 
 
+BASE_ACTIONS = DEFAULT_UNLOCKED_ACTIONS
+
+ACTION_UNLOCK_THRESHOLDS = {
+    "ranged_attack": 3,
+    "dash": 5,
+    "taunt": 10,
+}
+
 VALID_DIRECTIONS = {"north", "south", "east", "west"}
 
 VALID_ACTIONS = {
@@ -76,13 +87,17 @@ VALID_ACTIONS = {
     "attack": 1,    # expects 1 extra arg (direction)
     "rest": 0,      # no extra args
     "defend": 0,    # no extra args
+    "ranged_attack": 1,  # expects 1 extra arg (direction)
+    "taunt": 0,          # no extra args
+    "dash": 1,           # expects 1 extra arg (direction)
 }
 
 
-def validate_action(action: Any) -> tuple[str, ...] | None:
+def validate_action(action: Any, unlocked_actions: set[str] | None = None) -> tuple[str, ...] | None:
     """Validate an action tuple returned by decide().
 
-    Returns normalized action tuple or None if invalid.
+    If unlocked_actions is provided, non-base actions must be in the set.
+    Returns normalized action tuple or None if invalid/locked.
     """
     if not isinstance(action, (tuple, list)):
         return None
@@ -94,6 +109,11 @@ def validate_action(action: Any) -> tuple[str, ...] | None:
     if action_type not in VALID_ACTIONS:
         return None
 
+    # Unlock gating: non-base actions must be explicitly unlocked
+    if unlocked_actions is not None and action_type not in BASE_ACTIONS:
+        if action_type not in unlocked_actions:
+            return None
+
     expected_args = VALID_ACTIONS[action_type]
 
     if expected_args == 0:
@@ -102,7 +122,7 @@ def validate_action(action: Any) -> tuple[str, ...] | None:
     if len(action) < 2:
         return None
 
-    if action_type in ("move", "attack"):
+    if action_type in ("move", "attack", "ranged_attack", "dash"):
         direction = action[1]
         if direction not in VALID_DIRECTIONS:
             return None

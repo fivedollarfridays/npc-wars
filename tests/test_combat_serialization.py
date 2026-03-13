@@ -31,7 +31,10 @@ class TestDictSerialization:
 
     def test_self_dict_keys(self):
         d = make_bot().to_self_dict()
-        assert set(d.keys()) == {"x", "y", "hp", "energy", "attack_power", "defense"}
+        assert set(d.keys()) == {
+            "x", "y", "hp", "energy", "attack_power", "defense",
+            "unlocked_actions", "line_budget", "win_streak",
+        }
 
     def test_self_dict_includes_energy(self):
         d = make_bot(energy=42).to_self_dict()

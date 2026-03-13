@@ -37,7 +37,7 @@ def index_matches(results_dir: str) -> list[dict[str, Any]]:
             continue
         path = os.path.join(results_dir, filename)
         try:
-            with open(path) as f:
+            with open(path, encoding="utf-8") as f:
                 data = json.load(f)
             entries.append(_entry_from_match(data))
         except (json.JSONDecodeError, OSError):
@@ -68,7 +68,7 @@ def get_all_matches(results_dir: str) -> list[dict[str, Any]]:
             continue
         path = os.path.join(results_dir, filename)
         try:
-            with open(path) as f:
+            with open(path, encoding="utf-8") as f:
                 matches.append(json.load(f))
         except (json.JSONDecodeError, OSError):
             continue
@@ -80,9 +80,9 @@ def get_match(results_dir: str, match_id: int) -> dict[str, Any] | None:
     """Load and return a full match dict by ID, or None if not found."""
     path = os.path.join(results_dir, f"match_{match_id:03d}.json")
     try:
-        with open(path) as f:
+        with open(path, encoding="utf-8") as f:
             return json.load(f)
-    except FileNotFoundError:
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
         return None
 
 

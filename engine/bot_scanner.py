@@ -9,11 +9,13 @@ import ast
 import importlib.abc
 import importlib.util
 import os
+import re
 import types
 
 __all__ = [
     "BLOCKED_MODULES", "BLOCKED_CALLS", "_BLOCKED_DUNDER_ATTRS",
     "scan_bot_source", "scan_bot_file", "load_bot_module",
+    "count_decide_lines", "validate_line_budget",
 ]
 
 BLOCKED_MODULES: frozenset[str] = frozenset({
@@ -86,6 +88,29 @@ def _check_dunder_attrs(tree: ast.AST) -> list[str]:
     return violations
 
 
+_STRING_RE = re.compile(r'''("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*')''')
+
+
+def _check_semicolons(tree: ast.AST, source: str) -> list[str]:
+    """Flag semicolon statement chaining in decide() body."""
+    violations: list[str] = []
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and node.name == "decide":
+            lines = source.splitlines()
+            start = node.body[0].lineno if node.body else node.lineno
+            end = node.end_lineno or start
+            for lineno in range(start, end + 1):
+                line = lines[lineno - 1].strip()
+                if line.startswith("#"):
+                    continue
+                cleaned = _STRING_RE.sub("", line)
+                if ";" in cleaned:
+                    violations.append(
+                        f"Semicolon chaining detected (line {lineno})"
+                    )
+    return violations
+
+
 def scan_bot_source(source: str) -> list[str]:
     """Scan bot source code for security violations.
 
@@ -100,6 +125,7 @@ def scan_bot_source(source: str) -> list[str]:
     violations.extend(_check_imports(tree))
     violations.extend(_check_calls(tree))
     violations.extend(_check_dunder_attrs(tree))
+    violations.extend(_check_semicolons(tree, source))
     return violations
 
 
@@ -115,6 +141,50 @@ def scan_bot_file(path: str) -> list[str]:
         return [f"Failed to read file: {e}"]
 
     return scan_bot_source(source)
+
+
+def count_decide_lines(source: str) -> int:
+    """Count executable lines in the decide() function body.
+
+    Excludes blank lines, comment-only lines, and docstring lines.
+    Only counts lines in the first top-level `def decide(...)` function.
+    """
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return 0
+    for node in ast.walk(tree):
+        if isinstance(node, ast.FunctionDef) and node.name == "decide":
+            body_lines = source.splitlines()
+            start = node.body[0].lineno
+            end = node.end_lineno or start
+            # Skip docstring if first body node is Expr(Constant(str))
+            skip_until = start
+            if (node.body
+                    and isinstance(node.body[0], ast.Expr)
+                    and isinstance(node.body[0].value, ast.Constant)
+                    and isinstance(node.body[0].value.value, str)):
+                skip_until = (node.body[0].end_lineno or start) + 1
+            count = 0
+            for lineno in range(skip_until, end + 1):
+                line = body_lines[lineno - 1].strip()
+                if not line:
+                    continue
+                if line.startswith("#"):
+                    continue
+                count += 1
+            return count
+    return 0
+
+
+def validate_line_budget(source: str, budget: int) -> None:
+    """Validate that decide() body doesn't exceed the line budget.
+
+    Raises ValueError if count > budget.
+    """
+    count = count_decide_lines(source)
+    if count > budget:
+        raise ValueError(f"decide() has {count} lines, budget is {budget}")
 
 
 def load_bot_module(path: str, module_name: str | None = None) -> types.ModuleType:

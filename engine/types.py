@@ -20,6 +20,9 @@ class SelfInfo(TypedDict):
     energy: int
     attack_power: int
     defense: int
+    unlocked_actions: list[str]
+    line_budget: int
+    win_streak: int
 
 
 # Loose event/record types (mixed keys)
