@@ -12,6 +12,6 @@ pyyaml>=6.0
 # S3: Discord bot
 discord.py>=2.3
 
-# Future sprint dependencies (uncomment when sprint work begins):
-# Pillow>=10.0          # S4: Video renderer
+# S4: Video renderer
+Pillow>=10.0
 # google-api-python-client>=2.0  # S5: YouTube upload
