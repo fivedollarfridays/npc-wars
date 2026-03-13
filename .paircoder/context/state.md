@@ -5,8 +5,12 @@
 ## Active Plan
 
 **Plan:** NPC Wars Full Build — 5 Sprints
-**Status:** S4 complete, ready for S5
-**Current Sprint:** S4 complete — ready to merge
+**Status:** S5 in progress
+**Current Sprint:** S5 (YouTube Upload)
+
+## Current Focus
+
+Sprint 5 complete — all T5.1–T5.3 done.
 
 ## Plans Overview
 
@@ -76,11 +80,33 @@
 
 | ID | Title | Cx | Type | Status |
 |----|-------|----|------|--------|
-| T5.1 | YouTube API auth: OAuth2, token storage | 25 | feature | pending |
-| T5.2 | Upload pipeline: metadata, thumbnail, tags | 30 | feature | pending |
-| T5.3 | Auto-publish CLI: render + upload in one command | 20 | feature | pending |
+| T5.1 | YouTube API auth: OAuth2, token storage | 25 | feature | done ✓ |
+| T5.2 | Upload pipeline: metadata, thumbnail, tags | 30 | feature | done ✓ |
+| T5.3 | Auto-publish CLI: render + upload in one command | 20 | feature | done ✓ |
 
 ## What Was Just Done
+
+- **T5.3 done** (auto-updated by hook)
+
+- **T5.3 done** — scripts/publish_match.py: full render→upload pipeline CLI. 19 tests pass, ruff + arch clean. Sprint 5 complete.
+
+- **T5.2 done** (auto-updated by hook)
+
+- **T5.2 done** — youtube/upload.py: build_metadata(), extract_thumbnail() (ffmpeg), upload_video() (MediaFileUpload resumable). 17 tests pass, arch check clean.
+
+- **T5.1 done** (auto-updated by hook)
+
+### Session: 2026-03-13 -- T5.1 YouTube API Auth
+
+- Created youtube/__init__.py and youtube/auth.py
+- authenticate(): loads token, refreshes if expired, runs OAuth2 flow on first use
+- get_youtube_service(): builds YouTube Data API v3 resource
+- refresh_token(): refreshes expired creds and persists to disk
+- _load_token(), _save_token(), _run_oauth_flow() helpers
+- token.json and client_secrets.json added to .gitignore
+- Added google-api-python-client>=2.0, google-auth-oauthlib>=1.0 to dev extras
+- tests/test_youtube_auth.py: 10 tests, all mocked (no real API calls)
+- 419 tests passing, ruff clean, arch check clean
 
 ### Session: 2026-03-12 -- Sprint 4 /reviewing-code fixes
 
@@ -388,7 +414,7 @@
 
 ## What's Next
 
-1. Sprint 5: YouTube Upload (T5.1–T5.3) after Sprint 4 PR merged
+All 5 sprints complete. Ready for /finishing-branches on sprint-5/youtube-upload.
 
 
 ## Blockers

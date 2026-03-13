@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-03-12T21:36:18.100342",
+  "trigger": "",
+  "active_plan": "NPC Wars Full Build \u2014 5 Sprints",
+  "current_task_id": null,
+  "current_task_title": null,
+  "progress": null,
+  "last_done": "**T2.8 done**: Added type hints to all 8 engine modules so `mypy engine/ --strict` passes with 0 errors. Created `engine/types.py` with shared TypedDicts. No runtime behavior changes.",
+  "whats_next": "S2 complete. Ready for S3 (Discord Bot).",
+  "recent_files": []
+}
