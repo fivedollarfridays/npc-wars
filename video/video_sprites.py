@@ -1,16 +1,14 @@
 """Render bot sprites (labels, HP bars) onto a grid image."""
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 from typing import Any
 
-from video.colors import hp_color
+from video.colors import hp_color, _FONT
 
 HP_BG = (40, 40, 40)       # bar background
 DEAD_FILL = (60, 60, 60)   # grey fill for dead bots
 DEAD_X_COLOR = (150, 150, 150)  # cross lines on dead bot
 LABEL_COLOR = (220, 220, 220)
-
-_FONT = ImageFont.load_default()
 
 
 def _draw_hp_bar(

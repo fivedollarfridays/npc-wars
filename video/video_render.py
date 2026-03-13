@@ -40,6 +40,7 @@ def render_frame(
 ) -> Image.Image:
     """Render a single round as a PIL Image frame."""
     storm_border = round_data.get("storm_border", 0)
+    # "bots" is the current schema; "positions" is the legacy key from early matches.
     bots = round_data.get("bots") or round_data.get("positions", [])
     events = round_data.get("events", [])
     round_num = round_data.get("round", 0)
@@ -94,18 +95,18 @@ def encode_frames(
         "-preset", "fast",
         output_path,
     ]
-    raw_frames = bytearray()
+    # Stream frames one at a time — avoids buffering all raw pixel data in memory.
+    # stdout is not piped so only stderr needs draining (no deadlock risk).
+    proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stderr=subprocess.PIPE)
     for frame in frames:
         if frame.size != (padded_w, padded_h):
             padded = Image.new("RGB", (padded_w, padded_h), (0, 0, 0))
             padded.paste(frame, (0, 0))
             frame = padded
-        raw_frames += frame.tobytes()
-
-    proc = subprocess.Popen(
-        cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-    )
-    _, stderr_data = proc.communicate(input=bytes(raw_frames))
+        proc.stdin.write(frame.tobytes())  # type: ignore[union-attr]
+    proc.stdin.close()  # type: ignore[union-attr]
+    stderr_data = proc.stderr.read()  # type: ignore[union-attr]
+    proc.wait()
 
     if proc.returncode != 0:
         raise RuntimeError(f"ffmpeg failed: {stderr_data.decode()}")

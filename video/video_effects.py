@@ -1,15 +1,13 @@
 """Render combat effects (hit flash, death marker, damage numbers) on a grid frame."""
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 from typing import Any
 
-HIT_FLASH_COLOR = (255, 255, 200, 120)   # pale yellow, semi-transparent
-DEATH_COLOR = (255, 50, 50)              # bright red X
-STORM_FLASH_COLOR = (180, 60, 60, 100)  # storm tint
-DAMAGE_COLOR = (255, 220, 50)           # yellow damage text
-MISS_COLOR = (150, 150, 150)            # grey miss text
+from video.colors import _FONT
 
-_FONT = ImageFont.load_default()
+HIT_FLASH_OUTLINE = (255, 255, 180)     # pale yellow outline for hit/storm flash
+DEATH_COLOR = (255, 50, 50)             # bright red X
+DAMAGE_COLOR = (255, 220, 50)           # yellow damage text
 
 
 def _cell_rect(col: int, row: int, cell_size: int) -> tuple[int, int, int, int]:
@@ -22,9 +20,9 @@ def _cell_rect(col: int, row: int, cell_size: int) -> tuple[int, int, int, int]:
 def _draw_hit_flash(
     draw: ImageDraw.ImageDraw, col: int, row: int, cell_size: int,
 ) -> None:
-    """Draw a bright overlay on the hit cell."""
+    """Draw a bright outline on the hit cell."""
     x0, y0, x1, y1 = _cell_rect(col, row, cell_size)
-    draw.rectangle([x0 + 2, y0 + 2, x1 - 2, y1 - 2], outline=(255, 255, 180), width=2)
+    draw.rectangle([x0 + 2, y0 + 2, x1 - 2, y1 - 2], outline=HIT_FLASH_OUTLINE, width=2)
 
 
 def _draw_death_marker(
@@ -75,20 +73,31 @@ def render_effects(
     return img
 
 
+def _handle_flash_and_damage(
+    draw: ImageDraw.ImageDraw,
+    identifier: str,
+    damage: int,
+    bot_positions: dict[str, tuple[int, int]],
+    cell_size: int,
+) -> None:
+    """Draw hit flash + optional damage number at the bot's cell."""
+    if identifier in bot_positions:
+        col, row = bot_positions[identifier]
+        _draw_hit_flash(draw, col, row, cell_size)
+        if damage > 0:
+            _draw_damage_number(draw, col, row, cell_size, damage)
+
+
 def _handle_attack(
     draw: ImageDraw.ImageDraw,
     event: dict[str, Any],
     bot_positions: dict[str, tuple[int, int]],
     cell_size: int,
 ) -> None:
-    """Process an attack event: hit flash + damage number."""
-    target = event.get("target", "")
-    damage = event.get("damage", 0)
-    if target in bot_positions:
-        col, row = bot_positions[target]
-        _draw_hit_flash(draw, col, row, cell_size)
-        if damage > 0:
-            _draw_damage_number(draw, col, row, cell_size, damage)
+    """Process an attack event: hit flash + damage number on target."""
+    _handle_flash_and_damage(
+        draw, event.get("target", ""), event.get("damage", 0), bot_positions, cell_size,
+    )
 
 
 def _handle_death(
@@ -110,11 +119,7 @@ def _handle_storm(
     bot_positions: dict[str, tuple[int, int]],
     cell_size: int,
 ) -> None:
-    """Process a storm_damage event: flash + damage number."""
-    emoji = event.get("emoji", "")
-    damage = event.get("damage", 0)
-    if emoji in bot_positions:
-        col, row = bot_positions[emoji]
-        _draw_hit_flash(draw, col, row, cell_size)
-        if damage > 0:
-            _draw_damage_number(draw, col, row, cell_size, damage)
+    """Process a storm_damage event: hit flash + damage number."""
+    _handle_flash_and_damage(
+        draw, event.get("emoji", ""), event.get("damage", 0), bot_positions, cell_size,
+    )

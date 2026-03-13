@@ -2,6 +2,8 @@
 
 from PIL import Image, ImageDraw
 
+from engine.grid import is_in_storm
+
 # Color palette (dark theme)
 COLOR_SAFE_BG = (30, 35, 40)        # dark blue-grey
 COLOR_SAFE_LINE = (60, 70, 80)      # grid lines
@@ -9,18 +11,6 @@ COLOR_STORM_BG = (80, 20, 20)       # dark red — storm zone
 COLOR_STORM_LINE = (120, 40, 40)    # storm grid lines
 COLOR_BORDER = (200, 200, 200)      # outer border
 BORDER_WIDTH = 2
-
-
-def _is_storm_tile(row: int, col: int, grid_size: int, storm_border: int) -> bool:
-    """Return True if tile is inside the storm zone."""
-    if storm_border <= 0:
-        return False
-    return (
-        row < storm_border
-        or row >= grid_size - storm_border
-        or col < storm_border
-        or col >= grid_size - storm_border
-    )
 
 
 def _draw_cells(
@@ -36,11 +26,12 @@ def _draw_cells(
             y0 = row * cell_size
             x1 = x0 + cell_size - 1
             y1 = y0 + cell_size - 1
-            storm = _is_storm_tile(row, col, grid_size, storm_border)
-            if storm:
-                draw.rectangle([x0, y0, x1, y1], fill=COLOR_STORM_BG)
-            line_color = COLOR_STORM_LINE if storm else COLOR_SAFE_LINE
-            draw.rectangle([x0, y0, x1, y1], outline=line_color)
+            if is_in_storm(col, row, grid_size, storm_border):
+                draw.rectangle(
+                    [x0, y0, x1, y1], fill=COLOR_STORM_BG, outline=COLOR_STORM_LINE,
+                )
+            else:
+                draw.rectangle([x0, y0, x1, y1], outline=COLOR_SAFE_LINE)
 
 
 def render_grid(

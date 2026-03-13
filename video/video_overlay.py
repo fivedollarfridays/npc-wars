@@ -1,9 +1,9 @@
 """Render scoreboard overlay sidebar for NPC Wars video frames."""
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 from typing import Any
 
-from video.colors import hp_color
+from video.colors import hp_color, _FONT
 
 SIDEBAR_WIDTH = 200
 SIDEBAR_BG = (20, 20, 28)
@@ -12,8 +12,6 @@ ACCENT_COLOR = (100, 160, 255)
 DEAD_COLOR = (80, 80, 80)
 KILL_COLOR = (255, 100, 100)
 SECTION_HEIGHT = 18
-
-_FONT = ImageFont.load_default()
 
 
 def _draw_section_header(
