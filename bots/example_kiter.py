@@ -10,8 +10,6 @@ def decide(state):
     me = state["me"]
     enemies = state["enemies"]
     grid_size = state["grid_size"]
-    storm_border = state["storm_border"]
-
     if not enemies:
         return ("rest",)
 

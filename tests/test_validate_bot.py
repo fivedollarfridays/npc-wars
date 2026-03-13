@@ -3,7 +3,6 @@
 import subprocess
 import sys
 
-import pytest
 
 from scripts.validate_bot import validate_bot
 

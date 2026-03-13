@@ -4,10 +4,7 @@
 import sys
 import os
 import shutil
-import json
 import http.server
-import threading
-import webbrowser
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -69,14 +66,14 @@ def main():
     print(f"📺 Viewer: open viewer/match.html and load {viewer_match}")
 
     # Start local server for the viewer
-    print(f"\n🌐 Starting local server...")
+    print("\n🌐 Starting local server...")
     os.chdir(project_dir)
     handler = http.server.SimpleHTTPRequestHandler
     httpd = http.server.HTTPServer(("", 8080), handler)
 
     url = f"http://localhost:8080/viewer/match.html?match=match_{match_id:03d}.json"
     print(f"   {url}")
-    print(f"   Ctrl+C to stop\n")
+    print("   Ctrl+C to stop\n")
 
     httpd.serve_forever()
 

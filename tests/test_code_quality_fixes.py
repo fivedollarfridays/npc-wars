@@ -12,7 +12,6 @@ from engine.combat import (
 )
 from engine.loader import load_bots
 from engine.rounds import resolve_attacks, resolve_defense
-from engine.grid import apply_direction
 
 
 def _write_bot(tmp_path, filename, content):

@@ -20,7 +20,10 @@ class TestRunMatch:
             bot_config("B", "🅱️", chase_and_attack),
         ]
         data = run_match(configs, match_id=1, seed=42)
-        expected_keys = {"match_id", "date", "grid_size", "players", "rounds", "eliminations", "winner", "stats", "duration_rounds"}
+        expected_keys = {
+            "match_id", "date", "grid_size", "players", "rounds",
+            "eliminations", "winner", "stats", "duration_rounds",
+        }
         assert set(data.keys()) == expected_keys
 
     def test_match_id_passed_through(self):

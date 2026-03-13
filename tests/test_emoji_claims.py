@@ -2,7 +2,6 @@
 
 import json
 
-import pytest
 
 from data.emoji_claims import (
     claim_emoji,

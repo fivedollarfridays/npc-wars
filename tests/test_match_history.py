@@ -2,7 +2,6 @@
 
 import json
 
-import pytest
 
 from data.match_history import (
     get_latest_match,

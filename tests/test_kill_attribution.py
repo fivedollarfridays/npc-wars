@@ -8,8 +8,6 @@ from engine.game import run_match
 class TestKillAttribution:
     def test_killing_blow_gets_credit(self):
         """When two bots attack the same target, the one dealing the fatal hit gets the kill."""
-        round_count = [0]
-
         def target_bot(state):
             """Stays still, takes hits."""
             return ("rest",)

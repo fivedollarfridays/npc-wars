@@ -2,7 +2,6 @@
 
 import importlib.util
 import os
-import sys
 
 
 def _load_single_bot(filepath, filename):

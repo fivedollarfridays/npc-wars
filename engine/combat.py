@@ -106,7 +106,7 @@ def calculate_damage(attacker: Bot, defender: Bot) -> int:
 
 def resolve_deaths(bots: list[Bot], round_num: int) -> list[dict]:
     """Check for deaths and return elimination records.
-    
+
     Death ordering: lower HP dies first, then lower energy, then less total damage dealt.
     """
     newly_dead = [b for b in bots if b.alive and b.hp <= 0]

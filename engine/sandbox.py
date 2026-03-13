@@ -5,7 +5,6 @@ For production (community PRs), upgrade to subprocess isolation.
 """
 
 import threading
-import traceback
 
 __all__ = [
     "BotExecutionError", "execute_decide",
@@ -19,7 +18,7 @@ class BotExecutionError(Exception):
 
 def execute_decide(decide_func, state: dict, timeout: float = 1.0) -> tuple | None:
     """Execute a bot's decide() function with timeout.
-    
+
     Returns the action tuple, or None if the bot failed/timed out.
     """
     result = [None]
@@ -57,7 +56,7 @@ VALID_ACTIONS = {
 
 def validate_action(action) -> tuple | None:
     """Validate an action tuple returned by decide().
-    
+
     Returns normalized action tuple or None if invalid.
     """
     if not isinstance(action, (tuple, list)):

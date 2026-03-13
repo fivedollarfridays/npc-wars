@@ -1,0 +1,46 @@
+[project]
+name = "npc-wars"
+version = "0.1.0"
+description = "Autonomous NPC battle royale engine"
+requires-python = ">=3.13"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=9.0",
+    "pytest-cov>=7.0",
+    "ruff>=0.14",
+    "mypy>=1.19",
+]
+# Future sprint dependencies (uncomment when needed):
+# discord = ["discord.py>=2.3"]
+# video = ["Pillow>=10.0"]
+# youtube = ["google-api-python-client>=2.0"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["engine*", "data*", "scripts*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+target-version = "py313"
+line-length = 130
+exclude = [".claude", ".paircoder"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+ignore = [
+    "E701",  # Multiple statements on one line — intentional compact bot dispatch style
+]
+
+[tool.mypy]
+python_version = "3.13"
+strict = false
+ignore_missing_imports = true

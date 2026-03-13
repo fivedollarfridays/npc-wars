@@ -3,7 +3,7 @@
 from collections import defaultdict
 
 from engine.combat import (
-    Bot, STORM_DAMAGE, REST_HEAL, REST_ENERGY_RESTORE, DEFEND_BONUS,
+    STORM_DAMAGE, REST_HEAL, REST_ENERGY_RESTORE, DEFEND_BONUS,
     MAX_HP, MAX_ENERGY, MAX_CONSECUTIVE_FAILURES, STARTING_DEFENSE,
     calculate_damage,
 )

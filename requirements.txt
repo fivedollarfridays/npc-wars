@@ -1,0 +1,13 @@
+# NPC Wars — runtime dependencies
+# Engine uses Python stdlib only (no third-party runtime deps yet)
+
+# Dev / CI dependencies
+pytest>=9.0
+pytest-cov>=7.0
+ruff>=0.14
+mypy>=1.19
+
+# Future sprint dependencies (uncomment when sprint work begins):
+# discord.py>=2.3       # S3: Discord bot
+# Pillow>=10.0          # S4: Video renderer
+# google-api-python-client>=2.0  # S5: YouTube upload
