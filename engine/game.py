@@ -1,6 +1,8 @@
 """Main match engine for NPC Wars."""
 
 import random
+from typing import Any
+
 from engine.combat import Bot, resolve_deaths
 from engine.grid import calculate_grid_size, spawn_positions, get_storm_border
 from engine.match_writer import build_match_data
@@ -15,7 +17,9 @@ __all__ = ["MAX_ROUNDS", "run_match"]
 MAX_ROUNDS = 200  # Safety limit
 
 
-def _create_bots(bot_configs, positions):
+def _create_bots(
+    bot_configs: list[dict[str, Any]], positions: list[tuple[int, int]],
+) -> list[Bot]:
     """Create Bot instances from configs and spawn positions."""
     bots = []
     for i, config in enumerate(bot_configs):
@@ -28,7 +32,9 @@ def _create_bots(bot_configs, positions):
     return bots
 
 
-def _resolve_tiebreaker(bots, round_num, all_eliminations):
+def _resolve_tiebreaker(
+    bots: list[Bot], round_num: int, all_eliminations: list[dict[str, Any]],
+) -> str:
     """Determine winner with tiebreaker if multiple bots survive."""
     still_alive = [b for b in bots if b.alive]
     if len(still_alive) > 1:
@@ -43,7 +49,9 @@ def _resolve_tiebreaker(bots, round_num, all_eliminations):
     return "none"
 
 
-def _execute_round(bots, round_num, grid_size, storm_border):
+def _execute_round(
+    bots: list[Bot], round_num: int, grid_size: int, storm_border: int,
+) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     """Execute one round of the match. Returns (round_data, eliminations)."""
     alive_bots = [b for b in bots if b.alive]
     actions, forced_rest = resolve_decisions(alive_bots, bots, round_num, grid_size, storm_border)
@@ -64,7 +72,7 @@ def _execute_round(bots, round_num, grid_size, storm_border):
     return round_data, round_elims
 
 
-def run_match(bot_configs: list[dict], match_id: int = 1, seed: int | None = None) -> dict:
+def run_match(bot_configs: list[dict[str, Any]], match_id: int = 1, seed: int | None = None) -> dict[str, Any]:
     """Run a complete match. Returns match data dict."""
     rng = random.Random(seed)
     grid_size = calculate_grid_size(len(bot_configs))

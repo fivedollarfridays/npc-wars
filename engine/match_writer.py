@@ -3,11 +3,12 @@
 import json
 import os
 from datetime import datetime, timezone
+from typing import Any
 
 __all__ = ["write_match", "build_match_data"]
 
 
-def write_match(match_data: dict, results_dir: str) -> str:
+def write_match(match_data: dict[str, Any], results_dir: str) -> str:
     """Write match data to a JSON file. Returns the filepath."""
     os.makedirs(results_dir, exist_ok=True)
 
@@ -24,13 +25,13 @@ def write_match(match_data: dict, results_dir: str) -> str:
 def build_match_data(
     match_id: int,
     grid_size: int,
-    players: list[dict],
-    rounds: list[dict],
-    eliminations: list[dict],
+    players: list[dict[str, Any]],
+    rounds: list[dict[str, Any]],
+    eliminations: list[dict[str, Any]],
     winner_emoji: str,
-    stats: dict,
+    stats: dict[str, Any],
     duration_rounds: int,
-) -> dict:
+) -> dict[str, Any]:
     """Build the match data structure."""
     return {
         "match_id": match_id,

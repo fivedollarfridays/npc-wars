@@ -1,9 +1,10 @@
 """Per-round phase helpers for the match engine."""
 
 from collections import defaultdict
+from typing import Any
 
 from engine.combat import (
-    STORM_DAMAGE, REST_HEAL, REST_ENERGY_RESTORE, DEFEND_BONUS,
+    Bot, STORM_DAMAGE, REST_HEAL, REST_ENERGY_RESTORE, DEFEND_BONUS,
     MAX_HP, MAX_ENERGY, MAX_CONSECUTIVE_FAILURES, STARTING_DEFENSE,
     calculate_damage,
 )
@@ -17,11 +18,18 @@ __all__ = [
     "attribute_kills", "build_round_record",
 ]
 
+_Action = tuple[str, ...]
+_ActionsMap = dict[str, _Action]
+_Event = dict[str, Any]
 
-def resolve_decisions(alive_bots, bots, round_num, grid_size, storm_border):
+
+def resolve_decisions(
+    alive_bots: list[Bot], bots: list[Bot], round_num: int,
+    grid_size: int, storm_border: int,
+) -> tuple[_ActionsMap, set[str]]:
     """Phase 1: All bots decide their action. Returns (actions, forced_rest)."""
-    actions = {}
-    forced_rest = set()
+    actions: _ActionsMap = {}
+    forced_rest: set[str] = set()
     for bot in alive_bots:
         if not bot.can_act():
             actions[bot.emoji] = ("rest",)
@@ -46,7 +54,7 @@ def resolve_decisions(alive_bots, bots, round_num, grid_size, storm_border):
     return actions, forced_rest
 
 
-def resolve_defense(alive_bots, actions):
+def resolve_defense(alive_bots: list[Bot], actions: _ActionsMap) -> None:
     """Phase 2: Reset and apply defense bonuses."""
     for bot in alive_bots:
         bot.defense = STARTING_DEFENSE
@@ -55,7 +63,7 @@ def resolve_defense(alive_bots, actions):
             bot.defense = DEFEND_BONUS
 
 
-def resolve_movement(alive_bots, actions, grid_size):
+def resolve_movement(alive_bots: list[Bot], actions: _ActionsMap, grid_size: int) -> None:
     """Phase 3: Apply move actions."""
     for bot in alive_bots:
         action = actions.get(bot.emoji)
@@ -66,12 +74,12 @@ def resolve_movement(alive_bots, actions, grid_size):
                 bot.y = new_y
 
 
-def resolve_attacks(alive_bots, actions):
+def resolve_attacks(alive_bots: list[Bot], actions: _ActionsMap) -> list[_Event]:
     """Phase 4: Resolve attack actions and return hit/miss events."""
-    pos_map = defaultdict(list)
+    pos_map: defaultdict[tuple[int, int], list[Bot]] = defaultdict(list)
     for b in alive_bots:
         pos_map[(b.x, b.y)].append(b)
-    events = []
+    events: list[_Event] = []
     for bot in alive_bots:
         if not bot.alive:
             continue
@@ -80,7 +88,7 @@ def resolve_attacks(alive_bots, actions):
             continue
         target_x, target_y = apply_direction(bot.x, bot.y, action[1])
         targets_at_pos = pos_map.get((target_x, target_y), [])
-        target = None
+        target: Bot | None = None
         for t in targets_at_pos:
             if t.emoji != bot.emoji and t.alive:
                 target = t
@@ -100,9 +108,9 @@ def resolve_attacks(alive_bots, actions):
     return events
 
 
-def apply_storm_damage(alive_bots, grid_size, storm_border):
+def apply_storm_damage(alive_bots: list[Bot], grid_size: int, storm_border: int) -> list[_Event]:
     """Phase 5: Apply storm damage and return storm events."""
-    events = []
+    events: list[_Event] = []
     for bot in alive_bots:
         if bot.alive and is_in_storm(bot.x, bot.y, grid_size, storm_border):
             bot.hp -= STORM_DAMAGE
@@ -111,7 +119,9 @@ def apply_storm_damage(alive_bots, grid_size, storm_border):
     return events
 
 
-def apply_energy_and_rest(alive_bots, actions, forced_rest):
+def apply_energy_and_rest(
+    alive_bots: list[Bot], actions: _ActionsMap, forced_rest: set[str],
+) -> None:
     """Phase 6+7: Deduct energy costs and apply explicit rest healing."""
     for bot in alive_bots:
         action = actions.get(bot.emoji)
@@ -124,10 +134,13 @@ def apply_energy_and_rest(alive_bots, actions, forced_rest):
             bot.energy = min(MAX_ENERGY, bot.energy + REST_ENERGY_RESTORE)
 
 
-def attribute_kills(round_elims, round_events, bots, round_num):
+def attribute_kills(
+    round_elims: list[_Event], round_events: list[_Event],
+    bots: list[Bot], round_num: int,
+) -> None:
     """Find killing blow and attribute kills to attackers."""
     for elim in round_elims:
-        killer_emoji = None
+        killer_emoji: str | None = None
         for evt in round_events:
             if (evt.get("type") == "hit" and evt.get("target") == elim["emoji"]
                     and evt.get("hp_before", 1) > 0
@@ -152,9 +165,12 @@ def attribute_kills(round_elims, round_events, bots, round_num):
                              "victim": elim["emoji"], "round": round_num})
 
 
-def build_round_record(bots, actions, round_num, storm_border, events):
+def build_round_record(
+    bots: list[Bot], actions: _ActionsMap, round_num: int,
+    storm_border: int, events: list[_Event],
+) -> _Event:
     """Build the round data dict for match output."""
-    positions = []
+    positions: list[_Event] = []
     for bot in bots:
         action_str = " ".join(str(a) for a in actions.get(bot.emoji, ("dead",)))
         positions.append({

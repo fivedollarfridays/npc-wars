@@ -18,7 +18,7 @@ def spawn_positions(player_count: int, grid_size: int, rng: random.Random) -> li
     """Generate spawn positions with minimum 3-tile spacing, 2+ tiles from edge."""
     min_spacing = 3
     edge_buffer = 2
-    positions = []
+    positions: list[tuple[int, int]] = []
 
     attempts = 0
     max_attempts = 10000
@@ -51,7 +51,7 @@ def spawn_positions(player_count: int, grid_size: int, rng: random.Random) -> li
 
 def get_storm_border(round_num: int) -> int:
     """Calculate storm border for a given round.
-    
+
     Returns the number of tiles from edge that are in the storm.
     0 = no storm, 1 = outermost ring is storm, etc.
     """

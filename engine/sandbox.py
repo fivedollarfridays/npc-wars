@@ -5,6 +5,7 @@ For production (community PRs), upgrade to subprocess isolation.
 """
 
 import threading
+from typing import Any, Callable
 
 __all__ = [
     "BotExecutionError", "execute_decide",
@@ -16,15 +17,15 @@ class BotExecutionError(Exception):
     pass
 
 
-def execute_decide(decide_func, state: dict, timeout: float = 1.0) -> tuple | None:
+def execute_decide(decide_func: Callable[..., Any], state: dict[str, Any], timeout: float = 1.0) -> tuple[str, ...] | None:
     """Execute a bot's decide() function with timeout.
 
     Returns the action tuple, or None if the bot failed/timed out.
     """
-    result = [None]
-    error = [None]
+    result: list[Any] = [None]
+    error: list[str | None] = [None]
 
-    def run():
+    def run() -> None:
         try:
             result[0] = decide_func(state)
         except Exception as e:
@@ -41,7 +42,8 @@ def execute_decide(decide_func, state: dict, timeout: float = 1.0) -> tuple | No
     if error[0] is not None:
         return None  # Exception
 
-    return result[0]
+    rv: tuple[str, ...] | None = result[0]
+    return rv
 
 
 VALID_DIRECTIONS = {"north", "south", "east", "west"}
@@ -54,7 +56,7 @@ VALID_ACTIONS = {
 }
 
 
-def validate_action(action) -> tuple | None:
+def validate_action(action: Any) -> tuple[str, ...] | None:
     """Validate an action tuple returned by decide().
 
     Returns normalized action tuple or None if invalid.
