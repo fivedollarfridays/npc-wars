@@ -5,31 +5,15 @@ from discord import app_commands
 from typing import Any
 
 from data.match_history import get_latest_match, get_match
+from discord_bot.embeds import to_embed
+from discord_bot.formatters import format_results
 
 __all__ = ["build_results_embed", "results_callback", "register_commands"]
 
 
 def build_results_embed(match_data: dict[str, Any]) -> discord.Embed:
     """Build a Discord embed showing match results with winner and placements."""
-    winner = match_data["winner"]
-    duration = match_data["duration_rounds"]
-    match_id = match_data["match_id"]
-    eliminations: list[dict[str, Any]] = match_data.get("eliminations", [])
-
-    embed = discord.Embed(
-        title=f"\U0001f4ca Match #{match_id} Results",
-        description=f"\U0001f3c6 Winner: **{winner}**",
-        color=discord.Color.gold(),
-    )
-    embed.add_field(name="Duration", value=f"{duration} rounds", inline=True)
-
-    # Placements: winner first, then reverse elimination order
-    elim_emojis = [e["emoji"] for e in eliminations]
-    ordered = [winner] + [e for e in reversed(elim_emojis) if e != winner]
-    lines = [f"{i + 1}. {emoji}" for i, emoji in enumerate(ordered)]
-    embed.add_field(name="Placements", value="\n".join(lines) or "\u2014", inline=False)
-
-    return embed
+    return to_embed(format_results(match_data))
 
 
 async def results_callback(

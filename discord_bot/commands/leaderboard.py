@@ -4,43 +4,17 @@ import discord
 from discord import app_commands
 from typing import Any
 
-__all__ = ["build_leaderboard_embed", "leaderboard_callback", "register_commands"]
+from discord_bot.embeds import to_embed
+from discord_bot.formatters import format_leaderboard
 
-PAGE_SIZE = 10
+__all__ = ["build_leaderboard_embed", "leaderboard_callback", "register_commands"]
 
 
 def build_leaderboard_embed(
     rankings: list[dict[str, Any]], page: int = 1, sort_by: str = "wins",
 ) -> discord.Embed:
     """Build a Discord embed showing ranked bots with pagination."""
-    total_pages = max(1, (len(rankings) + PAGE_SIZE - 1) // PAGE_SIZE)
-    page = max(1, min(page, total_pages))
-    start = (page - 1) * PAGE_SIZE
-    page_slice = rankings[start:start + PAGE_SIZE]
-
-    if not page_slice:
-        embed = discord.Embed(
-            title="\U0001f3c6 Leaderboard",
-            description="No data yet.",
-            color=discord.Color.blue(),
-        )
-        embed.set_footer(text="Page 1/1")
-        return embed
-
-    lines = []
-    for i, entry in enumerate(page_slice, start=start + 1):
-        emoji = entry["emoji"]
-        wins = entry.get("wins", 0)
-        kills = entry.get("kills", 0)
-        lines.append(f"{i}. {emoji} \u2014 {wins}W / {kills}K")
-
-    embed = discord.Embed(
-        title=f"\U0001f3c6 Leaderboard (by {sort_by})",
-        description="\n".join(lines),
-        color=discord.Color.blue(),
-    )
-    embed.set_footer(text=f"Page {page}/{total_pages}")
-    return embed
+    return to_embed(format_leaderboard(rankings, page=page, sort_by=sort_by))
 
 
 async def leaderboard_callback(

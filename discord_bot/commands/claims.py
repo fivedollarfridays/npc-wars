@@ -4,6 +4,16 @@ import discord
 from discord import app_commands
 
 from data.emoji_claims import claim_emoji, unclaim_emoji, get_claims
+from discord_bot.embeds import to_embed
+from discord_bot.formatters import format_claim_response, format_unclaim_response
+
+
+def _sync_state(state: dict, new_state: dict) -> None:
+    """Sync state dict in-place: add new keys, remove deleted keys."""
+    for key in list(state.keys()):
+        if key not in new_state:
+            del state[key]
+    state.update(new_state)
 
 
 async def claim_callback(
@@ -13,19 +23,8 @@ async def claim_callback(
     user_id = str(interaction.user.id)
     new_state, ok, reason = claim_emoji(state, user_id, emoji)
     if ok:
-        state.update(new_state)
-        # Remove keys no longer in new_state (not needed for claim, but safe)
-        embed = discord.Embed(
-            title="Emoji Claimed",
-            description=f"{emoji} is now yours!",
-            color=discord.Color.green(),
-        )
-    else:
-        embed = discord.Embed(
-            title="Claim Failed",
-            description=reason,
-            color=discord.Color.red(),
-        )
+        _sync_state(state, new_state)
+    embed = to_embed(format_claim_response(emoji, ok, reason))
     await interaction.response.send_message(embed=embed)
 
 
@@ -36,22 +35,8 @@ async def unclaim_callback(
     user_id = str(interaction.user.id)
     new_state, ok, reason = unclaim_emoji(state, user_id, emoji)
     if ok:
-        # Sync state dict in-place: remove unclaimed key
-        for key in list(state.keys()):
-            if key not in new_state:
-                del state[key]
-        state.update(new_state)
-        embed = discord.Embed(
-            title="Emoji Released",
-            description=f"{emoji} unclaimed.",
-            color=discord.Color.green(),
-        )
-    else:
-        embed = discord.Embed(
-            title="Unclaim Failed",
-            description=reason,
-            color=discord.Color.red(),
-        )
+        _sync_state(state, new_state)
+    embed = to_embed(format_unclaim_response(emoji, ok, reason))
     await interaction.response.send_message(embed=embed)
 
 
@@ -61,18 +46,10 @@ async def roster_callback(
     """Show all claimed emojis."""
     claims = get_claims(state)
     if not claims:
-        embed = discord.Embed(
-            title="Roster",
-            description="No emojis claimed yet.",
-            color=discord.Color.blue(),
-        )
+        description = "No emojis claimed yet."
     else:
-        lines = [f"{emoji} -> <@{uid}>" for emoji, uid in claims.items()]
-        embed = discord.Embed(
-            title="Roster",
-            description="\n".join(lines),
-            color=discord.Color.blue(),
-        )
+        description = "\n".join(f"{emoji} -> <@{uid}>" for emoji, uid in claims.items())
+    embed = discord.Embed(title="Roster", description=description, color=discord.Color.blue())
     await interaction.response.send_message(embed=embed)
 
 
