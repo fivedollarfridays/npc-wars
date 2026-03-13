@@ -1,14 +1,18 @@
 """Load bot modules from the bots/ directory."""
 
+import importlib.abc
 import importlib.util
 import os
-import sys
+from typing import Any
 
 
-def _load_single_bot(filepath, filename):
+def _load_single_bot(filepath: str, filename: str) -> dict[str, Any] | None:
     """Load and validate a single bot module. Returns dict or None."""
     try:
         spec = importlib.util.spec_from_file_location(f"bot_{filename[:-3]}", filepath)
+        if spec is None or not isinstance(spec.loader, importlib.abc.Loader):
+            print(f"WARNING: Failed to load {filename}: invalid module spec")
+            return None
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
     except Exception as e:
@@ -27,10 +31,10 @@ def _load_single_bot(filepath, filename):
             "author": getattr(module, "BOT_AUTHOR", "unknown"), "decide_func": decide}
 
 
-def _deduplicate_emojis(bots):
+def _deduplicate_emojis(bots: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """Remove bots with duplicate emojis, keeping first seen."""
-    seen = set()
-    unique = []
+    seen: set[str] = set()
+    unique: list[dict[str, Any]] = []
     for bot in bots:
         if bot["emoji"] in seen:
             print(f"WARNING: Skipping {bot['name']} — duplicate emoji {bot['emoji']}")
@@ -40,12 +44,12 @@ def _deduplicate_emojis(bots):
     return unique
 
 
-def load_bots(bots_dir: str) -> list[dict]:
+def load_bots(bots_dir: str) -> list[dict[str, Any]]:
     """Load all bot modules from a directory.
 
     Returns list of dicts with keys: name, emoji, bio, author, decide_func
     """
-    bots = []
+    bots: list[dict[str, Any]] = []
     for filename in sorted(os.listdir(bots_dir)):
         if not filename.endswith(".py"):
             continue

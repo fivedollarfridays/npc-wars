@@ -1,6 +1,5 @@
 """Tests for consider-item fixes 12-15."""
 
-import importlib
 
 from engine.combat import Bot
 from engine.game import run_match

@@ -1,6 +1,5 @@
 """🪿 GooseLoose — the founder bot. Balanced hunter that chases wounded enemies."""
 
-import math
 
 BOT_NAME = "GooseLoose"
 BOT_EMOJI = "🪿"

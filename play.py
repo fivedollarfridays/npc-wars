@@ -4,10 +4,7 @@
 import sys
 import os
 import shutil
-import json
 import http.server
-import threading
-import webbrowser
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -26,7 +23,31 @@ def get_next_match_id(results_dir):
     return max(ids) + 1
 
 
-def main():
+def _print_match_result(match_data: dict, filepath: str, viewer_match: str) -> None:
+    winner = match_data["winner"]
+    duration = match_data["duration_rounds"]
+    player = next((p for p in match_data["players"] if p["emoji"] == winner), None)
+    print(f"🏆 WINNER: {winner} {player['name'] if player else ''}")
+    print(f"⏱️  {duration} rounds\n")
+    print("💀 Kill Feed:")
+    for elim in match_data["eliminations"]:
+        print(f"   R{elim['round']}: {elim.get('killed_by', '?')} → {elim['emoji']} ({elim['cause']})")
+    print(f"\n📁 Match saved: {filepath}")
+    print(f"📺 Viewer: open viewer/match.html and load {viewer_match}")
+
+
+def _start_viewer_server(project_dir: str, match_id: int) -> None:
+    print("\n🌐 Starting local server...")
+    os.chdir(project_dir)
+    handler = http.server.SimpleHTTPRequestHandler
+    httpd = http.server.HTTPServer(("", 8080), handler)
+    url = f"http://localhost:8080/viewer/match.html?match=match_{match_id:03d}.json"
+    print(f"   {url}")
+    print("   Ctrl+C to stop\n")
+    httpd.serve_forever()
+
+
+def main() -> None:
     project_dir = os.path.dirname(os.path.abspath(__file__))
     bots_dir = os.path.join(project_dir, "bots")
     results_dir = os.path.join(project_dir, "results")
@@ -50,35 +71,11 @@ def main():
     match_data = run_match(bot_configs, match_id=match_id, seed=seed)
     filepath = write_match(match_data, results_dir)
 
-    # Copy to viewer for easy loading
     viewer_match = os.path.join(viewer_dir, f"match_{match_id:03d}.json")
     shutil.copy2(filepath, viewer_match)
 
-    winner = match_data["winner"]
-    duration = match_data["duration_rounds"]
-    player = next((p for p in match_data["players"] if p["emoji"] == winner), None)
-
-    print(f"🏆 WINNER: {winner} {player['name'] if player else ''}")
-    print(f"⏱️  {duration} rounds\n")
-
-    print("💀 Kill Feed:")
-    for elim in match_data["eliminations"]:
-        print(f"   R{elim['round']}: {elim.get('killed_by', '?')} → {elim['emoji']} ({elim['cause']})")
-
-    print(f"\n📁 Match saved: {filepath}")
-    print(f"📺 Viewer: open viewer/match.html and load {viewer_match}")
-
-    # Start local server for the viewer
-    print(f"\n🌐 Starting local server...")
-    os.chdir(project_dir)
-    handler = http.server.SimpleHTTPRequestHandler
-    httpd = http.server.HTTPServer(("", 8080), handler)
-
-    url = f"http://localhost:8080/viewer/match.html?match=match_{match_id:03d}.json"
-    print(f"   {url}")
-    print(f"   Ctrl+C to stop\n")
-
-    httpd.serve_forever()
+    _print_match_result(match_data, filepath, viewer_match)
+    _start_viewer_server(project_dir, match_id)
 
 
 if __name__ == "__main__":

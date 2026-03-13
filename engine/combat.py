@@ -1,5 +1,6 @@
 """Combat mechanics for NPC Wars."""
 
+from typing import Any, Callable
 
 # Starting stats (identical for all bots)
 STARTING_HP = 100
@@ -49,7 +50,8 @@ __all__ = [
 class Bot:
     """Runtime state for a bot in a match."""
 
-    def __init__(self, *, name: str, emoji: str, bio: str, author: str, decide_func, x: int, y: int):
+    def __init__(self, *, name: str, emoji: str, bio: str, author: str,
+                 decide_func: Callable[..., Any], x: int, y: int) -> None:
         self.name = name
         self.emoji = emoji
         self.bio = bio
@@ -73,11 +75,11 @@ class Bot:
         """Check if bot has enough energy for any action (move is cheapest at 5)."""
         return self.energy >= MOVE_COST
 
-    def apply_action_cost(self, action_type: str):
+    def apply_action_cost(self, action_type: str) -> None:
         """Deduct energy for an action."""
         self.energy = max(0, self.energy - ACTION_COSTS.get(action_type, 0))
 
-    def to_enemy_dict(self) -> dict:
+    def to_enemy_dict(self) -> dict[str, Any]:
         """Bot info visible to other bots."""
         return {
             "name": self.name,
@@ -87,7 +89,7 @@ class Bot:
             "hp": self.hp,
         }
 
-    def to_self_dict(self) -> dict:
+    def to_self_dict(self) -> dict[str, Any]:
         """Full bot info visible to self."""
         return {
             "x": self.x,
@@ -104,9 +106,9 @@ def calculate_damage(attacker: Bot, defender: Bot) -> int:
     return max(0, attacker.attack_power - defender.defense)
 
 
-def resolve_deaths(bots: list[Bot], round_num: int) -> list[dict]:
+def resolve_deaths(bots: list[Bot], round_num: int) -> list[dict[str, Any]]:
     """Check for deaths and return elimination records.
-    
+
     Death ordering: lower HP dies first, then lower energy, then less total damage dealt.
     """
     newly_dead = [b for b in bots if b.alive and b.hp <= 0]

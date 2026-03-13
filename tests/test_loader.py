@@ -1,6 +1,5 @@
 """Tests for engine/loader.py — bot discovery, validation, error handling."""
 
-import os
 
 from engine.loader import load_bots
 

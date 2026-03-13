@@ -2,7 +2,7 @@
 
 from tests.conftest import make_bot
 from engine.rounds import resolve_decisions, apply_energy_and_rest, resolve_attacks
-from engine.combat import REST_HEAL, REST_ENERGY_RESTORE, MAX_HP, MAX_ENERGY, STORM_DAMAGE
+from engine.combat import REST_HEAL, REST_ENERGY_RESTORE
 
 
 # ---------------------------------------------------------------------------
