@@ -25,15 +25,11 @@ async def leaderboard_callback(
     match_data_list: list[dict[str, Any]] | None = None,
 ) -> None:
     """Handle the /leaderboard command interaction."""
-    from data.match_history import list_matches, get_match
+    from data.match_history import get_all_matches
     from data.leaderboard import aggregate_stats, get_rankings
 
     if match_data_list is None:
-        index = list_matches(results_dir)
-        match_data_list = [
-            m for entry in index
-            if (m := get_match(results_dir, entry["match_id"])) is not None
-        ]
+        match_data_list = get_all_matches(results_dir)
 
     if not match_data_list:
         await interaction.response.send_message(

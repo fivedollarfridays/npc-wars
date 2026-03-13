@@ -5,6 +5,7 @@ Use load_match for file I/O at the edges.
 """
 
 import json
+from typing import Any
 
 __all__ = ["aggregate_stats", "get_rankings", "get_bot_stats", "load_match"]
 
@@ -12,7 +13,7 @@ VALID_SORT_FIELDS = {"wins", "losses", "kills", "damage_dealt", "damage_taken",
                      "matches_played", "win_rate", "avg_placement"}
 
 
-def _compute_placements(match: dict) -> dict[str, int]:
+def _compute_placements(match: dict[str, Any]) -> dict[str, int]:
     """Return {emoji: placement} for a match (1 = winner, higher = earlier eliminated)."""
     num_players = len(match["players"])
     placements = {}
@@ -23,7 +24,7 @@ def _compute_placements(match: dict) -> dict[str, int]:
     return placements
 
 
-def _empty_bot_stats() -> dict:
+def _empty_bot_stats() -> dict[str, Any]:
     return {
         "wins": 0, "losses": 0, "kills": 0,
         "damage_dealt": 0, "damage_taken": 0,
@@ -32,7 +33,7 @@ def _empty_bot_stats() -> dict:
     }
 
 
-def aggregate_stats(matches: list[dict]) -> dict:
+def aggregate_stats(matches: list[dict[str, Any]]) -> dict[str, dict[str, Any]]:
     """Aggregate stats across matches. Returns {emoji: stats_dict}."""
     stats = {}
 
@@ -66,7 +67,7 @@ def aggregate_stats(matches: list[dict]) -> dict:
     return stats
 
 
-def get_rankings(stats: dict, sort_by: str = "wins") -> list[dict]:
+def get_rankings(stats: dict[str, dict[str, Any]], sort_by: str = "wins") -> list[dict[str, Any]]:
     """Return list of bots sorted by the given stat (descending, except avg_placement ascending).
 
     Raises ValueError for unknown sort fields.
@@ -80,12 +81,12 @@ def get_rankings(stats: dict, sort_by: str = "wins") -> list[dict]:
     return ranked
 
 
-def get_bot_stats(stats: dict, bot_emoji: str) -> dict | None:
+def get_bot_stats(stats: dict[str, dict[str, Any]], bot_emoji: str) -> dict[str, Any] | None:
     """Return stats for a single bot, or None if not found."""
     return stats.get(bot_emoji)
 
 
-def load_match(path: str) -> dict:
+def load_match(path: str) -> dict[str, Any]:
     """Load a match JSON file. Raises FileNotFoundError if missing."""
     with open(path) as f:
         return json.load(f)

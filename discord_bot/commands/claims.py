@@ -1,9 +1,11 @@
 """Slash commands for emoji claims: /claim, /unclaim, /roster."""
 
+from typing import Any, Callable
+
 import discord
 from discord import app_commands
 
-from data.emoji_claims import claim_emoji, unclaim_emoji, get_claims
+from data.emoji_claims import claim_emoji, unclaim_emoji, get_claims, save_claims
 from discord_bot.embeds import to_embed
 from discord_bot.formatters import format_claim_response, format_unclaim_response, format_roster
 
@@ -20,28 +22,47 @@ def _sync_state(state: dict, new_state: dict) -> None:
     state.update(new_state)
 
 
-async def claim_callback(
-    interaction: discord.Interaction, emoji: str, state: dict
+async def _mutate_and_respond(
+    interaction: discord.Interaction,
+    emoji: str,
+    state: dict,
+    mutate_fn: Callable[[dict, str, str], tuple[dict, bool, str]],
+    format_fn: Callable[[str, bool, str], dict[str, Any]],
+    claims_path: str | None = None,
 ) -> None:
-    """Claim an emoji as the user's bot identifier."""
+    """Apply a claim mutation, persist if successful, and send formatted response."""
     user_id = str(interaction.user.id)
-    new_state, ok, reason = claim_emoji(state, user_id, emoji)
+    new_state, ok, reason = mutate_fn(state, user_id, emoji)
     if ok:
         _sync_state(state, new_state)
-    embed = to_embed(format_claim_response(emoji, ok, reason))
+        if claims_path is not None:
+            save_claims(state, claims_path)
+    embed = to_embed(format_fn(emoji, ok, reason))
     await interaction.response.send_message(embed=embed)
+
+
+async def claim_callback(
+    interaction: discord.Interaction,
+    emoji: str,
+    state: dict,
+    claims_path: str | None = None,
+) -> None:
+    """Claim an emoji as the user's bot identifier."""
+    await _mutate_and_respond(
+        interaction, emoji, state, claim_emoji, format_claim_response, claims_path,
+    )
 
 
 async def unclaim_callback(
-    interaction: discord.Interaction, emoji: str, state: dict
+    interaction: discord.Interaction,
+    emoji: str,
+    state: dict,
+    claims_path: str | None = None,
 ) -> None:
     """Release an emoji claim."""
-    user_id = str(interaction.user.id)
-    new_state, ok, reason = unclaim_emoji(state, user_id, emoji)
-    if ok:
-        _sync_state(state, new_state)
-    embed = to_embed(format_unclaim_response(emoji, ok, reason))
-    await interaction.response.send_message(embed=embed)
+    await _mutate_and_respond(
+        interaction, emoji, state, unclaim_emoji, format_unclaim_response, claims_path,
+    )
 
 
 async def roster_callback(
@@ -53,7 +74,10 @@ async def roster_callback(
 
 
 def register_commands(
-    tree: app_commands.CommandTree, guild: discord.Object, state: dict
+    tree: app_commands.CommandTree,
+    guild: discord.Object,
+    state: dict,
+    claims_path: str | None = None,
 ) -> None:
     """Register /claim, /unclaim, /roster on the command tree."""
 
@@ -63,8 +87,9 @@ def register_commands(
         guild=guild,
     )
     @app_commands.describe(emoji="The emoji to claim")
+    @app_commands.checks.cooldown(1, 5.0)
     async def claim(interaction: discord.Interaction, emoji: str) -> None:
-        await claim_callback(interaction, emoji, state)
+        await claim_callback(interaction, emoji, state, claims_path=claims_path)
 
     @tree.command(
         name="unclaim",
@@ -72,8 +97,9 @@ def register_commands(
         guild=guild,
     )
     @app_commands.describe(emoji="The emoji to release")
+    @app_commands.checks.cooldown(1, 5.0)
     async def unclaim(interaction: discord.Interaction, emoji: str) -> None:
-        await unclaim_callback(interaction, emoji, state)
+        await unclaim_callback(interaction, emoji, state, claims_path=claims_path)
 
     @tree.command(
         name="roster",

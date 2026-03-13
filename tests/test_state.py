@@ -9,7 +9,7 @@ class TestBuildState:
     def test_top_level_keys(self):
         bot = make_bot()
         state = build_state(bot, [bot], round_num=1, grid_size=10, storm_border=0)
-        assert set(state.keys()) == {"me", "enemies", "round", "grid_size", "storm_border"}
+        assert set(state.keys()) == {"me", "enemies", "round", "grid_size", "storm_border", "bumps_last_round"}
 
     def test_round_and_grid_values(self):
         bot = make_bot()
@@ -61,3 +61,25 @@ class TestBuildState:
         dead2 = make_bot(emoji="☠️", alive=False)
         state = build_state(survivor, [survivor, dead1, dead2], round_num=50, grid_size=10, storm_border=5)
         assert state["enemies"] == []
+
+
+class TestBumpsLastRound:
+    def test_bumps_last_round_key_exists(self):
+        bot = make_bot()
+        state = build_state(bot, [bot], round_num=1, grid_size=10, storm_border=0, bumps_last_round=[])
+        assert "bumps_last_round" in state
+
+    def test_bumps_last_round_empty_by_default(self):
+        bot = make_bot()
+        state = build_state(bot, [bot], round_num=1, grid_size=10, storm_border=0)
+        assert state["bumps_last_round"] == []
+
+    def test_bumps_last_round_contains_events(self):
+        bot = make_bot()
+        bump_events = [
+            {"type": "bump", "bumper": "🅰️", "bumped": "🅱️", "from": [3, 4], "to": [3, 5]},
+            {"type": "wall_splat", "bot": "🅱️", "damage": 10},
+        ]
+        state = build_state(bot, [bot], round_num=5, grid_size=10, storm_border=1, bumps_last_round=bump_events)
+        assert state["bumps_last_round"] == bump_events
+        assert len(state["bumps_last_round"]) == 2

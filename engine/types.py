@@ -22,12 +22,18 @@ class SelfInfo(TypedDict):
     defense: int
 
 
+# Loose event/record types (mixed keys)
+Event = dict[str, Any]
+MatchData = dict[str, Any]
+
+
 class GameState(TypedDict):
     me: SelfInfo
     enemies: list[EnemyInfo]
     round: int
     grid_size: int
     storm_border: int
+    bumps_last_round: list[Event]
 
 
 class BotConfig(TypedDict):
@@ -36,8 +42,3 @@ class BotConfig(TypedDict):
     bio: str
     author: str
     decide_func: Any  # Callable[..., Any] -- user-provided
-
-
-# Loose event/record types (mixed keys)
-Event = dict[str, Any]
-MatchData = dict[str, Any]

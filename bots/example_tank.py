@@ -26,7 +26,7 @@ def decide(state):
     # If adjacent enemy exists, counterattack the weakest
     if adjacent:
         target, dx, dy = min(adjacent, key=lambda a: a[0]["hp"])
-        if me["energy"] >= 15:
+        if me["energy"] >= 10:
             if dx == 1: return ("attack", "east")
             if dx == -1: return ("attack", "west")
             if dy == 1: return ("attack", "south")

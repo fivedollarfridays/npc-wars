@@ -3,9 +3,11 @@
 from tests.conftest import make_bot
 
 from engine.combat import (
+    ACTION_COSTS,
     ATTACK_COST,
     DEFEND_COST,
     MOVE_COST,
+    REST_HEAL,
     STARTING_DEFENSE,
     STARTING_ENERGY,
     STARTING_HP,
@@ -28,7 +30,7 @@ class TestBotDefaults:
 
     def test_starting_attack_power(self):
         bot = make_bot()
-        assert bot.attack_power == STARTING_ATTACK_POWER == 15
+        assert bot.attack_power == STARTING_ATTACK_POWER == 25
 
     def test_starting_defense(self):
         bot = make_bot()
@@ -144,3 +146,20 @@ class TestResolveDeaths:
         bot = make_bot(hp=0)
         resolve_deaths([bot], round_num=1)
         assert bot.alive is False
+
+
+# --- Balance constants (T8.1) ---
+
+
+class TestBalanceConstants:
+    def test_attack_power_is_25(self):
+        assert STARTING_ATTACK_POWER == 25
+
+    def test_rest_heal_is_5(self):
+        assert REST_HEAL == 5
+
+    def test_attack_cost_is_10(self):
+        assert ATTACK_COST == 10
+
+    def test_action_costs_attack_is_10(self):
+        assert ACTION_COSTS["attack"] == 10

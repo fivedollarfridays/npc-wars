@@ -1,6 +1,8 @@
 """YouTube upload pipeline — metadata generation, thumbnail extraction, video upload."""
 
+import os
 import subprocess
+from pathlib import Path
 from typing import Any
 
 from googleapiclient.http import MediaFileUpload
@@ -55,20 +57,39 @@ def build_metadata(match_data: dict) -> dict:
     return {"title": title, "description": description, "tags": tags, "category_id": YOUTUBE_CATEGORY_GAMING}
 
 
-def extract_thumbnail(video_path: str, output_path: str, timestamp: str = "00:00:05") -> str:
+def _validate_path(path: str, base_dir: str) -> None:
+    """Raise ValueError if resolved path escapes base_dir."""
+    resolved = Path(path).resolve()
+    base = Path(base_dir).resolve()
+    if not str(resolved).startswith(str(base) + os.sep) and resolved != base:
+        raise ValueError(f"Path traversal detected: {path} escapes {base_dir}")
+
+
+def extract_thumbnail(
+    video_path: str,
+    output_path: str,
+    timestamp: str = "00:00:05",
+    base_dir: str | None = None,
+) -> str:
     """Extract a single frame from a video as a JPEG thumbnail using ffmpeg.
 
     Args:
         video_path: Path to the input video file.
         output_path: Path where the thumbnail JPEG will be written.
         timestamp: Timecode of the frame to extract (default: 5 seconds in).
+        base_dir: If provided, both paths are validated to stay within this
+            directory (prevents path traversal attacks). None skips validation.
 
     Returns:
         output_path on success.
 
     Raises:
+        ValueError: If a path escapes base_dir (path traversal).
         RuntimeError: If ffmpeg exits with a non-zero return code.
     """
+    if base_dir is not None:
+        _validate_path(video_path, base_dir)
+        _validate_path(output_path, base_dir)
     cmd = ["ffmpeg", "-y", "-ss", timestamp, "-i", video_path, "-vframes", "1", output_path]
     result = subprocess.run(cmd, capture_output=True)
     if result.returncode != 0:

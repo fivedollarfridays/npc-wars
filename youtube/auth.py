@@ -1,7 +1,11 @@
 """YouTube API authentication — OAuth2 flow and token persistence."""
 
+import logging
 import os
+import subprocess
 from typing import Any
+
+log = logging.getLogger(__name__)
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -30,6 +34,9 @@ def authenticate(
     Returns:
         Valid google.oauth2.credentials.Credentials object.
     """
+    _warn_if_tracked(client_secrets_path)
+    _warn_if_tracked(token_path)
+
     creds = _load_token(token_path)
 
     if creds and creds.valid:
@@ -71,6 +78,24 @@ def refresh_token(credentials: Credentials, token_path: str) -> Credentials:
     return credentials
 
 
+def _warn_if_tracked(path: str) -> None:
+    """Warn if a file is tracked by git (secrets should not be committed)."""
+    try:
+        result = subprocess.run(
+            ["git", "ls-files", path],
+            capture_output=True,
+            timeout=5,
+        )
+        if result.returncode == 0 and result.stdout.strip():
+            log.warning(
+                "Security warning: %s is tracked by git. "
+                "Credential files should be in .gitignore.",
+                path,
+            )
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        pass  # git not available or too slow — skip check
+
+
 def _load_token(token_path: str) -> Credentials | None:
     """Load credentials from a JSON token file.
 
@@ -82,9 +107,10 @@ def _load_token(token_path: str) -> Credentials | None:
 
 
 def _save_token(credentials: Credentials, token_path: str) -> None:
-    """Persist credentials to a JSON token file."""
+    """Persist credentials to a JSON token file with restricted permissions."""
     with open(token_path, "w") as f:
         f.write(credentials.to_json())
+    os.chmod(token_path, 0o600)
 
 
 def _run_oauth_flow(client_secrets_path: str, scopes: list[str]) -> Credentials:

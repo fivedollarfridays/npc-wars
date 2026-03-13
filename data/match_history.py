@@ -6,11 +6,16 @@ Full match data is loaded on demand via get_match.
 
 import json
 import os
+import re
+from typing import Any
 
-__all__ = ["index_matches", "get_match", "list_matches", "get_latest_match"]
+__all__ = [
+    "index_matches", "get_match", "get_all_matches",
+    "list_matches", "get_latest_match", "next_match_id",
+]
 
 
-def _entry_from_match(data: dict) -> dict:
+def _entry_from_match(data: dict[str, Any]) -> dict[str, Any]:
     """Extract index metadata from a full match dict."""
     return {
         "match_id": data["match_id"],
@@ -22,7 +27,7 @@ def _entry_from_match(data: dict) -> dict:
     }
 
 
-def index_matches(results_dir: str) -> list[dict]:
+def index_matches(results_dir: str) -> list[dict[str, Any]]:
     """Scan results_dir and return sorted index of match metadata."""
     if not os.path.isdir(results_dir):
         return []
@@ -35,24 +40,55 @@ def index_matches(results_dir: str) -> list[dict]:
             with open(path) as f:
                 data = json.load(f)
             entries.append(_entry_from_match(data))
-        except Exception:
+        except (json.JSONDecodeError, OSError):
             continue
     entries.sort(key=lambda e: e["match_id"])
     return entries
 
 
-def get_match(results_dir: str, match_id: int) -> dict | None:
+def next_match_id(results_dir: str) -> int:
+    """Return the next available match_id (max existing + 1, or 1 if empty)."""
+    if not os.path.isdir(results_dir):
+        return 1
+    max_id = 0
+    for filename in os.listdir(results_dir):
+        m = re.match(r"match_(\d+)\.json$", filename)
+        if m:
+            max_id = max(max_id, int(m.group(1)))
+    return max_id + 1
+
+
+def get_all_matches(results_dir: str) -> list[dict[str, Any]]:
+    """Load and return all match data dicts from results_dir in one pass."""
+    if not os.path.isdir(results_dir):
+        return []
+    matches: list[dict[str, Any]] = []
+    for filename in os.listdir(results_dir):
+        if not filename.endswith(".json"):
+            continue
+        path = os.path.join(results_dir, filename)
+        try:
+            with open(path) as f:
+                matches.append(json.load(f))
+        except (json.JSONDecodeError, OSError):
+            continue
+    matches.sort(key=lambda m: m.get("match_id", 0))
+    return matches
+
+
+def get_match(results_dir: str, match_id: int) -> dict[str, Any] | None:
     """Load and return a full match dict by ID, or None if not found."""
     path = os.path.join(results_dir, f"match_{match_id:03d}.json")
-    if not os.path.exists(path):
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except FileNotFoundError:
         return None
-    with open(path) as f:
-        return json.load(f)
 
 
 def list_matches(results_dir: str, limit: int | None = None, offset: int = 0,
                  winner: str | None = None, bot: str | None = None,
-                 after: str | None = None, before: str | None = None) -> list[dict]:
+                 after: str | None = None, before: str | None = None) -> list[dict[str, Any]]:
     """Return index entries with optional filtering and pagination.
 
     Filters applied before pagination:
@@ -77,7 +113,7 @@ def list_matches(results_dir: str, limit: int | None = None, offset: int = 0,
     return entries
 
 
-def get_latest_match(results_dir: str) -> dict | None:
+def get_latest_match(results_dir: str) -> dict[str, Any] | None:
     """Return the full match dict with the highest match_id, or None."""
     index = index_matches(results_dir)
     if not index:

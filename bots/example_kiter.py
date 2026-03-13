@@ -13,7 +13,7 @@ def _dir_toward(dx, dy):
 
 
 def _handle_adjacent(dx, dy, energy):
-    if energy >= 15:
+    if energy >= 10:
         if dx == 1: return ("attack", "east")
         if dx == -1: return ("attack", "west")
         if dy == 1: return ("attack", "south")

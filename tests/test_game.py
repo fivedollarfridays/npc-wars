@@ -1,5 +1,7 @@
 """Tests for engine/game.py — full match e2e with deterministic bots."""
 
+from unittest.mock import patch
+
 from tests.conftest import always_rest, bot_config, chase_and_attack
 
 from engine.game import MAX_ROUNDS, run_match
@@ -54,8 +56,9 @@ class TestRunMatch:
         assert data["winner"] in {"😴", "⚔️"}
         assert data["duration_rounds"] <= MAX_ROUNDS
 
-    def test_200_round_cap(self):
-        """Two resting bots never kill each other — should hit cap."""
+    @patch("engine.game.get_storm_border", return_value=0)
+    def test_200_round_cap(self, _mock_storm):
+        """Two resting bots with no storm never kill each other — should hit cap."""
         configs = [
             bot_config("A", "🅰️", always_rest),
             bot_config("B", "🅱️", always_rest),

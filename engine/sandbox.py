@@ -1,20 +1,39 @@
 """Sandbox for executing bot decide() functions safely.
 
-For local play, this uses threading-based timeout.
-For production (community PRs), upgrade to subprocess isolation.
+Uses multiprocessing for OS-level isolation: bots run in a separate process
+with a deep-copied state dict. Timed-out processes are killed (not abandoned).
 """
 
-import threading
+import logging
+import multiprocessing
 from typing import Any, Callable
+
+log = logging.getLogger(__name__)
 
 __all__ = [
     "BotExecutionError", "execute_decide",
     "VALID_DIRECTIONS", "VALID_ACTIONS", "validate_action",
 ]
 
+_STATUS_OK = "ok"
+_STATUS_ERROR = "error"
+
 
 class BotExecutionError(Exception):
     pass
+
+
+def _run_decide(queue: multiprocessing.Queue, decide_func: Callable[..., Any], state: dict[str, Any]) -> None:  # type: ignore[type-arg]
+    """Worker: call decide on state, put result on queue.
+
+    State is already an independent copy (deserialized from pickle by
+    the multiprocessing boundary), so no deepcopy is needed.
+    """
+    try:
+        result = decide_func(state)
+        queue.put((_STATUS_OK, result))
+    except Exception as e:
+        queue.put((_STATUS_ERROR, str(e)))
 
 
 def execute_decide(decide_func: Callable[..., Any], state: dict[str, Any], timeout: float = 1.0) -> tuple[str, ...] | None:
@@ -22,28 +41,32 @@ def execute_decide(decide_func: Callable[..., Any], state: dict[str, Any], timeo
 
     Returns the action tuple, or None if the bot failed/timed out.
     """
-    result: list[Any] = [None]
-    error: list[str | None] = [None]
+    queue: multiprocessing.Queue = multiprocessing.Queue()  # type: ignore[type-arg]
+    process = multiprocessing.Process(target=_run_decide, args=(queue, decide_func, state))
+    process.start()
+    try:
+        process.join(timeout)
 
-    def run() -> None:
-        try:
-            result[0] = decide_func(state)
-        except Exception as e:
-            error[0] = str(e)
+        if process.is_alive():
+            process.kill()
+            process.join()
+            log.warning("Bot decide() timeout after %.1fs", timeout)
+            return None
 
-    thread = threading.Thread(target=run)
-    thread.daemon = True
-    thread.start()
-    thread.join(timeout)
+        if queue.empty():
+            log.warning("Bot decide() process died without returning a result")
+            return None
 
-    if thread.is_alive():
-        return None  # Timeout
+        status, value = queue.get_nowait()
+        if status == _STATUS_ERROR:
+            log.warning("Bot decide() raised an exception: %s", value)
+            return None
 
-    if error[0] is not None:
-        return None  # Exception
-
-    rv: tuple[str, ...] | None = result[0]
-    return rv
+        rv: tuple[str, ...] | None = value
+        return rv
+    finally:
+        queue.close()
+        queue.join_thread()
 
 
 VALID_DIRECTIONS = {"north", "south", "east", "west"}

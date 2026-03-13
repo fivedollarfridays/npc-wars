@@ -1,5 +1,9 @@
 """Shared test helpers for NPC Wars tests."""
 
+from unittest.mock import AsyncMock, MagicMock
+
+import discord
+
 from engine.combat import Bot
 
 
@@ -40,3 +44,31 @@ def chase_and_attack(state):
     if abs(dx) >= abs(dy):
         return ("move", "east") if dx > 0 else ("move", "west")
     return ("move", "south") if dy > 0 else ("move", "north")
+
+
+def make_mock_interaction(
+    user_id: int | None = None, with_defer: bool = False
+) -> MagicMock:
+    """Create a mock Discord interaction for command testing."""
+    interaction = MagicMock(spec=discord.Interaction)
+    if user_id is not None:
+        interaction.user = MagicMock()
+        interaction.user.id = user_id
+    interaction.response = MagicMock()
+    interaction.response.send_message = AsyncMock()
+    interaction.response.is_done = MagicMock(return_value=False)
+    if with_defer:
+        interaction.response.defer = AsyncMock()
+        interaction.followup = MagicMock()
+        interaction.followup.send = AsyncMock()
+    return interaction
+
+
+def make_bot_config() -> dict:
+    """Create a standard NpcWarsBot config dict for testing."""
+    return {
+        "bot_token": "tok",
+        "guild_id": 42,
+        "announcement_channel_id": None,
+        "results_channel_id": None,
+    }

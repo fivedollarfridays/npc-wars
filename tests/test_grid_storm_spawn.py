@@ -16,40 +16,44 @@ class TestGetStormBorder:
     def test_no_storm_round_1(self):
         assert get_storm_border(1) == 0
 
-    def test_no_storm_round_20(self):
-        assert get_storm_border(20) == 0
+    def test_no_storm_round_9(self):
+        assert get_storm_border(9) == 0
 
-    def test_storm_starts_round_21(self):
-        # (21-20)//5 = 0 — first 5-round block hasn't completed
-        assert get_storm_border(21) == 0
+    def test_storm_round_10(self):
+        # (10-9)//5 = 0 — first 5-round block hasn't completed
+        assert get_storm_border(10) == 0
 
-    def test_storm_round_25(self):
-        # (25-20)//5 = 1
-        assert get_storm_border(25) == 1
+    def test_storm_round_14(self):
+        # (14-9)//5 = 1
+        assert get_storm_border(14) == 1
 
-    def test_storm_round_30(self):
-        # (30-20)//5 = 2
-        assert get_storm_border(30) == 2
+    def test_storm_round_19(self):
+        # (19-9)//5 = 2
+        assert get_storm_border(19) == 2
 
-    def test_storm_round_40(self):
-        # (40-20)//5 = 4
-        assert get_storm_border(40) == 4
+    def test_storm_round_24(self):
+        # (24-9)//5 = 3
+        assert get_storm_border(24) == 3
 
-    def test_endgame_round_41(self):
-        # closing_border=4, (41-40)//2 = 0 → 4
-        assert get_storm_border(41) == 4
+    def test_storm_round_29(self):
+        # (29-9)//5 = 4
+        assert get_storm_border(29) == 4
 
-    def test_endgame_round_42(self):
-        # closing_border=4, (42-40)//2 = 1 → 5
-        assert get_storm_border(42) == 5
+    def test_endgame_round_30(self):
+        # closing_border=4, (30-29)//2 = 0 → 4
+        assert get_storm_border(30) == 4
 
-    def test_endgame_round_50(self):
-        # closing_border=4, (50-40)//2 = 5 → 9
-        assert get_storm_border(50) == 9
+    def test_endgame_round_31(self):
+        # closing_border=4, (31-29)//2 = 1 → 5
+        assert get_storm_border(31) == 5
 
-    def test_endgame_round_60(self):
-        # closing_border=4, (60-40)//2 = 10 → 14
-        assert get_storm_border(60) == 14
+    def test_endgame_round_39(self):
+        # closing_border=4, (39-29)//2 = 5 → 9
+        assert get_storm_border(39) == 9
+
+    def test_endgame_round_49(self):
+        # closing_border=4, (49-29)//2 = 10 → 14
+        assert get_storm_border(49) == 14
 
     def test_monotonically_increasing(self):
         borders = [get_storm_border(r) for r in range(1, 100)]

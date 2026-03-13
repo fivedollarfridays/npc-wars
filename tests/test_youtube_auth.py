@@ -50,6 +50,31 @@ class TestSaveToken:
         with open(token_path) as f:
             assert json.load(f) == {"token": "abc"}
 
+    def test_sets_file_permissions_to_600(self, tmp_path):
+        """Token file must be owner-only (0o600) to protect credentials."""
+        from youtube.auth import _save_token
+
+        token_path = str(tmp_path / "token.json")
+        mock_creds = MagicMock()
+        mock_creds.to_json.return_value = '{"token": "secret"}'
+
+        _save_token(mock_creds, token_path)
+
+        mode = os.stat(token_path).st_mode & 0o777
+        assert mode == 0o600, f"Expected 0o600, got {oct(mode)}"
+
+    def test_chmod_called_with_0o600(self, tmp_path):
+        """Verify os.chmod is explicitly called with 0o600."""
+        from youtube.auth import _save_token
+
+        token_path = str(tmp_path / "token.json")
+        mock_creds = MagicMock()
+        mock_creds.to_json.return_value = '{"token": "abc"}'
+
+        with patch("youtube.auth.os.chmod") as mock_chmod:
+            _save_token(mock_creds, token_path)
+            mock_chmod.assert_called_once_with(token_path, 0o600)
+
 
 # ---------------------------------------------------------------------------
 # authenticate
@@ -202,3 +227,60 @@ class TestRunOauthFlow:
         mock_cls.assert_called_once_with("secrets.json", SCOPES)
         mock_flow.run_local_server.assert_called_once_with(port=0)
         assert result is mock_creds
+
+
+# ---------------------------------------------------------------------------
+# _warn_if_tracked
+# ---------------------------------------------------------------------------
+
+
+class TestWarnIfTracked:
+    def test_warns_when_file_is_tracked(self, tmp_path):
+        from youtube.auth import _warn_if_tracked
+
+        path = str(tmp_path / "secrets.json")
+        with patch("youtube.auth.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0, stdout=b"secrets.json\n")
+            with patch("youtube.auth.log") as mock_log:
+                _warn_if_tracked(path)
+                mock_log.warning.assert_called_once()
+                msg = mock_log.warning.call_args[0][0].lower()
+                assert "git" in msg or "tracked" in msg
+
+    def test_no_warning_when_file_not_tracked(self, tmp_path):
+        from youtube.auth import _warn_if_tracked
+
+        path = str(tmp_path / "secrets.json")
+        with patch("youtube.auth.subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=1, stdout=b"")
+            with patch("youtube.auth.log") as mock_log:
+                _warn_if_tracked(path)
+                mock_log.warning.assert_not_called()
+
+    def test_no_warning_when_git_not_available(self, tmp_path):
+        from youtube.auth import _warn_if_tracked
+
+        path = str(tmp_path / "secrets.json")
+        with patch("youtube.auth.subprocess.run", side_effect=FileNotFoundError):
+            with patch("youtube.auth.log") as mock_log:
+                _warn_if_tracked(path)
+                mock_log.warning.assert_not_called()
+
+    def test_authenticate_calls_warn_for_both_paths(self, tmp_path):
+        from youtube.auth import authenticate
+
+        token_path = str(tmp_path / "token.json")
+        secrets_path = str(tmp_path / "secrets.json")
+        mock_creds = MagicMock()
+        mock_creds.valid = True
+
+        with open(token_path, "w") as f:
+            f.write("{}")
+
+        with patch("youtube.auth._load_token", return_value=mock_creds), \
+             patch("youtube.auth._warn_if_tracked") as mock_warn:
+            authenticate(secrets_path, token_path)
+            assert mock_warn.call_count == 2
+            paths_warned = {call[0][0] for call in mock_warn.call_args_list}
+            assert secrets_path in paths_warned
+            assert token_path in paths_warned

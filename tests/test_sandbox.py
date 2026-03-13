@@ -1,5 +1,6 @@
 """Tests for engine/sandbox.py — action validation, bot execution, timeout."""
 
+import multiprocessing
 import time
 
 from engine.sandbox import execute_decide, validate_action
@@ -110,3 +111,80 @@ class TestExecuteDecide:
             return ("move", "east")
         result = execute_decide(fast_bot, {}, timeout=0.5)
         assert result == ("move", "east")
+
+
+# --- multiprocessing isolation ---
+
+
+class TestSandboxIsolation:
+    def test_state_not_mutated_by_bot(self):
+        """Bot modifying state should not affect the caller's copy."""
+        def mutating_bot(state):
+            state["round"] = 999
+            state["injected"] = "evil"
+            return ("rest",)
+
+        original_state = {"round": 1, "me": {"hp": 100}}
+        result = execute_decide(mutating_bot, original_state)
+        assert result == ("rest",)
+        assert original_state["round"] == 1
+        assert "injected" not in original_state
+        assert original_state["me"]["hp"] == 100
+
+    def test_nested_state_not_mutated(self):
+        """Deep-copy should protect nested dicts too."""
+        def nested_mutator(state):
+            state["me"]["hp"] = 0
+            state["me"]["new_key"] = "bad"
+            return ("defend",)
+
+        original_state = {"round": 1, "me": {"hp": 100, "energy": 50}}
+        result = execute_decide(nested_mutator, original_state)
+        assert result == ("defend",)
+        assert original_state["me"]["hp"] == 100
+        assert "new_key" not in original_state["me"]
+
+    def test_process_terminates_on_timeout(self):
+        """Timed-out process should be killed, not left running."""
+        def infinite_bot(state):
+            while True:
+                pass
+
+        before = len(multiprocessing.active_children())
+        execute_decide(infinite_bot, {}, timeout=0.2)
+        after = len(multiprocessing.active_children())
+        assert after <= before
+
+
+# --- error logging ---
+
+
+class TestSandboxLogging:
+    def test_timeout_logs_warning(self, caplog):
+        """Timeout event should emit a warning log."""
+        import logging
+
+        def slow_bot(state):
+            time.sleep(3)
+            return ("rest",)
+
+        with caplog.at_level(logging.WARNING, logger="engine.sandbox"):
+            execute_decide(slow_bot, {}, timeout=0.1)
+
+        assert any("timeout" in r.message.lower() for r in caplog.records), (
+            f"Expected a warning containing 'timeout', got: {[r.message for r in caplog.records]}"
+        )
+
+    def test_exception_logs_warning(self, caplog):
+        """Exception in bot should emit a warning log."""
+        import logging
+
+        def bad_bot(state):
+            raise RuntimeError("bot exploded")
+
+        with caplog.at_level(logging.WARNING, logger="engine.sandbox"):
+            execute_decide(bad_bot, {}, timeout=2.0)
+
+        assert any("exception" in r.message.lower() or "error" in r.message.lower() for r in caplog.records), (
+            f"Expected a warning about exception/error, got: {[r.message for r in caplog.records]}"
+        )

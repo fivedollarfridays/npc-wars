@@ -8,7 +8,6 @@ Exit codes:
     1 — one or more checks failed
 """
 
-import importlib.util
 import os
 import sys
 
@@ -19,6 +18,7 @@ _PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
+from engine.bot_scanner import load_bot_module  # noqa: E402
 from engine.sandbox import execute_decide, validate_action  # noqa: E402
 
 _MOCK_STATE = {
@@ -28,14 +28,6 @@ _MOCK_STATE = {
     "grid_size": 10,
     "storm_border": 0,
 }
-
-
-def _load_module(path: str):
-    """Load a bot file as a module."""
-    spec = importlib.util.spec_from_file_location("_bot_under_test", path)
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
-    return module
 
 
 def _check_attributes(module) -> list[str]:
@@ -81,7 +73,9 @@ def validate_bot(path: str) -> tuple[bool, list[str]]:
         return False, [f"File not found: {path}"]
 
     try:
-        module = _load_module(path)
+        module = load_bot_module(path)
+    except ValueError as e:
+        return False, str(e).split("; ")
     except SyntaxError as e:
         return False, [f"Syntax error: {e}"]
     except Exception as e:
