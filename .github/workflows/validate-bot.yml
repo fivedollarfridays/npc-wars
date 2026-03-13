@@ -29,24 +29,18 @@ jobs:
       - name: Install dependencies
         run: pip install -e "."
 
-      - name: Find changed bot files
-        id: changed
+      - name: Validate changed bot files
         run: |
           BOTS=$(git diff --name-only origin/${{ github.base_ref }}...HEAD -- 'bots/*.py' \
             | grep -v 'template\.py' | grep -v '^_' || true)
-          echo "bots=$BOTS" >> "$GITHUB_OUTPUT"
-          echo "Changed bots: $BOTS"
-
-      - name: Validate each changed bot
-        run: |
-          BOTS="${{ steps.changed.outputs.bots }}"
           if [ -z "$BOTS" ]; then
             echo "No new/modified bot files detected."
             exit 0
           fi
+          echo "Changed bots: $BOTS"
           FAILED=0
-          for bot in $BOTS; do
+          while IFS= read -r bot; do
             echo "--- Validating $bot ---"
             python scripts/validate_bot.py "$bot" || FAILED=1
-          done
+          done <<< "$BOTS"
           exit $FAILED
