@@ -1,24 +1,24 @@
 # Current State
 
-> Last updated: 2026-03-14 S11 merged (PR #8)
+> Last updated: 2026-03-14 T12.14 done
 
 ## Active Plan
 
 **Plan:** NPC Wars v2 — Spectacle, Human Play & The Watcher
-**Status:** 6 sprints planned, 70 tasks total. 4 sprints done, 2 remaining.
-**Current Sprint:** S12 (The Watcher) — **Ready to Start**
+**Status:** 6 sprints planned, 70 tasks total. 5 sprints done, 1 remaining.
+**Current Sprint:** S12 (The Watcher) — **Done**
 
 ## Current Focus
 
-S11 merged. Ready for S12: The Watcher (adaptive AI boss bot).
+S12 complete. All 14 tasks done (T12.1-T12.14). Ready for S13 (Match Modes & Community).
 
 ## What Was Just Done
 
-**Sprint 11: Human Play & Bounty** — Merged via PR #8. Added copilot mode (human override via pluggable adapters), async match loop with 2s input window, bounty system with co-op scaling, AFK detection, Discord button input, viewer live mode, and WebSocket real-time server. Refactored game.py to eliminate sync/async duplication. 1212 tests, all passing.
+**T12.14: Integration Tests -- The Watcher** — Created `tests/test_integration_watcher.py` with 17 end-to-end integration tests covering all 8 Watcher subsystems: spawn conditions, pattern recording/prediction pipeline, sync calculation, memory persistence roundtrip, rubber-banding, target rotation, spectacle events, stats tracking, and a full 5-round pipeline test. 1400 total passing. Ruff clean. S12 sprint complete.
 
 ## What's Next
 
-Sprint 12: The Watcher — 14 tasks, 380 Cx. Adaptive AI boss that learns player patterns mid-match.
+S13: Match Modes & Community (T13.1-T13.13).
 
 ## Completed Sprints
 
@@ -40,27 +40,26 @@ Sprint 12: The Watcher — 14 tasks, 380 Cx. Adaptive AI boss that learns player
 
 | Sprint | Focus | Tasks | Cx | Status |
 |--------|-------|-------|----|--------|
-| S12 | The Watcher (adaptive boss) | T12.1–T12.14 (14) | 380 | Ready |
 | S13 | Match Modes & Community | T13.1–T13.13 (13) | 375 | Planned |
 
 ## S12 Tasks: The Watcher
 
 | ID | Title | Cx | Status |
 |----|-------|----|--------|
-| T12.1 | Watcher Bot Skeleton & Emoji Identity | 15 | pending |
-| T12.2 | Pattern Table Data Structure | 35 | pending |
-| T12.3 | Per-Player Frequency Counter | 35 | pending |
-| T12.4 | Counter-Action Selection Engine | 50 | pending |
-| T12.5 | Sync Rating Calculation | 25 | pending |
-| T12.6 | Rubber-Banding Difficulty System | 35 | pending |
-| T12.7 | Spawn Conditions & Mid-Match Entry | 35 | pending |
-| T12.8 | Adaptive Target Rotation (Co-op) | 35 | pending |
-| T12.9 | Watcher Memory Persistence (JSON) | 25 | pending |
-| T12.10 | Learning Decay (Session & Cross-Session) | 25 | pending |
-| T12.11 | Full Action Set Access for Watcher | 15 | pending |
-| T12.12 | Watcher Stats & Kill/Death Tracking | 25 | pending |
-| T12.13 | Watcher Spectacle Events | 25 | pending |
-| T12.14 | Integration Tests — The Watcher | 35 | pending |
+| T12.1 | Watcher Bot Skeleton & Emoji Identity | 15 | done |
+| T12.2 | Pattern Table Data Structure | 35 | done |
+| T12.3 | Per-Player Frequency Counter | 35 | done |
+| T12.4 | Counter-Action Selection Engine | 50 | done |
+| T12.5 | Sync Rating Calculation | 25 | done |
+| T12.6 | Rubber-Banding Difficulty System | 35 | done |
+| T12.7 | Spawn Conditions & Mid-Match Entry | 35 | done |
+| T12.8 | Adaptive Target Rotation (Co-op) | 35 | done |
+| T12.9 | Watcher Memory Persistence (JSON) | 25 | done |
+| T12.10 | Learning Decay (Session & Cross-Session) | 25 | done |
+| T12.11 | Full Action Set Access for Watcher | 15 | done |
+| T12.12 | Watcher Stats & Kill/Death Tracking | 25 | done |
+| T12.13 | Watcher Spectacle Events | 25 | done |
+| T12.14 | Integration Tests — The Watcher | 35 | done |
 
 ## Archive
 

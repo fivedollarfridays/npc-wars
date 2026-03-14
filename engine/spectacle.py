@@ -28,6 +28,8 @@ DRAMA_WEIGHTS: dict[str, int] = {
     "chain_bump": 2,
     "near_death": 4,
     "kill_streak": 5,
+    "watcher_spawn": 5,
+    "watcher_kill": 4,
     "watcher_sync": 3,
 }
 
@@ -46,6 +48,9 @@ TRIGGER_EFFECT_MAP: dict[str, str] = {
     "chain_bump": "multiball",
     "last_2": "split_screen",
     "storm_kill": "glitch",
+    "watcher_spawn": "dark_entrance",
+    "watcher_kill": "skull_flash",
+    "watcher_sync": "pulse_wave",
 }
 
 
@@ -121,6 +126,9 @@ class SpectacleEngine:
         has_kill = False
         has_chain_bump = False
         has_kill_streak = False
+        has_watcher_spawn = False
+        has_watcher_kill = False
+        has_watcher_sync = False
         kill_counts: dict[str, int] = {}
 
         for evt in events:
@@ -136,6 +144,12 @@ class SpectacleEngine:
                 has_kill_streak = True
             elif evt_type == "chain_bump":
                 has_chain_bump = True
+            elif evt_type == "watcher_spawn":
+                has_watcher_spawn = True
+            elif evt_type == "watcher_kill":
+                has_watcher_kill = True
+            elif evt_type == "watcher_sync":
+                has_watcher_sync = True
 
         if has_kill:
             triggers.append("kill")
@@ -155,5 +169,13 @@ class SpectacleEngine:
         # last 2 alive
         if _count_alive(bots) == 2:
             triggers.append("last_2")
+
+        # watcher events
+        if has_watcher_spawn:
+            triggers.append("watcher_spawn")
+        if has_watcher_kill:
+            triggers.append("watcher_kill")
+        if has_watcher_sync:
+            triggers.append("watcher_sync")
 
         return triggers
