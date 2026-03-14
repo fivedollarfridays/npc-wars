@@ -20,6 +20,7 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("match_json", help="Path to match JSON file")
     parser.add_argument("--output", "-o", help="Output MP4 path (default: <match>.mp4)")
     parser.add_argument("--fps", type=int, default=4, help="Frames per second (default: 4)")
+    parser.add_argument("--no-audio", action="store_true", help="Skip audio muxing")
     return parser.parse_args(argv)
 
 
@@ -56,7 +57,7 @@ def _main(argv: list[str] | None = None) -> int:
     try:
         from video.video_render import render_match_video
 
-        render_match_video(match_data, output_path, fps=args.fps)
+        render_match_video(match_data, output_path, fps=args.fps, audio=not args.no_audio)
         print(f"Done: {output_path}")
         return 0
     except Exception as e:

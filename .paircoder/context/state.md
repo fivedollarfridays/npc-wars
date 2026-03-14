@@ -6,12 +6,12 @@
 
 **Plan:** NPC Wars v2 — Spectacle, Human Play & The Watcher
 **Status:** All 6 sprints planned, 70 tasks created with full AC
-**Current Sprint:** S8 (Foundation — Balance & Physics) — **COMPLETE**
+**Current Sprint:** S10 (Spectacle & Audio) — **In Progress**
 **Research Doc:** docs/RESEARCH-spectacle-and-human-play.md
 
 ## Current Focus
 
-S8 Sprint complete. All 11 tasks (T8.1-T8.11) done. 701 tests passing. Ready for S9 (Progression System).
+S10 complete. T10.1 through T10.10 all done.
 
 ## v1 Completed Plans
 
@@ -29,8 +29,8 @@ S8 Sprint complete. All 11 tasks (T8.1-T8.11) done. 701 tests passing. Ready for
 | Sprint | Plan ID | Focus | Tasks | Cx | Status |
 |--------|---------|-------|-------|----|--------|
 | S8 | plan-2026-03-s8-balance-physics | Balance & Physics | T8.1–T8.11 | 320 | Done ✓ |
-| S9 | plan-2026-03-s9-progression | Progression System | T9.1–T9.11 | 325 | Planned |
-| S10 | plan-2026-03-s10-spectacle | Spectacle & Audio | T10.1–T10.10 | 335 | Planned |
+| S9 | plan-2026-03-s9-progression | Progression System | T9.1–T9.11 | 325 | Done |
+| S10 | plan-2026-03-s10-spectacle | Spectacle & Audio | T10.1–T10.10 | 335 | Done ✓ |
 | S11 | plan-2026-03-s11-human-play | Human Play & Bounty | T11.1–T11.11 | 375 | Planned |
 | S12 | plan-2026-03-s12-watcher | The Watcher (🍆) | T12.1–T12.14 | 380 | Planned |
 | S13 | plan-2026-03-s13-modes-community | Match Modes & Community | T13.1–T13.13 | 375 | Planned |
@@ -98,6 +98,68 @@ S8 Sprint complete. All 11 tasks (T8.1-T8.11) done. 701 tests passing. Ready for
 | T5.3 | Auto-publish CLI: render + upload in one command | 20 | feature | done ✓ |
 
 ## What Was Just Done
+
+- **T10.10 done** -- Integration Tests for Spectacle. Created tests/test_integration_spectacle.py (157 lines) with 16 tests covering the full spectacle pipeline end-to-end: spectacle metadata presence in all rounds (2 tests), tier validity and calm-on-zero-events (2 tests), drama score non-negativity (1 test), trigger-effect consistency for kill/shatter, kill_streak/fire_border, near_death/slow_mo, chain_bump/multiball (4 tests), zero-score calm baseline (1 test), build_audio_timeline returns list of (timestamp_ms, path) tuples (2 tests), build_hype_volume_curve returns one entry per round with volumes in [0.0, 1.0] (2 tests), render_match_video accepts audio param defaulting to True (2 tests). Uses seeded run_match with 6 bots (mix of chase_and_attack and always_rest). All 1013 tests pass, ruff clean.
+
+- **T10.5 done** -- Three-Layer Audio Mixer for Video. Created audio/mixer.py (56 lines) with TIER_VOLUMES dict (calm=0.1, heating=0.3, intense=0.5, hype=0.8, chaos=1.0), build_audio_timeline(match_data, round_duration_ms) returning sorted (timestamp_ms, audio_file_path) tuples from round events via get_stinger_path, and build_hype_volume_curve(match_data, round_duration_ms) returning (timestamp_ms, volume) keyframes from spectacle tier per round. Created audio/renderer.py (47 lines) with mux_audio_into_video (ffmpeg silent stereo AAC mux via anullsrc) and has_audio_stream (ffprobe check). Updated audio/__init__.py to export mixer symbols. Wired into video/video_render.py: render_match_video gained audio=True param, encodes to temp file then mux_audio_into_video. Updated scripts/render_video.py with --no-audio flag. 15 tests in tests/test_audio_mixer.py across 3 classes (TestBuildAudioTimeline, TestBuildHypeVolumeCurve, TestTierVolumes). All 997 tests pass, ruff clean.
+
+- **T10.9 done** -- Hype Track Escalation System. Created audio/hype.py (149 lines) with HYPE_TRACKS dict (3 intensities: ambient, mid, peak), INTENSITY_VOLUMES, _TIER_TO_INTENSITY mapping, select_hype_track(tier) returning {track, volume, intensity}, and build_hype_timeline(match_data) producing crossfade events on tier transitions (CROSSFADE_MS=500, no event when consecutive rounds share intensity). 3 hype WAV generators: _gen_hype_ambient (gentle sine harmonics at 55/110/165Hz), _gen_hype_mid (sine+square mix at 110/220Hz), _gen_hype_peak (rapid modulated square at 330Hz). Auto-generates 3 WAV assets (~40KB each, 5s at 8kHz) on import if missing. 14 tests in tests/test_hype.py across 3 classes (TestSelectHypeTrack, TestHypeTracks, TestBuildHypeTimeline). All 71 audio tests pass, ruff clean.
+
+- **T10.8 done** -- Web Audio Integration in Viewer. Added AudioEngine class to viewer/match.html with Web Audio API: init() creates AudioContext + master gain node, loadStinger() fetches and decodes WAV buffers, play(eventType, tier) plays buffers with tier-based volume scaling (calm=0.3 to chaos=1.0), setMasterVolume/mute/unmute/toggleMute for volume control. Added audio controls UI (mute button + volume slider) in controls bar. Wired into initViewer() (init + load 13 stingers from audio/assets/) and renderRound() (play stingers for each event). Volume persisted to localStorage as 'npc-wars-volume'. 12 structural tests in tests/test_viewer_audio.py verify class definition, methods, UI elements, CSS, global instance, renderRound integration, and localStorage persistence. All tests pass, ruff clean, arch clean.
+
+- **T10.6 done** -- Viewer Spectacle FX (CSS/JS). Added 4 CSS @keyframes animations to viewer/match.html: screen-shake (translate offset), fire-border (inset box-shadow pulse), subtle-pulse (slight scale), slow-mo-flash (brightness/saturation). Added .spectacle-banner class with banner-fade animation for overlay text. Added applySpectacleEffects(tier, triggers, effects) JS function: clears previous effects, applies tier-based animations (heating=subtle-pulse, intense/hype/chaos=screen-shake on kill, hype/chaos=fire-border), slow_mo filter, and trigger-based banners (UNSTOPPABLE, MULTI-BUMP, FINAL SHOWDOWN). Added showBanner(text, color) helper. Wired into renderRound() via round.spectacle metadata. 6 structural tests in tests/test_viewer_spectacle.py verify function definitions, CSS keyframes, banner class, and renderRound integration. All 956 tests pass, ruff clean.
+
+- **T10.7 done** -- Video Renderer Spectacle FX. Added `render_spectacle_effects()` to `video/video_effects.py` with 3 helpers: `_apply_screen_shake` (pixel offset by 2-4px for intense+ tier with kill/kill_streak triggers), `_apply_fire_border` (orange-red gradient rectangles on edges for hype+ tier), `_apply_damage_flash` (red RGBA overlay with tier-scaled opacity: heating=25, intense=50, hype=100, chaos=150). Returns `(image, slow_mo)` tuple; slow_mo=True when near_death in triggers. Wired into `render_frame()` in `video/video_render.py` after overlay step; `frames_from_match()` duplicates slow-mo frames. 8 tests in `tests/test_video_spectacle.py`: calm unchanged, screen shake shifts pixels, fire border changes edges, damage flash increases red avg, intensity scales (chaos > heating), None spectacle unchanged, slow_mo flag on/off. All 22 video tests pass, ruff clean.
+
+- **T10.3 done** -- Spectacle Metadata in Match JSON. Wired SpectacleEngine into run_match() in engine/game.py: imports SpectacleEngine, creates instance before round loop, calls score_round() after each _execute_round() with bot states converted to dict format, adds spectacle dict (drama_score, tier, triggers, effects) to round_data. 4 new tests in tests/test_game.py TestSpectacleMetadata class: every round has spectacle key, required fields have correct types, existing round fields preserved (no regressions), calm rounds have spectacle with drama_score=0/tier="calm". All 15 test_game.py tests pass, ruff clean, arch clean.
+
+- **T10.4 done** -- Stinger Audio Asset Library. Created audio/ package with hub-and-spoke structure: audio/__init__.py (hub exports), audio/stingers.py (STINGER_MAP dict + get_stinger_path helper + auto-generation on import), audio/waveforms.py (4 primitives: sine/square/noise samples + decay envelope), audio/generators.py (13 event-specific generators using waveforms). All 13 WAV stinger files auto-generated as 8-bit mono 8kHz PCM: hit (0.3s square burst), critical_hit (0.5s low square), kill (0.8s noise burst), kill_streak (1.0s rising sine), bump (0.2s high ping), chain_bump (0.5s descending pings), wall_splat (0.4s low noise), storm_damage (0.3s freq sweep), rest_heal (0.3s sine chime), near_death (0.5s low tone), watcher_spawn (1.5s harmonic chord), human_enter (1.0s noise sweep), match_end (2.0s rising chord). Total assets 88KB (well under 5MB cap). 57 tests in tests/test_audio.py across 3 classes (TestStingerMap, TestGetStingerPath, TestAudioAssets): map size, all 13 keys present, WAV filenames, known/unknown path lookup, file existence, nonzero size, total size cap, RIFF header validation. 938 total tests pass, 0 regressions, ruff clean, arch clean.
+
+- **T10.1 + T10.2 done** -- SpectacleEngine drama scoring and trigger-to-effect map. Created engine/spectacle.py (159 lines) with SpectacleData dataclass, DRAMA_WEIGHTS/TIER_RANGES/TRIGGER_EFFECT_MAP constants, and SpectacleEngine class (score_round, classify_tier, select_effects). Drama scoring: kill=3, chain_bump=2, near_death=4, kill_streak=5, watcher_sync=3. Tier classification: calm(0-3), heating(4-7), intense(8-12), hype(13-18), chaos(19+). Trigger-to-effect mapping: kill->shatter, kill_streak->fire_border, near_death->slow_mo, chain_bump->multiball, last_2->split_screen, storm_kill->glitch. Near-death detection for bots with 0<hp<5 and alive=True. Kill streak detection via explicit event OR 3+ kills by same attacker. 32 tests in tests/test_spectacle.py (235 lines), ruff clean, arch clean.
+
+- **T9.11 done** (auto-updated by hook)
+
+- **T9.11 done** -- Integration Tests: Progression. Created tests/test_integration_progression.py with 23 tests across 7 test classes: TestProfilePersistence (3 tests: persist after run_match, winner profile updated, multiple matches accumulate), TestLineBudgetProgression (3 tests: default budget 50, budget +10 per win, cap at 200), TestStreakTracking (3 tests: consecutive wins build streak, loss resets current preserves best, streak bonuses applied), TestActionUnlockFlow (4 tests: base-only, unlocked ranged accepted, locked ranged rejected, dash lock/unlock), TestNewActionsInMatch (4 tests: ranged/dash/taunt matches run clean, result keys), TestLineBudgetEnforcement (3 tests: count_decide_lines, validate over budget raises, validate under budget passes), TestStateDictProgression (3 tests: unlocked_actions/line_budget/win_streak in state dict). 849 total tests pass (826+23), arch clean. Sprint 9 complete.
+
+- **T9.10 done** (auto-updated by hook)
+
+- **T9.9 done** (auto-updated by hook)
+
+- **T9.10 done** -- Profile Update on Match End. Added `update_profiles_after_match(profiles_path, players, winner_emoji)` to `data/player_profiles.py`: loads profiles, creates missing ones via get_or_create_profile, updates streaks and wins/budget for all players, saves to disk. Added optional `profiles_path: Path | None = None` parameter to `run_match()` in `engine/game.py` -- when provided, calls update_profiles_after_match after match completes; defaults to None for backward compatibility. 9 tests in `tests/test_profile_match_update.py` (3 winner/loser updates, 1 budget recalc, 1 disk write, 1 new bots created, 1 existing profiles preserved, 2 run_match integration), 0 regressions, 826 total pass, arch clean.
+
+- **T9.9 done** -- State Dict Unlocks & Budget Fields. Added `unlocked_actions: list[str]`, `line_budget: int`, `win_streak: int` progression fields to `Bot.__init__()` in engine/combat.py with defaults (base 4 actions, budget=50, streak=0). Updated `to_self_dict()` to include all three fields (unlocked_actions as a copy). Updated `SelfInfo` TypedDict in engine/types.py with new fields. Wired `bot.unlocked_actions` into `validate_action()` call in engine/rounds.py `resolve_decisions()`. Added optional progression config passthrough in `_create_bots()` in engine/game.py. 13 tests in tests/test_state_progression.py (3 unlocked_actions, 2 line_budget, 2 win_streak, 3 defaults, 3 TypedDict), fixed 1 regression in test_combat_serialization.py, 826 total pass, arch clean.
+
+- **T9.8 done** (auto-updated by hook)
+
+- **T9.3 done** (auto-updated by hook)
+
+- **T9.3 done** -- Line Budget Enforcement in Bot Scanner. Added `count_decide_lines(source)` to engine/bot_scanner.py: AST-parses source, finds first `def decide()`, counts executable lines in body (excludes blanks, comments, docstrings). Added `validate_line_budget(source, budget)` that raises ValueError when count exceeds budget. Added `_check_semicolons()` that detects semicolon statement chaining in decide() body (string-aware via regex stripping), wired into `scan_bot_source()`. Both new public functions added to `__all__`. 13 tests in tests/test_line_budget_enforcement.py (3 basic counting, 4 exclusions, 3 budget validation, 3 semicolon detection), 0 regressions in existing scanner tests, 804 total pass, arch clean.
+
+- **T9.8 done** -- Action Unlock Gating in Sandbox. Added `BASE_ACTIONS` frozenset (move, attack, rest, defend) and `ACTION_UNLOCK_THRESHOLDS` dict (ranged_attack:3, dash:5, taunt:10) to engine/sandbox.py. Extended `validate_action()` with optional `unlocked_actions: set[str] | None` parameter -- when provided, non-base actions must be in the set or they return None (same as invalid). Default None preserves full backward compatibility. Added both constants to `__all__`. 15 tests in tests/test_action_unlock.py (2 constant, 4 base-always-allowed, 3 locked-rejected, 3 unlocked-accepted, 3 backward-compat), 0 regressions in existing sandbox/ranged/taunt/dash tests, arch clean.
+
+- **T9.6 done** (auto-updated by hook)
+
+- **T9.4 done** (auto-updated by hook)
+
+- **T9.2 done** (auto-updated by hook)
+
+- **T9.6 done** -- Dash Action. Added DASH_COST=15 constant to engine/combat.py and ACTION_COSTS dict. Added "dash": 1 to VALID_ACTIONS in engine/sandbox.py. Updated validate_action() direction check to include "dash". Implemented dash handling in resolve_movement() in engine/rounds.py: computes 2-tile destination, clamps to 1 tile if second tile is OOB, skips entirely if first tile is OOB, generates dash events with from/to coordinates, integrates with bumper physics via movers list. 12 tests in tests/test_dash.py (2 validation, 2 cost, 4 movement/edge, 4 bump integration), 776 total pass, arch clean.
+
+- **T9.4 done** -- Win Streak Calculator. Added `update_streak(profile, is_winner)` to `data/player_profiles.py`. Win increments `current_streak` and updates `best_streak` if new record. Loss resets `current_streak` to 0 while preserving `best_streak`. Added to `__all__`. 7 tests in `tests/test_win_streak.py`, no regressions in existing player profile tests, arch clean.
+
+- **T9.2 done** -- Line Budget Tracking. Added BUDGET_BASE=50, BUDGET_CAP=200, BUDGET_PER_WIN=10, BUDGET_STREAK_REWARDS={3:15, 5:25, 10:50}, BUDGET_WATCHER_BONUS=20 constants to data/player_profiles.py. Implemented calculate_line_budget() (base + wins*10 + highest streak bonus + watcher_wins*20, capped at 200) and update_after_match() (increments wins/watcher_wins for winners, recalculates budget; no-op for losers). 15 tests in tests/test_line_budget.py, no regressions in test_player_profiles.py, arch clean.
+
+- **T9.7 done** (auto-updated by hook)
+
+- **T9.5 done** (auto-updated by hook)
+
+- **T9.1 done** (auto-updated by hook)
+
+- **T9.5 done** -- Ranged Attack Action. Added RANGED_ATTACK_COST=20, RANGED_ATTACK_DAMAGE=15 constants to engine/combat.py. Added "ranged_attack": RANGED_ATTACK_COST to ACTION_COSTS, "ranged_attack": 1 to VALID_ACTIONS in sandbox.py. Updated validate_action() direction check to include "ranged_attack". Implemented resolve_ranged_attacks() in engine/rounds.py (targets tile at distance 2 in direction, fixed 15 damage ignoring attack_power, emits ranged_hit/ranged_miss events). Wired into _execute_round() in game.py after regular attacks. 13 tests in tests/test_ranged_attack.py, 724 total pass, arch clean.
+
+- **T9.7 done** -- Taunt Action. Added TAUNT_COST=10, TAUNT_RANGE=2 constants to engine/combat.py. Added "taunt": TAUNT_COST to ACTION_COSTS, "taunt": 0 to VALID_ACTIONS in sandbox.py. Added self.taunt_target: str | None = None to Bot.__init__. Implemented resolve_taunt() in engine/rounds.py (sets taunt_target on bots within Manhattan distance 2 of taunter, returns taunt events). Added _direction_toward() helper and _apply_taunt_override() for redirecting taunted bot attacks toward taunter in resolve_decisions(). Wired resolve_taunt into _execute_round in game.py (after movement, before attack resolution). 18 tests in tests/test_taunt.py, 742 total pass, arch clean.
+
+- **T9.1 done** -- Player Profile Schema & Storage. Created data/player_profiles.py with PlayerProfile dataclass (player_id, bot_name, emoji, line_budget=50, wins, streaks, unlocked_actions, watcher stats). Implemented load_profiles() (JSON deserialize, graceful error handling for missing/corrupt files), save_profiles() (JSON serialize via asdict, creates parent dirs), get_or_create_profile() (returns existing or creates with defaults). Added profiles.json to .gitignore. 10 tests in tests/test_player_profiles.py, arch clean on both files.
 
 - **T8.11 done** (auto-updated by hook)
 
@@ -535,7 +597,7 @@ S8 Sprint complete. All 11 tasks (T8.1-T8.11) done. 701 tests passing. Ready for
 
 ## What's Next
 
-S8 complete. All tasks T8.1-T8.11 done. Ready for S9 (Progression System).
+T10.1 and T10.2 done. Continue with T10.3+.
 
 
 ## Blockers

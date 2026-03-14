@@ -17,3 +17,6 @@ htmlcov/
 # YouTube API credentials (never commit)
 youtube/token.json
 youtube/client_secrets.json
+
+# Player profile data (generated at runtime)
+profiles.json

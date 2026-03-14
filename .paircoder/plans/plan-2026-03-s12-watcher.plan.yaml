@@ -1,0 +1,12 @@
+id: plan-2026-03-s12-watcher
+title: 'Sprint 12: The Watcher (🍆)'
+type: feature
+status: planned
+created_at: '2026-03-13T10:34:59.110567'
+skills:
+- planning-with-pm
+goals:
+- Pattern table with per-player frequency counters
+- Sync rating and rubber-banding difficulty
+- Adaptive target rotation for co-op
+- Persistent learning across matches and sessions

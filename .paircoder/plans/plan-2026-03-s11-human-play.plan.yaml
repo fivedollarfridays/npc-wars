@@ -1,0 +1,11 @@
+id: plan-2026-03-s11-human-play
+title: 'Sprint 11: Human Play & Bounty'
+type: feature
+status: planned
+created_at: '2026-03-13T10:34:56.242925'
+skills:
+- planning-with-pm
+goals:
+- Copilot mode — human overrides bot decisions in real-time
+- WebSocket server for viewer input
+- Bounty system — massive rewards for killing human players

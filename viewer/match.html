@@ -346,6 +346,65 @@
     0% { opacity: 1; transform: scale(1.2); }
     100% { opacity: 0; transform: scale(0.8); }
   }
+
+  @keyframes screen-shake {
+    0%, 100% { transform: translate(0, 0); }
+    25% { transform: translate(-3px, 2px); }
+    50% { transform: translate(3px, -2px); }
+    75% { transform: translate(-2px, 3px); }
+  }
+
+  @keyframes fire-border {
+    0%, 100% { box-shadow: inset 0 0 20px rgba(255, 100, 0, 0.6); }
+    50% { box-shadow: inset 0 0 30px rgba(255, 50, 0, 0.8); }
+  }
+
+  @keyframes subtle-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.005); }
+  }
+
+  @keyframes slow-mo-flash {
+    0% { filter: brightness(1.5) saturate(0.3); }
+    100% { filter: brightness(1) saturate(1); }
+  }
+
+  .audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  #mute-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+  }
+
+  #volume-slider {
+    width: 60px;
+    accent-color: var(--accent);
+  }
+
+  .spectacle-banner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2rem;
+    font-weight: bold;
+    text-shadow: 0 0 20px currentColor;
+    opacity: 0;
+    animation: banner-fade 2s ease-out forwards;
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  @keyframes banner-fade {
+    0% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
+    100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
+  }
 </style>
 </head>
 <body>
@@ -393,6 +452,10 @@
       <button onclick="setSpeed(2)" id="sp2">2x</button>
       <button onclick="setSpeed(4)" id="sp4">4x</button>
     </div>
+    <div class="audio-controls">
+      <button id="mute-btn" title="Toggle mute">🔊</button>
+      <input type="range" id="volume-slider" min="0" max="100" value="70" title="Volume">
+    </div>
   </div>
 
   <div class="winner-banner" id="winner-banner" style="display:none" onclick="dismissWinner()">
@@ -406,6 +469,72 @@
 </div>
 
 <script>
+class AudioEngine {
+  constructor() {
+    this.ctx = null;
+    this.masterGain = null;
+    this.buffers = {};
+    this.volume = 0.7;
+    this.muted = false;
+    this.ready = false;
+  }
+
+  init() {
+    try {
+      this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      this.masterGain = this.ctx.createGain();
+      this.masterGain.connect(this.ctx.destination);
+      this.masterGain.gain.value = this.volume;
+      this.ready = true;
+    } catch (e) {
+      console.warn('Web Audio not available:', e);
+    }
+  }
+
+  async loadStinger(name, url) {
+    if (!this.ctx) return;
+    try {
+      const response = await fetch(url);
+      const arrayBuffer = await response.arrayBuffer();
+      this.buffers[name] = await this.ctx.decodeAudioData(arrayBuffer);
+    } catch (e) {
+      // Stinger not available - skip silently
+    }
+  }
+
+  play(eventType, tier) {
+    if (!this.ready || this.muted) return;
+    const buffer = this.buffers[eventType];
+    if (!buffer) return;
+
+    const source = this.ctx.createBufferSource();
+    const gain = this.ctx.createGain();
+
+    // Viewer volumes are higher than Python TIER_VOLUMES (audio/mixer.py) because
+    // browser playback needs more presence than offline video rendering.
+    const tierVolumes = { calm: 0.3, heating: 0.5, intense: 0.7, hype: 0.9, chaos: 1.0 };
+    gain.gain.value = tierVolumes[tier] || 0.5;
+
+    source.buffer = buffer;
+    source.connect(gain);
+    gain.connect(this.masterGain);
+    source.start(0);
+  }
+
+  setMasterVolume(value) {
+    this.volume = Math.max(0, Math.min(1, value));
+    if (this.masterGain) {
+      this.masterGain.gain.value = this.muted ? 0 : this.volume;
+    }
+  }
+
+  mute() { this.muted = true; if (this.masterGain) this.masterGain.gain.value = 0; }
+  unmute() { this.muted = false; if (this.masterGain) this.masterGain.gain.value = this.volume; }
+  toggleMute() { this.muted ? this.unmute() : this.mute(); }
+}
+
+const audioEngine = new AudioEngine();
+
 let matchData = null;
 let currentRound = 0;
 let playing = false;
@@ -478,6 +607,25 @@ function initViewer() {
   const scrubber = document.getElementById('scrubber');
   scrubber.max = matchData.rounds.length - 1;
   scrubber.value = 0;
+
+  // Initialize audio
+  audioEngine.init();
+  const stingerNames = [
+    'bump', 'chain_bump', 'critical_hit', 'hit', 'human_enter',
+    'kill', 'kill_streak', 'match_end', 'near_death', 'rest_heal',
+    'storm_damage', 'wall_splat', 'watcher_spawn'
+  ];
+  stingerNames.forEach(name => {
+    audioEngine.loadStinger(name, `audio/assets/${name}.wav`);
+  });
+
+  // Restore volume from localStorage
+  const savedVolume = localStorage.getItem('npc-wars-volume');
+  if (savedVolume !== null) {
+    const vol = parseInt(savedVolume);
+    audioEngine.setMasterVolume(vol / 100);
+    document.getElementById('volume-slider').value = vol;
+  }
 
   // Build bot list
   buildBotList();
@@ -674,6 +822,18 @@ function renderRound(idx) {
 
   // Add kill feed entries for this round
   updateKillFeed(round);
+
+  // Apply spectacle effects
+  const spectacle = round.spectacle;
+  if (spectacle) {
+    applySpectacleEffects(spectacle.tier, spectacle.triggers || [], spectacle.effects || []);
+  }
+
+  // Play audio stingers for events
+  const tier = spectacle ? spectacle.tier : 'calm';
+  round.events.forEach(evt => {
+    audioEngine.play(evt.type, tier);
+  });
 }
 
 function updateSidebar(round) {
@@ -844,6 +1004,70 @@ function showWinner() {
 function dismissWinner() {
   document.getElementById('winner-banner').style.display = 'none';
 }
+
+function applySpectacleEffects(tier, triggers, effects) {
+  const grid = document.getElementById('arena-canvas');
+  if (!grid) return;
+
+  // Clear previous effects
+  grid.style.animation = '';
+  grid.style.boxShadow = '';
+  grid.style.filter = '';
+
+  // Remove old banners
+  document.querySelectorAll('.spectacle-banner').forEach(el => el.remove());
+
+  if (tier === 'calm') return;
+
+  if (tier === 'heating') {
+    grid.style.animation = 'subtle-pulse 2s ease-in-out';
+  }
+
+  if (tier === 'intense' || tier === 'hype' || tier === 'chaos') {
+    if (triggers.includes('kill') || triggers.includes('kill_streak')) {
+      grid.style.animation = 'screen-shake 0.3s ease-in-out';
+    }
+  }
+
+  if (tier === 'hype' || tier === 'chaos') {
+    grid.style.animation = (grid.style.animation ? grid.style.animation + ', ' : '') + 'fire-border 1s ease-in-out infinite';
+  }
+
+  if (effects.includes('slow_mo')) {
+    grid.style.filter = 'brightness(1.2) saturate(0.5)';
+  }
+
+  // Banners
+  if (triggers.includes('kill_streak')) {
+    showBanner('UNSTOPPABLE', '#ff4400');
+  }
+  if (triggers.includes('chain_bump')) {
+    showBanner('MULTI-BUMP', '#ffaa00');
+  }
+  if (triggers.includes('last_2')) {
+    showBanner('FINAL SHOWDOWN', '#ff0066');
+  }
+}
+
+function showBanner(text, color) {
+  const banner = document.createElement('div');
+  banner.className = 'spectacle-banner';
+  banner.style.color = color;
+  banner.textContent = text;
+  const container = document.getElementById('arena-canvas').parentElement;
+  container.style.position = 'relative';
+  container.appendChild(banner);
+}
+
+// Audio controls wiring
+document.getElementById('volume-slider').addEventListener('input', e => {
+  audioEngine.setMasterVolume(e.target.value / 100);
+  localStorage.setItem('npc-wars-volume', e.target.value);
+});
+document.getElementById('mute-btn').addEventListener('click', () => {
+  audioEngine.toggleMute();
+  document.getElementById('mute-btn').textContent = audioEngine.muted ? '\u{1F507}' : '\u{1F50A}';
+});
 
 // Auto-load from URL param
 window.addEventListener('load', () => {

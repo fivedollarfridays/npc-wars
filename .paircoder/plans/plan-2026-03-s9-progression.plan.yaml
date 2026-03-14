@@ -1,0 +1,11 @@
+id: plan-2026-03-s9-progression
+title: 'Sprint 9: Progression System'
+type: feature
+status: complete
+created_at: '2026-03-13T10:34:09.723979'
+skills:
+- planning-with-pm
+goals:
+- Line budget system (50-200 lines, earned through wins)
+- Action unlocks via win streaks (ranged, dash, taunt)
+- Persistent player profiles

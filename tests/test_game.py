@@ -139,3 +139,58 @@ class TestRunMatch:
         ]
         data = run_match(configs, seed=42)
         assert data["winner"] == "✅"
+
+
+class TestSpectacleMetadata:
+    """Verify every round in match JSON includes spectacle data."""
+
+    def test_every_round_has_spectacle_key(self):
+        """Every round in match output must have a 'spectacle' key."""
+        configs = [
+            bot_config("A", "🅰️", chase_and_attack),
+            bot_config("B", "🅱️", chase_and_attack),
+        ]
+        data = run_match(configs, seed=42)
+        for i, rnd in enumerate(data["rounds"]):
+            assert "spectacle" in rnd, f"Round {i} missing 'spectacle' key"
+
+    def test_spectacle_has_required_fields(self):
+        """Each spectacle object has drama_score (int), tier (str), triggers (list), effects (list)."""
+        configs = [
+            bot_config("A", "🅰️", chase_and_attack),
+            bot_config("B", "🅱️", chase_and_attack),
+        ]
+        data = run_match(configs, seed=42)
+        for i, rnd in enumerate(data["rounds"]):
+            spec = rnd["spectacle"]
+            assert isinstance(spec["drama_score"], int), f"Round {i}: drama_score not int"
+            assert isinstance(spec["tier"], str), f"Round {i}: tier not str"
+            assert isinstance(spec["triggers"], list), f"Round {i}: triggers not list"
+            assert isinstance(spec["effects"], list), f"Round {i}: effects not list"
+
+    def test_existing_round_fields_still_present(self):
+        """Spectacle addition must not remove existing round fields."""
+        configs = [
+            bot_config("A", "🅰️", chase_and_attack),
+            bot_config("B", "🅱️", chase_and_attack),
+        ]
+        data = run_match(configs, seed=42)
+        for rnd in data["rounds"]:
+            assert "round" in rnd
+            assert "storm_border" in rnd
+            assert "positions" in rnd
+            assert "events" in rnd
+
+    def test_calm_round_has_spectacle(self):
+        """Even calm rounds (no combat) must have spectacle with drama_score=0, tier='calm'."""
+        configs = [
+            bot_config("A", "🅰️", always_rest),
+            bot_config("B", "🅱️", always_rest),
+        ]
+        data = run_match(configs, seed=42)
+        # Early rounds with resting bots should be calm
+        first_round = data["rounds"][0]
+        assert "spectacle" in first_round
+        spec = first_round["spectacle"]
+        assert spec["drama_score"] == 0
+        assert spec["tier"] == "calm"

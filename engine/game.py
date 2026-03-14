@@ -8,6 +8,7 @@ from engine.combat import Bot, resolve_deaths, STARTING_ATTACK_POWER, get_round_
 from engine.grid import calculate_grid_size, spawn_positions, get_storm_border
 from engine.match_writer import build_match_data
 from engine.discord_integration import notify_match_start, notify_match_end
+from engine.spectacle import SpectacleEngine
 from data.player_profiles import update_profiles_after_match
 from engine.rounds import (
     resolve_decisions, resolve_defense, resolve_movement,
@@ -112,6 +113,7 @@ def run_match(
     all_rounds: list[dict[str, Any]] = []
     all_eliminations: list[dict[str, Any]] = []
     last_bump_events: list[dict[str, Any]] = []
+    spectacle_engine = SpectacleEngine()
 
     for round_num in range(1, MAX_ROUNDS + 1):
         if sum(b.alive for b in bots) <= 1:
@@ -121,6 +123,14 @@ def run_match(
             bots, round_num, grid_size, get_storm_border(round_num),
             bumps_last_round=last_bump_events,
         )
+        bot_states = [{"emoji": b.emoji, "hp": b.hp, "alive": b.alive} for b in bots]
+        sd = spectacle_engine.score_round(round_data.get("events", []), bot_states)
+        round_data["spectacle"] = {
+            "drama_score": sd.drama_score,
+            "tier": sd.tier,
+            "triggers": sd.triggers,
+            "effects": sd.effects,
+        }
         all_rounds.append(round_data)
         all_eliminations.extend(round_elims)
 
