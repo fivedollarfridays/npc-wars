@@ -1,0 +1,11 @@
+id: plan-2026-03-s10-spectacle
+title: 'Sprint 10: Spectacle & Audio'
+type: feature
+status: planned
+created_at: '2026-03-13T10:34:53.543829'
+skills:
+- planning-with-pm
+goals:
+- Drama scoring engine with tiered escalation
+- Sound design — ambient, stingers, hype track
+- Viewer and video renderer spectacle FX

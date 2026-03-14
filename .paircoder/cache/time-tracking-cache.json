@@ -167,10 +167,578 @@
     ],
     "total_seconds": 103.923196
   },
-  "_active": {
-    "task_id": "T1.2",
-    "timer_id": "local-20260312204736",
-    "description": "T1.2: Test combat module: Bot class, damage calc, death priority",
-    "start": "2026-03-12T20:47:36.899917"
+  "T2.1": {
+    "entries": [
+      {
+        "id": "local-20260312210027",
+        "task_id": "T2.1",
+        "description": "T2.1: Create data/ module with emoji_claims.py (CRUD, uniqueness)",
+        "start": "2026-03-12T21:00:27.395526",
+        "end": "2026-03-12T21:02:05.688931",
+        "duration_seconds": 98.293405,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 98.293405
+  },
+  "T2.2": {
+    "entries": [
+      {
+        "id": "local-20260312210306",
+        "task_id": "T2.2",
+        "description": "T2.2: Create data/leaderboard.py (stats aggregation, rankings)",
+        "start": "2026-03-12T21:03:06.511293",
+        "end": "2026-03-12T21:04:53.038978",
+        "duration_seconds": 106.527685,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 106.527685
+  },
+  "T2.3": {
+    "entries": [
+      {
+        "id": "local-20260312210659",
+        "task_id": "T2.3",
+        "description": "T2.3: Create data/match_history.py (match index, query)",
+        "start": "2026-03-12T21:06:59.881637",
+        "end": "2026-03-12T21:08:13.858663",
+        "duration_seconds": 73.977026,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 73.977026
+  },
+  "T2.4": {
+    "entries": [
+      {
+        "id": "local-20260312210918",
+        "task_id": "T2.4",
+        "description": "T2.4: Create scripts/validate_bot.py (syntax, attrs, sandbox test)",
+        "start": "2026-03-12T21:09:18.162048",
+        "end": "2026-03-12T21:11:47.341940",
+        "duration_seconds": 149.179892,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 149.179892
+  },
+  "T2.5": {
+    "entries": [
+      {
+        "id": "local-20260312211318",
+        "task_id": "T2.5",
+        "description": "T2.5: Add requirements.txt and pyproject.toml",
+        "start": "2026-03-12T21:13:18.360186",
+        "end": "2026-03-12T21:16:33.984459",
+        "duration_seconds": 195.624273,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 195.624273
+  },
+  "T2.6": {
+    "entries": [
+      {
+        "id": "local-20260312211733",
+        "task_id": "T2.6",
+        "description": "T2.6: GitHub Actions CI: lint, test, coverage gate",
+        "start": "2026-03-12T21:17:33.412727",
+        "end": "2026-03-12T21:21:07.953474",
+        "duration_seconds": 214.540747,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 214.540747
+  },
+  "T2.7": {
+    "entries": [
+      {
+        "id": "local-20260312212550",
+        "task_id": "T2.7",
+        "description": "T2.7: Bot submission PR template + validation workflow",
+        "start": "2026-03-12T21:25:50.563922",
+        "end": "2026-03-12T21:27:25.077085",
+        "duration_seconds": 94.513163,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 94.513163
+  },
+  "T2.8": {
+    "entries": [
+      {
+        "id": "local-20260312212939",
+        "task_id": "T2.8",
+        "description": "T2.8: Add type hints to engine modules",
+        "start": "2026-03-12T21:29:39.867835",
+        "end": "2026-03-12T21:38:21.277823",
+        "duration_seconds": 521.409988,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 521.409988
+  },
+  "T3.1": {
+    "entries": [
+      {
+        "id": "local-20260312214946",
+        "task_id": "T3.1",
+        "description": "T3.1: Discord bot scaffold: connection, config, command framework",
+        "start": "2026-03-12T21:49:46.519914",
+        "end": "2026-03-12T21:53:53.804523",
+        "duration_seconds": 247.284609,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 247.284609
+  },
+  "T3.2": {
+    "entries": [
+      {
+        "id": "local-20260312220043",
+        "task_id": "T3.2",
+        "description": "T3.2: Emoji claim system: /claim, /unclaim, /roster commands",
+        "start": "2026-03-12T22:00:43.155096",
+        "end": "2026-03-12T22:03:02.520036",
+        "duration_seconds": 139.36494,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 139.36494
+  },
+  "T3.3": {
+    "entries": [
+      {
+        "id": "local-20260312220515",
+        "task_id": "T3.3",
+        "description": "T3.3: Match announcement: auto-post when match starts/ends",
+        "start": "2026-03-12T22:05:15.842727",
+        "end": "2026-03-12T22:07:53.549159",
+        "duration_seconds": 157.706432,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 157.706432
+  },
+  "T3.4": {
+    "entries": [
+      {
+        "id": "local-20260312221059",
+        "task_id": "T3.4",
+        "description": "T3.4: Results display: embed with stats, kills, placements",
+        "start": "2026-03-12T22:10:59.242480",
+        "end": "2026-03-12T22:13:32.774323",
+        "duration_seconds": 153.531843,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 153.531843
+  },
+  "T3.5": {
+    "entries": [
+      {
+        "id": "local-20260312221549",
+        "task_id": "T3.5",
+        "description": "T3.5: Leaderboard command: /leaderboard with pagination",
+        "start": "2026-03-12T22:15:49.457007",
+        "end": "2026-03-12T22:18:16.988178",
+        "duration_seconds": 147.531171,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 147.531171
+  },
+  "T3.6": {
+    "entries": [
+      {
+        "id": "local-20260312222016",
+        "task_id": "T3.6",
+        "description": "T3.6: Message formatter module (testable without Discord mock)",
+        "start": "2026-03-12T22:20:16.616485",
+        "end": "2026-03-12T22:23:06.652374",
+        "duration_seconds": 170.035889,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 170.035889
+  },
+  "T4.1": {
+    "entries": [
+      {
+        "id": "local-20260312225414",
+        "task_id": "T4.1",
+        "description": "T4.1: Grid renderer: Pillow frame with cells, borders, storm overlay",
+        "start": "2026-03-12T22:54:14.738787",
+        "end": "2026-03-12T22:56:57.300236",
+        "duration_seconds": 162.561449,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 162.561449
+  },
+  "T4.2": {
+    "entries": [
+      {
+        "id": "local-20260312225843",
+        "task_id": "T4.2",
+        "description": "T4.2: Bot sprites: emoji rendering, HP bars, name labels",
+        "start": "2026-03-12T22:58:43.556692",
+        "end": "2026-03-12T23:01:41.801450",
+        "duration_seconds": 178.244758,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 178.244758
+  },
+  "T4.3": {
+    "entries": [
+      {
+        "id": "local-20260312230512",
+        "task_id": "T4.3",
+        "description": "T4.3: Combat effects: hit flash, death animation, damage numbers",
+        "start": "2026-03-12T23:05:12.677280",
+        "end": "2026-03-12T23:07:53.815124",
+        "duration_seconds": 161.137844,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 161.137844
+  },
+  "T4.4": {
+    "entries": [
+      {
+        "id": "local-20260312230919",
+        "task_id": "T4.4",
+        "description": "T4.4: Scoreboard overlay: round counter, alive count, kill feed",
+        "start": "2026-03-12T23:09:19.818409",
+        "end": "2026-03-12T23:12:15.461970",
+        "duration_seconds": 175.643561,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 175.643561
+  },
+  "T4.5": {
+    "entries": [
+      {
+        "id": "local-20260312232030",
+        "task_id": "T4.5",
+        "description": "T4.5: Video composer: ffmpeg frame-to-MP4 pipeline",
+        "start": "2026-03-12T23:20:30.478332",
+        "end": "2026-03-12T23:23:56.153162",
+        "duration_seconds": 205.67483,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 205.67483
+  },
+  "T4.6": {
+    "entries": [
+      {
+        "id": "local-20260312232518",
+        "task_id": "T4.6",
+        "description": "T4.6: Match video CLI: render match JSON to MP4 end-to-end",
+        "start": "2026-03-12T23:25:18.731202",
+        "end": "2026-03-12T23:28:19.144776",
+        "duration_seconds": 180.413574,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 180.413574
+  },
+  "T5.1": {
+    "entries": [
+      {
+        "id": "local-20260312235401",
+        "task_id": "T5.1",
+        "description": "T5.1: YouTube API auth: OAuth2 flow, token storage",
+        "start": "2026-03-12T23:54:01.293384",
+        "end": "2026-03-12T23:57:55.475082",
+        "duration_seconds": 234.181698,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 234.181698
+  },
+  "T5.2": {
+    "entries": [
+      {
+        "id": "local-20260312235853",
+        "task_id": "T5.2",
+        "description": "T5.2: Upload pipeline: metadata, thumbnail, tags from match data",
+        "start": "2026-03-12T23:58:53.371965",
+        "end": "2026-03-13T00:03:29.822555",
+        "duration_seconds": 276.45059,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 276.45059
+  },
+  "T5.3": {
+    "entries": [
+      {
+        "id": "local-20260313000441",
+        "task_id": "T5.3",
+        "description": "T5.3: Auto-publish CLI: render + upload in one command",
+        "start": "2026-03-13T00:04:41.143723",
+        "end": "2026-03-13T00:06:48.598554",
+        "duration_seconds": 127.454831,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 127.454831
+  },
+  "T6.1": {
+    "entries": [
+      {
+        "id": "local-20260313004532",
+        "task_id": "T6.1",
+        "description": "T6.1: Sandbox: multiprocessing isolation + state deepcopy",
+        "start": "2026-03-13T00:45:32.131865",
+        "end": "2026-03-13T00:51:34.194855",
+        "duration_seconds": 362.06299,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 362.06299
+  },
+  "T6.3": {
+    "entries": [
+      {
+        "id": "local-20260313005820",
+        "task_id": "T6.3",
+        "description": "T6.3: OAuth token permissions + Discord error hardening",
+        "start": "2026-03-13T00:58:20.059329",
+        "end": "2026-03-13T00:58:53.479391",
+        "duration_seconds": 33.420062,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 33.420062
+  },
+  "T6.4": {
+    "entries": [
+      {
+        "id": "local-20260313010442",
+        "task_id": "T6.4",
+        "description": "T6.4: Discord bot launcher: run_bot.py with full command wiring",
+        "start": "2026-03-13T01:04:42.782807",
+        "end": "2026-03-13T01:06:25.474003",
+        "duration_seconds": 102.691196,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 102.691196
+  },
+  "T6.2": {
+    "entries": [
+      {
+        "id": "local-20260313010633",
+        "task_id": "T6.2",
+        "description": "T6.2: AST pre-scan: block dangerous imports before exec_module",
+        "start": "2026-03-13T01:06:33.691620",
+        "end": "2026-03-13T01:07:24.514502",
+        "duration_seconds": 50.822882,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 50.822882
+  },
+  "T6.6": {
+    "entries": [
+      {
+        "id": "local-20260313011247",
+        "task_id": "T6.6",
+        "description": "T6.6: Claims state persistence: load on startup, save on mutation",
+        "start": "2026-03-13T01:12:47.836153",
+        "end": "2026-03-13T01:13:35.599046",
+        "duration_seconds": 47.762893,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 47.762893
+  },
+  "T6.9": {
+    "entries": [
+      {
+        "id": "local-20260313011818",
+        "task_id": "T6.9",
+        "description": "T6.9: CLI input validation: fps bounds, path canonicalization",
+        "start": "2026-03-13T01:18:18.600838",
+        "end": "2026-03-13T01:19:05.067819",
+        "duration_seconds": 46.466981,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 46.466981
+  },
+  "T6.8": {
+    "entries": [
+      {
+        "id": "local-20260313011926",
+        "task_id": "T6.8",
+        "description": "T6.8: Type hint completion + sandbox error logging",
+        "start": "2026-03-13T01:19:26.838679",
+        "end": "2026-03-13T01:19:37.013821",
+        "duration_seconds": 10.175142,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 10.175142
+  },
+  "T6.5": {
+    "entries": [
+      {
+        "id": "local-20260313012020",
+        "task_id": "T6.5",
+        "description": "T6.5: Wire announce_match_start/end into match runner",
+        "start": "2026-03-13T01:20:20.117324",
+        "end": "2026-03-13T01:20:26.194686",
+        "duration_seconds": 6.077362,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 6.077362
+  },
+  "T6.7": {
+    "entries": [
+      {
+        "id": "local-20260313012914",
+        "task_id": "T6.7",
+        "description": "T6.7: Discord /run_match command: trigger match from Discord",
+        "start": "2026-03-13T01:29:14.081342",
+        "end": "2026-03-13T01:29:29.659468",
+        "duration_seconds": 15.578126,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 15.578126
+  },
+  "T8.2": {
+    "entries": [
+      {
+        "id": "local-20260313115646",
+        "task_id": "T8.2",
+        "description": "T8.2: Storm Timing Rework",
+        "start": "2026-03-13T11:56:46.345255",
+        "end": "2026-03-13T11:59:45.411176",
+        "duration_seconds": 179.065921,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 179.065921
+  },
+  "T8.6": {
+    "entries": [
+      {
+        "id": "local-20260313120519",
+        "task_id": "T8.6",
+        "description": "T8.6: Bumper Physics Core",
+        "start": "2026-03-13T12:05:19.281064",
+        "end": "2026-03-13T12:15:36.196214",
+        "duration_seconds": 616.91515,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 616.91515
+  },
+  "T8.10": {
+    "entries": [
+      {
+        "id": "local-20260313122423",
+        "task_id": "T8.10",
+        "description": "T8.10: Viewer Bump Animations",
+        "start": "2026-03-13T12:24:23.905390",
+        "end": "2026-03-13T12:31:06.785863",
+        "duration_seconds": 402.880473,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 402.880473
+  },
+  "T8.11": {
+    "entries": [
+      {
+        "id": "local-20260313123511",
+        "task_id": "T8.11",
+        "description": "T8.11: Integration Test Sweep",
+        "start": "2026-03-13T12:35:11.522301",
+        "end": "2026-03-13T12:42:14.491530",
+        "duration_seconds": 422.969229,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 422.969229
+  },
+  "T9.7": {
+    "entries": [
+      {
+        "id": "local-20260313134100",
+        "task_id": "T9.7",
+        "description": "T9.7: Taunt Action",
+        "start": "2026-03-13T13:41:00.301918",
+        "end": "2026-03-13T13:52:17.020992",
+        "duration_seconds": 676.719074,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 676.719074
+  },
+  "T9.6": {
+    "entries": [
+      {
+        "id": "local-20260313135227",
+        "task_id": "T9.6",
+        "description": "T9.6: Dash Action",
+        "start": "2026-03-13T13:52:27.982381",
+        "end": "2026-03-13T13:58:33.938538",
+        "duration_seconds": 365.956157,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 365.956157
+  },
+  "T9.8": {
+    "entries": [
+      {
+        "id": "local-20260313135846",
+        "task_id": "T9.8",
+        "description": "T9.8: Action Unlock Gating in Sandbox",
+        "start": "2026-03-13T13:58:46.891306",
+        "end": "2026-03-13T14:10:05.719871",
+        "duration_seconds": 678.828565,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 678.828565
+  },
+  "T9.10": {
+    "entries": [
+      {
+        "id": "local-20260313141020",
+        "task_id": "T9.10",
+        "description": "T9.10: Profile Update on Match End",
+        "start": "2026-03-13T14:10:20.533106",
+        "end": "2026-03-13T14:23:22.624582",
+        "duration_seconds": 782.091476,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 782.091476
+  },
+  "T9.11": {
+    "entries": [
+      {
+        "id": "local-20260313142328",
+        "task_id": "T9.11",
+        "description": "T9.11: Integration Tests \u2014 Progression",
+        "start": "2026-03-13T14:23:28.779364",
+        "end": "2026-03-13T14:34:53.959410",
+        "duration_seconds": 685.180046,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 685.180046
   }
 }

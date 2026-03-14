@@ -1,0 +1,11 @@
+id: plan-2026-03-sprint-7-security
+title: 'Sprint 7: Security Hardening'
+type: chore
+status: planned
+created_at: '2026-03-13T03:03:10.014419'
+skills:
+- planning-with-pm
+goals:
+- Fix 3 High security findings (bot scanner dunder chains, viewer XSS, Discord auth)
+- Fix 5 Medium security findings (module blocklist, YouTube path traversal, git-tracked
+  secrets)

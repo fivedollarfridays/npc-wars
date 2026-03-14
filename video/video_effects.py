@@ -1,5 +1,7 @@
 """Render combat effects (hit flash, death marker, damage numbers) on a grid frame."""
 
+from __future__ import annotations
+
 from PIL import Image, ImageDraw
 from typing import Any
 
@@ -123,3 +125,82 @@ def _handle_storm(
     _handle_flash_and_damage(
         draw, event.get("emoji", ""), event.get("damage", 0), bot_positions, cell_size,
     )
+
+
+# ---------------------------------------------------------------------------
+# Spectacle visual effects (drama-tier driven)
+# ---------------------------------------------------------------------------
+
+_TIER_OPACITY: dict[str, int] = {
+    "heating": 25,
+    "intense": 50,
+    "hype": 100,
+    "chaos": 150,
+}
+
+_SHAKE_TIERS = frozenset(("intense", "hype", "chaos"))
+_FIRE_TIERS = frozenset(("hype", "chaos"))
+_SHAKE_TRIGGERS = frozenset(("kill", "kill_streak"))
+
+
+def render_spectacle_effects(
+    image: Image.Image,
+    spectacle: dict[str, Any] | None,
+    round_num: int = 0,
+) -> tuple[Image.Image, bool]:
+    """Apply spectacle visual effects based on drama tier.
+
+    Returns (modified_image, slow_mo_flag).
+    slow_mo_flag is True when near_death is in triggers.
+    """
+    if spectacle is None:
+        return image, False
+
+    tier: str = spectacle.get("tier", "calm")
+    triggers: list[str] = spectacle.get("triggers", [])
+
+    if tier == "calm":
+        return image, False
+
+    result = image.copy()
+
+    if tier in _SHAKE_TIERS and _SHAKE_TRIGGERS & set(triggers):
+        result = _apply_screen_shake(result, round_num)
+
+    if tier in _FIRE_TIERS:
+        result = _apply_fire_border(result)
+
+    opacity = _TIER_OPACITY.get(tier, 0)
+    if opacity > 0:
+        result = _apply_damage_flash(result, opacity)
+
+    slow_mo = "near_death" in triggers
+    return result, slow_mo
+
+
+def _apply_screen_shake(image: Image.Image, round_num: int) -> Image.Image:
+    """Offset image by a few pixels, fill exposed edge with black."""
+    dx = ((round_num * 7 + 3) % 5) - 2  # -2 to +2
+    dy = ((round_num * 11 + 5) % 5) - 2
+    shifted = Image.new("RGB", image.size, (0, 0, 0))
+    shifted.paste(image, (dx, dy))
+    return shifted
+
+
+def _apply_fire_border(image: Image.Image) -> Image.Image:
+    """Draw orange/red gradient rectangles along frame edges."""
+    draw = ImageDraw.Draw(image)
+    w, h = image.size
+    border_w = max(4, w // 20)
+    for i in range(border_w):
+        c = (255, 80 + i * 3, 0)
+        draw.rectangle([i, i, w - 1 - i, h - 1 - i], outline=c)
+    return image
+
+
+def _apply_damage_flash(image: Image.Image, opacity: int) -> Image.Image:
+    """Composite semi-transparent red overlay."""
+    overlay = Image.new("RGBA", image.size, (255, 0, 0, opacity))
+    rgba = image.convert("RGBA") if image.mode != "RGBA" else image
+    result = Image.alpha_composite(rgba, overlay)
+    return result.convert("RGB")

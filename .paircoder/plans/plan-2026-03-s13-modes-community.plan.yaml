@@ -1,0 +1,12 @@
+id: plan-2026-03-s13-modes-community
+title: 'Sprint 13: Match Modes & Community'
+type: feature
+status: planned
+created_at: '2026-03-13T10:35:02.141084'
+skills:
+- planning-with-pm
+goals:
+- Match mode system (Classic, Invasion, Co-op Raid, Gauntlet, Boss Fight)
+- Scheduled weekly matches with Discord auto-post
+- Hosted viewer on GitHub Pages
+- Seasonal leaderboard and community hooks

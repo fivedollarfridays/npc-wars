@@ -1,11 +1,13 @@
 """Compose match frames and encode to MP4 via ffmpeg."""
 
+import os
 import subprocess
+import tempfile
 from typing import Any
 
 from PIL import Image
 
-from video.video_effects import render_effects
+from video.video_effects import render_effects, render_spectacle_effects
 from video.video_grid import render_grid
 from video.video_overlay import render_overlay
 from video.video_sprites import render_bots
@@ -37,7 +39,7 @@ def render_frame(
     eliminations: list[dict[str, Any]],
     grid_size: int = GRID_SIZE,
     cell_size: int = CELL_SIZE,
-) -> Image.Image:
+) -> tuple[Image.Image, bool]:
     """Render a single round as a PIL Image frame."""
     storm_border = round_data.get("storm_border", 0)
     # "bots" is the current schema; "positions" is the legacy key from early matches.
@@ -49,7 +51,11 @@ def render_frame(
     render_bots(img, bots, cell_size)
     render_effects(img, events, _bot_positions(bots), cell_size)
     kills = _round_kills(eliminations, round_num)
-    return render_overlay(img, round_num, bots, kills)
+    frame = render_overlay(img, round_num, bots, kills)
+
+    spectacle = round_data.get("spectacle")
+    frame, slow_mo = render_spectacle_effects(frame, spectacle, round_num)
+    return frame, slow_mo
 
 
 def frames_from_match(
@@ -59,7 +65,13 @@ def frames_from_match(
     rounds = match_data.get("rounds", [])
     eliminations = match_data.get("eliminations", [])
     grid_size = match_data.get("grid_size", GRID_SIZE)
-    return [render_frame(r, eliminations, grid_size, cell_size) for r in rounds]
+    frames: list[Image.Image] = []
+    for r in rounds:
+        frame, slow_mo = render_frame(r, eliminations, grid_size, cell_size)
+        frames.append(frame)
+        if slow_mo:
+            frames.append(frame.copy())
+    return frames
 
 
 def _pad_even(value: int) -> int:
@@ -119,10 +131,28 @@ def render_match_video(
     output_path: str,
     fps: int = DEFAULT_FPS,
     cell_size: int = CELL_SIZE,
+    audio: bool = True,
 ) -> str:
     """Full pipeline: match_data -> MP4 file.
+
+    When *audio* is True (default), a silent audio track is muxed into the
+    final video so downstream players treat the file as having audio.
 
     Returns the output_path.
     """
     frames = frames_from_match(match_data, cell_size)
-    return encode_frames(frames, output_path, fps)
+    if not audio:
+        return encode_frames(frames, output_path, fps)
+
+    # Encode video-only to a temp file, then mux audio in.
+    from audio.renderer import mux_audio_into_video
+
+    tmp_fd, tmp_path = tempfile.mkstemp(suffix=".mp4")
+    os.close(tmp_fd)
+    try:
+        encode_frames(frames, tmp_path, fps)
+        mux_audio_into_video(tmp_path, output_path)
+    finally:
+        if os.path.exists(tmp_path):
+            os.remove(tmp_path)
+    return output_path
