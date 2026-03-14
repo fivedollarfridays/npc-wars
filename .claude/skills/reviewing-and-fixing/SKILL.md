@@ -1,22 +1,31 @@
 ---
 name: reviewing-and-fixing
-description: Runs a full code review, fixes all findings, simplifies the result, then finishes the branch with commit, PR, and CI verification. Chains reviewing-code, fix-all, simplify, and finishing-branches into one pipeline.
+description: Runs doc cleanup, full code review, fixes all findings, simplifies the result, then finishes the branch with commit, PR, and CI verification. Chains cleaning-docs, reviewing-code, fix-all, simplify, and finishing-branches into one pipeline.
 ---
 
 # Reviewing and Fixing
 
 ## When to Use
 
-After completing a sprint or significant batch of work, before merging to main. Chains four stages into a single pipeline that catches issues, fixes them, cleans up the result, and ships.
+After completing a sprint or significant batch of work, before merging to main. Chains five stages into a single pipeline that trims context, catches issues, fixes them, cleans up the result, and ships.
 
 ## Pipeline Overview
 
 ```
-/reviewing-code  →  fix all  →  /simplify  →  /finishing-branches
-    (find)          (fix)       (clean)         (ship)
+/cleaning-docs  →  /reviewing-code  →  fix all  →  /simplify  →  /finishing-branches
+    (trim)            (find)           (fix)       (clean)         (ship)
 ```
 
 ## Steps
+
+### Stage 0: Doc Cleanup (`/cleaning-docs`)
+
+Run the cleaning-docs skill to optimize context before committing:
+
+1. **Measure** context budget — flag files over threshold (state.md > 200 lines)
+2. **Archive** stale docs — move tasks/plans/research from sprints 2+ behind current to `.paircoder/archive/`
+3. **Trim** state.md — collapse completed sprint task tables into summary rows, keep only current sprint detail
+4. **Verify** — confirm `wc -l state.md` < 200, no broken references
 
 ### Stage 1: Review (`/reviewing-code`)
 
@@ -84,14 +93,16 @@ Run the finishing-branches skill:
 
 | Stage | Typical Duration |
 |-------|-----------------|
+| Doc Cleanup | 1-2 minutes |
 | Review | 2-3 minutes (agent) |
 | Fix All | 5-10 minutes |
 | Simplify | 3-5 minutes (3 parallel agents + fixes) |
 | Finish | 2-5 minutes (commit + CI) |
-| **Total** | **12-23 minutes** |
+| **Total** | **13-25 minutes** |
 
 ## When to Skip Stages
 
+- **Skip Doc Cleanup** if state.md is already under 200 lines and no sprints need archiving
 - **Skip Simplify** if the review found zero issues — code is already clean
 - **Skip Review** if running immediately after a `/simplify` pass
 - **Never skip Finish** — always verify CI passes before declaring done
