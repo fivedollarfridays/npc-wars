@@ -1,4 +1,4 @@
-"""The Watcher's brain — sync rating and pattern tracking."""
+"""The Cringe's brain — sync rating and pattern tracking."""
 
 from __future__ import annotations
 
@@ -156,7 +156,7 @@ def select_target(
 
 
 class SyncTracker:
-    """Tracks how accurately The Watcher predicts each player's actions.
+    """Tracks how accurately The Cringe predicts each player's actions.
 
     Maintains a rolling window of the last 10 prediction outcomes per player
     and computes a sync rating (0.0-100.0) as the accuracy percentage.

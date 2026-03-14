@@ -1,4 +1,4 @@
-"""Tests for The Watcher bot skeleton and emoji identity."""
+"""Tests for The Cringe bot skeleton and emoji identity."""
 
 from engine.combat import DEFAULT_UNLOCKED_ACTIONS
 from engine.sandbox import validate_action
@@ -12,9 +12,9 @@ class TestWatcherIdentity:
         bot = WatcherBot(x=0, y=0)
         assert bot.emoji == "\U0001f346"
 
-    def test_name_is_the_watcher(self) -> None:
+    def test_name_is_the_cringe(self) -> None:
         bot = WatcherBot(x=0, y=0)
-        assert bot.name == "The Watcher"
+        assert bot.name == "The Cringe"
 
     def test_is_watcher_true(self) -> None:
         bot = WatcherBot(x=0, y=0)
@@ -28,7 +28,7 @@ class TestWatcherIdentity:
         assert WATCHER_EMOJI == "\U0001f346"
 
     def test_watcher_name_constant(self) -> None:
-        assert WATCHER_NAME == "The Watcher"
+        assert WATCHER_NAME == "The Cringe"
 
 
 class TestWatcherActions:

@@ -1,4 +1,4 @@
-"""Watcher spawn conditions and mid-match entry logic."""
+"""Cringe spawn conditions and mid-match entry logic."""
 
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ def check_watcher_spawn(
     round_num: int,
     watcher_present: bool,
 ) -> bool:
-    """Check if The Watcher should spawn this round.
+    """Check if The Cringe should spawn this round.
 
     Returns True if:
     - At least one alive human bot is present (has human_adapter)

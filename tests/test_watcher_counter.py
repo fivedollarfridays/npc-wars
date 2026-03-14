@@ -1,4 +1,4 @@
-"""Tests for The Watcher's counter-action selection engine."""
+"""Tests for The Cringe's counter-action selection engine."""
 
 from __future__ import annotations
 
@@ -23,7 +23,7 @@ def test_counter_map_has_move():
 
 
 def test_predicted_move_returns_move_toward_target():
-    """When human is predicted to move, Watcher intercepts (moves toward)."""
+    """When human is predicted to move, Cringe intercepts (moves toward)."""
     table = _seeded_table("p1", "after_damage", "move")
     result = select_counter_action(
         pattern_table=table,
@@ -44,7 +44,7 @@ ALL_ACTIONS = {"move", "attack", "rest", "defend", "ranged_attack", "dash", "tau
 
 
 def test_predicted_attack_returns_defend():
-    """When human is predicted to attack, Watcher defends."""
+    """When human is predicted to attack, Cringe defends."""
     table = _seeded_table("p1", "at_range_1", "attack")
     result = select_counter_action(
         pattern_table=table,
@@ -58,7 +58,7 @@ def test_predicted_attack_returns_defend():
 
 
 def test_predicted_rest_returns_rush():
-    """When human is predicted to rest, Watcher rushes (moves toward)."""
+    """When human is predicted to rest, Cringe rushes (moves toward)."""
     table = _seeded_table("p1", "below_30_hp", "rest")
     result = select_counter_action(
         pattern_table=table,
@@ -76,7 +76,7 @@ def test_predicted_rest_returns_rush():
 
 
 def test_predicted_defend_returns_ranged_attack():
-    """When human is predicted to defend, Watcher uses ranged_attack."""
+    """When human is predicted to defend, Cringe uses ranged_attack."""
     table = _seeded_table("p1", "storm_closing", "defend")
     result = select_counter_action(
         pattern_table=table,
@@ -91,7 +91,7 @@ def test_predicted_defend_returns_ranged_attack():
 
 
 def test_predicted_ranged_attack_returns_dash():
-    """When human is predicted to ranged_attack, Watcher dashes to close distance."""
+    """When human is predicted to ranged_attack, Cringe dashes to close distance."""
     table = _seeded_table("p1", "after_damage", "ranged_attack")
     result = select_counter_action(
         pattern_table=table,
@@ -106,7 +106,7 @@ def test_predicted_ranged_attack_returns_dash():
 
 
 def test_predicted_dash_returns_taunt():
-    """When human is predicted to dash, Watcher taunts."""
+    """When human is predicted to dash, Cringe taunts."""
     table = _seeded_table("p1", "override_detected", "dash")
     result = select_counter_action(
         pattern_table=table,

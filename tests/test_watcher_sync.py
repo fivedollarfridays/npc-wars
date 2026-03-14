@@ -1,4 +1,4 @@
-"""Tests for The Watcher sync rating calculation."""
+"""Tests for The Cringe sync rating calculation."""
 
 from __future__ import annotations
 

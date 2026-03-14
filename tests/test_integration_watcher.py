@@ -1,6 +1,6 @@
-"""Integration tests for The Watcher pipeline.
+"""Integration tests for The Cringe pipeline.
 
-Validates that all Watcher subsystems (spawn, memory, brain, observer,
+Validates that all Cringe subsystems (spawn, memory, brain, observer,
 stats, spectacle) work together end-to-end without import errors,
 type mismatches, or data-flow breakages.
 """
@@ -53,7 +53,7 @@ def _make_bot(emoji: str, x: int, y: int, *, human: bool = False) -> Bot:
 
 
 def test_spawn_too_early_returns_false() -> None:
-    """Watcher should not spawn when human hasn't met thresholds."""
+    """Cringe should not spawn when human hasn't met thresholds."""
     human = _make_bot("H", 5, 5, human=True)
     bots = [human, _make_bot("A", 1, 1), _make_bot("B", 8, 8), _make_bot("C", 3, 7)]
 
@@ -62,7 +62,7 @@ def test_spawn_too_early_returns_false() -> None:
 
 
 def test_spawn_conditions_met() -> None:
-    """Watcher should spawn when human survived 5+ rounds with >50% HP."""
+    """Cringe should spawn when human survived 5+ rounds with >50% HP."""
     human = _make_bot("H", 5, 5, human=True)
     human.rounds_survived = 5
     human.hp = 60  # >50% of MAX_HP=100
