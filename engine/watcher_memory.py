@@ -1,7 +1,7 @@
 """Pattern table for tracking human behavioral frequencies.
 
 Stores per-player frequency maps keyed by context, recording how often
-each action is taken. Used by The Watcher to learn and counter patterns.
+each action is taken. Used by The Cringe to learn and counter patterns.
 """
 
 from __future__ import annotations

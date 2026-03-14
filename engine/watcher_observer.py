@@ -1,4 +1,4 @@
-"""Watcher observer — classifies human action contexts during matches.
+"""Cringe observer — classifies human action contexts during matches.
 
 Watches each round's events and game state, classifies the context for
 each human bot, and records the human's actual action into a PatternTable.

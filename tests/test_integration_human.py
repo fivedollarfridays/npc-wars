@@ -60,10 +60,11 @@ async def test_mock_human_match_completes():
         data = await run_match_async(configs, match_id=1, seed=42)
 
     # Match must complete with a winner and at least 1 round
-    assert data["winner"] in {"HU", "KI", "B3", "none"}
+    from engine.watcher import WATCHER_EMOJI
+    assert data["winner"] in {"HU", "KI", "B3", "none", WATCHER_EMOJI}
     assert data["duration_rounds"] >= 1
     assert len(data["rounds"]) >= 1
-    assert len(data["players"]) == 3
+    assert len(data["players"]) >= 3
 
 
 @pytest.mark.asyncio

@@ -1,4 +1,4 @@
-"""Lifetime stat tracking for The Watcher.
+"""Lifetime stat tracking for The Cringe.
 
 Tracks kills, deaths, match results, win streaks, and per-player
 encounter history.  Persists to a JSON file separate from the
@@ -17,7 +17,7 @@ DEFAULT_STATS_PATH: str = "data/watcher_stats.json"
 
 @dataclass
 class WatcherStats:
-    """Cumulative lifetime statistics for The Watcher."""
+    """Cumulative lifetime statistics for The Cringe."""
 
     matches: int = 0
     wins: int = 0

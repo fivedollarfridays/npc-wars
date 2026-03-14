@@ -40,6 +40,8 @@ def _create_bots(
         for fld in _PROGRESSION_FIELDS:
             if fld in config:
                 setattr(bot_obj, fld, config[fld])
+        if "human_adapter" in config:
+            bot_obj.human_adapter = config["human_adapter"]
         bots.append(bot_obj)
     return bots
 
@@ -97,14 +99,14 @@ def _resolve_combat_phases(
 
 def _prepare_match(
     bot_configs: list[dict[str, Any]], seed: int | None,
-) -> tuple[list[Bot], list[dict[str, Any]], int]:
-    """Shared match setup: RNG, grid, bots, players. Returns (bots, players, grid_size)."""
+) -> tuple[list[Bot], list[dict[str, Any]], int, random.Random]:
+    """Shared match setup: RNG, grid, bots, players. Returns (bots, players, grid_size, rng)."""
     rng = random.Random(seed)
     grid_size = calculate_grid_size(len(bot_configs))
     positions = spawn_positions(len(bot_configs), grid_size, rng)
     bots = _create_bots(bot_configs, positions)
     players = [{"emoji": b.emoji, "name": b.name, "bio": b.bio, "author": b.author} for b in bots]
-    return bots, players, grid_size
+    return bots, players, grid_size, rng
 
 
 def _finalize_match(
@@ -275,14 +277,19 @@ async def run_match_async(
 ) -> dict[str, Any]:
     """Async match loop. Uses async rounds when humans are present."""
     from engine.afk import AFKTracker
+    from engine.watcher_controller import WatcherController
 
-    bots, players, grid_size = _prepare_match(bot_configs, seed)
+    bots, players, grid_size, rng = _prepare_match(bot_configs, seed)
     has_humans = any(b.human_adapter is not None for b in bots)
     afk_tracker = AFKTracker()
     for b in bots:
         if b.human_adapter is not None:
             afk_tracker.register(b.emoji)
     notify_match_start(match_id=match_id, players=players, seed=seed)
+
+    watcher_ctrl: WatcherController | None = None
+    if has_humans:
+        watcher_ctrl = WatcherController(rng=rng)
 
     all_rounds: list[dict[str, Any]] = []
     all_eliminations: list[dict[str, Any]] = []
@@ -293,11 +300,24 @@ async def run_match_async(
         if sum(b.alive for b in bots) <= 1:
             break
 
+        storm_border = get_storm_border(round_num)
+
+        # Watcher spawn check (before decisions)
+        spawn_events: list[dict[str, Any]] = []
+        if watcher_ctrl is not None:
+            spawn_events = watcher_ctrl.try_spawn(bots, round_num, grid_size, storm_border)
+
         if has_humans:
             round_data, round_elims, last_bump_events, responded = await _execute_round_async(
-                bots, round_num, grid_size, get_storm_border(round_num),
+                bots, round_num, grid_size, storm_border,
                 bumps_last_round=last_bump_events, human_timeout=human_timeout,
             )
+            if spawn_events:
+                round_data.setdefault("events", []).extend(spawn_events)
+            if watcher_ctrl is not None:
+                watcher_ctrl.post_round(
+                    bots, round_data, round_elims, round_num, grid_size, storm_border,
+                )
             for b in bots:
                 if b.human_adapter is not None:
                     if b.emoji in responded:
@@ -308,7 +328,7 @@ async def run_match_async(
                             b.human_adapter = None
         else:
             round_data, round_elims, last_bump_events = _execute_round(
-                bots, round_num, grid_size, get_storm_border(round_num),
+                bots, round_num, grid_size, storm_border,
                 bumps_last_round=last_bump_events,
             )
 
@@ -321,6 +341,16 @@ async def run_match_async(
     else:
         round_num = MAX_ROUNDS
 
+    # Finalize watcher persistence
+    if watcher_ctrl is not None:
+        winner_alive = [b for b in bots if b.alive]
+        watcher_won = (
+            watcher_ctrl.watcher_bot is not None
+            and watcher_ctrl.watcher_bot.alive
+            and len(winner_alive) <= 1
+        )
+        watcher_ctrl.finalize(won=watcher_won)
+
     return _finalize_match(
         bots, players, all_rounds, all_eliminations,
         round_num, match_id, grid_size, profiles_path,
@@ -332,7 +362,7 @@ def run_match(
     seed: int | None = None, profiles_path: Path | None = None,
 ) -> dict[str, Any]:
     """Run a complete match. Returns match data dict."""
-    bots, players, grid_size = _prepare_match(bot_configs, seed)
+    bots, players, grid_size, _rng = _prepare_match(bot_configs, seed)
     notify_match_start(match_id=match_id, players=players, seed=seed)
 
     all_rounds: list[dict[str, Any]] = []

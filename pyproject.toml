@@ -30,7 +30,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["engine*", "data*", "scripts*", "discord_bot*", "video*", "youtube*", "realtime*"]
+include = ["engine*", "data*", "scripts*", "discord_bot*", "video*", "youtube*", "realtime*", "npcwars*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

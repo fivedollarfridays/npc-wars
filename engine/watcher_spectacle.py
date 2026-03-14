@@ -1,4 +1,4 @@
-"""Watcher spectacle event emitters for NPC Wars."""
+"""Cringe spectacle event emitters for NPC Wars."""
 
 from typing import Any
 

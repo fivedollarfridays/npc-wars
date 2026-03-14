@@ -91,12 +91,35 @@ ruff check .                   # Lint
 
 Update state.md with sprint status.
 
+## INTEGRATION GATE (Mandatory)
+
+**Every sprint MUST include a final-wave task that wires new modules into the runtime code path.** This is the #1 failure mode of parallel execution — agents build perfect vertical slices that nothing calls.
+
+The integration gate task must:
+
+1. **Import new modules into the game loop** (`game.py`, `rounds.py`, or similar)
+2. **Wire lifecycle hooks** — init, per-round calls, cleanup
+3. **Verify with a smoke test** that exercises the real code path (not just module interop)
+4. **Check for dead code** — every public function in `__all__` must have a caller outside tests
+
+If the sprint plan doesn't include an integration gate, **add one** before executing. Label it `INTEGRATION GATE` in the wave plan. It must run solo in the final wave, after integration tests.
+
+```
+Wave N-1 (tests):    T{X}.{Y} (integration tests)
+Wave N (GATE):       T{X}.{Z} (wire into game loop)     ← MANDATORY
+```
+
+### Why This Exists
+
+Sprint 12 shipped 7 modules with 188 tests — none wired into `game.py`. The parallel agents each built and tested their slice independently. The integration test task (T12.14) tested inter-module data flow but not game loop wiring, which masked the gap. This gate prevents that class of failure.
+
 ## Parallelization Rules
 
 - **Max 3-4 agents per wave** — more causes context thrashing
 - **Isolate file ownership** — no two agents in the same wave should modify the same file
 - **If a task touches shared files** (e.g., `game.py`), move it to a later wave or run it solo
-- **Integration test tasks** always go in the final wave
+- **Integration test tasks** go in the penultimate wave; integration GATE goes last
+- **Do NOT let agents run `task_done --allow-dirty`** — track completion in state.md instead; commit between waves if the dirty-tree bypass count is climbing
 
 ## Error Recovery
 
