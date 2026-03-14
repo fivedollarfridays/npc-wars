@@ -24,7 +24,7 @@ def test_forced_rest_heals_same_time_as_explicit_rest():
     all_bots = [bot_a, bot_b]
 
     # Phase 1: resolve decisions
-    actions, forced_rest = resolve_decisions(alive_bots, all_bots, round_num=1,
+    actions, forced_rest, _ = resolve_decisions(alive_bots, all_bots, round_num=1,
                                              grid_size=10, storm_border=0)
 
     # After Phase 1, forced-rest bot should NOT have been healed yet.

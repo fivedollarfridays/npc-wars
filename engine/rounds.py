@@ -47,14 +47,39 @@ def _find_target(
     return None
 
 
+def _apply_human_override(
+    bot: Bot, state: dict[str, Any], action: _Action | None,
+    override_events: list[_Event],
+) -> _Action | None:
+    """Try copilot override; append event if human picks a different action."""
+    if bot.human_adapter is None:
+        return action
+    human_raw = bot.human_adapter.get_action(state, timeout_s=2.0)
+    if human_raw is None:
+        return action
+    human_action = validate_action(
+        human_raw, unlocked_actions=set(bot.unlocked_actions),
+    )
+    if human_action is not None and human_action != action:
+        override_events.append({
+            "type": "human_override",
+            "player": bot.emoji,
+            "original": " ".join(action) if action else "nothing",
+            "override": " ".join(human_action),
+        })
+        return human_action
+    return action
+
+
 def resolve_decisions(
     alive_bots: list[Bot], bots: list[Bot], round_num: int,
     grid_size: int, storm_border: int,
     bumps_last_round: list[_Event] | None = None,
-) -> tuple[_ActionsMap, set[str]]:
-    """Phase 1: All bots decide their action. Returns (actions, forced_rest)."""
+) -> tuple[_ActionsMap, set[str], list[_Event]]:
+    """Phase 1: All bots decide their action. Returns (actions, forced_rest, override_events)."""
     actions: _ActionsMap = {}
     forced_rest: set[str] = set()
+    override_events: list[_Event] = []
     for bot in alive_bots:
         if not bot.can_act():
             actions[bot.emoji] = ("rest",)
@@ -66,6 +91,7 @@ def resolve_decisions(
                             bumps_last_round=bumps_last_round)
         raw_action = execute_decide(bot.decide_func, state)
         action = validate_action(raw_action, unlocked_actions=set(bot.unlocked_actions))
+        action = _apply_human_override(bot, state, action, override_events)
 
         if action is None:
             bot.consecutive_failures += 1
@@ -80,7 +106,7 @@ def resolve_decisions(
             if (bot.taunt_target is not None and action[0] in ("attack", "ranged_attack")):
                 action = _apply_taunt_override(bot, action, bots)
             actions[bot.emoji] = action
-    return actions, forced_rest
+    return actions, forced_rest, override_events
 
 
 def _apply_taunt_override(
