@@ -1,57 +1,92 @@
-# NPC Wars 🪿
+# NPC Wars
 
-Spectator battle royale where you write a Python function and watch your emoji fight.
+Autonomous bot battle royale. Write a `decide(state)` function, drop it in a folder, watch emojis fight on a shrinking grid. Last one standing wins.
 
 ## Quick Start
 
 ```bash
-# Run a match
-python3 run_match.py
-
-# Watch the replay
-# Open viewer/match.html in your browser
-# Load results/match_001.json via the file picker
-# OR open: viewer/match.html?match=../results/match_001.json
+pip install npc-wars
+npcwars init
+npcwars wizard
+npcwars battle
 ```
 
-## Write a Bot
-
-Copy `bots/template.py` → `bots/your_bot.py` and implement `decide(state)`.
-
-```python
-BOT_NAME = "YourBot"
-BOT_EMOJI = "🦊"
-BOT_BIO = "something cool"
-BOT_AUTHOR = "you"
-
-def decide(state):
-    # state["me"] = {x, y, hp, energy, attack_power, defense}
-    # state["enemies"] = [{name, emoji, x, y, hp}, ...]
-    # state["round"], state["grid_size"], state["storm_border"]
-    #
-    # Return one of:
-    #   ("move", "north"|"south"|"east"|"west")
-    #   ("attack", "north"|"south"|"east"|"west")
-    #   ("rest",)
-    #   ("defend",)
-    return ("move", "north")
-```
-
-## Seed Bots
-
-| Emoji | Name | Strategy |
-|-------|------|----------|
-| 🪿 | GooseLoose | Balanced hunter — chases wounded, avoids storm |
-| 🤖 | AggroBot | Pure aggression — chase and attack nonstop |
-| 🛡️ | TankBot | Defend + counterattack — outlast everyone |
-| 🎯 | KiteBot | Hit and run — maintain distance |
-| 🎲 | ChaosBot | Pure random — chaos incarnate |
+That's it. Five minutes from install to your first fight.
 
 ## How It Works
 
-- All bots start at 100 HP, 100 energy
-- Every action costs energy (move=5, attack=15, defend=10, rest=0)
-- Storm closes in after round 20, forcing bots to center
-- Last emoji alive wins
+1. **`npcwars init`** -- Creates a project with starter bots and config
+2. **`npcwars wizard`** -- Interactive bot builder (name, emoji, play style, tuning)
+3. **`npcwars validate bots/my_bot.py`** -- Checks your bot is safe and valid
+4. **`npcwars battle`** -- Runs a match with all bots in `bots/`
 
-the goose is loose.
+## Write a Bot
+
+```python
+BOT_NAME = "MyBot"
+BOT_EMOJI = "🔥"
+BOT_BIO = "burns everything"
+BOT_AUTHOR = "you"
+
+def decide(state):
+    me = state["me"]
+    enemies = state["enemies"]
+    if not enemies:
+        return ("rest",)
+    target = min(enemies, key=lambda e: abs(e["x"] - me["x"]) + abs(e["y"] - me["y"]))
+    if abs(target["x"] - me["x"]) + abs(target["y"] - me["y"]) == 1:
+        dx = target["x"] - me["x"]
+        if dx == 1: return ("attack", "east")
+        if dx == -1: return ("attack", "west")
+        dy = target["y"] - me["y"]
+        if dy == 1: return ("attack", "south")
+        return ("attack", "north")
+    return ("move", "east" if target["x"] > me["x"] else "west")
+```
+
+Or use the helpers DSL:
+
+```python
+from npcwars.helpers import Me, Enemies, Storm
+
+def decide(state):
+    me, enemies, storm = Me(state), Enemies(state), Storm(state)
+    if storm.danger: return me.flee_storm()
+    target = enemies.weakest()
+    if target and me.dist_to(target) == 1: return me.attack(target)
+    if target: return me.move_toward(target)
+    return me.rest()
+```
+
+## Game Rules
+
+- **Grid**: Bots spawn on an NxN grid
+- **Storm**: Shrinks the safe zone after round 20 -- stay inside or take damage
+- **Energy**: Every action costs energy. Run out and you're forced to rest
+- **Actions**: `rest`, `defend`, `move`, `attack` (see [CONTRIBUTING.md](CONTRIBUTING.md) for costs)
+
+## Battle Options
+
+```bash
+npcwars battle --seed 42           # Deterministic match
+npcwars battle --bots-dir my_bots  # Custom bots directory
+npcwars battle --replay replays    # Save match JSON
+```
+
+## Built-in Bots
+
+| Bot | Style | Strategy |
+|-----|-------|----------|
+| AggroBot 🤖 | Aggro | Chase closest, attack relentlessly |
+| TankBot 🛡️ | Tank | Defend, counter adjacent enemies |
+| KiteBot 🪁 | Kiter | Keep distance, poke wounded |
+| ChaosBot 🎲 | Chaos | Pure random mayhem |
+| Cognify 🧠 | Vibes | Storm-aware opportunist (helpers DSL) |
+
+## Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md). Three paths: submit bots, pitch ideas, report bugs.
+
+## License
+
+MIT

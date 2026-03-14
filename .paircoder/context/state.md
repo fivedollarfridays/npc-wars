@@ -1,6 +1,6 @@
 # Current State
 
-> Last updated: 2026-03-14 T13.10 done
+> Last updated: 2026-03-14 T14.10 done
 
 ## Active Plan
 
@@ -13,6 +13,26 @@
 S13 in progress. T13.1, T13.2, T13.3, T13.4, T13.5, T13.6, T13.7, T13.8, T13.9, T13.10 done. Working through helpers DSL and match modes.
 
 ## What Was Just Done
+
+**T14.10: E2E integration gate for full CLI pipeline** -- Created `tests/test_cli_e2e.py` (203 lines) with 13 subprocess-based end-to-end tests proving the complete `npcwars` CLI pipeline works: init -> wizard -> validate -> battle. Tests organized in 7 classes: TestInitCreatesValidStructure (4 tests: bots dir, replays dir, config, bot files), TestValidateRejectsBadBot (2 tests: bad syntax, missing decide), TestWizardBotPassesValidate (2 tests: file creation, validation), TestPipelineWithCustomBot (2 tests: validate, battle), TestFullPipelineInitToBattle (1 test: full 5-step pipeline with replay verification), TestBattleWithSeedDeterministic (1 test: same seed same winner), TestBattleReplayHasExpectedKeys (1 test: winner, duration_rounds, players, eliminations keys and types). All tests use subprocess to invoke `python -m npcwars.cli` in tmp_path isolation. 1737 total tests passing (2 pre-existing failures in test_bot_submission.py unrelated). Ruff clean. Arch clean.
+
+**T14.8: Package metadata & LICENSE** -- Added PyPI metadata to `pyproject.toml`: license (MIT), readme, keywords, 7 classifiers (Beta, Developers, Education, MIT, Python 3/3.13, Games), and project URLs (Homepage, Repository, Issues). Created `LICENSE` file with MIT license text (2026, Kevin Masterson). 8 tests in `tests/test_package.py` covering all metadata fields, entry point, LICENSE existence, and MIT content. 1737 total tests passing (2 pre-existing failures in test_bot_submission.py unrelated). Ruff clean. Arch clean.
+
+**T14.9: Community scaffolding + docs** -- Created `suggestions/TEMPLATE.md` (suggestion form with category checkboxes and priority guess), `showcase/README.md` (bot gallery submission guide with rules), rewrote `CONTRIBUTING.md` (three contribution paths: bot showcase, suggestions, bug reports; engine-maintained-by-one-person policy; bot rules table; state dict reference; energy costs), rewrote `README.md` (pip install flow, quick start with npcwars init/wizard/battle, raw bot example, helpers DSL example, game rules, battle options, built-in bots table, MIT license). 13 tests in `tests/test_community_scaffolding.py` covering file existence, content assertions for all four files. Ruff clean. Arch clean.
+
+**T14.7: `npcwars battle` command** -- Created `npcwars/cli/cmd_battle.py` (80 lines) with `register()`, `_resolve_config()`, `_print_summary()`, and `run()` functions. Runs a bot match using existing engine modules (load_bots, run_match, write_match). Supports `--bots-dir` (override bots directory), `--seed` (deterministic matches), and `--replay` (save match JSON). Prints bot roster, winner, round count, and kill feed. Error handling for missing bots dir and fewer than 2 bots. Wired into `npcwars/cli/__init__.py` dispatcher replacing the battle stub. 13 tests in `tests/test_cli_battle.py` covering help output, help shows options, battle exits zero, prints winner, prints rounds, seed determinism, replay JSON creation, replay parseability, replay filepath output, custom bots-dir, missing dir error, fewer-than-2 error, empty dir error. All 10 dispatch tests still pass. Ruff clean. Arch clean.
+
+**T14.4: `npcwars init` command** -- Created `npcwars/cli/cmd_init.py` (57 lines) with `register()` and `run()` functions. Scaffolds a project directory with `bots/`, `replays/`, and `npcwars.toml`. Copies all 6 built-in bots via `npcwars.builtin_bots`. Supports `--dir` flag for target directory (default: cwd) and `--force` flag to overwrite existing files. Idempotent: second run without --force prints skip message and exits cleanly. Wired into CLI dispatcher replacing init stub. 14 tests in `tests/test_cli_init.py` covering directory creation, config validity, bot copying, idempotency, --force overwrite, --dir flag, default cwd, and dispatcher integration. All dispatch tests still pass. Ruff clean. Arch clean.
+
+**T14.6: `npcwars validate` command** -- Created `npcwars/cli/cmd_validate.py` (33 lines) wrapping `scripts.validate_bot.validate_bot()`. Accepts one or more bot file paths, prints PASS/FAIL per file with error details, exits 1 if any fail. Wired into `npcwars/cli/__init__.py` dispatcher replacing the stub handler. 8 tests in `tests/test_cli_validate.py` covering help output, valid bot passes, invalid syntax fails, missing file fails, PASS/FAIL output indicators, multiple valid bots pass, and one-invalid-among-valid fails. All 10 dispatch tests still pass. Ruff clean. Arch clean.
+
+**T14.5: `npcwars wizard` command** -- Created `npcwars/cli/cmd_wizard.py` (44 lines) as a thin wrapper that registers the wizard subcommand with all argparse flags (--non-interactive, --name, --emoji, --style, --aggression, --risk, --bio, --author, --output-dir) and delegates to `wizard.main(argv)`. Wired into `npcwars/cli/__init__.py` dispatcher replacing the stub handler. 8 tests in `tests/test_cli_wizard.py` covering help output, non-interactive bot creation, bot file contents (BOT_NAME, def decide), nested output dir creation, and error cases (invalid style, missing name). All 10 dispatch tests still pass. Ruff clean. Arch clean.
+
+**T14.3: CLI dispatcher skeleton** -- Created `npcwars/cli/__init__.py` (57 lines) as the unified CLI entry point with argparse subcommands (init, wizard, validate, battle), --help, --version. Added `npcwars/cli/__main__.py` for `python -m npcwars.cli` invocation. All subcommands wired to stub handlers that exit non-zero with "Not implemented yet". Added `[project.scripts] npcwars = "npcwars.cli:main"` entry point to `pyproject.toml`. 10 tests in `tests/test_cli_dispatch.py` covering help output, version, all 4 subcommand --help calls, no-args exit, and nonexistent subcommand exit. 1662 total tests passing. Ruff clean. Arch clean.
+
+**T14.1: Built-in bots package** -- Created `npcwars/builtin_bots/` package with `__init__.py` (31 lines) exposing `BUILTIN_NAMES`, `list_builtin_bots()`, and `get_bot_source()`. Copied 5 example bots + template from `bots/` into the package (excludes goose_loose). Uses `importlib.resources` to read bot source at runtime. 19 tests in `tests/test_builtin_bots.py` covering list length, expected names, source content checks, AST parsing of all bots, ValueError on unknown name, and goose_loose exclusion. 1662 total tests passing. Ruff clean. Arch clean.
+
+**T14.2: TOML config reader** -- Created `npcwars/config.py` (48 lines) with three public functions: `default_config()` returns dict with bots_dir, replays_dir, seed defaults; `load_config(path)` reads TOML file and merges with defaults (missing file returns defaults); `write_default_config(path)` writes commented template. Uses stdlib `tomllib`. 11 tests in `tests/test_npcwars_config.py` covering defaults, load from missing file, load with values, merge with defaults, write creates file, write output parseable by tomllib, and round-trip. 1662 total tests passing. Ruff clean. Arch clean.
 
 **T13.10: E2E Integration Gate -- wizard bot in a full match** -- Created `tests/test_integration_wizard.py` with 7 test functions (10 test cases with parametrization) proving the complete Vibe Wizard pipeline works end-to-end. Tests cover: wizard-generated bot completes a match, all 5 presets complete matches (parametrized), example_vibes.py works in a match, helpers-based bot makes non-trivial decisions (moves/attacks, not just rest), wizard bot coexists with existing bots, and full pipeline smoke test (generate -> write -> validate_bot -> load_bots -> run_match -> check stats). All tests use tmp_path isolation with a dummy "always rest" opponent. 1622 total tests passing. Ruff clean. Arch clean.
 
@@ -32,7 +52,7 @@ S13 in progress. T13.1, T13.2, T13.3, T13.4, T13.5, T13.6, T13.7, T13.8, T13.9, 
 
 ## What's Next
 
-Remaining S13 tasks (T13.11-T13.13).
+Remaining S14 tasks. T14.1, T14.2, T14.3, T14.4, T14.5, T14.6, T14.7, T14.8, T14.9, T14.10 done.
 
 ## Completed Sprints
 

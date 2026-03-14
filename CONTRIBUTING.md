@@ -1,56 +1,63 @@
-# Contributing a Bot
+# Contributing to NPC Wars
 
-Welcome! Here's how to submit your NPC Wars bot.
+> **You don't PR game logic. You build bots and pitch ideas.**
+>
+> The engine is maintained by one person. This keeps the game balanced, the meta intentional, and the codebase stable.
 
-## Quick Start
+## Three Ways to Contribute
 
-1. **Copy the template**
-   ```bash
-   cp bots/template.py bots/your_bot_name.py
-   ```
+### 1. Bot Showcase
 
-2. **Edit your bot** — set `BOT_NAME`, `BOT_EMOJI`, `BOT_AUTHOR`, and implement `decide(state)`
+Submit your bot to `showcase/` via PR.
 
-3. **Validate locally**
-   ```bash
-   python scripts/validate_bot.py bots/your_bot_name.py
-   ```
+```bash
+npcwars wizard                           # create a bot
+npcwars validate bots/your_bot.py        # check it passes
+cp bots/your_bot.py showcase/
+# Open a PR
+```
 
-4. **Open a PR** using the **Bot Submission** template
+Must pass `npcwars validate`. Gets merged as-is -- this is a community gallery.
 
-## Rules
+### 2. Suggestions
+
+Want to improve the game? Submit a suggestion:
+
+1. Copy `suggestions/TEMPLATE.md` to `suggestions/your-idea.md`
+2. Fill it out
+3. Open a PR to `suggestions/`
+
+Suggestions are reviewed in batches. Accepted ideas move to `suggestions/accepted/`.
+
+### 3. Bug Reports
+
+Found a bug? Open an issue with:
+- What happened
+- What you expected
+- Steps to reproduce
+
+## Bot Rules
 
 | Rule | Detail |
 |------|--------|
-| Unique emoji | No two bots may share an emoji — it's your identifier in-game |
-| No I/O | Bots must not read files, make network requests, or write anywhere |
-| 1-second limit | `decide()` must return within 1 second per round |
-| Valid action | Must return one of: `("rest",)` `("defend",)` `("move", dir)` `("attack", dir)` |
-| Max 3 emojis | Each author may claim up to 3 emoji identifiers |
-
-Where `dir` is one of: `"north"`, `"south"`, `"east"`, `"west"`
+| Unique emoji | No two bots share an emoji |
+| No I/O | No file reads, network, or writes |
+| 1-second limit | `decide()` must return within 1 second |
+| Valid action | `("rest",)` `("defend",)` `("move", dir)` `("attack", dir)` |
+| Max 3 emojis | Each author may claim up to 3 identifiers |
 
 ## The `state` Dict
-
-Your `decide(state)` receives:
 
 ```python
 {
     "me": {
-        "x": int,        # your column (0 = left)
-        "y": int,        # your row (0 = top)
-        "hp": int,       # current HP (0–100)
-        "energy": int,   # current energy (0–100)
-        "attack_power": int,
-        "defense": int,
+        "x": int, "y": int, "hp": int, "energy": int,
+        "attack_power": int, "defense": int,
     },
-    "enemies": [
-        {"name": str, "emoji": str, "x": int, "y": int, "hp": int},
-        # ... one entry per living enemy
-    ],
-    "round": int,          # current round number
-    "grid_size": int,      # grid is grid_size × grid_size
-    "storm_border": int,   # tiles from edge consumed by storm (0 = no storm)
+    "enemies": [{"name": str, "emoji": str, "x": int, "y": int, "hp": int}],
+    "round": int,
+    "grid_size": int,
+    "storm_border": int,
 }
 ```
 
@@ -58,14 +65,7 @@ Your `decide(state)` receives:
 
 | Action | Cost |
 |--------|------|
-| `rest` | 0 (also heals +10 HP, +20 energy) |
+| `rest` | 0 (+10 HP, +20 energy) |
 | `defend` | 10 |
 | `move` | 5 |
 | `attack` | 15 |
-
-If energy drops below 5, your bot is forced to rest that round.
-
-## CI Checks
-
-Every PR touching `bots/` automatically runs `scripts/validate_bot.py` on your
-changed files. The PR cannot merge until validation passes.
