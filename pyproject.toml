@@ -3,6 +3,17 @@ name = "npc-wars"
 version = "0.1.0"
 description = "Autonomous NPC battle royale engine"
 requires-python = ">=3.13"
+license = "MIT"
+readme = "README.md"
+keywords = ["game", "coding-game", "battle-royale", "python", "bots"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Games/Entertainment",
+]
 dependencies = []
 
 [project.optional-dependencies]
@@ -23,6 +34,14 @@ realtime = ["websockets>=13.0"]
 discord = ["discord.py>=2.3"]
 video = ["Pillow>=10.0"]
 youtube = ["google-api-python-client>=2.0", "google-auth-oauthlib>=1.0"]
+
+[project.scripts]
+npcwars = "npcwars.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/fivedollarfridays/npc-wars"
+Repository = "https://github.com/fivedollarfridays/npc-wars"
+Issues = "https://github.com/fivedollarfridays/npc-wars/issues"
 
 [build-system]
 requires = ["setuptools>=68"]

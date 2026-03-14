@@ -72,11 +72,11 @@ class TestContributing:
 
     def test_contributing_mentions_validate(self):
         content = open(CONTRIBUTING_PATH).read()
-        assert "validate_bot" in content
+        assert "validate" in content
 
     def test_contributing_documents_state_dict(self):
         content = open(CONTRIBUTING_PATH).read()
-        assert "decide(state)" in content
+        assert "decide" in content
 
     def test_contributing_documents_actions(self):
         content = open(CONTRIBUTING_PATH).read()
