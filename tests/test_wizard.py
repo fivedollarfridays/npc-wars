@@ -12,6 +12,8 @@ import pytest
 from npcwars.presets import PRESET_NAMES
 from wizard import build_bot_source, validate_inputs
 
+_PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
+
 
 # --- Cycle 1: non-interactive generates valid bot file ---
 
@@ -30,7 +32,7 @@ class TestNonInteractiveGeneration:
                 "--style", "aggro",
                 "--output-dir", str(tmp_path),
             ],
-            capture_output=True, text=True, cwd="/home/kmasty/projects/npc-wars",
+            capture_output=True, text=True, cwd=_PROJECT_ROOT,
         )
         assert result.returncode == 0, result.stderr
         assert (tmp_path / "testbot.py").exists()
@@ -45,7 +47,7 @@ class TestNonInteractiveGeneration:
                 "--style", "aggro",
                 "--output-dir", str(tmp_path),
             ],
-            capture_output=True, text=True, cwd="/home/kmasty/projects/npc-wars",
+            capture_output=True, text=True, cwd=_PROJECT_ROOT,
         )
         assert result.returncode == 0, result.stderr
         content = (tmp_path / "cognify.py").read_text()
@@ -61,7 +63,7 @@ class TestNonInteractiveGeneration:
                 "--style", "tank",
                 "--output-dir", str(tmp_path),
             ],
-            capture_output=True, text=True, cwd="/home/kmasty/projects/npc-wars",
+            capture_output=True, text=True, cwd=_PROJECT_ROOT,
         )
         assert result.returncode == 0, result.stderr
         content = (tmp_path / "emobot.py").read_text()
@@ -79,7 +81,7 @@ class TestNonInteractiveGeneration:
                 "--author", "kevin",
                 "--output-dir", str(tmp_path),
             ],
-            capture_output=True, text=True, cwd="/home/kmasty/projects/npc-wars",
+            capture_output=True, text=True, cwd=_PROJECT_ROOT,
         )
         assert result.returncode == 0, result.stderr
         content = (tmp_path / "metabot.py").read_text()
@@ -96,7 +98,7 @@ class TestNonInteractiveGeneration:
                 "--style", "aggro",
                 "--output-dir", str(tmp_path),
             ],
-            capture_output=True, text=True, cwd="/home/kmasty/projects/npc-wars",
+            capture_output=True, text=True, cwd=_PROJECT_ROOT,
         )
         assert result.returncode == 0, result.stderr
         content = (tmp_path / "decbot.py").read_text()
@@ -122,7 +124,7 @@ class TestAllStylesValid:
                 "--style", style,
                 "--output-dir", str(tmp_path),
             ],
-            capture_output=True, text=True, cwd="/home/kmasty/projects/npc-wars",
+            capture_output=True, text=True, cwd=_PROJECT_ROOT,
         )
         assert result.returncode == 0, result.stderr
         content = (tmp_path / f"bot{style}.py").read_text()
@@ -145,7 +147,7 @@ class TestDefaultSliders:
                 "--style", "opportunist",
                 "--output-dir", str(tmp_path),
             ],
-            capture_output=True, text=True, cwd="/home/kmasty/projects/npc-wars",
+            capture_output=True, text=True, cwd=_PROJECT_ROOT,
         )
         assert result.returncode == 0, result.stderr
         content = (tmp_path / "defaultbot.py").read_text()
@@ -169,7 +171,7 @@ class TestInputValidation:
                 "--style", "sniper",
                 "--output-dir", str(tmp_path),
             ],
-            capture_output=True, text=True, cwd="/home/kmasty/projects/npc-wars",
+            capture_output=True, text=True, cwd=_PROJECT_ROOT,
         )
         assert result.returncode != 0
 
@@ -182,7 +184,7 @@ class TestInputValidation:
                 "--style", "aggro",
                 "--output-dir", str(tmp_path),
             ],
-            capture_output=True, text=True, cwd="/home/kmasty/projects/npc-wars",
+            capture_output=True, text=True, cwd=_PROJECT_ROOT,
         )
         assert result.returncode != 0
 
@@ -195,7 +197,7 @@ class TestInputValidation:
                 "--style", "aggro",
                 "--output-dir", str(tmp_path),
             ],
-            capture_output=True, text=True, cwd="/home/kmasty/projects/npc-wars",
+            capture_output=True, text=True, cwd=_PROJECT_ROOT,
         )
         assert result.returncode != 0
 
@@ -209,7 +211,7 @@ class TestInputValidation:
                 "--style", "aggro",
                 "--output-dir", str(tmp_path),
             ],
-            capture_output=True, text=True, cwd="/home/kmasty/projects/npc-wars",
+            capture_output=True, text=True, cwd=_PROJECT_ROOT,
         )
         assert result.returncode != 0
 
@@ -231,7 +233,7 @@ class TestNameUniqueness:
                 "--style", "aggro",
                 "--output-dir", str(tmp_path),
             ],
-            capture_output=True, text=True, cwd="/home/kmasty/projects/npc-wars",
+            capture_output=True, text=True, cwd=_PROJECT_ROOT,
         )
         # Try to create second with same name
         result = subprocess.run(
@@ -243,7 +245,7 @@ class TestNameUniqueness:
                 "--style", "tank",
                 "--output-dir", str(tmp_path),
             ],
-            capture_output=True, text=True, cwd="/home/kmasty/projects/npc-wars",
+            capture_output=True, text=True, cwd=_PROJECT_ROOT,
         )
         assert result.returncode != 0
         assert "already exists" in result.stderr
@@ -258,7 +260,7 @@ class TestNameUniqueness:
                 "--style", "aggro",
                 "--output-dir", str(tmp_path),
             ],
-            capture_output=True, text=True, cwd="/home/kmasty/projects/npc-wars",
+            capture_output=True, text=True, cwd=_PROJECT_ROOT,
         )
         result = subprocess.run(
             [
@@ -269,7 +271,7 @@ class TestNameUniqueness:
                 "--style", "tank",
                 "--output-dir", str(tmp_path),
             ],
-            capture_output=True, text=True, cwd="/home/kmasty/projects/npc-wars",
+            capture_output=True, text=True, cwd=_PROJECT_ROOT,
         )
         assert result.returncode != 0
         assert "already exists" in result.stderr
