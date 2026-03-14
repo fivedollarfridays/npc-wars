@@ -405,6 +405,127 @@
     0% { opacity: 1; transform: translate(-50%, -50%) scale(1.5); }
     100% { opacity: 0; transform: translate(-50%, -50%) scale(1); }
   }
+
+  /* Live Play Mode */
+  .live-status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--kill);
+    animation: live-pulse 1.5s ease-in-out infinite;
+  }
+
+  .live-dot.connected { background: var(--heal); }
+
+  @keyframes live-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .live-status-text { color: var(--muted); }
+
+  .action-panel {
+    display: none;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+  }
+
+  .action-panel.visible { display: block; }
+
+  .action-group {
+    margin-bottom: 10px;
+  }
+
+  .action-group-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .action-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+    max-width: 160px;
+  }
+
+  .action-grid .spacer { visibility: hidden; }
+
+  .action-btn {
+    background: var(--border);
+    border: 1px solid rgba(255,255,255,0.08);
+    color: var(--text);
+    padding: 8px 4px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    text-align: center;
+  }
+
+  .action-btn:hover:not(:disabled) { background: var(--accent); transform: scale(1.05); }
+  .action-btn:active:not(:disabled) { transform: scale(0.95); }
+  .action-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .action-btn.attack { border-color: rgba(255, 62, 62, 0.3); }
+  .action-btn.defend-btn { border-color: rgba(68, 136, 255, 0.3); }
+  .action-btn.rest-btn { border-color: rgba(0, 255, 136, 0.3); }
+
+  .utility-row {
+    display: flex;
+    gap: 4px;
+    max-width: 160px;
+  }
+
+  .utility-row .action-btn { flex: 1; }
+
+  .action-countdown {
+    font-size: 11px;
+    color: var(--accent2);
+    margin-top: 8px;
+    min-height: 16px;
+  }
+
+  .live-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  #live-play-btn {
+    background: var(--border);
+    border: 1px solid var(--accent2);
+    color: var(--accent2);
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  #live-play-btn:hover { background: var(--accent2); color: var(--bg); }
+  #live-play-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .kbd-hint {
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
 </style>
 </head>
 <body>
@@ -415,6 +536,8 @@
   <input type="file" id="file-input" accept=".json">
   <div class="or-text">or</div>
   <button onclick="loadDemo()">Run Demo Match</button>
+  <div class="or-text">or</div>
+  <button id="live-play-load-btn" onclick="startLiveFromLoadScreen()" style="background:var(--accent2);">Live Play</button>
 </div>
 
 <div id="app" style="display:none;">
@@ -440,6 +563,47 @@
         <div class="panel-title">Kill Feed</div>
         <div class="kill-feed" id="kill-feed"></div>
       </div>
+
+      <div class="action-panel" id="action-panel">
+        <div class="panel-title">Actions</div>
+        <div class="action-group">
+          <div class="action-group-label">Move (arrow keys)</div>
+          <div class="action-grid">
+            <div class="spacer"></div>
+            <button class="action-btn" onclick="sendLiveAction('move','north')" data-action="move-north">&#x2191;</button>
+            <div class="spacer"></div>
+            <button class="action-btn" onclick="sendLiveAction('move','west')" data-action="move-west">&#x2190;</button>
+            <div class="spacer"></div>
+            <button class="action-btn" onclick="sendLiveAction('move','east')" data-action="move-east">&#x2192;</button>
+            <div class="spacer"></div>
+            <button class="action-btn" onclick="sendLiveAction('move','south')" data-action="move-south">&#x2193;</button>
+            <div class="spacer"></div>
+          </div>
+        </div>
+        <div class="action-group">
+          <div class="action-group-label">Attack (WASD)</div>
+          <div class="action-grid">
+            <div class="spacer"></div>
+            <button class="action-btn attack" onclick="sendLiveAction('attack','north')" data-action="attack-north">&#x2191;&#x2694;</button>
+            <div class="spacer"></div>
+            <button class="action-btn attack" onclick="sendLiveAction('attack','west')" data-action="attack-west">&#x2190;&#x2694;</button>
+            <div class="spacer"></div>
+            <button class="action-btn attack" onclick="sendLiveAction('attack','east')" data-action="attack-east">&#x2192;&#x2694;</button>
+            <div class="spacer"></div>
+            <button class="action-btn attack" onclick="sendLiveAction('attack','south')" data-action="attack-south">&#x2193;&#x2694;</button>
+            <div class="spacer"></div>
+          </div>
+        </div>
+        <div class="action-group">
+          <div class="action-group-label">Utility</div>
+          <div class="utility-row">
+            <button class="action-btn defend-btn" onclick="sendLiveAction('defend')" data-action="defend">&#x1F6E1; Def</button>
+            <button class="action-btn rest-btn" onclick="sendLiveAction('rest')" data-action="rest">&#x1F4A4; Rest</button>
+          </div>
+        </div>
+        <div class="action-countdown" id="action-countdown"></div>
+        <div class="kbd-hint">Keys: arrows=move, WASD=attack, R=rest, F=defend</div>
+      </div>
     </div>
   </div>
 
@@ -456,6 +620,14 @@
       <button id="mute-btn" title="Toggle mute">🔊</button>
       <input type="range" id="volume-slider" min="0" max="100" value="70" title="Volume">
     </div>
+    <div class="live-controls">
+      <button id="live-play-btn" onclick="startLiveMode()">Live Play</button>
+    </div>
+  </div>
+
+  <div class="live-status" id="live-status" style="display:none;">
+    <div class="live-dot" id="live-dot"></div>
+    <span class="live-status-text" id="live-status-text">Connecting...</span>
   </div>
 
   <div class="winner-banner" id="winner-banner" style="display:none" onclick="dismissWinner()">
@@ -1069,15 +1241,358 @@ document.getElementById('mute-btn').addEventListener('click', () => {
   document.getElementById('mute-btn').textContent = audioEngine.muted ? '\u{1F507}' : '\u{1F50A}';
 });
 
+// ---- Live Play Mode ----
+
+let liveMode = false;
+let liveWs = null;
+let liveActionSent = false;
+let liveCountdownTimer = null;
+let liveReconnectAttempted = false;
+let liveGridSize = 10;
+
+function startLiveFromLoadScreen() {
+  const params = new URLSearchParams(window.location.search);
+  const liveParam = params.get('live');
+  let url = 'ws://localhost:8765';
+  if (liveParam) {
+    url = 'ws://' + liveParam;
+  } else {
+    const input = prompt('WebSocket server URL:', url);
+    if (!input) return;
+    url = input;
+  }
+  // Show app with empty state
+  document.getElementById('load-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  canvas = document.getElementById('arena-canvas');
+  ctx = canvas.getContext('2d');
+  canvas.width = liveGridSize * TILE_SIZE;
+  canvas.height = liveGridSize * TILE_SIZE;
+  document.getElementById('match-info').textContent = 'Live Play -- connecting...';
+  audioEngine.init();
+  connectLive(url);
+}
+
+function startLiveMode() {
+  const params = new URLSearchParams(window.location.search);
+  const liveParam = params.get('live');
+  let url = 'ws://localhost:8765';
+  if (liveParam) {
+    url = 'ws://' + liveParam;
+  } else {
+    const input = prompt('WebSocket server URL:', url);
+    if (!input) return;
+    url = input;
+  }
+  connectLive(url);
+}
+
+function connectLive(url) {
+  if (liveWs) {
+    liveWs.close();
+    liveWs = null;
+  }
+
+  liveMode = true;
+  liveActionSent = false;
+  setLiveStatus('Connecting...', false);
+  showLiveUI(true);
+
+  liveWs = new WebSocket(url);
+
+  liveWs.onopen = function() {
+    setLiveStatus('Connected - waiting for round...', true);
+    liveReconnectAttempted = false;
+  };
+
+  liveWs.onmessage = function(event) {
+    let data;
+    try { data = JSON.parse(event.data); } catch(e) { return; }
+    if (data.type === 'state' && data.state) {
+      handleLiveState(data.state);
+    }
+  };
+
+  liveWs.onclose = function() {
+    setLiveStatus('Disconnected', false);
+    setActionButtonsEnabled(false);
+    clearLiveCountdown();
+    // Auto-reconnect once after 1s
+    if (!liveReconnectAttempted) {
+      liveReconnectAttempted = true;
+      setTimeout(function() {
+        if (liveMode && (!liveWs || liveWs.readyState === WebSocket.CLOSED)) {
+          setLiveStatus('Reconnecting...', false);
+          connectLive(url);
+        }
+      }, 1000);
+    } else {
+      showLiveUI(false);
+      liveMode = false;
+    }
+  };
+
+  liveWs.onerror = function() {
+    // onclose will fire after this
+  };
+}
+
+function handleLiveState(state) {
+  // Render the state on the canvas
+  const gridSize = state.grid_size || liveGridSize;
+  liveGridSize = gridSize;
+
+  if (canvas.width !== gridSize * TILE_SIZE) {
+    canvas.width = gridSize * TILE_SIZE;
+    canvas.height = gridSize * TILE_SIZE;
+  }
+
+  // Build a round-like object for renderRound compatibility
+  const round = {
+    round: state.round || 0,
+    storm_border: state.storm_border || 0,
+    positions: state.positions || [],
+    events: state.events || [],
+    spectacle: state.spectacle || null,
+  };
+
+  // Update match info
+  document.getElementById('match-info').textContent =
+    'Live Play -- Round ' + round.round;
+  document.getElementById('round-display').textContent = 'R' + round.round;
+
+  // Build bot list if needed (first state or player change)
+  if (state.players) {
+    matchData = { players: state.players, grid_size: gridSize, rounds: [] };
+    buildBotList();
+  }
+
+  // Render using existing canvas logic
+  renderLiveRound(round, gridSize);
+
+  // Update sidebar
+  updateSidebar(round);
+
+  // Enable actions for this round
+  liveActionSent = false;
+  setActionButtonsEnabled(true);
+  setLiveStatus('Your turn! Choose an action', true);
+  startLiveCountdown(2);
+}
+
+function renderLiveRound(round, gridSize) {
+  const stormBorder = round.storm_border;
+
+  ctx.fillStyle = '#0d0d18';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Storm overlay
+  if (stormBorder > 0) {
+    ctx.fillStyle = 'rgba(80, 0, 140, 0.35)';
+    ctx.fillRect(0, 0, canvas.width, stormBorder * TILE_SIZE);
+    ctx.fillRect(0, (gridSize - stormBorder) * TILE_SIZE, canvas.width, stormBorder * TILE_SIZE);
+    ctx.fillRect(0, stormBorder * TILE_SIZE, stormBorder * TILE_SIZE, (gridSize - 2 * stormBorder) * TILE_SIZE);
+    ctx.fillRect((gridSize - stormBorder) * TILE_SIZE, stormBorder * TILE_SIZE, stormBorder * TILE_SIZE, (gridSize - 2 * stormBorder) * TILE_SIZE);
+    ctx.strokeStyle = 'rgba(139, 0, 255, 0.6)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(
+      stormBorder * TILE_SIZE, stormBorder * TILE_SIZE,
+      (gridSize - 2 * stormBorder) * TILE_SIZE, (gridSize - 2 * stormBorder) * TILE_SIZE
+    );
+  }
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.03)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= gridSize; i++) {
+    ctx.beginPath(); ctx.moveTo(i * TILE_SIZE, 0); ctx.lineTo(i * TILE_SIZE, canvas.height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, i * TILE_SIZE); ctx.lineTo(canvas.width, i * TILE_SIZE); ctx.stroke();
+  }
+
+  // Draw bots
+  ctx.font = EMOJI_SIZE + 'px serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+
+  round.positions.forEach(function(pos) {
+    const px = pos.x * TILE_SIZE + TILE_SIZE / 2;
+    const py = pos.y * TILE_SIZE + TILE_SIZE / 2;
+
+    if (!pos.alive) {
+      ctx.globalAlpha = 0.2;
+      ctx.fillText('\u{1F480}', px, py - 2);
+      ctx.globalAlpha = 1;
+      return;
+    }
+
+    // Highlight human bot
+    if (pos.is_human) {
+      ctx.strokeStyle = 'rgba(0, 229, 255, 0.6)';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(pos.x * TILE_SIZE + 1, pos.y * TILE_SIZE + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+    }
+
+    ctx.fillText(pos.emoji, px, py - 4);
+
+    // HP bar
+    const barWidth = TILE_SIZE - 8;
+    const barHeight = 3;
+    const barX = pos.x * TILE_SIZE + 4;
+    const barY = pos.y * TILE_SIZE + TILE_SIZE - 8;
+    const hpPct = Math.max(0, pos.hp / 100);
+    ctx.fillStyle = 'rgba(0,0,0,0.5)';
+    ctx.fillRect(barX, barY, barWidth, barHeight);
+    const hpColor = hpPct > 0.5 ? '#00ff88' : hpPct > 0.25 ? '#ffaa00' : '#ff3e3e';
+    ctx.fillStyle = hpColor;
+    ctx.fillRect(barX, barY, barWidth * hpPct, barHeight);
+  });
+
+  // Draw events
+  round.events.forEach(function(evt) {
+    if (evt.type === 'hit') {
+      const target = round.positions.find(function(p) { return p.emoji === evt.target; });
+      if (target) {
+        ctx.fillStyle = 'rgba(255, 62, 62, 0.3)';
+        ctx.fillRect(target.x * TILE_SIZE, target.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        ctx.font = '12px "JetBrains Mono", monospace';
+        ctx.fillStyle = '#ff3e3e';
+        ctx.fillText('-' + evt.damage, target.x * TILE_SIZE + TILE_SIZE / 2, target.y * TILE_SIZE - 2);
+        ctx.font = EMOJI_SIZE + 'px serif';
+      }
+    }
+  });
+}
+
+function sendLiveAction(type, direction) {
+  if (!liveWs || liveWs.readyState !== WebSocket.OPEN || liveActionSent) return;
+  liveActionSent = true;
+  const action = direction ? [type, direction] : [type];
+  liveWs.send(JSON.stringify({ action: action }));
+  setActionButtonsEnabled(false);
+  clearLiveCountdown();
+  document.getElementById('action-countdown').textContent = 'Action sent!';
+  setLiveStatus('Action sent -- waiting for next round...', true);
+}
+
+function setActionButtonsEnabled(enabled) {
+  document.querySelectorAll('.action-panel .action-btn').forEach(function(btn) {
+    btn.disabled = !enabled;
+  });
+}
+
+function startLiveCountdown(seconds) {
+  clearLiveCountdown();
+  let remaining = seconds;
+  const el = document.getElementById('action-countdown');
+  el.textContent = remaining + 's remaining';
+  liveCountdownTimer = setInterval(function() {
+    remaining--;
+    if (remaining <= 0) {
+      clearLiveCountdown();
+      if (!liveActionSent) {
+        el.textContent = 'Bot deciding...';
+        setActionButtonsEnabled(false);
+        setLiveStatus('Timeout -- bot deciding...', true);
+      }
+    } else {
+      el.textContent = remaining + 's remaining';
+    }
+  }, 1000);
+}
+
+function clearLiveCountdown() {
+  if (liveCountdownTimer) {
+    clearInterval(liveCountdownTimer);
+    liveCountdownTimer = null;
+  }
+}
+
+function setLiveStatus(text, connected) {
+  const bar = document.getElementById('live-status');
+  bar.style.display = 'flex';
+  document.getElementById('live-status-text').textContent = text;
+  const dot = document.getElementById('live-dot');
+  if (connected) {
+    dot.classList.add('connected');
+  } else {
+    dot.classList.remove('connected');
+  }
+}
+
+function showLiveUI(show) {
+  // Toggle action panel
+  const panel = document.getElementById('action-panel');
+  if (show) {
+    panel.classList.add('visible');
+  } else {
+    panel.classList.remove('visible');
+  }
+
+  // Toggle replay controls visibility
+  const replayEls = ['play-btn', 'scrubber', 'sp1', 'sp2', 'sp4'];
+  replayEls.forEach(function(id) {
+    const el = document.getElementById(id);
+    if (el) el.style.display = show ? 'none' : '';
+  });
+
+  // Hide/show live status bar
+  document.getElementById('live-status').style.display = show ? 'flex' : 'none';
+
+  // Live play button state
+  const btn = document.getElementById('live-play-btn');
+  if (btn) {
+    btn.textContent = show ? 'Disconnect' : 'Live Play';
+    btn.onclick = show ? disconnectLive : startLiveMode;
+  }
+}
+
+function disconnectLive() {
+  liveMode = false;
+  if (liveWs) {
+    liveReconnectAttempted = true; // prevent auto-reconnect
+    liveWs.close();
+    liveWs = null;
+  }
+  showLiveUI(false);
+  clearLiveCountdown();
+  document.getElementById('live-status').style.display = 'none';
+}
+
+// Keyboard shortcuts for live mode
+document.addEventListener('keydown', function(e) {
+  if (!liveMode || liveActionSent) return;
+  // Ignore if focused on an input
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+  switch(e.key) {
+    case 'ArrowUp':    sendLiveAction('move', 'north'); e.preventDefault(); break;
+    case 'ArrowDown':  sendLiveAction('move', 'south'); e.preventDefault(); break;
+    case 'ArrowLeft':  sendLiveAction('move', 'west');  e.preventDefault(); break;
+    case 'ArrowRight': sendLiveAction('move', 'east');  e.preventDefault(); break;
+    case 'w': case 'W': sendLiveAction('attack', 'north'); break;
+    case 's': case 'S': sendLiveAction('attack', 'south'); break;
+    case 'a': case 'A': sendLiveAction('attack', 'west');  break;
+    case 'd': case 'D': sendLiveAction('attack', 'east');  break;
+    case 'r': case 'R': sendLiveAction('rest');    break;
+    case 'f': case 'F': sendLiveAction('defend');  break;
+  }
+});
+
 // Auto-load from URL param
-window.addEventListener('load', () => {
+window.addEventListener('load', function() {
   const params = new URLSearchParams(window.location.search);
   const matchFile = params.get('match');
   if (matchFile && validateMatchPath(matchFile)) {
     fetch(matchFile)
-      .then(r => r.json())
-      .then(data => { matchData = data; initViewer(); })
-      .catch(err => console.error('Failed to load match:', err));
+      .then(function(r) { return r.json(); })
+      .then(function(data) { matchData = data; initViewer(); })
+      .catch(function(err) { console.error('Failed to load match:', err); });
+    return;
+  }
+  // Auto-start live mode from URL param
+  const liveParam = params.get('live');
+  if (liveParam) {
+    startLiveFromLoadScreen();
   }
 });
 </script>

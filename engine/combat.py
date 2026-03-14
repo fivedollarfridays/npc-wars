@@ -1,6 +1,11 @@
 """Combat mechanics for NPC Wars."""
 
-from typing import Any, Callable
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Callable
+
+if TYPE_CHECKING:
+    from engine.human_input import HumanInputAdapter
 
 # Starting stats (identical for all bots)
 STARTING_HP = 100
@@ -98,6 +103,11 @@ class Bot:
         self.unlocked_actions: list[str] = sorted(DEFAULT_UNLOCKED_ACTIONS)
         self.line_budget: int = DEFAULT_LINE_BUDGET
         self.win_streak: int = 0
+        # Copilot: optional human input adapter
+        self.human_adapter: HumanInputAdapter | None = None
+        # Bounty: temporary damage bonus from bounty reward
+        # Schema: {"multiplier": float, "rounds_remaining": int}
+        self.damage_bonus: dict[str, float | int] | None = None
 
     def can_act(self) -> bool:
         """Check if bot has enough energy for any action (move is cheapest at 5)."""
@@ -143,8 +153,20 @@ def get_round_bonus_attack(round_num: int) -> int:
 
 
 def calculate_damage(attacker: Bot, defender: Bot) -> int:
-    """Calculate damage from attacker to defender."""
-    return max(0, attacker.attack_power - defender.defense)
+    """Calculate damage from attacker to defender, including bounty bonus."""
+    base = max(0, attacker.attack_power - defender.defense)
+    if attacker.damage_bonus and attacker.damage_bonus.get("rounds_remaining", 0) > 0:
+        return int(base * attacker.damage_bonus["multiplier"])
+    return base
+
+
+def tick_damage_bonus(bots: list[Bot]) -> None:
+    """Decrement damage bonus rounds for all bots. Clears bonus when expired."""
+    for bot in bots:
+        if bot.damage_bonus and bot.damage_bonus.get("rounds_remaining", 0) > 0:
+            bot.damage_bonus["rounds_remaining"] -= 1
+            if bot.damage_bonus["rounds_remaining"] <= 0:
+                bot.damage_bonus = None
 
 
 def resolve_deaths(bots: list[Bot], round_num: int) -> list[dict[str, Any]]:

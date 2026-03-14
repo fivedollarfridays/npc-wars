@@ -1,17 +1,25 @@
 # Current State
 
-> Last updated: 2026-03-13 v2 planning complete
+> Last updated: 2026-03-14 T11.11 done
 
 ## Active Plan
 
 **Plan:** NPC Wars v2 — Spectacle, Human Play & The Watcher
 **Status:** All 6 sprints planned, 70 tasks created with full AC
-**Current Sprint:** S10 (Spectacle & Audio) — **In Progress**
+**Current Sprint:** S11 (Human Play & Bounty) — **Done ✓**
 **Research Doc:** docs/RESEARCH-spectacle-and-human-play.md
 
 ## Current Focus
 
-S10 complete. T10.1 through T10.10 all done.
+S11 complete. T11.1, T11.2, T11.3, T11.4, T11.5, T11.6, T11.7, T11.8, T11.9, T11.10, T11.11 done.
+
+## What Was Just Done
+
+**T11.11: Integration Tests -- Human Play** -- Created `tests/test_integration_human.py` with 13 integration tests covering: mock human match completion (async with adapter attached), human_override event emission in sync path (appear when adapter overrides, absent on timeout, absent when same action), async/sync parity with 0 humans, AFK detection through full threshold lifecycle (afk at 3, kicked at 10, reset on input, kicked permanent), and bounty placement (single/multiple humans, no humans). All 1208 tests pass. Integration issue noted: async path (`_execute_round_async`) does not emit `human_override` events unlike the sync path -- overrides are applied silently. Sprint S11 complete.
+
+## What's Next
+
+S11 complete. Ready for next sprint.
 
 ## v1 Completed Plans
 
@@ -31,7 +39,7 @@ S10 complete. T10.1 through T10.10 all done.
 | S8 | plan-2026-03-s8-balance-physics | Balance & Physics | T8.1–T8.11 | 320 | Done ✓ |
 | S9 | plan-2026-03-s9-progression | Progression System | T9.1–T9.11 | 325 | Done |
 | S10 | plan-2026-03-s10-spectacle | Spectacle & Audio | T10.1–T10.10 | 335 | Done ✓ |
-| S11 | plan-2026-03-s11-human-play | Human Play & Bounty | T11.1–T11.11 | 375 | Planned |
+| S11 | plan-2026-03-s11-human-play | Human Play & Bounty | T11.1–T11.11 | 375 | In Progress |
 | S12 | plan-2026-03-s12-watcher | The Watcher (🍆) | T12.1–T12.14 | 380 | Planned |
 | S13 | plan-2026-03-s13-modes-community | Match Modes & Community | T13.1–T13.13 | 375 | Planned |
 
@@ -98,6 +106,16 @@ S10 complete. T10.1 through T10.10 all done.
 | T5.3 | Auto-publish CLI: render + upload in one command | 20 | feature | done ✓ |
 
 ## What Was Just Done
+
+- **T11.10 done** -- Human Override Events in Match JSON. Extracted `_apply_human_override()` helper from `resolve_decisions()` in engine/rounds.py to handle copilot override + event emission. Changed `resolve_decisions()` return signature from `(actions, forced_rest)` to `(actions, forced_rest, override_events)`. When a human adapter provides a valid action that differs from the bot's original action, appends a `human_override` event with `type`, `player` (emoji), `original` (bot action string), and `override` (human action string). No event when human returns None (timeout), invalid action, or same action as bot. Updated `_execute_round()` in engine/game.py to prepend override_events to round_events. Updated all callers: tests/test_copilot.py (9 tests), tests/test_rounds.py (5 tests). 5 new tests in tests/test_human_events.py. All 1163 tests pass, ruff clean, arch clean (no new violations).
+
+- **T11.4 done** -- Async Tick Loop (Human Input Window). Added `run_match_async()` and `_execute_round_async()` to engine/game.py, plus `_collect_human_override()` helper. Async match delegates to sync `_execute_round` when no humans present; uses async path with `asyncio.gather` + `asyncio.wait_for` for concurrent human input collection when humans attached. Added `get_action_async()` default method to `HumanInputAdapter` ABC (delegates to sync, subclasses override for WebSocket). Fixed pre-existing `resolve_decisions` 3-value unpack in `_execute_round`. 8 tests in tests/test_async_match.py. All 1163 tests pass, ruff clean.
+
+- **T11.6 done** -- Bounty Scaling for Co-op. Added BOUNTY_SCALING dict constant to engine/bounty.py mapping human counts to scaling params (1: full HP/3 rounds, 2: full HP/2 rounds, 3+: no HP/1 round). Added hp_restore field to BountyInfo dataclass (default "full"). Updated place_bounties to auto-scale based on len(human_emojis) using BOUNTY_SCALING (4+ falls back to key 3). Updated claim_bounty to read hp_restore/bonus_damage_rounds from BountyInfo instead of hardcoded values. Updated apply_bounty_reward to skip HP restore when hp_restore="none". 9 new tests added to tests/test_bounty_system.py (16 total). Backward compatible: 1-human matches produce identical results to T11.5. All 1163 tests pass, ruff clean.
+
+- **T11.5 done** -- Bounty Placement & Reward System. Created engine/bounty.py (70 lines) with BountyInfo dataclass (target_emoji, reward="full_restore", bonus_damage_rounds=3), place_bounties(bots, human_emojis) returning BountyInfo list for human-controlled bots (empty list for pure bot matches), claim_bounty(target_emoji, bounties) returning reward dict on match (hp_restore, energy_restore, damage_bonus, bonus_rounds) or None, and apply_bounty_reward(bot, reward) setting HP/energy to max and damage_bonus dict with multiplier/rounds_remaining. Added damage_bonus attribute to Bot class in engine/combat.py. 7 tests in tests/test_bounty_system.py. All 1141 tests pass, ruff clean.
+
+- **T11.3 done** -- Copilot Override Logic in Engine. Added `human_adapter: HumanInputAdapter | None = None` field to `Bot` class in engine/combat.py (with TYPE_CHECKING import to avoid circular deps). Modified `resolve_decisions()` in engine/rounds.py: after bot's `decide()` runs and is validated, checks `bot.human_adapter`; if present, calls `adapter.get_action(state, timeout_s=2.0)` with the same state dict the bot received; if adapter returns a valid action (passes same `validate_action` with unlock gating), replaces bot's decision; if adapter returns None (timeout) or invalid/locked action, keeps bot's original decision. 9 tests in tests/test_copilot.py: human override replaces bot decision (1), override doesn't affect other bots (1), None timeout uses bot fallback (1), no adapter uses bot normally (1), same state dict passed to human (1), invalid action falls back (1), invalid direction falls back (1), locked action falls back (1), unlocked action accepted (1). All tests pass, ruff clean, arch clean.
 
 - **T10.10 done** -- Integration Tests for Spectacle. Created tests/test_integration_spectacle.py (157 lines) with 16 tests covering the full spectacle pipeline end-to-end: spectacle metadata presence in all rounds (2 tests), tier validity and calm-on-zero-events (2 tests), drama score non-negativity (1 test), trigger-effect consistency for kill/shatter, kill_streak/fire_border, near_death/slow_mo, chain_bump/multiball (4 tests), zero-score calm baseline (1 test), build_audio_timeline returns list of (timestamp_ms, path) tuples (2 tests), build_hype_volume_curve returns one entry per round with volumes in [0.0, 1.0] (2 tests), render_match_video accepts audio param defaulting to True (2 tests). Uses seeded run_match with 6 bots (mix of chase_and_attack and always_rest). All 1013 tests pass, ruff clean.
 
