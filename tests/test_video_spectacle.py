@@ -1,6 +1,5 @@
 """Tests for render_spectacle_effects in video/video_effects.py."""
 
-import numpy as np
 from PIL import Image
 
 IMG_SIZE = (200, 200)
@@ -14,8 +13,9 @@ def _make_image() -> Image.Image:
 
 def _avg_red(img: Image.Image) -> float:
     """Return the average red channel value across all pixels."""
-    arr = np.array(img)
-    return float(arr[:, :, 0].mean())
+    r, _g, _b = img.split()
+    pixels = list(r.tobytes())
+    return sum(pixels) / len(pixels)
 
 
 # ---------------------------------------------------------------------------
