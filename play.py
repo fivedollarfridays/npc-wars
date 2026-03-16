@@ -13,6 +13,7 @@ from engine.loader import load_bots
 from engine.game import run_match
 from engine.match_writer import write_match
 from data.match_history import next_match_id
+from data.stat_diff import inject_diff_data
 
 
 def _print_match_result(match_data: dict, filepath: str, viewer_match: str) -> None:
@@ -63,6 +64,7 @@ def main() -> None:
     profiles_path = Path(project_dir) / "data" / "profiles.json"
     profiles_path.parent.mkdir(parents=True, exist_ok=True)
     match_data = run_match(bot_configs, match_id=match_id, seed=seed, profiles_path=profiles_path)
+    inject_diff_data(match_data, results_dir)
     filepath = write_match(match_data, results_dir)
 
     viewer_match = os.path.join(viewer_dir, f"match_{match_id:03d}.json")

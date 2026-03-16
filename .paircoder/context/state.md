@@ -1,17 +1,19 @@
 # Current State
 
-> Last updated: 2026-03-16 S15 done, review & fix pass in progress
+> Last updated: 2026-03-16 S16 done
 
 ## Active Plan
 
 **Plan:** NPC Wars v2 — Spectacle, Human Play & The Cringe
-**Status:** S12–S15 done. Next: S16 (Diff View)
+**Status:** S12–S16 done. Next: S17 (Server Layer)
 
 ## Current Focus
 
-Review & fix pass on S12–S15 branch before merge to main.
+S16 (Diff View) complete. Ready for S17 (Server Layer).
 
 ## What Was Just Done
+
+**S16: The Diff View** (7 tasks) -- Stat diff computation module (`data/stat_diff.py`), per-player lifetime stats API (`data/lifetime_stats.py`), GitHub-style diff overlay in viewer with color-coded improved/regressed rows sorted by delta magnitude, diff data injected into match JSON via `inject_diff_data()` wired into play.py and cmd_battle.py, first-match handling with "FIRST MATCH!" banner showing current stats, E2E integration tests running 2 real matches. 1946 tests passing.
 
 **S15: Viewer Polish** (8 tasks) -- Fixed audio stinger paths, added 7 spectacle effects (shatter, glitch, dark entrance, skull flash, pulse wave, multiball, split screen), maximized battlefield layout to 70%+ viewport, added smooth movement interpolation via requestAnimationFrame, wired player profiles into play.py. 1849 tests passing.
 
@@ -23,7 +25,7 @@ Review & fix pass on S12–S15 branch before merge to main.
 
 ## What's Next
 
-S16 (Diff View), S17 (Server Layer), S18 (Polish & Production).
+S17 (Server Layer), S18 (Polish & Production).
 
 ## Completed Sprints
 
@@ -44,6 +46,7 @@ S16 (Diff View), S17 (Server Layer), S18 (Polish & Production).
 | S13 | Vibe Wizard & Helpers | T13.1–T13.10 (10) | 1622 | — | Done |
 | S14 | Distribution & Packaging | T14.1–T14.10 (10) | 1737 | — | Done |
 | S15 | Viewer Polish | T15.1–T15.8 (8) | 1849 | — | Done |
+| S16 | The Diff View | T16.1–T16.7 (7) | 1946 | — | Done |
 
 ## Archive
 

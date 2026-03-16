@@ -84,7 +84,9 @@ def run(args: argparse.Namespace) -> None:
     if replay_dir:
         replay_path = Path(replay_dir)
         replay_path.mkdir(parents=True, exist_ok=True)
+        from data.stat_diff import inject_diff_data
         from engine.match_writer import write_match
 
+        inject_diff_data(match_data, str(replay_path))  # diff only for replay files
         filepath = write_match(match_data, str(replay_path))
         print(f"\nReplay saved: {filepath}")
