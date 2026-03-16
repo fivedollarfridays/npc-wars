@@ -68,7 +68,10 @@ def get_storm_border(round_num: int) -> int:
 
 
 def is_in_storm(x: int, y: int, grid_size: int, storm_border: int) -> bool:
-    """Check if a position is inside the storm (outside safe zone)."""
+    """Check if a position is inside the storm (outside safe zone).
+
+    NOTE: duplicated in npcwars/_util.py for sandbox safety — keep in sync.
+    """
     if storm_border <= 0:
         return False
     return (x < storm_border or x >= grid_size - storm_border or
@@ -97,10 +100,14 @@ def apply_direction(x: int, y: int, direction: str) -> tuple[int, int]:
 def direction_toward(from_x: int, from_y: int, to_x: int, to_y: int) -> str:
     """Compute cardinal direction from one position toward another.
 
-    Ties broken by x-axis. Same position returns "west" (arbitrary).
+    Ties broken by x-axis. Same position returns "north" (arbitrary).
+
+    NOTE: duplicated in npcwars/_util.py for sandbox safety — keep in sync.
     """
     dx = to_x - from_x
     dy = to_y - from_y
+    if dx == 0 and dy == 0:
+        return "north"
     if abs(dx) >= abs(dy):
         return "east" if dx > 0 else "west"
     return "south" if dy > 0 else "north"

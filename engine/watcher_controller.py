@@ -39,6 +39,15 @@ from engine.watcher_stats import WatcherStats, load_stats, save_stats
 __all__ = ["WatcherController"]
 
 _SYNC_MILESTONES = (50.0, 75.0, 90.0)
+_WATCHER_ACTIONS_SET: set[str] = set(WATCHER_ACTIONS)
+
+
+def _human_emojis(bots: list[Bot]) -> list[str]:
+    """Return emoji list of alive human players."""
+    return [
+        b.emoji for b in bots
+        if b.alive and getattr(b, "human_adapter", None) is not None
+    ]
 
 
 class WatcherController:
@@ -111,14 +120,11 @@ class WatcherController:
         if self.watcher_bot is None or not self.watcher_bot.alive:
             return None
 
-        human_emojis = [
-            b.emoji for b in bots
-            if b.alive and getattr(b, "human_adapter", None) is not None
-        ]
-        if not human_emojis:
+        emojis = _human_emojis(bots)
+        if not emojis:
             return ("rest",)
 
-        target_id = select_target(self.sync_tracker, human_emojis)
+        target_id = select_target(self.sync_tracker, emojis)
         if target_id is None:
             return ("rest",)
 
@@ -136,7 +142,7 @@ class WatcherController:
             self.pattern_table, target_id,
             self.watcher_bot.x, self.watcher_bot.y,
             target_bot.x, target_bot.y,
-            contexts, set(WATCHER_ACTIONS),
+            contexts, _WATCHER_ACTIONS_SET,
         )
 
         perf = HumanPerformance(
@@ -145,7 +151,7 @@ class WatcherController:
             rounds_survived=target_bot.rounds_survived,
         )
         cap = get_accuracy_cap(perf)
-        return apply_accuracy_cap(counter, cap, list(WATCHER_ACTIONS), self.rng)
+        return apply_accuracy_cap(counter, cap, WATCHER_ACTIONS, self.rng)
 
     # -- round integration ----------------------------------------------------
 
@@ -170,19 +176,16 @@ class WatcherController:
                 round_data["actions"] = {}
             round_data["actions"][self.watcher_bot.emoji] = " ".join(watcher_action)
 
-        human_emojis = [
-            b.emoji for b in bots
-            if b.alive and getattr(b, "human_adapter", None) is not None
-        ]
+        emojis = _human_emojis(bots)
         actions_dict = round_data.get("actions", {})
         spectacle_events: list[dict[str, Any]] = []
         spectacle_events.extend(self.observe(
-            human_emojis, round_data.get("events", []),
+            emojis, round_data.get("events", []),
             bots, storm_border, grid_size, actions_dict,
         ))
         for elim in round_elims:
             spectacle_events.extend(
-                self.record_kill(elim.get("killed_by", ""), elim["emoji"], human_emojis)
+                self.record_kill(elim.get("killed_by", ""), elim["emoji"], emojis)
             )
         # Inject spectacle events into round data
         round_data.setdefault("events", []).extend(spectacle_events)

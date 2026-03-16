@@ -20,6 +20,8 @@ def direction_toward(from_x: int, from_y: int, to_x: int, to_y: int) -> str:
 
     Ties (|dx| == |dy|) are broken by the x-axis.
     Same position returns "north" as an arbitrary safe default.
+
+    NOTE: duplicated in engine/grid.py for import isolation — keep in sync.
     """
     dx = to_x - from_x
     dy = to_y - from_y
@@ -31,7 +33,10 @@ def direction_toward(from_x: int, from_y: int, to_x: int, to_y: int) -> str:
 
 
 def is_in_storm(x: int, y: int, grid_size: int, storm_border: int) -> bool:
-    """Return True if (x, y) is inside the storm border."""
+    """Return True if (x, y) is inside the storm border.
+
+    NOTE: duplicated in engine/grid.py for import isolation — keep in sync.
+    """
     if storm_border <= 0:
         return False
     return (
