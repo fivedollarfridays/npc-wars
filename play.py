@@ -5,6 +5,7 @@ import sys
 import os
 import shutil
 import http.server
+from pathlib import Path
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
@@ -59,7 +60,9 @@ def main() -> None:
 
     print(f"\n⚔️  MATCH #{match_id} — {len(bot_configs)} bots locked in\n")
 
-    match_data = run_match(bot_configs, match_id=match_id, seed=seed)
+    profiles_path = Path(project_dir) / "data" / "profiles.json"
+    profiles_path.parent.mkdir(parents=True, exist_ok=True)
+    match_data = run_match(bot_configs, match_id=match_id, seed=seed, profiles_path=profiles_path)
     filepath = write_match(match_data, results_dir)
 
     viewer_match = os.path.join(viewer_dir, f"match_{match_id:03d}.json")

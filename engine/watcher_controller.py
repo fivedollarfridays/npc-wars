@@ -157,25 +157,36 @@ class WatcherController:
         round_num: int,
         grid_size: int,
         storm_border: int,
-    ) -> None:
-        """Run all post-round watcher hooks: action override, observe, kills."""
+    ) -> list[dict[str, Any]]:
+        """Run all post-round watcher hooks: action override, observe, kills.
+
+        Returns spectacle events to inject into the round.
+        """
         # Override watcher's placeholder action in the round record
         watcher_action = self.get_watcher_action(bots, round_num, grid_size, storm_border)
         if watcher_action is not None and self.watcher_bot is not None:
-            actions_in_round = round_data.get("actions", {})
-            actions_in_round[self.watcher_bot.emoji] = " ".join(watcher_action)
+            # Attach actions dict to round_data if missing
+            if "actions" not in round_data:
+                round_data["actions"] = {}
+            round_data["actions"][self.watcher_bot.emoji] = " ".join(watcher_action)
 
         human_emojis = [
             b.emoji for b in bots
             if b.alive and getattr(b, "human_adapter", None) is not None
         ]
         actions_dict = round_data.get("actions", {})
-        self.observe(
+        spectacle_events: list[dict[str, Any]] = []
+        spectacle_events.extend(self.observe(
             human_emojis, round_data.get("events", []),
             bots, storm_border, grid_size, actions_dict,
-        )
+        ))
         for elim in round_elims:
-            self.record_kill(elim.get("killed_by", ""), elim["emoji"], human_emojis)
+            spectacle_events.extend(
+                self.record_kill(elim.get("killed_by", ""), elim["emoji"], human_emojis)
+            )
+        # Inject spectacle events into round data
+        round_data.setdefault("events", []).extend(spectacle_events)
+        return spectacle_events
 
     # -- observation ----------------------------------------------------------
 

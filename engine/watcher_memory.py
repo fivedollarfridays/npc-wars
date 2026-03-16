@@ -62,6 +62,10 @@ class PatternTable:
         """Return tracked player IDs, excluding the global profile."""
         return {pid for pid in self._data if pid != GLOBAL_PROFILE}
 
+    def items(self) -> list[tuple[str, dict[str, dict[str, float | int]]]]:
+        """Return (player_id, contexts_dict) pairs for iteration."""
+        return list(self._data.items())
+
     def to_dict(self) -> dict[str, dict[str, dict[str, float | int]]]:
         """Return a deep copy of the internal data dictionary."""
         return copy.deepcopy(self._data)
@@ -82,7 +86,7 @@ def decay_memory(pattern_table: PatternTable, retention_rate: float) -> None:
     Multiplies every frequency counter by *retention_rate* for all player
     profiles except the ``__global__`` aggregate profile.
     """
-    for player_id, contexts in pattern_table._data.items():
+    for player_id, contexts in pattern_table.items():
         if player_id == GLOBAL_PROFILE:
             continue
         for _ctx_name, actions in contexts.items():
