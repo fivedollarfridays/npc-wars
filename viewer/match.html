@@ -60,13 +60,14 @@
     display: flex;
     gap: 16px;
     padding: 16px;
-    max-width: 1200px;
+    max-width: 100%;
     margin: 0 auto;
     align-items: flex-start;
   }
 
   .arena-wrap {
-    flex-shrink: 0;
+    flex: 1;
+    min-width: 0;
   }
 
   .arena {
@@ -82,12 +83,17 @@
   }
 
   .sidebar {
-    flex: 1;
-    min-width: 260px;
-    max-width: 320px;
+    flex-shrink: 0;
+    min-width: 220px;
+    max-width: 250px;
     display: flex;
     flex-direction: column;
     gap: 12px;
+  }
+
+  #bot-list {
+    max-height: 300px;
+    overflow-y: auto;
   }
 
   .panel {
@@ -526,6 +532,79 @@
     color: var(--muted);
     margin-top: 6px;
   }
+
+  @media (min-width: 1024px) {
+    .arena-wrap {
+      min-width: 70%;
+    }
+  }
+
+  @keyframes glitch-rgb {
+      0% { filter: none; }
+      20% { filter: drop-shadow(-3px 0 rgba(255,0,0,0.7)) drop-shadow(3px 0 rgba(0,0,255,0.7)); }
+      40% { filter: drop-shadow(2px 0 rgba(255,0,0,0.5)) drop-shadow(-2px 0 rgba(0,0,255,0.5)); }
+      60% { filter: drop-shadow(-4px 0 rgba(255,0,0,0.8)) drop-shadow(4px 0 rgba(0,0,255,0.8)); }
+      80% { filter: drop-shadow(1px 0 rgba(255,0,0,0.3)) drop-shadow(-1px 0 rgba(0,0,255,0.3)); }
+      100% { filter: none; }
+  }
+
+  .glitch-effect {
+      animation: glitch-rgb 0.4s ease-in-out !important;
+  }
+
+  .dark-entrance-overlay {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      pointer-events: none;
+      z-index: 60;
+      opacity: 0;
+      transition: opacity 0.3s;
+  }
+
+  .dark-entrance-overlay.active {
+      opacity: 1;
+  }
+
+  @keyframes watcher-scale-in {
+      0% { transform: scale(3); opacity: 0.8; }
+      100% { transform: scale(1); opacity: 1; }
+  }
+
+  .glitch-scanlines::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0,0,0,0.15) 2px,
+          rgba(0,0,0,0.15) 4px
+      );
+      pointer-events: none;
+      z-index: 50;
+  }
+
+  @keyframes skull-flash-fade {
+      0% { opacity: 0.8; }
+      100% { opacity: 0; }
+  }
+
+  .split-screen-divider {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 2px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--accent), var(--accent2));
+      z-index: 56;
+      pointer-events: none;
+      animation: split-divider-glow 1s ease-in-out infinite alternate;
+  }
+  @keyframes split-divider-glow {
+      0% { box-shadow: 0 0 8px var(--accent); }
+      100% { box-shadow: 0 0 16px var(--accent2); }
+  }
 </style>
 </head>
 <body>
@@ -712,6 +791,10 @@ let currentRound = 0;
 let playing = false;
 let playInterval = null;
 let speed = 1;
+let prevPositions = {};
+let interpStartTime = 0;
+let interpDuration = 1000;
+let interpAnimFrame = null;
 const TILE_SIZE = 48;
 const EMOJI_SIZE = 32;
 
@@ -788,7 +871,7 @@ function initViewer() {
     'storm_damage', 'wall_splat', 'watcher_spawn'
   ];
   stingerNames.forEach(name => {
-    audioEngine.loadStinger(name, `audio/assets/${name}.wav`);
+    audioEngine.loadStinger(name, `../audio/assets/${name}.wav`);
   });
 
   // Restore volume from localStorage
@@ -838,10 +921,18 @@ function directionArrow(dirStr) {
   return arrows[dirStr] || '•';
 }
 
-function renderRound(idx) {
-  if (!matchData || idx < 0 || idx >= matchData.rounds.length) return;
+function lerp(a, b, t) {
+    return a + (b - a) * Math.max(0, Math.min(1, t));
+}
 
-  const round = matchData.rounds[idx];
+function storePositions(round) {
+    prevPositions = {};
+    round.positions.forEach(pos => {
+        prevPositions[pos.emoji] = { x: pos.x, y: pos.y };
+    });
+}
+
+function renderCanvas(round) {
   const gridSize = matchData.grid_size;
   const stormBorder = round.storm_border;
 
@@ -982,8 +1073,36 @@ function renderRound(idx) {
         ctx.fillText(`-${evt.damage}`, target.x * TILE_SIZE + TILE_SIZE / 2, target.y * TILE_SIZE - 2);
         ctx.font = `${EMOJI_SIZE}px serif`;
       }
+    } else if (evt.type === 'kill') {
+      const victim = round.positions.find(p => p.emoji === evt.victim);
+      if (victim) {
+        const px = victim.x * TILE_SIZE + TILE_SIZE / 2;
+        const py = victim.y * TILE_SIZE + TILE_SIZE / 2;
+        shatterEffect(px, py, '#ff3e3e');
+      }
     }
   });
+}
+
+function renderInterpolatedFrame(currentRoundData, nextRoundData, t) {
+  // Build interpolated round data — only interpolate alive NPCs
+  const interpolated = { ...currentRoundData };
+  interpolated.positions = currentRoundData.positions.map(pos => {
+    if (!pos.alive) return pos;
+    const nextPos = nextRoundData.positions.find(p => p.emoji === pos.emoji);
+    if (!nextPos || !nextPos.alive) return pos;
+    return { ...pos, x: lerp(pos.x, nextPos.x, t), y: lerp(pos.y, nextPos.y, t) };
+  });
+  renderCanvas(interpolated);
+}
+
+function renderRound(idx) {
+  if (!matchData || idx < 0 || idx >= matchData.rounds.length) return;
+
+  const round = matchData.rounds[idx];
+
+  // Draw the canvas (storm, grid, bots, effects)
+  renderCanvas(round);
 
   // Update sidebar
   updateSidebar(round);
@@ -1118,7 +1237,18 @@ function startPlay() {
     shownKills.clear();
     document.getElementById('kill-feed').innerHTML = '';
   }
-  playInterval = setInterval(() => {
+  storePositions(matchData.rounds[currentRound]);
+  interpStartTime = performance.now();
+  interpDuration = 1000 / speed;
+  interpAnimFrame = requestAnimationFrame(playbackLoop);
+}
+
+function playbackLoop(now) {
+  if (!playing) return;
+  const t = (now - interpStartTime) / interpDuration;
+  if (t >= 1) {
+    // Advance round
+    storePositions(matchData.rounds[currentRound]);
     currentRound++;
     if (currentRound >= matchData.rounds.length) {
       stopPlay();
@@ -1126,31 +1256,29 @@ function startPlay() {
       return;
     }
     renderRound(currentRound);
-  }, 1000 / speed);
+    interpStartTime = now;
+  } else if (currentRound + 1 < matchData.rounds.length) {
+    // Interpolate positions between current and next round
+    renderInterpolatedFrame(matchData.rounds[currentRound], matchData.rounds[currentRound + 1], t);
+  }
+  interpAnimFrame = requestAnimationFrame(playbackLoop);
 }
 
 function stopPlay() {
   playing = false;
   document.getElementById('play-btn').textContent = '▶';
   clearInterval(playInterval);
+  if (interpAnimFrame) {
+    cancelAnimationFrame(interpAnimFrame);
+    interpAnimFrame = null;
+  }
 }
 
 function setSpeed(s) {
   speed = s;
   document.querySelectorAll('.speed-btns button').forEach(b => b.classList.remove('active'));
   document.getElementById(`sp${s}`).classList.add('active');
-  if (playing) {
-    clearInterval(playInterval);
-    playInterval = setInterval(() => {
-      currentRound++;
-      if (currentRound >= matchData.rounds.length) {
-        stopPlay();
-        showWinner();
-        return;
-      }
-      renderRound(currentRound);
-    }, 1000 / speed);
-  }
+  interpDuration = 1000 / speed;
 }
 
 function scrubTo(val) {
@@ -1209,6 +1337,30 @@ function applySpectacleEffects(tier, triggers, effects) {
     grid.style.filter = 'brightness(1.2) saturate(0.5)';
   }
 
+  if (triggers.includes('storm_kill')) {
+    glitchEffect();
+  }
+
+  if (triggers.includes('watcher_spawn')) {
+    darkEntranceEffect();
+  }
+
+  if (triggers.includes('near_death')) {
+    skullFlashEffect();
+  }
+
+  if (triggers.includes('watcher_attack')) {
+    pulseWaveEffect(grid.width / 2, grid.height / 2);
+  }
+
+  if (triggers.includes('chain_bump')) {
+    multiballEffect([[grid.width / 2, grid.height / 2]]);
+  }
+
+  if (triggers.includes('last_2')) {
+    splitScreenEffect();
+  }
+
   // Banners
   if (triggers.includes('kill_streak')) {
     showBanner('UNSTOPPABLE', '#ff4400');
@@ -1229,6 +1381,213 @@ function showBanner(text, color) {
   const container = document.getElementById('arena-canvas').parentElement;
   container.style.position = 'relative';
   container.appendChild(banner);
+}
+
+function glitchEffect() {
+    const arena = document.querySelector('.arena');
+    if (!arena) return;
+    arena.classList.add('glitch-effect', 'glitch-scanlines');
+    setTimeout(() => {
+        arena.classList.remove('glitch-effect', 'glitch-scanlines');
+    }, 400);
+}
+
+// Shatter effect — particle explosion on kill
+function shatterEffect(x, y, color) {
+  const canvas = document.getElementById('arena-canvas');
+  if (!canvas) return;
+  const overlay = document.createElement('canvas');
+  overlay.width = canvas.width;
+  overlay.height = canvas.height;
+  overlay.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;';
+  canvas.parentElement.style.position = 'relative';
+  canvas.parentElement.appendChild(overlay);
+  const octx = overlay.getContext('2d');
+  const particleCount = 8 + Math.floor(Math.random() * 5); // 8-12 particles
+  const particles = [];
+  for (let i = 0; i < particleCount; i++) {
+    const angle = (Math.PI * 2 * i) / particleCount + (Math.random() - 0.5) * 0.5;
+    const speed = 60 + Math.random() * 80;
+    particles.push({
+      x: x, y: y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      size: 3 + Math.random() * 4,
+      opacity: 1.0
+    });
+  }
+  const duration = 500; // 0.5s
+  const startTime = performance.now();
+  function animate(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1.0);
+    octx.clearRect(0, 0, overlay.width, overlay.height);
+    particles.forEach(p => {
+      p.opacity = 1.0 - progress;
+      const t = elapsed / 1000;
+      const px = p.x + p.vx * t;
+      const py = p.y + p.vy * t;
+      octx.globalAlpha = p.opacity;
+      octx.fillStyle = color;
+      octx.fillRect(px - p.size / 2, py - p.size / 2, p.size, p.size);
+    });
+    octx.globalAlpha = 1.0;
+    if (progress < 1.0) {
+      requestAnimationFrame(animate);
+    } else {
+      overlay.remove();
+    }
+  }
+  requestAnimationFrame(animate);
+}
+
+function darkEntranceEffect() {
+    const arena = document.querySelector('.arena');
+    if (!arena) return;
+    arena.style.position = 'relative';
+
+    // Create dimming overlay
+    const overlay = document.createElement('div');
+    overlay.className = 'dark-entrance-overlay';
+    overlay.style.background = 'rgba(0,0,0,0.7)';
+    arena.appendChild(overlay);
+
+    // Create vignette overlay
+    const vignette = document.createElement('div');
+    vignette.className = 'dark-entrance-overlay';
+    vignette.style.background = 'radial-gradient(ellipse at center, transparent 30%, rgba(128,0,255,0.3) 100%)';
+    arena.appendChild(vignette);
+
+    // Phase 1: Dim (0-0.3s)
+    requestAnimationFrame(() => {
+        overlay.classList.add('active');
+        vignette.classList.add('active');
+    });
+
+    // Phase 2-3: Watcher emoji scales in (0.3-1.5s)
+    setTimeout(() => {
+        // Phase 4: Fade out (1.2-1.5s)
+        overlay.style.transition = 'opacity 0.3s';
+        vignette.style.transition = 'opacity 0.3s';
+        overlay.classList.remove('active');
+        vignette.classList.remove('active');
+        setTimeout(() => {
+            overlay.remove();
+            vignette.remove();
+        }, 300);
+    }, 1200);
+}
+
+function skullFlashEffect() {
+    const arena = document.querySelector('.arena');
+    if (!arena) return;
+    arena.style.position = 'relative';
+    const flash = document.createElement('div');
+    flash.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.8);pointer-events:none;z-index:55;animation:skull-flash-fade 0.3s forwards;';
+    const skull = document.createElement('div');
+    skull.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:64px;z-index:56;pointer-events:none;animation:skull-flash-fade 0.3s forwards;';
+    skull.textContent = '\u{1F480}';
+    arena.appendChild(flash);
+    arena.appendChild(skull);
+    setTimeout(() => { flash.remove(); skull.remove(); }, 300);
+}
+
+function pulseWaveEffect(x, y) {
+    const canvas = document.getElementById('arena-canvas');
+    if (!canvas) return;
+    const overlay = document.createElement('canvas');
+    overlay.width = canvas.width;
+    overlay.height = canvas.height;
+    overlay.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;z-index:55;';
+    canvas.parentElement.style.position = 'relative';
+    canvas.parentElement.appendChild(overlay);
+    const octx = overlay.getContext('2d');
+    const duration = 600;
+    const startTime = performance.now();
+    const ringCount = 3;
+    function animate(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1.0);
+        octx.clearRect(0, 0, overlay.width, overlay.height);
+        for (let i = 0; i < ringCount; i++) {
+            const ringProgress = Math.max(0, Math.min(1, (progress - i * 0.15) / 0.7));
+            if (ringProgress <= 0) continue;
+            const radius = ringProgress * Math.max(overlay.width, overlay.height) * 0.4;
+            const opacity = (1 - ringProgress) * 0.6;
+            octx.beginPath();
+            octx.arc(x, y, radius, 0, Math.PI * 2);
+            octx.strokeStyle = `rgba(139, 0, 255, ${opacity})`;
+            octx.lineWidth = 3 - ringProgress * 2;
+            octx.stroke();
+        }
+        if (progress < 1.0) {
+            requestAnimationFrame(animate);
+        } else {
+            overlay.remove();
+        }
+    }
+    requestAnimationFrame(animate);
+}
+
+function multiballEffect(positions) {
+    const canvas = document.getElementById('arena-canvas');
+    if (!canvas) return;
+    const overlay = document.createElement('canvas');
+    overlay.width = canvas.width;
+    overlay.height = canvas.height;
+    overlay.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;z-index:55;';
+    canvas.parentElement.style.position = 'relative';
+    canvas.parentElement.appendChild(overlay);
+    const octx = overlay.getContext('2d');
+    const balls = [];
+    (positions || []).forEach(pos => {
+        for (let i = 0; i < 3; i++) {
+            balls.push({
+                x: pos[0], y: pos[1],
+                vx: (Math.random() - 0.5) * 200,
+                vy: (Math.random() - 0.5) * 200 - 100,
+                radius: 3 + Math.random() * 3,
+                opacity: 1
+            });
+        }
+    });
+    if (balls.length === 0) { overlay.remove(); return; }
+    const duration = 800;
+    const startTime = performance.now();
+    function animate(now) {
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration, 1.0);
+        const dt = elapsed / 1000;
+        octx.clearRect(0, 0, overlay.width, overlay.height);
+        balls.forEach(b => {
+            const px = b.x + b.vx * dt;
+            const py = b.y + b.vy * dt + 200 * dt * dt;
+            b.opacity = 1 - progress;
+            octx.globalAlpha = b.opacity;
+            octx.beginPath();
+            octx.arc(px, py, b.radius, 0, Math.PI * 2);
+            octx.fillStyle = '#ffaa00';
+            octx.fill();
+        });
+        octx.globalAlpha = 1;
+        if (progress < 1.0) {
+            requestAnimationFrame(animate);
+        } else {
+            overlay.remove();
+        }
+    }
+    requestAnimationFrame(animate);
+}
+
+function splitScreenEffect() {
+    const arena = document.querySelector('.arena');
+    if (!arena) return;
+    arena.style.position = 'relative';
+    const existing = arena.querySelector('.split-screen-divider');
+    if (existing) return;
+    const divider = document.createElement('div');
+    divider.className = 'split-screen-divider';
+    arena.appendChild(divider);
 }
 
 // Audio controls wiring

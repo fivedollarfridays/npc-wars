@@ -3,13 +3,14 @@ from __future__ import annotations
 
 import tomllib
 from pathlib import Path
+from typing import Any
 
 __all__ = ["CONFIG_FILENAME", "default_config", "load_config", "write_default_config"]
 
 CONFIG_FILENAME = "npcwars.toml"
 
 
-def default_config() -> dict:
+def default_config() -> dict[str, Any]:
     """Return default configuration values."""
     return {
         "bots_dir": "bots",
@@ -18,7 +19,7 @@ def default_config() -> dict:
     }
 
 
-def load_config(path: Path) -> dict:
+def load_config(path: Path) -> dict[str, Any]:
     """Load config from TOML file, merging with defaults."""
     defaults = default_config()
     if not path.is_file():

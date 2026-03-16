@@ -7,6 +7,7 @@ pattern-table memory.
 
 from __future__ import annotations
 
+import copy
 import json
 from typing import Any
 from dataclasses import dataclass, field
@@ -78,7 +79,7 @@ class WatcherStats:
             "bot_kills": self.bot_kills,
             "deaths": self.deaths,
             "current_streak": self.current_streak,
-            "encounters": dict(self.encounters),
+            "encounters": copy.deepcopy(self.encounters),
         }
 
     @classmethod
@@ -92,7 +93,7 @@ class WatcherStats:
             bot_kills=data.get("bot_kills", 0),
             deaths=data.get("deaths", 0),
             current_streak=data.get("current_streak", 0),
-            encounters=data.get("encounters", {}),
+            encounters=copy.deepcopy(data.get("encounters", {})),
         )
 
 

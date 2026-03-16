@@ -42,6 +42,9 @@ _STYLE_LABELS = {
 }
 
 _NAME_RE = re.compile(r"^[A-Za-z0-9_ ]+$")
+_RESERVED_NAMES = frozenset({
+    "__init__", "__main__", "setup", "conftest", "__pycache__",
+})
 
 
 def validate_inputs(
@@ -57,6 +60,8 @@ def validate_inputs(
         errors.append("Name must be non-empty")
     elif not _NAME_RE.match(name):
         errors.append("Name must be alphanumeric, spaces, or underscores")
+    elif name.lower().replace(" ", "_") in _RESERVED_NAMES:
+        errors.append(f"Name {name!r} conflicts with a reserved Python filename")
     if not emoji or not emoji.strip():
         errors.append("Emoji must be non-empty")
     if style not in PRESET_NAMES:

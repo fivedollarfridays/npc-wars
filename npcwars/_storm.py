@@ -42,8 +42,11 @@ class Storm:
         """True when the bot is in the storm or within 1 tile of it."""
         return is_in_storm(
             self._x, self._y, self._grid_size, self._storm_border,
-        ) or is_in_storm(
-            self._x, self._y, self._grid_size, self._storm_border + 1,
+        ) or (
+            self._storm_border > 0
+            and is_in_storm(
+                self._x, self._y, self._grid_size, self._storm_border + 1,
+            )
         )
 
     @property
