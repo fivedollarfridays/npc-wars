@@ -605,6 +605,101 @@
       0% { box-shadow: 0 0 8px var(--accent); }
       100% { box-shadow: 0 0 16px var(--accent2); }
   }
+
+  .diff-overlay {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 40vh;
+      background: var(--surface);
+      border-top: 2px solid var(--accent);
+      transform: translateY(100%);
+      transition: transform 0.5s ease-out;
+      z-index: 90;
+      overflow-y: auto;
+      padding: 20px;
+      display: none;
+  }
+
+  .diff-overlay.visible {
+      display: block;
+      transform: translateY(0);
+  }
+
+  .diff-title {
+      font-family: 'Silkscreen', cursive;
+      font-size: 16px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--accent2);
+      text-align: center;
+      margin-bottom: 16px;
+  }
+
+  .diff-table {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      border-collapse: collapse;
+  }
+
+  .diff-table th {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 6px 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+  }
+
+  .diff-table td {
+      font-size: 13px;
+      padding: 6px 12px;
+      font-family: 'JetBrains Mono', monospace;
+  }
+
+  .diff-continue {
+      display: block;
+      margin: 16px auto 0;
+      background: var(--accent);
+      border: none;
+      color: white;
+      padding: 8px 24px;
+      border-radius: 4px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+  }
+
+  .diff-continue:hover {
+      background: var(--accent2);
+  }
+
+  .diff-row-improved {
+      background: #0d4d0d;
+  }
+
+  .diff-row-regressed {
+      background: #4d0d0d;
+  }
+
+  .diff-row-neutral {
+      background: transparent;
+  }
+
+  .diff-delta-positive {
+      color: var(--heal);
+      font-weight: 700;
+  }
+
+  .diff-delta-negative {
+      color: var(--kill);
+      font-weight: 700;
+  }
+
+  .diff-delta-neutral {
+      color: var(--muted);
+  }
 </style>
 </head>
 <body>
@@ -716,6 +811,22 @@
       <div class="winner-name" id="winner-name"></div>
       <div class="dismiss">click to dismiss</div>
     </div>
+  </div>
+
+  <div class="diff-overlay" id="diff-overlay">
+    <div class="diff-title">MATCH STATS</div>
+    <table class="diff-table" id="diff-table">
+      <thead>
+        <tr>
+          <th>Stat</th>
+          <th>Lifetime Avg</th>
+          <th>This Match</th>
+          <th>Delta</th>
+        </tr>
+      </thead>
+      <tbody id="diff-tbody"></tbody>
+    </table>
+    <button class="diff-continue" onclick="dismissDiff()">Continue</button>
   </div>
 </div>
 
@@ -1299,6 +1410,7 @@ function showWinner() {
   document.getElementById('winner-emoji').textContent = winner;
   document.getElementById('winner-name').textContent = player ? player.name : 'Unknown';
   document.getElementById('winner-banner').style.display = 'flex';
+  setTimeout(() => showDiffOverlay(), 1000);
 }
 
 function dismissWinner() {
@@ -1588,6 +1700,78 @@ function splitScreenEffect() {
     const divider = document.createElement('div');
     divider.className = 'split-screen-divider';
     arena.appendChild(divider);
+}
+
+function showDiffOverlay() {
+    if (!matchData || !matchData.diff) return;
+    const overlay = document.getElementById('diff-overlay');
+    const tbody = document.getElementById('diff-tbody');
+    if (!overlay || !tbody) return;
+    tbody.innerHTML = '';
+
+    const diffData = matchData.diff;
+    for (const [emoji, playerDiff] of Object.entries(diffData)) {
+        const headerRow = document.createElement('tr');
+        const headerCell = document.createElement('td');
+        headerCell.colSpan = 4;
+        headerCell.style.cssText = 'font-weight:bold;padding-top:12px;font-size:14px;';
+        headerCell.textContent = emoji;
+        headerRow.appendChild(headerCell);
+        tbody.appendChild(headerRow);
+
+        if (playerDiff.first_match) {
+            const fmRow = document.createElement('tr');
+            const fmCell = document.createElement('td');
+            fmCell.colSpan = 4;
+            fmCell.style.cssText = 'color:var(--accent2);font-weight:bold;font-style:italic;font-size:13px;padding:6px 0;';
+            fmCell.textContent = 'FIRST MATCH!';
+            fmRow.appendChild(fmCell);
+            tbody.appendChild(fmRow);
+            const fmEntries = Object.entries(playerDiff).filter(([k]) => k !== 'first_match');
+            for (const [statName, statData] of fmEntries) {
+                const row = document.createElement('tr');
+                row.className = 'diff-row-improved';
+                row.innerHTML =
+                    '<td>' + sanitize(statName) + '</td>' +
+                    '<td>\u2014</td>' +
+                    '<td style="color:var(--accent2)">' + (statData.current !== undefined && statData.current !== null ? statData.current.toFixed(1) : '\u2014') + '</td>' +
+                    '<td>\u2014</td>';
+                tbody.appendChild(row);
+            }
+            continue;
+        }
+
+        const entries = Object.entries(playerDiff).filter(([k]) => k !== 'first_match');
+        entries.sort((a, b) => Math.abs(b[1].delta || 0) - Math.abs(a[1].delta || 0));
+
+        for (const [statName, statData] of entries) {
+            const row = document.createElement('tr');
+            const validClasses = {'improved':1,'regressed':1,'neutral':1};
+            const cls = statData.classification in validClasses ? statData.classification : 'neutral';
+            row.className = 'diff-row-' + cls;
+            const deltaClass = statData.delta > 0 ? 'diff-delta-positive' : statData.delta < 0 ? 'diff-delta-negative' : 'diff-delta-neutral';
+            const deltaText = statData.percentage !== null && statData.percentage !== undefined
+                ? (statData.percentage >= 0 ? '+' : '') + statData.percentage.toFixed(1) + '%'
+                : '\u2014';
+            row.innerHTML =
+                '<td>' + sanitize(statName) + '</td>' +
+                '<td>' + (statData.lifetime_avg !== undefined ? statData.lifetime_avg.toFixed(1) : '\u2014') + '</td>' +
+                '<td>' + (statData.current !== undefined ? statData.current.toFixed(1) : '\u2014') + '</td>' +
+                '<td class="' + deltaClass + '">' + deltaText + '</td>';
+            tbody.appendChild(row);
+        }
+    }
+
+    overlay.style.display = 'block';
+    requestAnimationFrame(() => overlay.classList.add('visible'));
+}
+
+function dismissDiff() {
+    const overlay = document.getElementById('diff-overlay');
+    if (overlay) {
+        overlay.classList.remove('visible');
+        setTimeout(() => { overlay.style.display = 'none'; }, 500);
+    }
 }
 
 // Audio controls wiring
