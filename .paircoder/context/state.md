@@ -1,33 +1,37 @@
 # Current State
 
-> Last updated: 2026-03-16 S17 done
+> Last updated: 2026-03-16 Plan created for Get Sellable (Public Release)
 
 ## Active Plan
 
-**Plan:** NPC Wars v2 — Spectacle, Human Play & The Cringe
-**Status:** S12–S17 done. Next: S18 (Polish & Production)
+**Plan:** NPC Wars -- Get Sellable (Public Release)
+**Plan ID:** plan-2026-03-npc-wars-get-sellable
+**Type:** chore
+**Status:** Planned. 5 tasks (T1-T5), all pending.
+**Sprint:** S19
+**Budget:** 35 points, 1 sprint (1 day)
+
+### Tasks
+
+| Task | Title | Complexity | Depends On | Status |
+|------|-------|-----------|------------|--------|
+| T1 | Version bump and build | 15 | -- | pending |
+| T2 | Test PyPI publish | 30 | T1 | pending |
+| T3 | Publish to PyPI | 15 | T2 | pending |
+| T4 | GitHub release | 30 | T3 | pending |
+| T5 | Write announcement draft | 15 | T4 | pending |
 
 ## Current Focus
 
-S17 complete. Ready for /reviewing-and-fixing then S18.
+Ready to start T1: Version bump and build.
 
 ## What Was Just Done
 
-**S17: Server Layer** (10 tasks) -- FastAPI app with CORS + /health, POST /api/submit-bot with AST validation + rate limiting, Redis-backed match queue + worker process, GET /api/match/{id} with path traversal protection, GET /api/stats + /api/leaderboard, time-limited 30s lobby with AI fill, adaptive fill bots using preset strategies calibrated to skill level, Monaco in-browser code editor, SQLite player registry. 2056 tests passing.
-
-**S16: The Diff View** (7 tasks) -- Stat diff computation, lifetime stats API, diff overlay with color-coded rows sorted by delta, diff data injected into match JSON, first-match handling. 1946 tests.
-
-**S15: Viewer Polish** (8 tasks) -- 7 spectacle effects, battlefield layout 70%+, movement interpolation, audio path fix, player profiles. 1849 tests.
-
-**S14: Distribution & Packaging** (10 tasks) -- pip install npc-wars, CLI dispatcher, built-in bots, community scaffolding. 1737 tests.
-
-**S13: Vibe Wizard & Helpers** (10 tasks) -- Me/Enemies/Storm DSL, presets, wizard CLI. 1622 tests.
-
-**S12: The Cringe** (14 tasks) -- Adaptive Watcher boss bot. 1380 tests.
+Created plan `plan-2026-03-npc-wars-get-sellable` with 5 tasks (T1-T5) from the npc-wars-sellable.md backlog. All tasks filed under sprint S19 with proper dependency chains (T1 -> T2 -> T3 -> T4 -> T5).
 
 ## What's Next
 
-S18 (Polish & Production) — final sprint.
+Start T1: Version bump to 1.0.0 and build distribution artifacts.
 
 ## Completed Sprints
 
@@ -49,10 +53,5 @@ S18 (Polish & Production) — final sprint.
 | S14 | Distribution & Packaging | 10 | 1737 | #12 | Done |
 | S15 | Viewer Polish | 8 | 1849 | #12 | Done |
 | S16 | The Diff View | 7 | 1946 | #13 | Done |
-| S17 | Server Layer | 10 | 2056 | — | Done |
-
-## Archive
-
-Completed sprint docs archived to `.paircoder/archive/`:
-- **Tasks:** S1–S15 (archived; S16–S18 remain in `.paircoder/tasks/`)
-- **Plans:** S1–S15 (archived; S16–S18 remain in `.paircoder/plans/`)
+| S17 | Server Layer | 10 | 2056 | #14 | Done |
+| S18 | Polish & Production | 8 | 2170 | -- | Done |

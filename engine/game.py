@@ -6,7 +6,8 @@ from pathlib import Path
 from typing import Any
 
 from engine.combat import Bot, resolve_deaths, STARTING_ATTACK_POWER, get_round_bonus_attack, tick_damage_bonus
-from engine.grid import calculate_grid_size, spawn_positions, get_storm_border
+from engine.grid import calculate_grid_size, spawn_positions
+from engine.match_modes import MatchMode, get_mode, get_storm_border_for_mode
 from engine.match_writer import build_match_data
 from engine.discord_integration import notify_match_start, notify_match_end
 from engine.spectacle import SpectacleEngine
@@ -64,15 +65,11 @@ def _resolve_tiebreaker(
 
 
 def _resolve_combat_phases(
-    alive_bots: list[Bot], bots: list[Bot],
-    actions: dict[str, tuple[str, ...]], forced_rest: set[str],
-    override_events: list[dict[str, Any]],
+    alive_bots: list[Bot], bots: list[Bot], actions: dict[str, tuple[str, ...]],
+    forced_rest: set[str], override_events: list[dict[str, Any]],
     round_num: int, grid_size: int, storm_border: int,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
-    """Phases 2-7: defense, movement, attacks, storm, energy, deaths.
-
-    Returns (round_data, eliminations, bump_events).
-    """
+    """Phases 2-7: defense, movement, attacks, storm, energy, deaths."""
     resolve_defense(alive_bots, actions)
     bump_events = resolve_movement(
         alive_bots, actions, grid_size, all_bots=bots, storm_border=storm_border,
@@ -98,22 +95,24 @@ def _resolve_combat_phases(
 
 
 def _prepare_match(
-    bot_configs: list[dict[str, Any]], seed: int | None,
+    bot_configs: list[dict[str, Any]], seed: int | None, mode: MatchMode | None = None,
 ) -> tuple[list[Bot], list[dict[str, Any]], int, random.Random]:
     """Shared match setup: RNG, grid, bots, players. Returns (bots, players, grid_size, rng)."""
     rng = random.Random(seed)
     grid_size = calculate_grid_size(len(bot_configs))
     positions = spawn_positions(len(bot_configs), grid_size, rng)
     bots = _create_bots(bot_configs, positions)
+    if mode is not None and mode.starting_hp != 100:
+        for b in bots:
+            b.hp = mode.starting_hp
     players = [{"emoji": b.emoji, "name": b.name, "bio": b.bio, "author": b.author} for b in bots]
     return bots, players, grid_size, rng
 
 
 def _finalize_match(
-    bots: list[Bot], players: list[dict[str, Any]],
-    all_rounds: list[dict[str, Any]], all_eliminations: list[dict[str, Any]],
-    round_num: int, match_id: int, grid_size: int,
-    profiles_path: Path | None,
+    bots: list[Bot], players: list[dict[str, Any]], all_rounds: list[dict[str, Any]],
+    all_eliminations: list[dict[str, Any]], round_num: int, match_id: int,
+    grid_size: int, profiles_path: Path | None, match_mode: str = "standard",
 ) -> dict[str, Any]:
     """Shared post-loop: tiebreaker, stats, match data, notifications."""
     winner_emoji = _resolve_tiebreaker(bots, round_num, all_eliminations)
@@ -126,6 +125,7 @@ def _finalize_match(
         rounds=all_rounds, eliminations=all_eliminations,
         winner_emoji=winner_emoji, stats=stats, duration_rounds=round_num,
     )
+    match_data["match_mode"] = match_mode
     notify_match_end(match_data)
 
     if profiles_path is not None:
@@ -271,15 +271,16 @@ async def _execute_round_async(
 
 
 async def run_match_async(
-    bot_configs: list[dict[str, Any]], match_id: int = 1,
-    seed: int | None = None, profiles_path: Path | None = None,
-    human_timeout: float = 2.0,
+    bot_configs: list[dict[str, Any]], match_id: int = 1, seed: int | None = None,
+    profiles_path: Path | None = None, human_timeout: float = 2.0,
+    match_mode: str = "standard",
 ) -> dict[str, Any]:
     """Async match loop. Uses async rounds when humans are present."""
     from engine.afk import AFKTracker
     from engine.watcher_controller import WatcherController
 
-    bots, players, grid_size, rng = _prepare_match(bot_configs, seed)
+    mode = get_mode(match_mode)
+    bots, players, grid_size, rng = _prepare_match(bot_configs, seed, mode=mode)
     has_humans = any(b.human_adapter is not None for b in bots)
     afk_tracker = AFKTracker()
     for b in bots:
@@ -296,11 +297,11 @@ async def run_match_async(
     last_bump_events: list[dict[str, Any]] = []
     spectacle_engine = SpectacleEngine()
 
-    for round_num in range(1, MAX_ROUNDS + 1):
+    for round_num in range(1, mode.max_rounds + 1):
         if sum(b.alive for b in bots) <= 1:
             break
 
-        storm_border = get_storm_border(round_num)
+        storm_border = get_storm_border_for_mode(round_num, mode)
 
         # Watcher spawn check (before decisions)
         spawn_events: list[dict[str, Any]] = []
@@ -339,7 +340,7 @@ async def run_match_async(
         if sum(b.alive for b in bots) <= 1:
             break
     else:
-        round_num = MAX_ROUNDS
+        round_num = mode.max_rounds
 
     # Finalize watcher persistence
     if watcher_ctrl is not None:
@@ -354,15 +355,17 @@ async def run_match_async(
     return _finalize_match(
         bots, players, all_rounds, all_eliminations,
         round_num, match_id, grid_size, profiles_path,
+        match_mode=mode.name,
     )
 
 
 def run_match(
-    bot_configs: list[dict[str, Any]], match_id: int = 1,
-    seed: int | None = None, profiles_path: Path | None = None,
+    bot_configs: list[dict[str, Any]], match_id: int = 1, seed: int | None = None,
+    profiles_path: Path | None = None, match_mode: str = "standard",
 ) -> dict[str, Any]:
     """Run a complete match. Returns match data dict."""
-    bots, players, grid_size, _rng = _prepare_match(bot_configs, seed)
+    mode = get_mode(match_mode)
+    bots, players, grid_size, _rng = _prepare_match(bot_configs, seed, mode=mode)
     notify_match_start(match_id=match_id, players=players, seed=seed)
 
     all_rounds: list[dict[str, Any]] = []
@@ -370,12 +373,13 @@ def run_match(
     last_bump_events: list[dict[str, Any]] = []
     spectacle_engine = SpectacleEngine()
 
-    for round_num in range(1, MAX_ROUNDS + 1):
+    for round_num in range(1, mode.max_rounds + 1):
         if sum(b.alive for b in bots) <= 1:
             break
 
+        storm_border = get_storm_border_for_mode(round_num, mode)
         round_data, round_elims, last_bump_events = _execute_round(
-            bots, round_num, grid_size, get_storm_border(round_num),
+            bots, round_num, grid_size, storm_border,
             bumps_last_round=last_bump_events,
         )
         _score_spectacle(spectacle_engine, round_data, bots)
@@ -385,9 +389,10 @@ def run_match(
         if sum(b.alive for b in bots) <= 1:
             break
     else:
-        round_num = MAX_ROUNDS
+        round_num = mode.max_rounds
 
     return _finalize_match(
         bots, players, all_rounds, all_eliminations,
         round_num, match_id, grid_size, profiles_path,
+        match_mode=mode.name,
     )

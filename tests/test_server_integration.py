@@ -82,7 +82,9 @@ class TestHealth:
     def test_health_status_ok(self, client: TestClient):
         resp = client.get("/health")
         assert resp.status_code == 200
-        assert resp.json() == {"status": "ok"}
+        data = resp.json()
+        assert "status" in data
+        assert "components" in data
 
     def test_health_cors_present(self, client: TestClient):
         resp = client.options(

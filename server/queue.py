@@ -11,6 +11,7 @@ class QueueBackend(Protocol):
 
     def lpush(self, key: str, value: str) -> Any: ...
     def brpop(self, key: str, timeout: int) -> tuple | None: ...
+    def ping(self) -> bool: ...
 
 
 class InMemoryQueue:
@@ -28,6 +29,9 @@ class InMemoryQueue:
         if not items:
             return None
         return (key, items.pop())
+
+    def ping(self) -> bool:
+        return True
 
 
 MATCH_QUEUE_KEY = "npcwars:match_queue"
@@ -53,6 +57,17 @@ def _get_backend() -> QueueBackend:
 def enqueue_match(job: dict) -> None:
     """Push a match job onto the queue."""
     _get_backend().lpush(MATCH_QUEUE_KEY, json.dumps(job))
+
+
+def queue_depth() -> int:
+    """Return the number of jobs currently in the match queue."""
+    backend = _get_backend()
+    if hasattr(backend, "llen"):
+        return backend.llen(MATCH_QUEUE_KEY)
+    # Fallback for InMemoryQueue
+    if hasattr(backend, "_data"):
+        return len(backend._data.get(MATCH_QUEUE_KEY, []))
+    return 0
 
 
 def dequeue_match(timeout: int = 1) -> dict | None:

@@ -1,0 +1,6 @@
+FROM python:3.13-slim
+WORKDIR /app
+COPY engine/ engine/
+COPY bots/ bots/
+COPY npcwars/ npcwars/
+CMD ["python", "-c", "import sys, json; print(json.dumps({'status': 'sandbox_ok'}))"]

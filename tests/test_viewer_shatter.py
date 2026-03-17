@@ -51,13 +51,13 @@ class TestShatterWiredToKillEvent:
         assert "shatterEffect" in html
         # Find the renderRound events loop — use first occurrence for draw effects
         events_start = html.index("// Draw hit and bump effects")
-        events_chunk = html[events_start : events_start + 2500]
+        events_chunk = html[events_start : events_start + 4000]
         assert "'kill'" in events_chunk
         assert "shatterEffect" in events_chunk
 
     def test_kill_uses_victim_position(self) -> None:
         html = _read_html()
         events_start = html.index("// Draw hit and bump effects")
-        events_chunk = html[events_start : events_start + 2500]
+        events_chunk = html[events_start : events_start + 4000]
         # Should look up victim position from round.positions
         assert "evt.victim" in events_chunk

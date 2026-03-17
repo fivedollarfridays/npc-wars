@@ -7,14 +7,21 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
+from server.middleware.session import SessionMiddleware
+from server.routes.health import router as health_router
 from server.routes.match import router as match_router
+from server.routes.share import router as share_router
 from server.routes.stats import router as stats_router
+from server.routes.stream import router as stream_router
 from server.routes.submit import router as submit_router
 
 app = FastAPI(title="NPC Wars Server")
 app.state.results_dir = "results"
+app.include_router(health_router)
 app.include_router(match_router)
+app.include_router(share_router)
 app.include_router(stats_router)
+app.include_router(stream_router)
 app.include_router(submit_router)
 
 _static_dir = Path(__file__).resolve().parent / "static"
@@ -31,12 +38,7 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-
-@app.get("/health")
-async def health():
-    """Health check endpoint."""
-    return {"status": "ok"}
+app.add_middleware(SessionMiddleware)
 
 
 if __name__ == "__main__":
