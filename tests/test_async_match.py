@@ -43,7 +43,7 @@ async def test_async_returns_valid_match_data():
 
     expected_keys = {
         "match_id", "date", "grid_size", "players", "rounds",
-        "eliminations", "winner", "stats", "duration_rounds",
+        "eliminations", "winner", "stats", "duration_rounds", "match_mode",
     }
     assert set(data.keys()) == expected_keys
 

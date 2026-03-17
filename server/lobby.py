@@ -7,7 +7,7 @@ import time
 import uuid
 from typing import Any
 
-from server.queue import enqueue_match
+from server.queue import enqueue_match, queue_depth
 
 MIN_PLAYERS = 2
 MAX_PLAYERS = 8
@@ -80,11 +80,13 @@ class Lobby:
             bot_configs.extend(
                 _get_fill_bots(MIN_HUMANS_FOR_NO_FILL - len(bot_configs))
             )
+        match_mode = "extended" if queue_depth() > 3 else "standard"
         job = {
             "job_id": str(uuid.uuid4()),
             "bot_configs": bot_configs,
             "match_id": None,
             "results_dir": "results",
+            "match_mode": match_mode,
         }
         enqueue_match(job)
 

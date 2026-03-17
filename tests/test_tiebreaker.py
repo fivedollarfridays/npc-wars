@@ -8,7 +8,7 @@ from engine.game import MAX_ROUNDS, run_match
 
 
 class TestTiebreaker:
-    @patch("engine.game.get_storm_border", return_value=0)
+    @patch("engine.game.get_storm_border_for_mode", return_value=0)
     def test_cap_reached_has_winner(self, _mock_storm):
         """Two resting bots with no storm reach 200 rounds — should have a winner."""
         configs = [
@@ -19,7 +19,7 @@ class TestTiebreaker:
         assert data["duration_rounds"] == MAX_ROUNDS
         assert data["winner"] != "none"
 
-    @patch("engine.game.get_storm_border", return_value=0)
+    @patch("engine.game.get_storm_border_for_mode", return_value=0)
     def test_tiebreaker_elimination_records(self, _mock_storm):
         """Losers in tiebreaker should have elimination records."""
         configs = [
@@ -31,7 +31,7 @@ class TestTiebreaker:
         tiebreaker_elims = [e for e in data["eliminations"] if e.get("cause") == "tiebreaker"]
         assert len(tiebreaker_elims) >= 1
 
-    @patch("engine.game.get_storm_border", return_value=0)
+    @patch("engine.game.get_storm_border_for_mode", return_value=0)
     def test_tiebreaker_highest_hp_wins(self, _mock_storm):
         """Two resting bots with no storm reach MAX_ROUNDS; winner by tiebreaker."""
         configs = [
@@ -42,7 +42,7 @@ class TestTiebreaker:
         assert data["duration_rounds"] == MAX_ROUNDS
         assert data["winner"] in {"😴", "🛡️"}
 
-    @patch("engine.game.get_storm_border", return_value=0)
+    @patch("engine.game.get_storm_border_for_mode", return_value=0)
     def test_three_bots_tiebreaker(self, _mock_storm):
         """Three resting bots with no storm — only one winner after tiebreaker."""
         configs = [

@@ -24,7 +24,7 @@ class TestRunMatch:
         data = run_match(configs, match_id=1, seed=42)
         expected_keys = {
             "match_id", "date", "grid_size", "players", "rounds",
-            "eliminations", "winner", "stats", "duration_rounds",
+            "eliminations", "winner", "stats", "duration_rounds", "match_mode",
         }
         assert set(data.keys()) == expected_keys
 
@@ -56,7 +56,7 @@ class TestRunMatch:
         assert data["winner"] in {"😴", "⚔️"}
         assert data["duration_rounds"] <= MAX_ROUNDS
 
-    @patch("engine.game.get_storm_border", return_value=0)
+    @patch("engine.game.get_storm_border_for_mode", return_value=0)
     def test_200_round_cap(self, _mock_storm):
         """Two resting bots with no storm never kill each other — should hit cap."""
         configs = [

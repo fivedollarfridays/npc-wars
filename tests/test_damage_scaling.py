@@ -35,7 +35,6 @@ class TestDamageScalingInMatch:
         """Verify attack_power reflects scaling during combat."""
         from engine.combat import Bot
         from engine.game import _execute_round
-        from unittest.mock import patch
 
         bots = [
             Bot(name="A", emoji="A", bio="", author="t",
@@ -43,8 +42,7 @@ class TestDamageScalingInMatch:
             Bot(name="B", emoji="B", bio="", author="t",
                 decide_func=lambda s: ("rest",), x=5, y=5),
         ]
-        with patch("engine.game.get_storm_border", return_value=0):
-            _execute_round(bots, round_num=35, grid_size=10, storm_border=0)
+        _execute_round(bots, round_num=35, grid_size=10, storm_border=0)
 
         expected = STARTING_ATTACK_POWER + get_round_bonus_attack(35)
         assert bots[0].attack_power == expected
