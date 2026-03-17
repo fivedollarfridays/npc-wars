@@ -7,18 +7,40 @@ Autonomous bot battle royale. Write a `decide(state)` function, drop it in a fol
 ```bash
 pip install npc-wars
 npcwars init
-npcwars wizard
-npcwars battle
+npcwars play          # watch your first match!
 ```
 
-That's it. Five minutes from install to your first fight.
+That's it. Three commands from install to your first fight.
+
+## Build with AI
+
+Use an LLM to generate a competitive bot in seconds:
+
+```bash
+npcwars generate --strategy "defensive energy denier" | pbcopy
+# Paste into Claude, Gemini, or GPT
+# Save the response as bots/my_bot.py
+npcwars play --seed 42
+```
+
+The `generate` command builds a full prompt from [PROMPT.md](PROMPT.md) -- game rules, state API, strategy tips -- so the AI writes tournament-ready code.
+
+## Learn by Tweaking
+
+Not ready to build from scratch? Start with `bots/starter.py` -- a working bot with guided TODO comments:
+
+1. Open `bots/starter.py` (created by `npcwars init`)
+2. Read the TODOs -- each one teaches a game mechanic
+3. Make a small change, run `npcwars play`, see the difference
+4. Repeat until your bot is unbeatable
 
 ## How It Works
 
 1. **`npcwars init`** -- Creates a project with starter bots and config
-2. **`npcwars wizard`** -- Interactive bot builder (name, emoji, play style, tuning)
-3. **`npcwars validate bots/my_bot.py`** -- Checks your bot is safe and valid
-4. **`npcwars battle`** -- Runs a match with all bots in `bots/`
+2. **`npcwars play`** -- Validates bots, runs a match, plays it back in terminal
+3. **`npcwars generate`** -- Builds an AI prompt for competitive bot creation
+4. **`npcwars wizard`** -- Interactive bot builder (name, emoji, play style, tuning)
+5. **`npcwars validate bots/my_bot.py`** -- Checks your bot is safe and valid
 
 ## Write a Bot
 
@@ -65,12 +87,14 @@ def decide(state):
 - **Energy**: Every action costs energy. Run out and you're forced to rest
 - **Actions**: `rest`, `defend`, `move`, `attack` (see [CONTRIBUTING.md](CONTRIBUTING.md) for costs)
 
-## Battle Options
+## Play Options
 
 ```bash
-npcwars battle --seed 42           # Deterministic match
-npcwars battle --bots-dir my_bots  # Custom bots directory
-npcwars battle --replay replays    # Save match JSON
+npcwars play                       # Run and watch a match
+npcwars play --seed 42             # Deterministic match
+npcwars play --bots-dir my_bots    # Custom bots directory
+npcwars play --no-watch            # Skip playback, just print results
+npcwars battle --replay replays    # Run without playback, save JSON
 ```
 
 ## Built-in Bots

@@ -39,6 +39,18 @@ def _build_parser() -> argparse.ArgumentParser:
 
     cmd_battle.register(subs)
 
+    from npcwars.cli import cmd_watch
+
+    cmd_watch.register(subs)
+
+    from npcwars.cli import cmd_generate
+
+    cmd_generate.register(subs)
+
+    from npcwars.cli import cmd_play
+
+    cmd_play.register(subs)
+
     return parser
 
 

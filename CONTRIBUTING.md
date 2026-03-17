@@ -11,11 +11,20 @@
 Submit your bot to `showcase/` via PR.
 
 ```bash
-npcwars wizard                           # create a bot
-npcwars validate bots/your_bot.py        # check it passes
+# Build a bot with AI
+npcwars generate --strategy "your idea" | pbcopy
+# Paste into Claude, Gemini, or GPT — save response as bots/your_bot.py
+
+# Or use the interactive wizard
+npcwars wizard
+
+# Validate and submit
+npcwars validate bots/your_bot.py
 cp bots/your_bot.py showcase/
 # Open a PR
 ```
+
+The `npcwars generate` command creates a full prompt from [PROMPT.md](PROMPT.md) with game rules, state API, and strategy tips -- so any LLM can write a competitive bot.
 
 Must pass `npcwars validate`. Gets merged as-is -- this is a community gallery.
 

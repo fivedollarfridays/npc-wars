@@ -9,9 +9,9 @@ from npcwars.builtin_bots import BUILTIN_NAMES, get_bot_source, list_builtin_bot
 
 
 class TestListBuiltinBots:
-    def test_returns_six_items(self):
+    def test_returns_seven_items(self):
         result = list_builtin_bots()
-        assert len(result) == 6
+        assert len(result) == 7
 
     def test_contains_all_expected_names(self):
         result = list_builtin_bots()
@@ -21,6 +21,7 @@ class TestListBuiltinBots:
             "example_kiter",
             "example_random",
             "example_vibes",
+            "starter",
             "template",
         }
         assert set(result) == expected

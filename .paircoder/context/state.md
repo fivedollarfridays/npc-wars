@@ -1,57 +1,58 @@
 # Current State
 
-> Last updated: 2026-03-16 Plan created for Get Sellable (Public Release)
+> Last updated: 2026-03-17 S20 plan created
 
-## Active Plan
+## Active Plans
 
-**Plan:** NPC Wars -- Get Sellable (Public Release)
-**Plan ID:** plan-2026-03-npc-wars-get-sellable
-**Type:** chore
-**Status:** Planned. 5 tasks (T1-T5), all pending.
-**Sprint:** S19
-**Budget:** 35 points, 1 sprint (1 day)
+**Plan 1:** NPC Wars -- Get Sellable (Public Release)
+- **Sprint:** S19 | **Type:** chore | **Status:** Planned (5 tasks, T1-T5)
 
-### Tasks
+**Plan 2:** Sprint 20: The Experience Layer
+- **Sprint:** S20 | **Type:** feature | **Status:** Planned (8 tasks, T20.1-T20.8)
 
-| Task | Title | Complexity | Depends On | Status |
-|------|-------|-----------|------------|--------|
-| T1 | Version bump and build | 15 | -- | pending |
-| T2 | Test PyPI publish | 30 | T1 | pending |
-| T3 | Publish to PyPI | 15 | T2 | pending |
-| T4 | GitHub release | 30 | T3 | pending |
-| T5 | Write announcement draft | 15 | T4 | pending |
+### S20 Tasks
+
+| Task | Title | Cx | Depends On | Status |
+|------|-------|----|------------|--------|
+| T20.1 | ANSI terminal renderer module | 40 | — | done |
+| T20.2 | `npcwars watch` — CLI match playback | 30 | T20.1 | done |
+| T20.3 | `npcwars play` — one-command experience | 25 | T20.2 | done |
+| T20.4 | Agent Arena prompt doc (PROMPT.md) | 20 | — | done |
+| T20.5 | Starter bot template with guided TODOs | 15 | — | done |
+| T20.6 | `npcwars generate` — AI-assisted bot creation | 25 | T20.4 | done |
+| T20.7 | Integration wiring + CLI polish | 20 | T20.3, T20.5 | done |
+| T20.8 | S20 integration test | 20 | all | done |
+
+**Total: 195 Cx**
+
+### S20 Wave Plan
+
+```
+Wave 1 (no deps):     T20.1, T20.4, T20.5              (75 Cx)
+Wave 2 (viewer):      T20.2, T20.6                      (55 Cx)
+Wave 3 (experience):  T20.3                              (25 Cx)
+Wave 4 (polish):      T20.7                              (20 Cx)
+Wave 5 (gate):        T20.8 — INTEGRATION GATE           (20 Cx)
+```
 
 ## Current Focus
 
-Ready to start T1: Version bump and build.
+S20 complete. All 8 tasks done.
 
 ## What Was Just Done
 
-Created plan `plan-2026-03-npc-wars-get-sellable` with 5 tasks (T1-T5) from the npc-wars-sellable.md backlog. All tasks filed under sprint S19 with proper dependency chains (T1 -> T2 -> T3 -> T4 -> T5).
+T20.8: S20 integration test. Wrote `tests/test_s20_integration.py` with 30 tests across 9 test classes verifying: CLI command registration (play/watch/generate in --help), TerminalRenderer output (title, grid, HP bars, combatants, kill feed), PROMPT.md required sections (state dict, actions, decide, strategies, examples), starter bot (validation, 7+ TODOs, helpers DSL, builtin_bots location), npcwars play e2e (subprocess --no-watch --seed 42 exits 0, prints winner), npcwars watch e2e (fixture JSON + --speed 100 --no-clear exits 0), npcwars generate e2e (prints PROMPT.md content), README updated (mentions play, generate, PROMPT.md, starter), no dead public functions (all modules importable and wired in __init__). All 30 tests pass. Ruff clean, arch check clean.
 
 ## What's Next
 
-Start T1: Version bump to 1.0.0 and build distribution artifacts.
+S20 sprint complete. Ready for PR or next sprint.
 
 ## Completed Sprints
 
 | Sprint | Focus | Tasks | Tests After | PR | Status |
 |--------|-------|-------|-------------|-----|--------|
-| S1 | Engine Test Coverage | 12 | 233 | #1 | Done |
-| S2 | Data Layer + CI | 8 | 304 | #2 | Done |
-| S3 | Discord Bot | 6 | 370 | #3 | Done |
-| S4 | Video Renderer | 6 | 435 | #4 | Done |
-| S5 | YouTube Upload | 3 | 471 | #4 | Done |
-| S6 | Production Hardening | 9 | 530 | #5 | Done |
-| S7 | Security Hardening | 5 | 585 | #5 | Done |
-| S8 | Balance & Physics | 11 | 720 | #6 | Done |
-| S9 | Progression System | 11 | 870 | #6 | Done |
-| S10 | Spectacle & Audio | 10 | 1103 | #7 | Done |
-| S11 | Human Play & Bounty | 11 | 1212 | #8 | Done |
-| S12 | The Cringe (Watcher) | 14 | 1380 | #12 | Done |
-| S13 | Vibe Wizard & Helpers | 10 | 1622 | #12 | Done |
-| S14 | Distribution & Packaging | 10 | 1737 | #12 | Done |
-| S15 | Viewer Polish | 8 | 1849 | #12 | Done |
+| S1-S11 | Core Engine → Human Play | 97 | 1212 | #1-#8 | Done |
+| S12-S15 | Watcher, Wizard, Packaging, Viewer | 42 | 1849 | #12 | Done |
 | S16 | The Diff View | 7 | 1946 | #13 | Done |
 | S17 | Server Layer | 10 | 2056 | #14 | Done |
-| S18 | Polish & Production | 8 | 2170 | -- | Done |
+| S18 | Polish & Production | 8 | 2170 | — | Done |
