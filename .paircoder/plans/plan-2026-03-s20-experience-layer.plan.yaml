@@ -1,0 +1,13 @@
+id: plan-2026-03-s20-experience-layer
+title: 'Sprint 20: The Experience Layer — CLI Game, Agent Arena, Starter Kit'
+type: feature
+status: in_progress
+created_at: '2026-03-17T00:00:00'
+skills:
+- planning-with-pm
+goals:
+- DOS-style CLI match viewer with ANSI grid rendering
+- npcwars play command (validate + battle + watch in one)
+- Agent Arena prompt doc (PROMPT.md) for Claude/Gemini/GPT
+- Starter bot template with commented TODO decision points
+- npcwars generate command for AI-assisted bot creation

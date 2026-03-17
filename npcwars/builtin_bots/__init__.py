@@ -11,6 +11,7 @@ BUILTIN_NAMES: tuple[str, ...] = (
     "example_kiter",
     "example_random",
     "example_vibes",
+    "starter",
     "template",
 )
 

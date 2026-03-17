@@ -29,7 +29,7 @@ class TestHelpAndVersion:
 
     def test_help_lists_subcommands(self, capsys: pytest.CaptureFixture[str]) -> None:
         out, code = _run_main(["--help"], capsys)
-        for subcmd in ("init", "wizard", "validate", "battle"):
+        for subcmd in ("init", "wizard", "validate", "battle", "watch"):
             assert subcmd in out, f"Expected '{subcmd}' in help output"
 
     def test_version_exits_zero(self, capsys: pytest.CaptureFixture[str]) -> None:
@@ -45,7 +45,7 @@ class TestHelpAndVersion:
 class TestSubcommandHelp:
     """Each subcommand --help exits 0."""
 
-    @pytest.mark.parametrize("subcmd", ["init", "wizard", "validate", "battle"])
+    @pytest.mark.parametrize("subcmd", ["init", "wizard", "validate", "battle", "watch"])
     def test_subcommand_help_exits_zero(self, subcmd: str, capsys: pytest.CaptureFixture[str]) -> None:
         out, code = _run_main([subcmd, "--help"], capsys)
         assert code == 0

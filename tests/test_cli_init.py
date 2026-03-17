@@ -77,8 +77,8 @@ class TestInitCopiesBots:
         for name in list_builtin_bots():
             assert (tmp_path / "bots" / f"{name}.py").is_file(), f"Missing {name}.py"
 
-    def test_six_builtin_bots(self) -> None:
-        assert len(list_builtin_bots()) == 6
+    def test_builtin_bots_count(self) -> None:
+        assert len(list_builtin_bots()) == 7
 
     def test_bot_files_contain_bot_name(self, tmp_path: object) -> None:
         from npcwars.cli.cmd_init import run
