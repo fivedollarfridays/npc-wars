@@ -6,6 +6,8 @@ and suggesting alternatives. Tweak the TODOs to make it your own!
 
 import random
 
+_rng = random.Random()
+
 BOT_NAME = "Starter"
 BOT_EMOJI = "\U0001f31f"
 BOT_BIO = "A solid foundation -- tweak the TODOs to make it your own"
@@ -85,10 +87,11 @@ def _chase_or_position(me, enemies, state):
     #   - All defend = turtle up (safe but passive)
     #   - All random move = unpredictable (but burns energy)
     #   - Rest only = maximum energy (but The Watcher adapts)
-    return random.choice([
+    _rng.seed(hash((state["round"], state["me"]["x"], state["me"]["y"])))
+    return _rng.choice([
         ("defend",),
         ("rest",),
-        ("move", random.choice(["north", "south", "east", "west"])),
+        ("move", _rng.choice(["north", "south", "east", "west"])),
     ])
 
 
