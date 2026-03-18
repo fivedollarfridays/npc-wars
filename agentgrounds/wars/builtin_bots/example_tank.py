@@ -1,7 +1,7 @@
-"""🛡️ TankBot — defend, rest, counterattack. The wall."""
+"""🐢 TankBot — defend, rest, counterattack. The wall."""
 
 BOT_NAME = "TankBot"
-BOT_EMOJI = "🛡️"
+BOT_EMOJI = "🐢"
 BOT_BIO = "you shall not pass"
 BOT_AUTHOR = "agentgrounds"
 

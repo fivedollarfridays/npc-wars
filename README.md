@@ -102,7 +102,7 @@ agentgrounds wars battle --replay replays    # Run without playback, save JSON
 | Bot | Style | Strategy |
 |-----|-------|----------|
 | AggroBot 🤖 | Aggro | Chase closest, attack relentlessly |
-| TankBot 🛡️ | Tank | Defend, counter adjacent enemies |
+| TankBot 🐢 | Tank | Defend, counter adjacent enemies |
 | KiteBot 🪁 | Kiter | Keep distance, poke wounded |
 | ChaosBot 🎲 | Chaos | Pure random mayhem |
 | Cognify 🧠 | Vibes | Storm-aware opportunist (helpers DSL) |

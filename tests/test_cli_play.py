@@ -206,3 +206,199 @@ class TestPlayNoWatch:
         winner2 = [ln for ln in out2.splitlines() if "Winner:" in ln][0]
         # Same seed -> same winner emoji
         assert winner1.split("|")[0] == winner2.split("|")[0]
+
+
+# -- Cycle 4: --no-fx flag ---------------------------------------------------
+
+
+class TestPlayNoFxFlag:
+    """--no-fx flag is registered and defaults to False."""
+
+    def test_no_fx_appears_in_help(
+        self, capsys: pytest.CaptureFixture[str],
+    ) -> None:
+        out, _err, code = _run_main(["play", "--help"], capsys)
+        assert code == 0
+        assert "--no-fx" in out
+
+    def test_no_fx_defaults_false(self) -> None:
+        """When --no-fx is not passed, args.no_fx is False."""
+        import argparse
+
+        from agentgrounds.wars.cli.cmd_play import register
+
+        parser = argparse.ArgumentParser()
+        subs = parser.add_subparsers()
+        register(subs)
+        args = parser.parse_args(["play", "--bots-dir", "bots", "--no-watch"])
+        assert args.no_fx is False
+
+    def test_no_fx_true_when_passed(self) -> None:
+        """When --no-fx is passed, args.no_fx is True."""
+        import argparse
+
+        from agentgrounds.wars.cli.cmd_play import register
+
+        parser = argparse.ArgumentParser()
+        subs = parser.add_subparsers()
+        register(subs)
+        args = parser.parse_args(["play", "--no-fx", "--no-watch"])
+        assert args.no_fx is True
+
+
+# -- Cycle 5: Sub-frame rendering in _play_back ------------------------------
+
+_MATCH_DATA_WITH_COMBAT = {
+    "players": [
+        {"name": "A", "emoji": "A"},
+        {"name": "B", "emoji": "B"},
+    ],
+    "grid_size": 5,
+    "rounds": [
+        {
+            "round": 1,
+            "storm_border": 0,
+            "positions": [
+                {"emoji": "A", "x": 1, "y": 1, "alive": True, "hp": 100, "energy": 5},
+                {"emoji": "B", "x": 2, "y": 1, "alive": True, "hp": 80, "energy": 4},
+            ],
+            "events": [{"type": "hit", "attacker": "A", "target": "B", "damage": 20}],
+        },
+    ],
+    "winner": "A",
+    "duration_rounds": 1,
+}
+
+_MATCH_DATA_NO_COMBAT = {
+    "players": [
+        {"name": "A", "emoji": "A"},
+        {"name": "B", "emoji": "B"},
+    ],
+    "grid_size": 5,
+    "rounds": [
+        {
+            "round": 1,
+            "storm_border": 0,
+            "positions": [
+                {"emoji": "A", "x": 1, "y": 1, "alive": True, "hp": 100, "energy": 5},
+                {"emoji": "B", "x": 3, "y": 3, "alive": True, "hp": 100, "energy": 5},
+            ],
+            "events": [],
+        },
+    ],
+    "winner": "A",
+    "duration_rounds": 1,
+}
+
+
+class TestPlayBackSubFrames:
+    """_play_back renders action sub-frames for combat rounds."""
+
+    def test_combat_round_calls_render_action_frame(
+        self, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Combat rounds should trigger render_action_frame."""
+        from unittest.mock import patch
+
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
+
+        with patch("time.sleep"), patch.object(
+            TerminalRenderer, "render_action_frame", return_value="action"
+        ) as mock_af, patch.object(
+            TerminalRenderer, "render_frame", return_value="resolve"
+        ), patch.object(
+            TerminalRenderer, "render_winner", return_value="winner"
+        ), patch.object(
+            TerminalRenderer, "render_final_frame", return_value="final"
+        ), patch.object(
+            TerminalRenderer, "render_standings", return_value="standings"
+        ), patch.object(
+            TerminalRenderer, "exit_alt_screen", return_value=""
+        ):
+            from agentgrounds.wars.cli.cmd_play import _play_back
+
+            _play_back(_MATCH_DATA_WITH_COMBAT, 1000.0, "f.json")
+            mock_af.assert_called_once()
+
+    def test_quiet_round_skips_action_frame(
+        self, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Rounds without combat should NOT call render_action_frame."""
+        from unittest.mock import patch
+
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
+
+        with patch("time.sleep"), patch.object(
+            TerminalRenderer, "render_action_frame", return_value="action"
+        ) as mock_af, patch.object(
+            TerminalRenderer, "render_frame", return_value="resolve"
+        ), patch.object(
+            TerminalRenderer, "render_winner", return_value="winner"
+        ), patch.object(
+            TerminalRenderer, "render_final_frame", return_value="final"
+        ), patch.object(
+            TerminalRenderer, "render_standings", return_value="standings"
+        ), patch.object(
+            TerminalRenderer, "exit_alt_screen", return_value=""
+        ):
+            from agentgrounds.wars.cli.cmd_play import _play_back
+
+            _play_back(_MATCH_DATA_NO_COMBAT, 1000.0, "f.json")
+            mock_af.assert_not_called()
+
+    def test_no_fx_skips_action_frame_even_with_combat(
+        self, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """--no-fx should skip action sub-frames even for combat rounds."""
+        from unittest.mock import patch
+
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
+
+        with patch("time.sleep"), patch.object(
+            TerminalRenderer, "render_action_frame", return_value="action"
+        ) as mock_af, patch.object(
+            TerminalRenderer, "render_frame", return_value="resolve"
+        ), patch.object(
+            TerminalRenderer, "render_winner", return_value="winner"
+        ), patch.object(
+            TerminalRenderer, "render_final_frame", return_value="final"
+        ), patch.object(
+            TerminalRenderer, "render_standings", return_value="standings"
+        ), patch.object(
+            TerminalRenderer, "exit_alt_screen", return_value=""
+        ):
+            from agentgrounds.wars.cli.cmd_play import _play_back
+
+            _play_back(
+                _MATCH_DATA_WITH_COMBAT, 1000.0, "f.json", no_fx=True,
+            )
+            mock_af.assert_not_called()
+
+    def test_combat_round_timing_split(
+        self, monkeypatch: pytest.MonkeyPatch,
+    ) -> None:
+        """Combat rounds split delay: 30% action, 70% resolve."""
+        from unittest.mock import call, patch
+
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
+
+        with patch("time.sleep") as mock_sleep, patch.object(
+            TerminalRenderer, "render_action_frame", return_value="action"
+        ), patch.object(
+            TerminalRenderer, "render_frame", return_value="resolve"
+        ), patch.object(
+            TerminalRenderer, "render_winner", return_value="winner"
+        ), patch.object(
+            TerminalRenderer, "render_final_frame", return_value="final"
+        ), patch.object(
+            TerminalRenderer, "render_standings", return_value="standings"
+        ), patch.object(
+            TerminalRenderer, "exit_alt_screen", return_value=""
+        ):
+            from agentgrounds.wars.cli.cmd_play import _play_back
+
+            # speed=1.0 => delay=1.0 => action=0.3, resolve=0.7
+            _play_back(_MATCH_DATA_WITH_COMBAT, 1.0, "f.json")
+            sleep_calls = mock_sleep.call_args_list
+            assert call(pytest.approx(0.3, abs=0.01)) in sleep_calls
+            assert call(pytest.approx(0.7, abs=0.01)) in sleep_calls

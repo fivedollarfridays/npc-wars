@@ -213,7 +213,7 @@ def test_scaling_is_automatic():
 def test_calculate_damage_applies_bonus():
     """calculate_damage uses damage_bonus multiplier when active."""
     attacker = _make_bot(emoji="🗡️")
-    defender = _make_bot(emoji="🛡️")
+    defender = _make_bot(emoji="🐢")
     base_dmg = calculate_damage(attacker, defender)
 
     attacker.damage_bonus = {"multiplier": 1.5, "rounds_remaining": 3}
@@ -226,7 +226,7 @@ def test_calculate_damage_applies_bonus():
 def test_calculate_damage_no_bonus_when_expired():
     """calculate_damage ignores damage_bonus when rounds_remaining is 0."""
     attacker = _make_bot(emoji="🗡️")
-    defender = _make_bot(emoji="🛡️")
+    defender = _make_bot(emoji="🐢")
     base_dmg = calculate_damage(attacker, defender)
 
     attacker.damage_bonus = {"multiplier": 1.5, "rounds_remaining": 0}

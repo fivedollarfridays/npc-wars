@@ -36,11 +36,11 @@ class TestTiebreaker:
         """Two resting bots with no storm reach MAX_ROUNDS; winner by tiebreaker."""
         configs = [
             bot_config("Rester", "😴", always_rest),
-            bot_config("Chiller", "🛡️", always_rest),
+            bot_config("Chiller", "🐢", always_rest),
         ]
         data = run_match(configs, seed=1)
         assert data["duration_rounds"] == MAX_ROUNDS
-        assert data["winner"] in {"😴", "🛡️"}
+        assert data["winner"] in {"😴", "🐢"}
 
     @patch("engine.game.get_storm_border_for_mode", return_value=0)
     def test_three_bots_tiebreaker(self, _mock_storm):

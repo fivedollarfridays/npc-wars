@@ -70,13 +70,13 @@ def _resolve_combat_phases(
     round_num: int, grid_size: int, storm_border: int,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
     """Phases 2-7: defense, movement, attacks, storm, energy, deaths."""
-    resolve_defense(alive_bots, actions)
+    defend_events = resolve_defense(alive_bots, actions)
     bump_events = resolve_movement(
         alive_bots, actions, grid_size, all_bots=bots, storm_border=storm_border,
     )
     taunt_events = resolve_taunt(alive_bots, actions)
     pos_map = build_pos_map(alive_bots)
-    round_events = override_events + bump_events + resolve_attacks(alive_bots, actions, pos_map)
+    round_events = override_events + defend_events + bump_events + resolve_attacks(alive_bots, actions, pos_map)
     round_events.extend(taunt_events)
     round_events.extend(resolve_ranged_attacks(alive_bots, actions, pos_map))
     round_events.extend(apply_storm_damage(alive_bots, grid_size, storm_border))

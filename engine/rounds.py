@@ -123,13 +123,16 @@ def _apply_taunt_override(
     return action
 
 
-def resolve_defense(alive_bots: list[Bot], actions: _ActionsMap) -> None:
-    """Phase 2: Reset and apply defense bonuses."""
+def resolve_defense(alive_bots: list[Bot], actions: _ActionsMap) -> list[_Event]:
+    """Phase 2: Reset and apply defense bonuses; emit defend events."""
+    events: list[_Event] = []
     for bot in alive_bots:
         bot.defense = STARTING_DEFENSE
         action = actions.get(bot.emoji)
         if action and action[0] == "defend":
             bot.defense = DEFEND_BONUS
+            events.append({"type": "defend", "emoji": bot.emoji})
+    return events
 
 
 def resolve_movement(
