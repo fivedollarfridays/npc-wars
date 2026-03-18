@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from npcwars.helpers import Enemies
+from agentgrounds.wars.helpers import Enemies
 
 
 def _make_state(mx: int = 5, my: int = 5, enemies: list | None = None) -> dict:

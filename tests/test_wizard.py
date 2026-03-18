@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from npcwars.presets import PRESET_NAMES
+from agentgrounds.wars.presets import PRESET_NAMES
 from wizard import build_bot_source, validate_inputs
 
 _PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
