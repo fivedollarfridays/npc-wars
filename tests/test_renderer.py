@@ -3,6 +3,16 @@ from __future__ import annotations
 
 import pytest
 
+from agentgrounds.wars.cli.overlay import build_combat_overlay
+from agentgrounds.wars.cli.renderer import (
+    DEFEND_FX,
+    WEAPON_FX,
+    TerminalRenderer,
+    _GREEN,
+    _RED,
+    _YELLOW,
+)
+
 
 # -- Fixtures ----------------------------------------------------------
 
@@ -36,15 +46,11 @@ def round_data() -> dict:
 
 class TestFrameBasics:
     def test_render_frame_contains_title(self, players, round_data):
-        from agentgrounds.wars.cli.renderer import TerminalRenderer
-
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_frame(round_data, clear=False)
         assert "N P C   W A R S" in output
 
     def test_render_frame_contains_round_number(self, players, round_data):
-        from agentgrounds.wars.cli.renderer import TerminalRenderer
-
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_frame(round_data, clear=False)
         assert "Round 15" in output
@@ -54,8 +60,6 @@ class TestFrameBasics:
 
 class TestBotDisplay:
     def test_render_frame_contains_bot_emojis(self, players, round_data):
-        from agentgrounds.wars.cli.renderer import TerminalRenderer
-
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_frame(round_data, clear=False)
         # Alive bots should appear in roster
@@ -63,8 +67,6 @@ class TestBotDisplay:
         assert "\U0001f916" in output  # 🤖
 
     def test_render_frame_shows_dead_bots_as_eliminated(self, players, round_data):
-        from agentgrounds.wars.cli.renderer import TerminalRenderer
-
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_frame(round_data, clear=False)
         assert "ELIMINATED" in output
@@ -76,8 +78,6 @@ class TestBotDisplay:
 
 class TestHpBars:
     def test_render_frame_contains_hp_bars(self, players, round_data):
-        from agentgrounds.wars.cli.renderer import TerminalRenderer
-
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_frame(round_data, clear=False)
         # Should contain filled bar chars and hp values
@@ -85,20 +85,20 @@ class TestHpBars:
         assert "\u2588" in output  # █ filled bar character
 
     def test_hp_bar_green_above_50(self):
-        from agentgrounds.wars.cli.renderer import TerminalRenderer, _GREEN
+
 
         bar = TerminalRenderer._hp_bar(80)
         assert _GREEN in bar
         assert "\u2588" in bar  # █
 
     def test_hp_bar_yellow_25_to_50(self):
-        from agentgrounds.wars.cli.renderer import TerminalRenderer, _YELLOW
+
 
         bar = TerminalRenderer._hp_bar(40)
         assert _YELLOW in bar
 
     def test_hp_bar_red_below_25(self):
-        from agentgrounds.wars.cli.renderer import TerminalRenderer, _RED
+
 
         bar = TerminalRenderer._hp_bar(15)
         assert _RED in bar
@@ -108,15 +108,13 @@ class TestHpBars:
 
 class TestStormBorder:
     def test_render_frame_shows_storm_border(self, players, round_data):
-        from agentgrounds.wars.cli.renderer import TerminalRenderer
-
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_frame(round_data, clear=False)
         # Storm character should appear in the grid
         assert "\u2593" in output  # ▓
 
     def test_storm_zero_has_only_border(self, players):
-        from agentgrounds.wars.cli.renderer import TerminalRenderer
+
 
         rd = {
             "round": 1,
@@ -138,8 +136,6 @@ class TestStormBorder:
 
 class TestKillFeed:
     def test_kill_feed_accumulates(self, players, round_data):
-        from agentgrounds.wars.cli.renderer import TerminalRenderer
-
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_frame(round_data, clear=False)
         assert "Kill Feed" in output
@@ -150,8 +146,6 @@ class TestKillFeed:
 
     def test_kill_feed_shows_max_five(self, players):
         """Feed should only show the last 5 entries."""
-        from agentgrounds.wars.cli.renderer import TerminalRenderer
-
         renderer = TerminalRenderer(players=players, grid_size=10)
         base_pos = [
             {"emoji": "\U0001f480", "x": 3, "y": 5, "hp": 80, "energy": 60, "action": "attack", "alive": True},
@@ -180,8 +174,6 @@ class TestKillFeed:
 
 class TestWinnerBanner:
     def test_render_winner_banner(self, players):
-        from agentgrounds.wars.cli.renderer import TerminalRenderer
-
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_winner("\U0001f480", duration=25)
         assert "WINNER" in output
@@ -194,7 +186,7 @@ class TestWinnerBanner:
 class TestGridSizes:
     @pytest.mark.parametrize("gs", [10, 11, 12])
     def test_grid_sizes_10_11_12(self, players, gs):
-        from agentgrounds.wars.cli.renderer import TerminalRenderer
+
 
         rd = {
             "round": 1,
@@ -214,3 +206,201 @@ class TestGridSizes:
         grid_lines = [line for line in output.split("\n") if "\u2593\u2593" in line]
         # Top border + gs rows + bottom border = gs + 2
         assert len(grid_lines) == gs + 2
+
+
+# -- Cycle 8: Sub-frame constants -----------------------------------------
+
+class TestSubFrameConstants:
+    def test_weapon_fx_has_melee_key(self):
+
+
+        assert "melee" in WEAPON_FX
+
+    def test_weapon_fx_has_ranged_key(self):
+
+
+        assert "ranged" in WEAPON_FX
+
+    def test_weapon_fx_has_default_key(self):
+
+
+        assert "default" in WEAPON_FX
+
+    def test_defend_fx_constant_exists(self):
+
+
+        assert DEFEND_FX == "\U0001f6e1\ufe0f"  # 🛡️
+
+
+# -- Cycle 9: has_combat_events -------------------------------------------
+
+class TestHasCombatEvents:
+    def test_returns_true_for_hit_event(self, players):
+        renderer = TerminalRenderer(players=players, grid_size=10)
+        rd = {"round": 1, "storm_border": 0, "positions": [], "events": [
+            {"type": "hit", "attacker": "\U0001f480", "target": "\U0001f916", "damage": 10},
+        ]}
+        assert renderer.has_combat_events(rd) is True
+
+    def test_returns_true_for_defend_event(self, players):
+        renderer = TerminalRenderer(players=players, grid_size=10)
+        rd = {"round": 1, "storm_border": 0, "positions": [], "events": [
+            {"type": "defend", "bot": "\U0001f916"},
+        ]}
+        assert renderer.has_combat_events(rd) is True
+
+    def test_returns_true_for_ranged_hit(self, players):
+        renderer = TerminalRenderer(players=players, grid_size=10)
+        rd = {"round": 1, "storm_border": 0, "positions": [], "events": [
+            {"type": "ranged_hit", "attacker": "\U0001f480", "target": "\U0001f916", "damage": 5},
+        ]}
+        assert renderer.has_combat_events(rd) is True
+
+    def test_returns_false_for_no_combat(self, players):
+        renderer = TerminalRenderer(players=players, grid_size=10)
+        rd = {"round": 1, "storm_border": 0, "positions": [], "events": [
+            {"type": "storm_damage", "bot": "\U0001f480", "damage": 5},
+        ]}
+        assert renderer.has_combat_events(rd) is False
+
+    def test_returns_false_for_empty_events(self, players):
+        renderer = TerminalRenderer(players=players, grid_size=10)
+        rd = {"round": 1, "storm_border": 0, "positions": [], "events": []}
+        assert renderer.has_combat_events(rd) is False
+
+
+# -- Cycle 10: Combat overlay --------------------------------------------
+
+class TestCombatOverlay:
+    """Test _build_combat_overlay produces correct FX placements."""
+
+    def test_melee_hit_places_fx_on_attacker_cell_when_adjacent(self, players):
+        """When attacker is adjacent to target, FX goes on attacker's cell."""
+        positions = [
+            {"emoji": "\U0001f480", "x": 3, "y": 5, "hp": 80, "energy": 60, "action": "attack", "alive": True},
+            {"emoji": "\U0001f916", "x": 3, "y": 4, "hp": 45, "energy": 20, "action": "rest", "alive": True},
+        ]
+        events = [{"type": "hit", "attacker": "\U0001f480", "target": "\U0001f916", "damage": 25}]
+        overlay = build_combat_overlay(positions, events)
+        # Attacker at (3,5), target at (3,4) — adjacent, so FX on attacker (3,5)
+        assert (3, 5) in overlay
+        assert overlay[(3, 5)] == WEAPON_FX["melee"]
+
+    def test_ranged_hit_places_fx_at_midpoint(self, players):
+        """For ranged attacks, FX goes at the midpoint between attacker and target."""
+        positions = [
+            {"emoji": "\U0001f480", "x": 2, "y": 2, "hp": 80, "energy": 60, "action": "attack", "alive": True},
+            {"emoji": "\U0001f916", "x": 6, "y": 2, "hp": 45, "energy": 20, "action": "rest", "alive": True},
+        ]
+        events = [{"type": "ranged_hit", "attacker": "\U0001f480", "target": "\U0001f916", "damage": 10}]
+        overlay = build_combat_overlay(positions, events)
+        # Midpoint of (2,2) and (6,2) is (4,2)
+        assert (4, 2) in overlay
+        assert overlay[(4, 2)] == WEAPON_FX["ranged"]
+
+    def test_defend_event_places_shield_on_defender(self, players):
+        """Defend event places shield FX on the defender's cell."""
+        positions = [
+            {"emoji": "\U0001f480", "x": 3, "y": 5, "hp": 80, "energy": 60, "action": "attack", "alive": True},
+            {"emoji": "\U0001f916", "x": 5, "y": 5, "hp": 45, "energy": 20, "action": "defend", "alive": True},
+        ]
+        events = [{"type": "defend", "emoji": "\U0001f916"}]
+        overlay = build_combat_overlay(positions, events)
+        assert (5, 5) in overlay
+        assert overlay[(5, 5)] == DEFEND_FX
+
+    def test_miss_places_fx_on_attacker(self, players):
+        """Miss places FX on attacker's cell (no valid target hit)."""
+        positions = [
+            {"emoji": "\U0001f480", "x": 3, "y": 5, "hp": 80, "energy": 60, "action": "attack", "alive": True},
+            {"emoji": "\U0001f916", "x": 3, "y": 2, "hp": 45, "energy": 20, "action": "rest", "alive": True},
+        ]
+        events = [{"type": "miss", "attacker": "\U0001f480", "direction": "north"}]
+        overlay = build_combat_overlay(positions, events)
+        # Miss — FX at attacker position (3,5)
+        assert (3, 5) in overlay
+        assert overlay[(3, 5)] == WEAPON_FX["melee"]
+
+    def test_no_events_returns_empty_overlay(self, players):
+        overlay = build_combat_overlay([], [])
+        assert overlay == {}
+
+
+# -- Cycle 11: render_action_frame ----------------------------------------
+
+class TestRenderActionFrame:
+    def test_action_frame_shows_melee_fx(self, players):
+        """Action frame should contain the melee weapon FX character."""
+
+
+        renderer = TerminalRenderer(players=players, grid_size=10)
+        rd = {
+            "round": 5,
+            "storm_border": 0,
+            "positions": [
+                {"emoji": "\U0001f480", "x": 3, "y": 5, "hp": 80, "energy": 60, "action": "attack", "alive": True},
+                {"emoji": "\U0001f916", "x": 3, "y": 4, "hp": 45, "energy": 20, "action": "rest", "alive": True},
+                {"emoji": "\U0001f3af", "x": 8, "y": 8, "hp": 30, "energy": 10, "action": "rest", "alive": True},
+            ],
+            "events": [{"type": "hit", "attacker": "\U0001f480", "target": "\U0001f916", "damage": 25}],
+        }
+        output = renderer.render_action_frame(rd, clear=False)
+        assert WEAPON_FX["melee"] in output
+
+    def test_action_frame_shows_defend_fx(self, players):
+        """Action frame should contain the defend FX character."""
+
+
+        renderer = TerminalRenderer(players=players, grid_size=10)
+        rd = {
+            "round": 5,
+            "storm_border": 0,
+            "positions": [
+                {"emoji": "\U0001f480", "x": 3, "y": 5, "hp": 80, "energy": 60, "action": "attack", "alive": True},
+                {"emoji": "\U0001f916", "x": 5, "y": 5, "hp": 45, "energy": 20, "action": "defend", "alive": True},
+                {"emoji": "\U0001f3af", "x": 8, "y": 8, "hp": 30, "energy": 10, "action": "rest", "alive": True},
+            ],
+            "events": [{"type": "defend", "bot": "\U0001f916"}],
+        }
+        output = renderer.render_action_frame(rd, clear=False)
+        assert DEFEND_FX in output
+
+    def test_action_frame_no_combat_same_as_render_frame(self, players):
+        """When no combat events, action frame matches render frame."""
+
+
+        rd = {
+            "round": 3,
+            "storm_border": 0,
+            "positions": [
+                {"emoji": "\U0001f480", "x": 3, "y": 5, "hp": 80, "energy": 60, "action": "rest", "alive": True},
+                {"emoji": "\U0001f916", "x": 7, "y": 2, "hp": 45, "energy": 20, "action": "rest", "alive": True},
+                {"emoji": "\U0001f3af", "x": 8, "y": 8, "hp": 30, "energy": 10, "action": "rest", "alive": True},
+            ],
+            "events": [],
+        }
+        # Use two fresh renderers to avoid kill feed state differences
+        r1 = TerminalRenderer(players=players, grid_size=10)
+        r2 = TerminalRenderer(players=players, grid_size=10)
+        frame = r1.render_frame(rd, clear=False)
+        action_frame = r2.render_action_frame(rd, clear=False)
+        assert frame == action_frame
+
+    def test_action_frame_preserves_bot_emojis(self, players):
+        """Bot emojis should still be visible in the action frame."""
+        renderer = TerminalRenderer(players=players, grid_size=10)
+        rd = {
+            "round": 5,
+            "storm_border": 0,
+            "positions": [
+                {"emoji": "\U0001f480", "x": 3, "y": 5, "hp": 80, "energy": 60, "action": "attack", "alive": True},
+                {"emoji": "\U0001f916", "x": 3, "y": 4, "hp": 45, "energy": 20, "action": "rest", "alive": True},
+                {"emoji": "\U0001f3af", "x": 8, "y": 8, "hp": 30, "energy": 10, "action": "rest", "alive": True},
+            ],
+            "events": [{"type": "hit", "attacker": "\U0001f480", "target": "\U0001f916", "damage": 25}],
+        }
+        output = renderer.render_action_frame(rd, clear=False)
+        # All alive bot emojis should be present
+        assert "\U0001f480" in output
+        assert "\U0001f916" in output
+        assert "\U0001f3af" in output

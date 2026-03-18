@@ -4,6 +4,10 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from agentgrounds.wars.cli.renderer import TerminalRenderer
 
 __all__ = ["register", "run"]
 
@@ -29,6 +33,10 @@ def register(subparsers: argparse._SubParsersAction) -> None:
         "--no-watch", action="store_true",
         help="Skip terminal playback, just print summary",
     )
+    p.add_argument(
+        "--no-fx", action="store_true",
+        help="Disable combat animation sub-frames",
+    )
     p.set_defaults(func=run)
 
 
@@ -51,7 +59,7 @@ def run(args: argparse.Namespace) -> None:
         _print_summary(match_data, filepath)
         return
 
-    _play_back(match_data, args.speed, filepath)
+    _play_back(match_data, args.speed, filepath, no_fx=args.no_fx)
 
 
 def _validate_bots(bots_dir: Path) -> bool:
@@ -102,7 +110,13 @@ def _print_summary(match_data: dict, filepath: str) -> None:
     print(f"Winner: {winner} | Rounds: {duration} | Saved: {filepath}")
 
 
-def _play_back(match_data: dict, speed: float, filepath: str) -> None:
+def _play_back(
+    match_data: dict,
+    speed: float,
+    filepath: str,
+    *,
+    no_fx: bool = False,
+) -> None:
     """Play back the match in the terminal with ANSI renderer."""
     import time
 
@@ -113,13 +127,50 @@ def _play_back(match_data: dict, speed: float, filepath: str) -> None:
     renderer = TerminalRenderer(players, grid_size)
 
     delay = 1.0 / max(0.01, speed)
-    for round_data in match_data.get("rounds", []):
-        frame = renderer.render_frame(round_data, clear=True)
-        print(frame, flush=True)
-        time.sleep(delay)
+    action_delay = delay * 0.3
+    resolve_delay = delay * 0.7
+
+    try:
+        for round_data in match_data.get("rounds", []):
+            has_combat = (
+                not no_fx and TerminalRenderer.has_combat_events(round_data)
+            )
+            if has_combat:
+                action_frame = renderer.render_action_frame(
+                    round_data, clear=True,
+                )
+                print(action_frame, flush=True)
+                time.sleep(action_delay)
+            frame = renderer.render_frame(round_data, clear=True)
+            print(frame, flush=True)
+            time.sleep(resolve_delay if has_combat else delay)
+    except KeyboardInterrupt:
+        print(renderer.exit_alt_screen(), end="", flush=True)
+        print("\nInterrupted.")
+        return
+
+    _show_endgame(renderer, match_data, speed, filepath)
+
+
+def _show_endgame(
+    renderer: TerminalRenderer, match_data: dict, speed: float, filepath: str,
+) -> None:
+    """Show final board state then persistent summary in normal scrollback."""
+    import time
 
     winner = match_data.get("winner", "?")
     duration = match_data.get("duration_rounds", 0)
+    rounds = match_data.get("rounds", [])
+
+    # Show final board state in alt screen with winner highlighted
+    if rounds:
+        final_frame = renderer.render_final_frame(rounds[-1], winner)
+        print(final_frame, flush=True)
+        time.sleep(2.0 / max(0.01, speed))
+
+    # Exit alt screen, print persistent summary to normal scrollback
+    print(renderer.exit_alt_screen(), end="", flush=True)
     print(renderer.render_winner(winner, duration))
+    print(renderer.render_standings(match_data))
     print(f"  Replay saved: {filepath}")
     print(f"  Re-watch: agentgrounds wars watch {filepath} --speed 4")
