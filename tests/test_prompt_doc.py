@@ -58,7 +58,7 @@ def test_prompt_contains_helpers_api() -> None:
     # Must mention the three helper classes
     for cls in ("Me", "Enemies", "Storm"):
         assert cls in text, f"PROMPT.md must mention the {cls} helper class"
-    # Must mention importing from npcwars.helpers
-    assert "npcwars.helpers" in text, (
-        "PROMPT.md must show how to import helpers from npcwars.helpers"
+    # Must mention importing from agentgrounds.wars.helpers
+    assert "agentgrounds.wars.helpers" in text, (
+        "PROMPT.md must show how to import helpers from agentgrounds.wars.helpers"
     )

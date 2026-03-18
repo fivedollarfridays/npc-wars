@@ -9,7 +9,7 @@ import random
 BOT_NAME = "Starter"
 BOT_EMOJI = "\U0001f31f"
 BOT_BIO = "A solid foundation -- tweak the TODOs to make it your own"
-BOT_AUTHOR = "npcwars"
+BOT_AUTHOR = "agentgrounds"
 
 # ── Tuning knobs ────────────────────────────────────────────
 # TODO: Change these constants to reshape the bot's personality.
@@ -94,7 +94,7 @@ def _chase_or_position(me, enemies, state):
 
 def decide(state):
     """Called every round. Uses the helpers DSL for clean code."""
-    from npcwars.helpers import Me, Enemies, Storm
+    from agentgrounds.wars.helpers import Me, Enemies, Storm
 
     me = Me(state)
     enemies = Enemies(state)

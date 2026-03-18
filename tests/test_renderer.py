@@ -36,14 +36,14 @@ def round_data() -> dict:
 
 class TestFrameBasics:
     def test_render_frame_contains_title(self, players, round_data):
-        from npcwars.cli.renderer import TerminalRenderer
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
 
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_frame(round_data, clear=False)
         assert "N P C   W A R S" in output
 
     def test_render_frame_contains_round_number(self, players, round_data):
-        from npcwars.cli.renderer import TerminalRenderer
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
 
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_frame(round_data, clear=False)
@@ -54,7 +54,7 @@ class TestFrameBasics:
 
 class TestBotDisplay:
     def test_render_frame_contains_bot_emojis(self, players, round_data):
-        from npcwars.cli.renderer import TerminalRenderer
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
 
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_frame(round_data, clear=False)
@@ -63,7 +63,7 @@ class TestBotDisplay:
         assert "\U0001f916" in output  # 🤖
 
     def test_render_frame_shows_dead_bots_as_eliminated(self, players, round_data):
-        from npcwars.cli.renderer import TerminalRenderer
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
 
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_frame(round_data, clear=False)
@@ -76,7 +76,7 @@ class TestBotDisplay:
 
 class TestHpBars:
     def test_render_frame_contains_hp_bars(self, players, round_data):
-        from npcwars.cli.renderer import TerminalRenderer
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
 
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_frame(round_data, clear=False)
@@ -85,20 +85,20 @@ class TestHpBars:
         assert "\u2588" in output  # █ filled bar character
 
     def test_hp_bar_green_above_50(self):
-        from npcwars.cli.renderer import TerminalRenderer, _GREEN
+        from agentgrounds.wars.cli.renderer import TerminalRenderer, _GREEN
 
         bar = TerminalRenderer._hp_bar(80)
         assert _GREEN in bar
         assert "\u2588" in bar  # █
 
     def test_hp_bar_yellow_25_to_50(self):
-        from npcwars.cli.renderer import TerminalRenderer, _YELLOW
+        from agentgrounds.wars.cli.renderer import TerminalRenderer, _YELLOW
 
         bar = TerminalRenderer._hp_bar(40)
         assert _YELLOW in bar
 
     def test_hp_bar_red_below_25(self):
-        from npcwars.cli.renderer import TerminalRenderer, _RED
+        from agentgrounds.wars.cli.renderer import TerminalRenderer, _RED
 
         bar = TerminalRenderer._hp_bar(15)
         assert _RED in bar
@@ -108,7 +108,7 @@ class TestHpBars:
 
 class TestStormBorder:
     def test_render_frame_shows_storm_border(self, players, round_data):
-        from npcwars.cli.renderer import TerminalRenderer
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
 
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_frame(round_data, clear=False)
@@ -116,7 +116,7 @@ class TestStormBorder:
         assert "\u2593" in output  # ▓
 
     def test_storm_zero_has_only_border(self, players):
-        from npcwars.cli.renderer import TerminalRenderer
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
 
         rd = {
             "round": 1,
@@ -138,7 +138,7 @@ class TestStormBorder:
 
 class TestKillFeed:
     def test_kill_feed_accumulates(self, players, round_data):
-        from npcwars.cli.renderer import TerminalRenderer
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
 
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_frame(round_data, clear=False)
@@ -150,7 +150,7 @@ class TestKillFeed:
 
     def test_kill_feed_shows_max_five(self, players):
         """Feed should only show the last 5 entries."""
-        from npcwars.cli.renderer import TerminalRenderer
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
 
         renderer = TerminalRenderer(players=players, grid_size=10)
         base_pos = [
@@ -180,7 +180,7 @@ class TestKillFeed:
 
 class TestWinnerBanner:
     def test_render_winner_banner(self, players):
-        from npcwars.cli.renderer import TerminalRenderer
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
 
         renderer = TerminalRenderer(players=players, grid_size=10)
         output = renderer.render_winner("\U0001f480", duration=25)
@@ -194,7 +194,7 @@ class TestWinnerBanner:
 class TestGridSizes:
     @pytest.mark.parametrize("gs", [10, 11, 12])
     def test_grid_sizes_10_11_12(self, players, gs):
-        from npcwars.cli.renderer import TerminalRenderer
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
 
         rd = {
             "round": 1,

@@ -30,21 +30,21 @@ class TestCLIRegistration:
 
     def test_help_includes_play(self) -> None:
         result = subprocess.run(
-            [sys.executable, "-m", "npcwars.cli", "--help"],
+            [sys.executable, "-m", "agentgrounds.wars.cli", "--help"],
             capture_output=True, text=True, cwd=str(PROJECT_ROOT),
         )
         assert "play" in result.stdout
 
     def test_help_includes_watch(self) -> None:
         result = subprocess.run(
-            [sys.executable, "-m", "npcwars.cli", "--help"],
+            [sys.executable, "-m", "agentgrounds.wars.cli", "--help"],
             capture_output=True, text=True, cwd=str(PROJECT_ROOT),
         )
         assert "watch" in result.stdout
 
     def test_help_includes_generate(self) -> None:
         result = subprocess.run(
-            [sys.executable, "-m", "npcwars.cli", "--help"],
+            [sys.executable, "-m", "agentgrounds.wars.cli", "--help"],
             capture_output=True, text=True, cwd=str(PROJECT_ROOT),
         )
         assert "generate" in result.stdout
@@ -57,7 +57,7 @@ class TestRendererOutput:
 
     @pytest.fixture()
     def renderer(self):
-        from npcwars.cli.renderer import TerminalRenderer
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
 
         players = [
             {"emoji": "\U0001f916", "name": "Alpha"},
@@ -134,7 +134,7 @@ class TestStarterBot:
 
     @pytest.fixture()
     def starter_source(self) -> str:
-        return (PROJECT_ROOT / "npcwars" / "builtin_bots" / "starter.py").read_text(
+        return (PROJECT_ROOT / "agentgrounds" / "wars" / "builtin_bots" / "starter.py").read_text(
             encoding="utf-8"
         )
 
@@ -142,7 +142,7 @@ class TestStarterBot:
         from scripts.validate_bot import validate_bot
 
         ok, errs = validate_bot(
-            str(PROJECT_ROOT / "npcwars" / "builtin_bots" / "starter.py")
+            str(PROJECT_ROOT / "agentgrounds" / "wars" / "builtin_bots" / "starter.py")
         )
         assert ok, f"Starter bot validation failed: {errs}"
 
@@ -151,10 +151,10 @@ class TestStarterBot:
         assert todo_count >= 7, f"Only {todo_count} TODOs, need >= 7"
 
     def test_uses_helpers_dsl(self, starter_source) -> None:
-        assert "from npcwars.helpers import" in starter_source
+        assert "from agentgrounds.wars.helpers import" in starter_source
 
     def test_exists_in_builtin_bots(self) -> None:
-        path = PROJECT_ROOT / "npcwars" / "builtin_bots" / "starter.py"
+        path = PROJECT_ROOT / "agentgrounds" / "wars" / "builtin_bots" / "starter.py"
         assert path.is_file()
 
     def test_has_required_metadata(self, starter_source) -> None:
@@ -169,7 +169,7 @@ class TestPlayE2E:
 
     def test_play_exits_zero_with_winner(self) -> None:
         result = subprocess.run(
-            [sys.executable, "-m", "npcwars.cli", "play", "--no-watch", "--seed", "42"],
+            [sys.executable, "-m", "agentgrounds.wars.cli", "play", "--no-watch", "--seed", "42"],
             capture_output=True, text=True, cwd=str(PROJECT_ROOT),
             timeout=60,
         )
@@ -217,7 +217,7 @@ class TestWatchE2E:
     def test_watch_exits_zero(self, fixture_json) -> None:
         result = subprocess.run(
             [
-                sys.executable, "-m", "npcwars.cli", "watch",
+                sys.executable, "-m", "agentgrounds.wars.cli", "watch",
                 str(fixture_json), "--speed", "100", "--no-clear",
             ],
             capture_output=True, text=True, cwd=str(PROJECT_ROOT),
@@ -235,7 +235,7 @@ class TestGenerateE2E:
 
     def test_generate_prints_prompt(self) -> None:
         result = subprocess.run(
-            [sys.executable, "-m", "npcwars.cli", "generate"],
+            [sys.executable, "-m", "agentgrounds.wars.cli", "generate"],
             capture_output=True, text=True, cwd=str(PROJECT_ROOT),
             timeout=15,
         )
@@ -255,11 +255,11 @@ class TestREADME:
     def readme_text(self) -> str:
         return (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
 
-    def test_mentions_npcwars_play(self, readme_text) -> None:
-        assert "npcwars play" in readme_text
+    def test_mentions_agentgrounds_wars_play(self, readme_text) -> None:
+        assert "agentgrounds wars play" in readme_text
 
-    def test_mentions_npcwars_generate(self, readme_text) -> None:
-        assert "npcwars generate" in readme_text
+    def test_mentions_agentgrounds_wars_generate(self, readme_text) -> None:
+        assert "agentgrounds wars generate" in readme_text
 
     def test_mentions_prompt_md(self, readme_text) -> None:
         assert "PROMPT.md" in readme_text
@@ -274,31 +274,31 @@ class TestNoDeadCode:
     """TerminalRenderer, cmd_play, cmd_watch, cmd_generate all imported."""
 
     def test_terminal_renderer_importable(self) -> None:
-        from npcwars.cli.renderer import TerminalRenderer
+        from agentgrounds.wars.cli.renderer import TerminalRenderer
 
         assert TerminalRenderer is not None
 
     def test_cmd_play_registered(self) -> None:
-        from npcwars.cli import cmd_play
+        from agentgrounds.wars.cli import cmd_play
 
         assert hasattr(cmd_play, "register")
         assert hasattr(cmd_play, "run")
 
     def test_cmd_watch_registered(self) -> None:
-        from npcwars.cli import cmd_watch
+        from agentgrounds.wars.cli import cmd_watch
 
         assert hasattr(cmd_watch, "register")
         assert hasattr(cmd_watch, "run")
 
     def test_cmd_generate_registered(self) -> None:
-        from npcwars.cli import cmd_generate
+        from agentgrounds.wars.cli import cmd_generate
 
         assert hasattr(cmd_generate, "register")
         assert hasattr(cmd_generate, "run")
 
     def test_all_commands_wired_in_init(self) -> None:
         """Verify __init__.py imports all S20 modules."""
-        init_src = (PROJECT_ROOT / "npcwars" / "cli" / "__init__.py").read_text(
+        init_src = (PROJECT_ROOT / "agentgrounds" / "wars" / "cli" / "__init__.py").read_text(
             encoding="utf-8"
         )
         assert "cmd_play" in init_src

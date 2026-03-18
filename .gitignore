@@ -20,3 +20,7 @@ youtube/client_secrets.json
 
 # Player profile data (generated at runtime)
 profiles.json
+
+# Sim output (only commit summaries)
+docs/sim-baseline/match_*.json
+sim_results/

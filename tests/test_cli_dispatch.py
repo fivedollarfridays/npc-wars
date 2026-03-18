@@ -11,7 +11,7 @@ def _run_main(argv: list[str], capsys: pytest.CaptureFixture[str]) -> tuple[str,
     For missing/bad subcommands it raises SystemExit(2).
     For stub handlers it raises SystemExit(1).
     """
-    from npcwars.cli import main
+    from agentgrounds.wars.cli import main
 
     try:
         main(argv)
@@ -38,8 +38,8 @@ class TestHelpAndVersion:
 
     def test_version_contains_version_string(self, capsys: pytest.CaptureFixture[str]) -> None:
         out, code = _run_main(["--version"], capsys)
-        # Should contain "npcwars" and some version-like string (digits or "dev")
-        assert "npcwars" in out
+        # Should contain "agentgrounds" and some version-like string (digits or "dev")
+        assert "agentgrounds" in out
 
 
 class TestSubcommandHelp:

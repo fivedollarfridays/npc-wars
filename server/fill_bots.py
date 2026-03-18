@@ -5,7 +5,7 @@ from __future__ import annotations
 import textwrap
 from typing import Any
 
-from npcwars.presets import PRESET_NAMES, generate_preset
+from agentgrounds.wars.presets import PRESET_NAMES, generate_preset
 
 __all__ = ["AI_EMOJI_POOL", "generate_fill_bots"]
 

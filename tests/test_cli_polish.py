@@ -7,22 +7,22 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def test_init_includes_starter() -> None:
-    """After npcwars init, starter.py should exist in bots/."""
-    from npcwars.builtin_bots import BUILTIN_NAMES
+    """After agentgrounds wars init, starter.py should exist in bots/."""
+    from agentgrounds.wars.builtin_bots import BUILTIN_NAMES
 
     assert "starter" in BUILTIN_NAMES
 
 
 def test_readme_mentions_play() -> None:
-    """README quick start uses 'npcwars play' as primary command."""
+    """README quick start uses 'agentgrounds wars play' as primary command."""
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "npcwars play" in readme
+    assert "agentgrounds wars play" in readme
 
 
 def test_readme_mentions_generate() -> None:
     """README mentions the generate command."""
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "npcwars generate" in readme
+    assert "agentgrounds wars generate" in readme
 
 
 def test_readme_mentions_prompt() -> None:
@@ -44,14 +44,14 @@ def test_readme_no_wizard_in_quickstart() -> None:
     qs_start = readme.index("## Quick Start")
     qs_end = readme.index("##", qs_start + 1)
     quickstart = readme[qs_start:qs_end]
-    assert "npcwars play" in quickstart
-    assert "npcwars wizard" not in quickstart
+    assert "agentgrounds wars play" in quickstart
+    assert "agentgrounds wars wizard" not in quickstart
 
 
 def test_contributing_mentions_generate() -> None:
     """CONTRIBUTING.md mentions the generate command."""
     contrib = (ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8")
-    assert "npcwars generate" in contrib
+    assert "agentgrounds wars generate" in contrib
 
 
 def test_contributing_mentions_prompt_md() -> None:

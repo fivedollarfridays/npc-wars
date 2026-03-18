@@ -14,7 +14,7 @@ import sys
 import textwrap
 from pathlib import Path
 
-from npcwars.presets import PRESET_NAMES, generate_preset
+from agentgrounds.wars.presets import PRESET_NAMES, generate_preset
 
 __all__ = [
     "build_bot_source",
