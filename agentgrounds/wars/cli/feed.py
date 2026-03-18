@@ -28,14 +28,14 @@ def format_feed_event(evt: dict, rnd: int) -> str | None:
 def _fmt_hit(evt: dict, rnd: int) -> str:
     return (
         f"  {_RED}R{rnd}:{_RST} {evt['attacker']} \u2192 "
-        f"{evt['target']} {_RED}-{evt.get('damage', '?')}hp{_RST}"
+        f"{evt['target']} \U0001f4a5 {_RED}-{evt.get('damage', '?')}hp{_RST}"
     )
 
 
 def _fmt_kill(evt: dict, rnd: int) -> str:
     return (
         f"  {_RED}{_BOLD}R{rnd}: {evt.get('attacker', '?')} "
-        f"eliminated {evt.get('victim', '?')}{_RST}"
+        f"\U0001f480\U0001f525 eliminated {evt.get('victim', '?')}{_RST}"
     )
 
 
@@ -49,7 +49,7 @@ def _fmt_bump(evt: dict, rnd: int) -> str:
 def _fmt_miss(evt: dict, rnd: int) -> str:
     return (
         f"  {_DIM}R{rnd}:{_RST} {evt.get('attacker', '?')} "
-        f"\u2694\ufe0f missed {evt.get('direction', '?')}"
+        f"\U0001f4a8 missed {evt.get('direction', '?')}"
     )
 
 
@@ -61,6 +61,12 @@ def _fmt_ranged_miss(evt: dict, rnd: int) -> str:
 
 
 def _fmt_defend(evt: dict, rnd: int) -> str:
+    blocked = evt.get("blocked", False)
+    if blocked:
+        return (
+            f"  {_BLUE}R{rnd}:{_RST} {evt.get('emoji', '?')} "
+            f"\U0001f6e1\ufe0f blocked! \u2728"
+        )
     return (
         f"  {_BLUE}R{rnd}:{_RST} {evt.get('emoji', '?')} "
         f"\U0001f6e1\ufe0f defending"

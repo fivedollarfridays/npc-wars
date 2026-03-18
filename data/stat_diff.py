@@ -7,6 +7,7 @@ files to compute lifetime averages before diffing.
 __all__ = ["compute_diff", "inject_diff_data"]
 
 _LOWER_IS_BETTER = frozenset({"damage_taken"})
+_SKIP_KEYS = frozenset({"momentum_name"})  # non-numeric stat fields
 
 
 def compute_diff(
@@ -29,7 +30,7 @@ def compute_diff(
     if not lifetime_avg:
         return _first_match_result(current_stats)
 
-    all_keys = set(lifetime_avg) | set(current_stats)
+    all_keys = (set(lifetime_avg) | set(current_stats)) - _SKIP_KEYS
     return {
         key: _diff_single(
             lifetime_avg.get(key, 0.0),
@@ -44,6 +45,8 @@ def _first_match_result(current_stats: dict[str, float]) -> dict:
     """Build result for a player's first match (no lifetime data)."""
     result: dict = {"first_match": True}
     for key, value in current_stats.items():
+        if key in _SKIP_KEYS:
+            continue
         result[key] = {
             "classification": "improved",
             "delta": None,

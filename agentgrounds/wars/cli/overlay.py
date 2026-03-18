@@ -3,6 +3,14 @@ from __future__ import annotations
 
 from agentgrounds.wars.cli.renderer import DEFEND_FX, WEAPON_FX
 
+# ANSI codes for aura effects
+_RST = "\033[0m"
+_BOLD = "\033[1m"
+_RED = "\033[31m"
+_YELLOW = "\033[33m"
+
+_ADJACENTS = ((1, 0), (-1, 0), (0, 1), (0, -1))
+
 
 def build_combat_overlay(
     positions: list[dict],
@@ -16,17 +24,21 @@ def build_combat_overlay(
     emoji_pos: dict[str, tuple[int, int]] = {
         p["emoji"]: (p["x"], p["y"]) for p in positions if p["alive"]
     }
+    # Pre-compute kill victims and hit targets for upgrade logic
+    kill_victims = _kill_victims(events)
+    hit_targets = _hit_targets(events)
+
     overlay: dict[tuple[int, int], str] = {}
     for evt in events:
         etype = evt.get("type")
         if etype == "hit":
-            _overlay_melee(emoji_pos, evt, overlay)
+            _overlay_melee(emoji_pos, evt, overlay, kill_victims)
         elif etype == "miss":
             _overlay_miss(emoji_pos, evt, overlay)
         elif etype in ("ranged_hit", "ranged_miss"):
             _overlay_ranged(emoji_pos, evt, overlay)
         elif etype == "defend":
-            _overlay_defend(emoji_pos, evt, overlay)
+            _overlay_defend(emoji_pos, evt, overlay, hit_targets)
     return overlay
 
 
@@ -34,19 +46,22 @@ def _overlay_melee(
     emoji_pos: dict[str, tuple[int, int]],
     evt: dict,
     overlay: dict[tuple[int, int], str],
+    kill_victims: frozenset[str],
 ) -> None:
     atk = emoji_pos.get(evt.get("attacker", ""))
     tgt = emoji_pos.get(evt.get("target", ""))
+    target_emoji = evt.get("target", "")
+    fx = WEAPON_FX["kill"] if target_emoji in kill_victims else WEAPON_FX["melee"]
     if atk and tgt:
         dx = tgt[0] - atk[0]
         dy = tgt[1] - atk[1]
         dist = abs(dx) + abs(dy)
         if dist <= 1:
-            overlay[atk] = WEAPON_FX["melee"]
+            overlay[atk] = fx
         else:
             sx = 1 if dx > 0 else -1 if dx < 0 else 0
             sy = 1 if dy > 0 else -1 if dy < 0 else 0
-            overlay[(atk[0] + sx, atk[1] + sy)] = WEAPON_FX["melee"]
+            overlay[(atk[0] + sx, atk[1] + sy)] = fx
 
 
 def _overlay_miss(
@@ -54,10 +69,10 @@ def _overlay_miss(
     evt: dict,
     overlay: dict[tuple[int, int], str],
 ) -> None:
-    """Show weapon FX at attacker position for misses (no target on grid)."""
+    """Show miss FX at attacker position for misses (no target on grid)."""
     atk = emoji_pos.get(evt.get("attacker", ""))
     if atk:
-        overlay[atk] = WEAPON_FX["melee"]
+        overlay[atk] = WEAPON_FX["miss"]
 
 
 def _overlay_ranged(
@@ -76,7 +91,58 @@ def _overlay_defend(
     emoji_pos: dict[str, tuple[int, int]],
     evt: dict,
     overlay: dict[tuple[int, int], str],
+    hit_targets: frozenset[str],
 ) -> None:
-    bot = emoji_pos.get(evt.get("emoji", ""))
+    bot_emoji = evt.get("emoji", "")
+    bot = emoji_pos.get(bot_emoji)
     if bot:
-        overlay[bot] = DEFEND_FX
+        fx = WEAPON_FX["defend_block"] if bot_emoji in hit_targets else DEFEND_FX
+        overlay[bot] = fx
+
+
+def _kill_victims(events: list[dict]) -> frozenset[str]:
+    """Return set of emojis that appear as kill victims this round."""
+    return frozenset(
+        evt.get("victim", "") for evt in events if evt.get("type") == "kill"
+    )
+
+
+def _hit_targets(events: list[dict]) -> frozenset[str]:
+    """Return set of emojis that appear as hit targets this round."""
+    return frozenset(
+        evt.get("target", "") for evt in events if evt.get("type") == "hit"
+    )
+
+
+def build_aura_overlay(
+    positions: list[dict],
+    grid_size: int,
+    storm_border: int,
+) -> dict[tuple[int, int], str]:
+    """Build overlay of colored dots around tier 3+ bots.
+
+    Tier 3: dim yellow dot on adjacent empty cells.
+    Tier 4: bold red dot on adjacent empty cells.
+    """
+    occupied: set[tuple[int, int]] = {
+        (p["x"], p["y"]) for p in positions if p["alive"]
+    }
+    overlay: dict[tuple[int, int], str] = {}
+    for p in positions:
+        if not p["alive"] or p.get("momentum_tier", 0) < 3:
+            continue
+        tier = p["momentum_tier"]
+        dot = f"{_YELLOW}\u00b7{_RST}" if tier == 3 else f"{_BOLD}{_RED}\u00b7{_RST}"
+        bx, by = p["x"], p["y"]
+        for dx, dy in _ADJACENTS:
+            nx, ny = bx + dx, by + dy
+            if nx < 0 or ny < 0 or nx >= grid_size or ny >= grid_size:
+                continue
+            if nx < storm_border or ny < storm_border:
+                continue
+            if nx >= grid_size - storm_border or ny >= grid_size - storm_border:
+                continue
+            if (nx, ny) in occupied:
+                continue
+            overlay[(nx, ny)] = dot
+    return overlay

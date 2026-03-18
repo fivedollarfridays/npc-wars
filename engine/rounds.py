@@ -278,7 +278,8 @@ def apply_energy_and_rest(
         action = actions.get(bot.emoji)
         if action and action[0] == "rest":
             bot.hp = min(MAX_HP, bot.hp + REST_HEAL)
-            bot.energy = min(MAX_ENERGY, bot.energy + REST_ENERGY_RESTORE)
+            energy_restore = REST_ENERGY_RESTORE + bot.momentum_energy_bonus
+            bot.energy = min(MAX_ENERGY, bot.energy + energy_restore)
 
 
 def attribute_kills(
@@ -325,6 +326,7 @@ def build_round_record(
             "emoji": bot.emoji, "x": bot.x, "y": bot.y,
             "hp": bot.hp, "energy": bot.energy,
             "action": action_str, "alive": bot.alive,
+            "score": bot.score, "momentum_tier": bot.momentum_tier,
         })
     return {"round": round_num, "storm_border": storm_border,
             "positions": positions, "events": events}

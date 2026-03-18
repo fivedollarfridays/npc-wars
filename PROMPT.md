@@ -27,9 +27,13 @@ state = {
         "hp": 80,                  # 0-100
         "energy": 60,              # 0-100
         "attack_power": 25,        # base + round scaling
+        "score": 18,               # cumulative match score
+        "momentum_tier": 1,        # 0-4, see Momentum System
+        "momentum_name": "Momentum",  # tier display name
     },
     "enemies": [
-        {"x": 7, "y": 2, "hp": 45, "emoji": "🎯", "name": "Rival"},
+        {"x": 7, "y": 2, "hp": 45, "emoji": "🎯", "name": "Rival",
+         "score": 12, "momentum_tier": 1},
         # ... more living enemies
     ],
     "grid_size": 10,               # 10x10 grid
@@ -38,7 +42,7 @@ state = {
 }
 ```
 
-**Important:** Enemy energy is NOT visible. You can only see their position, HP, emoji, and name. Infer energy from behavior (low HP enemies are likely resting).
+**Important:** Enemy energy is NOT visible. You can see position, HP, emoji, name, score, and momentum tier. Infer energy from behavior (low HP enemies are likely resting).
 
 ## Actions and Costs
 
@@ -88,6 +92,46 @@ The storm closes from all edges toward the center. Any bot in the storm takes 10
 - Rounds 30+: border grows +1 tile every 2 rounds
 
 Pre-position 1-2 rounds early. Reacting to the storm wastes energy catching up.
+
+## Momentum System
+
+Bots earn points each round. Points build momentum tiers that grant combat bonuses.
+
+### Scoring Table
+
+| Source | Points | Condition |
+|--------|--------|-----------|
+| Survival | +1 | Alive at end of round |
+| Kill | +10 | Per kill |
+| Clean Kill | +5 | Got a kill AND took 0 damage that round |
+| Damage Dealt | +1 | Per 25 HP dealt |
+| Full HP | +2 | End round at 100 HP |
+| Storm Survivor | +3 | Alive when storm first activates |
+| Last Standing | +15 | Only bot alive |
+
+### Momentum Tiers
+
+| Tier | Name | Score Threshold | Bonus |
+|------|------|-----------------|-------|
+| 0 | (none) | 0 | No bonus |
+| 1 | Momentum | 10 | +5 energy regen per round |
+| 2 | Battle Fury | 25 | +10% damage dealt |
+| 3 | Crowd Favorite | 40 | Visual only (aura effect) |
+| 4 | Unstoppable | 60 | -15% incoming damage |
+
+Bonuses are cumulative: tier 4 gets all lower-tier bonuses too.
+
+### Carryover
+
+The match winner carries 50% of their final score into the next match, capped at 50 points. This means winning streaks build early momentum in follow-up matches.
+
+### Strategy Tips
+
+- **High momentum makes you a target** -- enemies can see your tier and score. Expect aggression.
+- **Full HP rounds give +2 points** -- defending at full HP is efficient scoring.
+- **Clean kills (+5 bonus) reward aggressive play** without taking damage in the same round.
+- **Target high-momentum enemies** to deny their combat advantages (energy regen, damage boost).
+- **Early kills snowball** -- 10 points per kill means 1-2 kills can push you to tier 1 quickly.
 
 ## Helpers API (Optional)
 

@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import Any
 
 from engine.combat import Bot, resolve_deaths, STARTING_ATTACK_POWER, get_round_bonus_attack, tick_damage_bonus
+from engine.momentum import apply_momentum_bonuses, calculate_carryover, get_tier_name
+from engine.scoring import calculate_round_scores
 from engine.grid import calculate_grid_size, spawn_positions
 from engine.match_modes import MatchMode, get_mode, get_storm_border_for_mode
 from engine.match_writer import build_match_data
@@ -64,6 +66,27 @@ def _resolve_tiebreaker(
     return "none"
 
 
+def _apply_round_scores(
+    bots: list[Bot], round_data: dict[str, Any],
+    round_num: int, storm_border: int, prev_storm_border: int,
+) -> None:
+    """Calculate and apply per-round scores to bots, attach to round_data."""
+    bot_dicts = [
+        {"emoji": b.emoji, "alive": b.alive, "hp": b.hp}
+        for b in bots
+    ]
+    scores, score_events = calculate_round_scores(
+        bot_dicts, round_data.get("events", []),
+        round_num, storm_border, prev_storm_border,
+    )
+    for bot in bots:
+        bot.score += scores.get(bot.emoji, 0)
+    round_data["score_events"] = [
+        {"emoji": e.emoji, "source": e.source, "points": e.points}
+        for e in score_events
+    ]
+
+
 def _resolve_combat_phases(
     alive_bots: list[Bot], bots: list[Bot], actions: dict[str, tuple[str, ...]],
     forced_rest: set[str], override_events: list[dict[str, Any]],
@@ -117,13 +140,24 @@ def _finalize_match(
     """Shared post-loop: tiebreaker, stats, match data, notifications."""
     winner_emoji = _resolve_tiebreaker(bots, round_num, all_eliminations)
     stats = {b.emoji: {"kills": b.kills, "damage_dealt": b.damage_dealt,
-                        "damage_taken": b.damage_taken, "rounds_survived": b.rounds_survived}
+                        "damage_taken": b.damage_taken, "rounds_survived": b.rounds_survived,
+                        "score": b.score,
+                        "momentum_tier": b.momentum_tier,
+                        "momentum_name": get_tier_name(b.score)}
              for b in bots}
+
+    # Carryover: winner gets 50% of score, capped at 50
+    carryover: dict[str, int] = {}
+    if winner_emoji != "none":
+        winner_bot = next((b for b in bots if b.emoji == winner_emoji), None)
+        if winner_bot is not None:
+            carryover[winner_emoji] = calculate_carryover(winner_bot.score, is_winner=True)
 
     match_data = build_match_data(
         match_id=match_id, grid_size=grid_size, players=players,
         rounds=all_rounds, eliminations=all_eliminations,
         winner_emoji=winner_emoji, stats=stats, duration_rounds=round_num,
+        carryover=carryover,
     )
     match_data["match_mode"] = match_mode
     notify_match_end(match_data)
@@ -296,6 +330,7 @@ async def run_match_async(
     all_eliminations: list[dict[str, Any]] = []
     last_bump_events: list[dict[str, Any]] = []
     spectacle_engine = SpectacleEngine()
+    prev_storm_border = 0
 
     for round_num in range(1, mode.max_rounds + 1):
         if sum(b.alive for b in bots) <= 1:
@@ -333,9 +368,14 @@ async def run_match_async(
                 bumps_last_round=last_bump_events,
             )
 
+        _apply_round_scores(bots, round_data, round_num, storm_border, prev_storm_border)
+        for b in bots:
+            if b.alive:
+                apply_momentum_bonuses(b)
         _score_spectacle(spectacle_engine, round_data, bots)
         all_rounds.append(round_data)
         all_eliminations.extend(round_elims)
+        prev_storm_border = storm_border
 
         if sum(b.alive for b in bots) <= 1:
             break
@@ -372,6 +412,7 @@ def run_match(
     all_eliminations: list[dict[str, Any]] = []
     last_bump_events: list[dict[str, Any]] = []
     spectacle_engine = SpectacleEngine()
+    prev_storm_border = 0
 
     for round_num in range(1, mode.max_rounds + 1):
         if sum(b.alive for b in bots) <= 1:
@@ -382,9 +423,14 @@ def run_match(
             bots, round_num, grid_size, storm_border,
             bumps_last_round=last_bump_events,
         )
+        _apply_round_scores(bots, round_data, round_num, storm_border, prev_storm_border)
+        for b in bots:
+            if b.alive:
+                apply_momentum_bonuses(b)
         _score_spectacle(spectacle_engine, round_data, bots)
         all_rounds.append(round_data)
         all_eliminations.extend(round_elims)
+        prev_storm_border = storm_border
 
         if sum(b.alive for b in bots) <= 1:
             break

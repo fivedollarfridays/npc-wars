@@ -15,7 +15,7 @@ from engine.combat import (
 class TestDictSerialization:
     def test_enemy_dict_keys(self):
         d = make_bot(name="A", emoji="🅰️", x=3, y=4, hp=80).to_enemy_dict()
-        assert set(d.keys()) == {"name", "emoji", "x", "y", "hp"}
+        assert set(d.keys()) == {"name", "emoji", "x", "y", "hp", "score", "momentum_tier"}
 
     def test_enemy_dict_hides_energy(self):
         d = make_bot().to_enemy_dict()
@@ -33,7 +33,8 @@ class TestDictSerialization:
         d = make_bot().to_self_dict()
         assert set(d.keys()) == {
             "x", "y", "hp", "energy", "attack_power", "defense",
-            "unlocked_actions", "line_budget", "win_streak",
+            "unlocked_actions", "line_budget", "win_streak", "score",
+            "momentum_tier", "momentum_name",
         }
 
     def test_self_dict_includes_energy(self):

@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+from engine.momentum import TIERS
+
 __all__ = ["build_standings", "build_final_roster"]
 
 # ANSI codes (subset needed for standings display)
@@ -31,6 +33,8 @@ def build_standings(
         st = stats.get(emoji, {})
         kills = st.get("kills", 0)
         dmg = st.get("damage_dealt", 0)
+        score = st.get("score", 0)
+        tier = st.get("momentum_tier", 0)
 
         if emoji == winner:
             detail = f"Survived {duration} rounds"
@@ -38,9 +42,13 @@ def build_standings(
             elim_round = _elim_round(eliminations, emoji)
             detail = f"Eliminated R{elim_round}" if elim_round else "Eliminated"
 
+        tier_str = ""
+        if tier > 0 and tier < len(TIERS):
+            tier_str = f" {TIERS[tier].name.upper()}"
+
         lines.append(
             f"  {_DIM}{i}.{_RST} {emoji} {name:<12} "
-            f"K:{kills}  Dmg:{dmg}  {detail}"
+            f"K:{kills}  Dmg:{dmg}  Score:{score}{tier_str}  {detail}"
         )
     lines.append("")
     return "\n".join(lines)

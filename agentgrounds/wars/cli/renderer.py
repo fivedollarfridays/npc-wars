@@ -23,13 +23,28 @@ STORM_CHAR = "\u2593\u2593"
 EMPTY_CHAR = " \u00b7"
 
 WEAPON_FX: dict[str, str] = {
-    "melee": "\u2694\ufe0f",
+    "melee": "\U0001f4a5",
     "ranged": "\U0001f3f9",
-    "default": "\u2694\ufe0f",
+    "miss": "\U0001f4a8",
+    "kill": "\U0001f480\U0001f525",
+    "defend_block": "\U0001f6e1\ufe0f\u2728",
+    "default": "\U0001f4a5",
 }
 DEFEND_FX = "\U0001f6e1\ufe0f"
 
 _COMBAT_EVENT_TYPES = frozenset({"hit", "miss", "ranged_hit", "ranged_miss", "defend"})
+
+_TIER_LABELS: dict[int, str] = {
+    1: f"{_CYAN}\u26a1MOMENTUM{_RST}",
+    2: f"{_YELLOW}\u26a1BATTLE FURY{_RST}",
+    3: f"{_RED}\U0001f525CROWD FAVORITE{_RST}",
+    4: f"{_BOLD}{_PURPLE}\U0001f48eUNSTOPPABLE{_RST}",
+}
+
+
+def _tier_label(tier: int) -> str:
+    """Return colored tier label for the roster, or empty string for tier 0."""
+    return _TIER_LABELS.get(tier, "")
 
 
 class TerminalRenderer:
@@ -51,6 +66,8 @@ class TerminalRenderer:
 
     def render_frame(self, round_data: dict, *, clear: bool = True) -> str:
         """Render one complete frame as an ANSI string."""
+        from agentgrounds.wars.cli.overlay import build_aura_overlay
+
         lines: list[str] = []
         if clear:
             if self._first_frame:
@@ -63,9 +80,10 @@ class TerminalRenderer:
         positions = round_data["positions"]
         events = round_data.get("events", [])
 
+        aura = build_aura_overlay(positions, self._grid_size, storm)
         lines.extend(self._title_bar(rnd, storm))
         lines.append("")
-        lines.extend(self._grid(positions, storm))
+        lines.extend(self._grid(positions, storm, overlay=aura or None))
         lines.append("")
         lines.extend(self._roster(positions))
         lines.append("")
@@ -122,6 +140,8 @@ class TerminalRenderer:
 
     def render_action_frame(self, round_data: dict, *, clear: bool = True) -> str:
         """Render an action-phase frame with combat FX indicators."""
+        from agentgrounds.wars.cli.overlay import build_aura_overlay, build_combat_overlay
+
         lines: list[str] = []
         if clear:
             if self._first_frame:
@@ -134,9 +154,10 @@ class TerminalRenderer:
         positions = round_data["positions"]
         events = round_data.get("events", [])
 
-        from agentgrounds.wars.cli.overlay import build_combat_overlay
-
-        overlay = build_combat_overlay(positions, events)
+        # Aura first, then combat FX overwrites (combat takes priority)
+        aura = build_aura_overlay(positions, self._grid_size, storm)
+        combat = build_combat_overlay(positions, events)
+        overlay = {**aura, **combat}
 
         lines.extend(self._title_bar(rnd, storm))
         lines.append("")
@@ -205,13 +226,24 @@ class TerminalRenderer:
         lines = [f"  {_BOLD}Combatants{_RST}"]
         for p in positions:
             name = self._players.get(p["emoji"], "???")
+            score = p.get("score", 0)
+            tier = p.get("momentum_tier", 0)
+            tier_label = _tier_label(tier)
             if not p["alive"]:
-                lines.append(f"  {_DIM}{p['emoji']} {name:<12} ELIMINATED{_RST}")
+                tail = f"  [{score} pts]"
+                if tier_label:
+                    tail += f" {tier_label}"
+                lines.append(f"  {_DIM}{p['emoji']} {name:<12} ELIMINATED{_RST}{tail}")
                 continue
             hp = max(0, p.get("hp", 0))
             energy = max(0, p.get("energy", 0))
             hp_bar = self._hp_bar(hp)
-            lines.append(f"  {p['emoji']} {name:<12} {hp_bar} {hp:>3}hp  \u26a1{energy}")
+            tail = f"  [{score} pts]"
+            if tier_label:
+                tail += f" {tier_label}"
+            lines.append(
+                f"  {p['emoji']} {name:<12} {hp_bar} {hp:>3}hp  \u26a1{energy}{tail}"
+            )
         return lines
 
     def _feed_lines(self, events: list[dict], rnd: int) -> list[str]:
