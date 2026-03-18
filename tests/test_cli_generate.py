@@ -19,35 +19,35 @@ class TestBuildPrompt:
     """_build_prompt loads PROMPT.md and appends extras."""
 
     def test_loads_prompt_md_content(self) -> None:
-        from npcwars.cli.cmd_generate import _build_prompt
+        from agentgrounds.wars.cli.cmd_generate import _build_prompt
 
         result = _build_prompt(strategy="", name="", emoji="")
         # PROMPT.md starts with this header
         assert "# NPC Wars" in result
 
     def test_appends_strategy(self) -> None:
-        from npcwars.cli.cmd_generate import _build_prompt
+        from agentgrounds.wars.cli.cmd_generate import _build_prompt
 
         result = _build_prompt(strategy="rush center", name="", emoji="")
         assert "Strategy: rush center" in result
         assert "## Additional Requirements" in result
 
     def test_appends_name_and_emoji(self) -> None:
-        from npcwars.cli.cmd_generate import _build_prompt
+        from agentgrounds.wars.cli.cmd_generate import _build_prompt
 
         result = _build_prompt(strategy="", name="Rusher", emoji="🏃")
         assert "Bot name: Rusher" in result
         assert "Bot emoji: 🏃" in result
 
     def test_no_extras_section_when_empty(self) -> None:
-        from npcwars.cli.cmd_generate import _build_prompt
+        from agentgrounds.wars.cli.cmd_generate import _build_prompt
 
         result = _build_prompt(strategy="", name="", emoji="")
         assert "## Additional Requirements" not in result
 
     def test_prompt_md_missing_exits(self, tmp_path: Path, monkeypatch: object) -> None:
         """When PROMPT.md is not found, _build_prompt exits."""
-        import npcwars.cli.cmd_generate as mod
+        import agentgrounds.wars.cli.cmd_generate as mod
 
         monkeypatch.setattr(mod, "_PROJECT_ROOT", tmp_path)  # type: ignore[attr-defined]
 
@@ -63,7 +63,7 @@ class TestBuildPrompt:
 def _run_cli(*args: str, timeout: float = 30) -> subprocess.CompletedProcess[str]:
     """Run ``npcwars generate`` via subprocess."""
     return subprocess.run(
-        [sys.executable, "-m", "npcwars.cli", "generate", *args],
+        [sys.executable, "-m", "agentgrounds.wars.cli", "generate", *args],
         capture_output=True,
         text=True,
         cwd=_PROJECT_ROOT,
@@ -109,7 +109,7 @@ class TestAutoErrors:
     def test_auto_without_key_exits_nonzero(self) -> None:
         env = {"PATH": "", "HOME": "/tmp"}  # no ANTHROPIC_API_KEY
         result = subprocess.run(
-            [sys.executable, "-m", "npcwars.cli", "generate", "--auto"],
+            [sys.executable, "-m", "agentgrounds.wars.cli", "generate", "--auto"],
             capture_output=True,
             text=True,
             cwd=_PROJECT_ROOT,
@@ -130,7 +130,7 @@ class TestGenerateRegistered:
 
     def test_generate_in_help_output(self) -> None:
         result = subprocess.run(
-            [sys.executable, "-m", "npcwars.cli", "--help"],
+            [sys.executable, "-m", "agentgrounds.wars.cli", "--help"],
             capture_output=True,
             text=True,
             cwd=_PROJECT_ROOT,
@@ -143,19 +143,19 @@ class TestStripCodeFences:
     """_strip_code_fences removes markdown backtick wrappers."""
 
     def test_strips_python_fence(self) -> None:
-        from npcwars.cli.cmd_generate import _strip_code_fences
+        from agentgrounds.wars.cli.cmd_generate import _strip_code_fences
 
         raw = "```python\nprint('hi')\n```"
         assert _strip_code_fences(raw) == "print('hi')"
 
     def test_no_fence_passthrough(self) -> None:
-        from npcwars.cli.cmd_generate import _strip_code_fences
+        from agentgrounds.wars.cli.cmd_generate import _strip_code_fences
 
         raw = "print('hi')"
         assert _strip_code_fences(raw) == raw
 
     def test_strips_bare_fence(self) -> None:
-        from npcwars.cli.cmd_generate import _strip_code_fences
+        from agentgrounds.wars.cli.cmd_generate import _strip_code_fences
 
         raw = "```\ncode\n```"
         assert _strip_code_fences(raw) == "code"
@@ -165,21 +165,21 @@ class TestResolveOutputPath:
     """_resolve_output_path picks the right path from args."""
 
     def test_explicit_output(self) -> None:
-        from npcwars.cli.cmd_generate import _resolve_output_path
+        from agentgrounds.wars.cli.cmd_generate import _resolve_output_path
         import argparse
 
         ns = argparse.Namespace(output="my/bot.py", name="")
         assert _resolve_output_path(ns) == Path("my/bot.py")
 
     def test_name_based(self) -> None:
-        from npcwars.cli.cmd_generate import _resolve_output_path
+        from agentgrounds.wars.cli.cmd_generate import _resolve_output_path
         import argparse
 
         ns = argparse.Namespace(output="", name="Cool Bot")
         assert _resolve_output_path(ns) == Path("bots/cool_bot.py")
 
     def test_default_fallback(self) -> None:
-        from npcwars.cli.cmd_generate import _resolve_output_path
+        from agentgrounds.wars.cli.cmd_generate import _resolve_output_path
         import argparse
 
         ns = argparse.Namespace(output="", name="")

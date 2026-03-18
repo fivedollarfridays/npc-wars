@@ -1,13 +1,13 @@
-# NPC Wars
+# Agent Grounds — Wars
 
 Autonomous bot battle royale. Write a `decide(state)` function, drop it in a folder, watch emojis fight on a shrinking grid. Last one standing wins.
 
 ## Quick Start
 
 ```bash
-pip install npc-wars
-npcwars init
-npcwars play          # watch your first match!
+pip install agent-grounds
+agentgrounds wars init
+agentgrounds wars play          # watch your first match!
 ```
 
 That's it. Three commands from install to your first fight.
@@ -17,10 +17,10 @@ That's it. Three commands from install to your first fight.
 Use an LLM to generate a competitive bot in seconds:
 
 ```bash
-npcwars generate --strategy "defensive energy denier" | pbcopy
+agentgrounds wars generate --strategy "defensive energy denier" | pbcopy
 # Paste into Claude, Gemini, or GPT
 # Save the response as bots/my_bot.py
-npcwars play --seed 42
+agentgrounds wars play --seed 42
 ```
 
 The `generate` command builds a full prompt from [PROMPT.md](PROMPT.md) -- game rules, state API, strategy tips -- so the AI writes tournament-ready code.
@@ -29,18 +29,18 @@ The `generate` command builds a full prompt from [PROMPT.md](PROMPT.md) -- game 
 
 Not ready to build from scratch? Start with `bots/starter.py` -- a working bot with guided TODO comments:
 
-1. Open `bots/starter.py` (created by `npcwars init`)
+1. Open `bots/starter.py` (created by `agentgrounds wars init`)
 2. Read the TODOs -- each one teaches a game mechanic
-3. Make a small change, run `npcwars play`, see the difference
+3. Make a small change, run `agentgrounds wars play`, see the difference
 4. Repeat until your bot is unbeatable
 
 ## How It Works
 
-1. **`npcwars init`** -- Creates a project with starter bots and config
-2. **`npcwars play`** -- Validates bots, runs a match, plays it back in terminal
-3. **`npcwars generate`** -- Builds an AI prompt for competitive bot creation
-4. **`npcwars wizard`** -- Interactive bot builder (name, emoji, play style, tuning)
-5. **`npcwars validate bots/my_bot.py`** -- Checks your bot is safe and valid
+1. **`agentgrounds wars init`** -- Creates a project with starter bots and config
+2. **`agentgrounds wars play`** -- Validates bots, runs a match, plays it back in terminal
+3. **`agentgrounds wars generate`** -- Builds an AI prompt for competitive bot creation
+4. **`agentgrounds wars wizard`** -- Interactive bot builder (name, emoji, play style, tuning)
+5. **`agentgrounds wars validate bots/my_bot.py`** -- Checks your bot is safe and valid
 
 ## Write a Bot
 
@@ -69,7 +69,7 @@ def decide(state):
 Or use the helpers DSL:
 
 ```python
-from npcwars.helpers import Me, Enemies, Storm
+from agentgrounds.wars.helpers import Me, Enemies, Storm
 
 def decide(state):
     me, enemies, storm = Me(state), Enemies(state), Storm(state)
@@ -90,11 +90,11 @@ def decide(state):
 ## Play Options
 
 ```bash
-npcwars play                       # Run and watch a match
-npcwars play --seed 42             # Deterministic match
-npcwars play --bots-dir my_bots    # Custom bots directory
-npcwars play --no-watch            # Skip playback, just print results
-npcwars battle --replay replays    # Run without playback, save JSON
+agentgrounds wars play                       # Run and watch a match
+agentgrounds wars play --seed 42             # Deterministic match
+agentgrounds wars play --bots-dir my_bots    # Custom bots directory
+agentgrounds wars play --no-watch            # Skip playback, just print results
+agentgrounds wars battle --replay replays    # Run without playback, save JSON
 ```
 
 ## Built-in Bots

@@ -6,7 +6,7 @@ BOT_BIO = "You rest, you die."
 
 
 def decide(state):
-    from npcwars.helpers import Me, Enemies, Storm
+    from agentgrounds.wars.helpers import Me, Enemies, Storm
 
     me = Me(state)
     enemies = Enemies(state)

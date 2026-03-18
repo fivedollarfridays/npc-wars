@@ -13,7 +13,7 @@ import pytest
 
 from engine.game import run_match
 from engine.loader import load_bots
-from npcwars.presets import PRESET_NAMES
+from agentgrounds.wars.presets import PRESET_NAMES
 from scripts.validate_bot import validate_bot
 from wizard import build_bot_source
 

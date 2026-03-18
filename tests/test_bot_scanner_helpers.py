@@ -13,7 +13,7 @@ import pytest
 
 from engine.bot_scanner import BLOCKED_MODULES, scan_bot_source
 from engine.loader import load_bots
-from npcwars.presets import PRESET_NAMES
+from agentgrounds.wars.presets import PRESET_NAMES
 from wizard import build_bot_source
 
 MOCK_STATE: dict = {
@@ -32,15 +32,15 @@ MOCK_STATE: dict = {
     "bumps_last_round": [],
 }
 
-HELPERS_PATH = pathlib.Path(__file__).resolve().parent.parent / "npcwars" / "helpers.py"
+HELPERS_PATH = pathlib.Path(__file__).resolve().parent.parent / "agentgrounds" / "wars" / "helpers.py"
 
 
 # --- Test 1: helpers import passes scan ---
 
 def test_helpers_import_passes_scan() -> None:
-    """A bot using 'from npcwars.helpers import ...' should have no violations."""
+    """A bot using 'from agentgrounds.wars.helpers import ...' should have no violations."""
     source = (
-        "from npcwars.helpers import Me, Enemies, Storm\n"
+        "from agentgrounds.wars.helpers import Me, Enemies, Storm\n"
         "\n"
         'BOT_NAME = "TestBot"\n'
         'BOT_EMOJI = "\U0001f9ea"\n'
@@ -108,7 +108,7 @@ def test_wizard_bot_loads_via_loader(tmp_path: pathlib.Path) -> None:
 
 def test_npcwars_not_blocked() -> None:
     """The npcwars package must not appear in BLOCKED_MODULES."""
-    assert "npcwars" not in BLOCKED_MODULES
+    assert "agentgrounds" not in BLOCKED_MODULES
 
 
 # --- Test 7: helpers.py has no blocked module imports (AST level) ---

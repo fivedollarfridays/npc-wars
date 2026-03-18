@@ -6,7 +6,7 @@ import ast
 
 import pytest
 
-from npcwars.presets import PRESET_NAMES, generate_preset
+from agentgrounds.wars.presets import PRESET_NAMES, generate_preset
 
 
 # --- input validation ---
@@ -61,7 +61,7 @@ class TestHelpersImport:
     @pytest.mark.parametrize("style", PRESET_NAMES)
     def test_contains_helpers_import(self, style: str) -> None:
         code = generate_preset(style)
-        assert "from npcwars.helpers import" in code
+        assert "from agentgrounds.wars.helpers import" in code
 
 
 # --- no blocked imports ---

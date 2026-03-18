@@ -91,10 +91,10 @@ Pre-position 1-2 rounds early. Reacting to the storm wastes energy catching up.
 
 ## Helpers API (Optional)
 
-Import from `npcwars.helpers` for convenience wrappers. These are optional but reduce boilerplate:
+Import from `agentgrounds.wars.helpers` for convenience wrappers. These are optional but reduce boilerplate:
 
 ```python
-from npcwars.helpers import Me, Enemies, Storm
+from agentgrounds.wars.helpers import Me, Enemies, Storm
 
 def decide(state):
     me = Me(state)        # wraps state["me"] with helper methods
@@ -135,7 +135,7 @@ BOT_EMOJI = "🥊"
 BOT_BIO = "Hits the closest thing"
 
 def decide(state):
-    from npcwars.helpers import Me, Enemies
+    from agentgrounds.wars.helpers import Me, Enemies
     me = Me(state)
     foes = Enemies(state)
     if me.energy < 15: return me.rest()
@@ -155,7 +155,7 @@ BOT_BIO = "Plays the priority ladder"
 import random
 
 def decide(state):
-    from npcwars.helpers import Me, Enemies, Storm
+    from agentgrounds.wars.helpers import Me, Enemies, Storm
     me = Me(state)
     foes = Enemies(state)
     storm = Storm(state)

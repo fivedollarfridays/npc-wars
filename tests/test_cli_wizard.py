@@ -11,7 +11,7 @@ _PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 def _run_cli(*args: str, cwd: str | None = None) -> subprocess.CompletedProcess[str]:
     """Run ``python -m npcwars.cli`` with given args."""
     return subprocess.run(
-        [sys.executable, "-m", "npcwars.cli", *args],
+        [sys.executable, "-m", "agentgrounds.wars.cli", *args],
         capture_output=True,
         text=True,
         cwd=cwd or _PROJECT_ROOT,

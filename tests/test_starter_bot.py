@@ -10,7 +10,8 @@ from tests.conftest import bot_config
 STARTER_PATH = str(Path(__file__).resolve().parent.parent / "bots" / "starter.py")
 BUILTIN_STARTER_PATH = str(
     Path(__file__).resolve().parent.parent
-    / "npcwars"
+    / "agentgrounds"
+    / "wars"
     / "builtin_bots"
     / "starter.py"
 )
@@ -49,7 +50,7 @@ class TestStarterHasTodoComments:
 class TestStarterUsesHelpersDsl:
     def test_imports_me_enemies_storm(self):
         source = Path(STARTER_PATH).read_text()
-        assert "from npcwars.helpers import Me, Enemies, Storm" in source
+        assert "from agentgrounds.wars.helpers import Me, Enemies, Storm" in source
 
     def test_constructs_helpers(self):
         source = Path(STARTER_PATH).read_text()
@@ -101,12 +102,12 @@ class TestStarterMetadata:
 
 class TestStarterInBuiltinBots:
     def test_starter_listed_in_builtin_names(self):
-        from npcwars.builtin_bots import BUILTIN_NAMES
+        from agentgrounds.wars.builtin_bots import BUILTIN_NAMES
 
         assert "starter" in BUILTIN_NAMES
 
     def test_get_bot_source_returns_starter(self):
-        from npcwars.builtin_bots import get_bot_source
+        from agentgrounds.wars.builtin_bots import get_bot_source
 
         source = get_bot_source("starter")
         assert "BOT_NAME" in source

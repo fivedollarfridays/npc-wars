@@ -10,7 +10,7 @@ def _run_main(
     argv: list[str], capsys: pytest.CaptureFixture[str],
 ) -> tuple[str, str, int]:
     """Run main() and return (stdout, stderr, exit_code)."""
-    from npcwars.cli import main
+    from agentgrounds.wars.cli import main
 
     try:
         main(argv)

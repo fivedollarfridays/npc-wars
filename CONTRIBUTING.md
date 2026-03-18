@@ -1,4 +1,4 @@
-# Contributing to NPC Wars
+# Contributing to Agent Grounds — Wars
 
 > **You don't PR game logic. You build bots and pitch ideas.**
 >
@@ -12,21 +12,21 @@ Submit your bot to `showcase/` via PR.
 
 ```bash
 # Build a bot with AI
-npcwars generate --strategy "your idea" | pbcopy
+agentgrounds wars generate --strategy "your idea" | pbcopy
 # Paste into Claude, Gemini, or GPT — save response as bots/your_bot.py
 
 # Or use the interactive wizard
-npcwars wizard
+agentgrounds wars wizard
 
 # Validate and submit
-npcwars validate bots/your_bot.py
+agentgrounds wars validate bots/your_bot.py
 cp bots/your_bot.py showcase/
 # Open a PR
 ```
 
-The `npcwars generate` command creates a full prompt from [PROMPT.md](PROMPT.md) with game rules, state API, and strategy tips -- so any LLM can write a competitive bot.
+The `agentgrounds wars generate` command creates a full prompt from [PROMPT.md](PROMPT.md) with game rules, state API, and strategy tips -- so any LLM can write a competitive bot.
 
-Must pass `npcwars validate`. Gets merged as-is -- this is a community gallery.
+Must pass `agentgrounds wars validate`. Gets merged as-is -- this is a community gallery.
 
 ### 2. Suggestions
 

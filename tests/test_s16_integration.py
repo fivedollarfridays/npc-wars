@@ -84,14 +84,14 @@ class TestPlayWiring:
 
 
 class TestCmdBattleWiring:
-    """npcwars/cli/cmd_battle.py imports and calls inject_diff_data."""
+    """agentgrounds/wars/cli/cmd_battle.py imports and calls inject_diff_data."""
 
     def test_cmd_battle_imports_inject_diff_data(self):
-        src = _read_source(os.path.join("npcwars", "cli", "cmd_battle.py"))
+        src = _read_source(os.path.join("agentgrounds", "wars", "cli", "cmd_battle.py"))
         assert re.search(r"from\s+data\.stat_diff\s+import\s+inject_diff_data", src)
 
     def test_cmd_battle_calls_inject_diff_data(self):
-        src = _read_source(os.path.join("npcwars", "cli", "cmd_battle.py"))
+        src = _read_source(os.path.join("agentgrounds", "wars", "cli", "cmd_battle.py"))
         # Must have a call site (not just the import)
         lines_with_call = [
             ln for ln in src.splitlines()
@@ -170,7 +170,7 @@ class TestNoDeadPublicFunctions:
 
     def test_inject_diff_data_has_caller_in_cmd_battle(self):
         """inject_diff_data is called from cmd_battle.py."""
-        src = _read_source(os.path.join("npcwars", "cli", "cmd_battle.py"))
+        src = _read_source(os.path.join("agentgrounds", "wars", "cli", "cmd_battle.py"))
         calls = [
             ln for ln in src.splitlines()
             if "inject_diff_data(" in ln and "import" not in ln

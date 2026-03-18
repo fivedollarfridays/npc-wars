@@ -5,7 +5,7 @@ import ast
 
 import pytest
 
-from npcwars.builtin_bots import BUILTIN_NAMES, get_bot_source, list_builtin_bots
+from agentgrounds.wars.builtin_bots import BUILTIN_NAMES, get_bot_source, list_builtin_bots
 
 
 class TestListBuiltinBots:

@@ -1,0 +1,24 @@
+{
+  "match_count": 1000,
+  "grid_size": 12,
+  "verdict": {
+    "match_length": {
+      "avg": 33.992,
+      "target": "20-28",
+      "verdict": "WARN"
+    },
+    "win_rate_spread": {
+      "max_win_rate": 0.415,
+      "threshold": 0.6,
+      "win_counts": {
+        "KiteBot": 210,
+        "AggroBot": 123,
+        "TankBot": 415,
+        "ChaosBot": 76,
+        "Cognify": 41,
+        "Starter": 44
+      },
+      "verdict": "PASS"
+    }
+  }
+}

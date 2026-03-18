@@ -40,7 +40,7 @@ def _run_battle(
     argv: list[str], capsys: pytest.CaptureFixture[str],
 ) -> tuple[str, str, int]:
     """Run battle via main() and return (stdout, stderr, exit_code)."""
-    from npcwars.cli import main
+    from agentgrounds.wars.cli import main
 
     try:
         main(argv)

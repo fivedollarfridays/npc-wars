@@ -27,7 +27,7 @@ def decide(state
 def _run_cli(*args: str, timeout: float = 30) -> subprocess.CompletedProcess[str]:
     """Run ``npcwars validate`` via subprocess."""
     return subprocess.run(
-        [sys.executable, "-m", "npcwars.cli", "validate", *args],
+        [sys.executable, "-m", "agentgrounds.wars.cli", "validate", *args],
         capture_output=True,
         text=True,
         cwd=_PROJECT_ROOT,

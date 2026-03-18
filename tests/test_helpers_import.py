@@ -1,52 +1,52 @@
-"""Import smoke tests for npcwars package wiring."""
+"""Import smoke tests for agentgrounds.wars package wiring."""
 
 from __future__ import annotations
 
 
-# --- Direct imports from npcwars.helpers ---
+# --- Direct imports from agentgrounds.wars.helpers ---
 
 
 def test_import_me_from_helpers():
-    from npcwars.helpers import Me
+    from agentgrounds.wars.helpers import Me
 
     assert Me is not None
 
 
 def test_import_enemies_from_helpers():
-    from npcwars.helpers import Enemies
+    from agentgrounds.wars.helpers import Enemies
 
     assert Enemies is not None
 
 
 def test_import_storm_from_helpers():
-    from npcwars.helpers import Storm
+    from agentgrounds.wars.helpers import Storm
 
     assert Storm is not None
 
 
-# --- Re-exports from npcwars top-level ---
+# --- Re-exports from agentgrounds top-level ---
 
 
 def test_import_me_from_top_level():
-    from npcwars import Me
+    from agentgrounds import Me
 
     assert Me is not None
 
 
 def test_import_enemies_from_top_level():
-    from npcwars import Enemies
+    from agentgrounds import Enemies
 
     assert Enemies is not None
 
 
 def test_import_storm_from_top_level():
-    from npcwars import Storm
+    from agentgrounds import Storm
 
     assert Storm is not None
 
 
 def test_import_all_from_top_level():
-    from npcwars import Enemies, Me, Storm
+    from agentgrounds import Enemies, Me, Storm
 
     assert Me is not None
     assert Enemies is not None
@@ -54,7 +54,7 @@ def test_import_all_from_top_level():
 
 
 def test_import_helpers_module():
-    from npcwars import helpers
+    from agentgrounds.wars import helpers
 
     assert hasattr(helpers, "Me")
     assert hasattr(helpers, "Enemies")
@@ -63,10 +63,10 @@ def test_import_helpers_module():
 
 def test_reexports_are_same_objects():
     """Top-level re-exports should be the exact same class objects."""
-    from npcwars import Enemies as TopEnemies
-    from npcwars import Me as TopMe
-    from npcwars import Storm as TopStorm
-    from npcwars.helpers import Enemies, Me, Storm
+    from agentgrounds import Enemies as TopEnemies
+    from agentgrounds import Me as TopMe
+    from agentgrounds import Storm as TopStorm
+    from agentgrounds.wars.helpers import Enemies, Me, Storm
 
     assert TopMe is Me
     assert TopEnemies is Enemies
@@ -77,13 +77,13 @@ def test_reexports_are_same_objects():
 
 
 def test_import_generate_preset():
-    from npcwars.presets import generate_preset
+    from agentgrounds.wars.presets import generate_preset
 
     assert callable(generate_preset)
 
 
 def test_import_preset_names():
-    from npcwars.presets import PRESET_NAMES
+    from agentgrounds.wars.presets import PRESET_NAMES
 
     assert isinstance(PRESET_NAMES, tuple)
     assert len(PRESET_NAMES) > 0
@@ -111,7 +111,7 @@ _MOCK_STATE: dict = {
 
 
 def test_me_callable():
-    from npcwars import Me
+    from agentgrounds import Me
 
     me = Me(_MOCK_STATE)
     assert me.hp == 100
@@ -119,14 +119,14 @@ def test_me_callable():
 
 
 def test_enemies_callable():
-    from npcwars import Enemies
+    from agentgrounds import Enemies
 
     foes = Enemies(_MOCK_STATE)
     assert foes.count == 1
 
 
 def test_storm_callable():
-    from npcwars import Storm
+    from agentgrounds import Storm
 
     storm = Storm(_MOCK_STATE)
     assert storm.active is True
