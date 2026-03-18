@@ -12,7 +12,7 @@ _PROJECT_ROOT = str(Path(__file__).resolve().parent.parent)
 def _run(*args: str, cwd: str = _PROJECT_ROOT, **kwargs: object) -> subprocess.CompletedProcess[str]:
     """Helper to run npcwars CLI commands."""
     return subprocess.run(
-        [sys.executable, "-m", "npcwars.cli", *args],
+        [sys.executable, "-m", "agentgrounds.wars.cli", *args],
         capture_output=True, text=True, cwd=cwd, **kwargs,
     )
 
@@ -31,7 +31,7 @@ class TestInitCreatesValidStructure:
 
     def test_init_creates_config(self, tmp_path: Path) -> None:
         _run("init", "--dir", str(tmp_path))
-        assert (tmp_path / "npcwars.toml").is_file()
+        assert (tmp_path / "agentgrounds.toml").is_file()
 
     def test_init_copies_bot_files(self, tmp_path: Path) -> None:
         _run("init", "--dir", str(tmp_path))
@@ -125,7 +125,7 @@ class TestFullPipelineInitToBattle:
         r_init = _run("init", "--dir", str(tmp_path))
         assert r_init.returncode == 0
         assert (tmp_path / "bots").is_dir()
-        assert (tmp_path / "npcwars.toml").is_file()
+        assert (tmp_path / "agentgrounds.toml").is_file()
         bot_files = list((tmp_path / "bots").glob("*.py"))
         assert len(bot_files) >= 2
 

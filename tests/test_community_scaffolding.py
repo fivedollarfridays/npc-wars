@@ -30,7 +30,7 @@ def test_showcase_readme_exists():
 
 def test_showcase_readme_has_submission_rules():
     content = (PROJECT_ROOT / "showcase" / "README.md").read_text()
-    assert "npcwars validate" in content
+    assert "agentgrounds wars validate" in content
     assert "Max 3 bots per author" in content
 
 
@@ -61,19 +61,19 @@ def test_contributing_has_energy_costs():
 
 def test_readme_has_pip_install():
     content = (PROJECT_ROOT / "README.md").read_text()
-    assert "pip install npc-wars" in content
+    assert "pip install agent-grounds" in content
 
 
 def test_readme_has_quick_start_commands():
     content = (PROJECT_ROOT / "README.md").read_text()
-    assert "npcwars init" in content
-    assert "npcwars wizard" in content
-    assert "npcwars battle" in content
+    assert "agentgrounds wars init" in content
+    assert "agentgrounds wars wizard" in content
+    assert "agentgrounds wars battle" in content
 
 
 def test_readme_has_helpers_dsl_example():
     content = (PROJECT_ROOT / "README.md").read_text()
-    assert "from npcwars.helpers import" in content
+    assert "from agentgrounds.wars.helpers import" in content
     assert "Me(state)" in content
 
 

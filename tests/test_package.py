@@ -42,7 +42,7 @@ class TestPackageMetadata:
         with open(pyproject, "rb") as f:
             data = tomllib.load(f)
         assert "scripts" in data["project"]
-        assert data["project"]["scripts"]["npcwars"] == "npcwars.cli:main"
+        assert data["project"]["scripts"]["agentgrounds"] == "agentgrounds.__main__:main"
 
     def test_license_file_exists(self):
         assert (_PROJECT_ROOT / "LICENSE").is_file()
