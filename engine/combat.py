@@ -108,6 +108,13 @@ class Bot:
         # Bounty: temporary damage bonus from bounty reward
         # Schema: {"multiplier": float, "rounds_remaining": int}
         self.damage_bonus: dict[str, float | int] | None = None
+        # Scoring
+        self.score: int = 0
+        # Momentum tier bonuses (set by engine.momentum.apply_momentum_bonuses)
+        self.momentum_tier: int = 0
+        self.momentum_energy_bonus: int = 0
+        self.momentum_damage_multiplier: float = 1.0
+        self.momentum_defense_reduction: float = 0.0
 
     def can_act(self) -> bool:
         """Check if bot has enough energy for any action (move is cheapest at 5)."""
@@ -125,10 +132,13 @@ class Bot:
             "x": self.x,
             "y": self.y,
             "hp": self.hp,
+            "score": self.score,
+            "momentum_tier": self.momentum_tier,
         }
 
     def to_self_dict(self) -> dict[str, Any]:
         """Full bot info visible to self."""
+        from engine.momentum import get_tier_name
         return {
             "x": self.x,
             "y": self.y,
@@ -139,6 +149,9 @@ class Bot:
             "unlocked_actions": list(self.unlocked_actions),
             "line_budget": self.line_budget,
             "win_streak": self.win_streak,
+            "score": self.score,
+            "momentum_tier": self.momentum_tier,
+            "momentum_name": get_tier_name(self.score),
         }
 
 
@@ -153,10 +166,15 @@ def get_round_bonus_attack(round_num: int) -> int:
 
 
 def calculate_damage(attacker: Bot, defender: Bot) -> int:
-    """Calculate damage from attacker to defender, including bounty bonus."""
+    """Calculate damage from attacker to defender, including bounty and momentum bonuses."""
     base = max(0, attacker.attack_power - defender.defense)
     if attacker.damage_bonus and attacker.damage_bonus.get("rounds_remaining", 0) > 0:
-        return int(base * attacker.damage_bonus["multiplier"])
+        base = int(base * attacker.damage_bonus["multiplier"])
+    # Momentum: attacker damage multiplier (tier 2+)
+    base = int(base * attacker.momentum_damage_multiplier)
+    # Momentum: defender damage reduction (tier 4)
+    if defender.momentum_defense_reduction > 0:
+        base = int(base * (1.0 - defender.momentum_defense_reduction))
     return base
 
 

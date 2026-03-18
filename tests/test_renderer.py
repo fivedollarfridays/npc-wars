@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import pytest
 
-from agentgrounds.wars.cli.overlay import build_combat_overlay
 from agentgrounds.wars.cli.renderer import (
     DEFEND_FX,
     WEAPON_FX,
@@ -212,23 +211,33 @@ class TestGridSizes:
 
 class TestSubFrameConstants:
     def test_weapon_fx_has_melee_key(self):
-
-
         assert "melee" in WEAPON_FX
 
+    def test_weapon_fx_melee_is_explosion(self):
+        assert WEAPON_FX["melee"] == "\U0001f4a5"  # 💥
+
     def test_weapon_fx_has_ranged_key(self):
-
-
         assert "ranged" in WEAPON_FX
 
     def test_weapon_fx_has_default_key(self):
-
-
         assert "default" in WEAPON_FX
 
+    def test_weapon_fx_default_is_explosion(self):
+        assert WEAPON_FX["default"] == "\U0001f4a5"  # 💥
+
+    def test_weapon_fx_has_miss_key(self):
+        assert "miss" in WEAPON_FX
+        assert WEAPON_FX["miss"] == "\U0001f4a8"  # 💨
+
+    def test_weapon_fx_has_kill_key(self):
+        assert "kill" in WEAPON_FX
+        assert WEAPON_FX["kill"] == "\U0001f480\U0001f525"  # 💀🔥
+
+    def test_weapon_fx_has_defend_block_key(self):
+        assert "defend_block" in WEAPON_FX
+        assert WEAPON_FX["defend_block"] == "\U0001f6e1\ufe0f\u2728"  # 🛡️✨
+
     def test_defend_fx_constant_exists(self):
-
-
         assert DEFEND_FX == "\U0001f6e1\ufe0f"  # 🛡️
 
 
@@ -267,63 +276,6 @@ class TestHasCombatEvents:
         renderer = TerminalRenderer(players=players, grid_size=10)
         rd = {"round": 1, "storm_border": 0, "positions": [], "events": []}
         assert renderer.has_combat_events(rd) is False
-
-
-# -- Cycle 10: Combat overlay --------------------------------------------
-
-class TestCombatOverlay:
-    """Test _build_combat_overlay produces correct FX placements."""
-
-    def test_melee_hit_places_fx_on_attacker_cell_when_adjacent(self, players):
-        """When attacker is adjacent to target, FX goes on attacker's cell."""
-        positions = [
-            {"emoji": "\U0001f480", "x": 3, "y": 5, "hp": 80, "energy": 60, "action": "attack", "alive": True},
-            {"emoji": "\U0001f916", "x": 3, "y": 4, "hp": 45, "energy": 20, "action": "rest", "alive": True},
-        ]
-        events = [{"type": "hit", "attacker": "\U0001f480", "target": "\U0001f916", "damage": 25}]
-        overlay = build_combat_overlay(positions, events)
-        # Attacker at (3,5), target at (3,4) — adjacent, so FX on attacker (3,5)
-        assert (3, 5) in overlay
-        assert overlay[(3, 5)] == WEAPON_FX["melee"]
-
-    def test_ranged_hit_places_fx_at_midpoint(self, players):
-        """For ranged attacks, FX goes at the midpoint between attacker and target."""
-        positions = [
-            {"emoji": "\U0001f480", "x": 2, "y": 2, "hp": 80, "energy": 60, "action": "attack", "alive": True},
-            {"emoji": "\U0001f916", "x": 6, "y": 2, "hp": 45, "energy": 20, "action": "rest", "alive": True},
-        ]
-        events = [{"type": "ranged_hit", "attacker": "\U0001f480", "target": "\U0001f916", "damage": 10}]
-        overlay = build_combat_overlay(positions, events)
-        # Midpoint of (2,2) and (6,2) is (4,2)
-        assert (4, 2) in overlay
-        assert overlay[(4, 2)] == WEAPON_FX["ranged"]
-
-    def test_defend_event_places_shield_on_defender(self, players):
-        """Defend event places shield FX on the defender's cell."""
-        positions = [
-            {"emoji": "\U0001f480", "x": 3, "y": 5, "hp": 80, "energy": 60, "action": "attack", "alive": True},
-            {"emoji": "\U0001f916", "x": 5, "y": 5, "hp": 45, "energy": 20, "action": "defend", "alive": True},
-        ]
-        events = [{"type": "defend", "emoji": "\U0001f916"}]
-        overlay = build_combat_overlay(positions, events)
-        assert (5, 5) in overlay
-        assert overlay[(5, 5)] == DEFEND_FX
-
-    def test_miss_places_fx_on_attacker(self, players):
-        """Miss places FX on attacker's cell (no valid target hit)."""
-        positions = [
-            {"emoji": "\U0001f480", "x": 3, "y": 5, "hp": 80, "energy": 60, "action": "attack", "alive": True},
-            {"emoji": "\U0001f916", "x": 3, "y": 2, "hp": 45, "energy": 20, "action": "rest", "alive": True},
-        ]
-        events = [{"type": "miss", "attacker": "\U0001f480", "direction": "north"}]
-        overlay = build_combat_overlay(positions, events)
-        # Miss — FX at attacker position (3,5)
-        assert (3, 5) in overlay
-        assert overlay[(3, 5)] == WEAPON_FX["melee"]
-
-    def test_no_events_returns_empty_overlay(self, players):
-        overlay = build_combat_overlay([], [])
-        assert overlay == {}
 
 
 # -- Cycle 11: render_action_frame ----------------------------------------

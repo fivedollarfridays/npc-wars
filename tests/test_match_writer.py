@@ -27,7 +27,10 @@ def _sample_match_data(match_id=1):
 class TestBuildMatchData:
     def test_required_top_level_keys(self):
         data = _sample_match_data()
-        expected = {"match_id", "date", "grid_size", "players", "rounds", "eliminations", "winner", "stats", "duration_rounds"}
+        expected = {
+            "match_id", "date", "grid_size", "players", "rounds",
+            "eliminations", "winner", "stats", "duration_rounds", "carryover",
+        }
         assert set(data.keys()) == expected
 
     def test_match_id_set(self):

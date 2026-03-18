@@ -25,6 +25,7 @@ class TestRunMatch:
         expected_keys = {
             "match_id", "date", "grid_size", "players", "rounds",
             "eliminations", "winner", "stats", "duration_rounds", "match_mode",
+            "carryover",
         }
         assert set(data.keys()) == expected_keys
 

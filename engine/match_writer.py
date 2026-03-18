@@ -31,6 +31,7 @@ def build_match_data(
     winner_emoji: str,
     stats: dict[str, Any],
     duration_rounds: int,
+    carryover: dict[str, int] | None = None,
 ) -> dict[str, Any]:
     """Build the match data structure."""
     return {
@@ -43,4 +44,5 @@ def build_match_data(
         "winner": winner_emoji,
         "stats": stats,
         "duration_rounds": duration_rounds,
+        "carryover": carryover or {},
     }
