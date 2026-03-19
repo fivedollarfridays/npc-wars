@@ -52,6 +52,7 @@ def _create_bots(
             name=config["name"], emoji=config["emoji"],
             bio=config["bio"], author=config.get("author", "unknown"),
             decide_func=config["decide_func"], x=x, y=y,
+            stat_allocation=config.get("stat_allocation"),
         )
         for fld in _PROGRESSION_FIELDS:
             if fld in config:

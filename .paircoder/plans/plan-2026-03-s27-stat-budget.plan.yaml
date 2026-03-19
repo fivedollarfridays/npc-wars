@@ -1,0 +1,11 @@
+id: plan-2026-03-s27-stat-budget
+title: 'Sprint 27: Stat Budget System'
+type: feature
+status: in_progress
+created_at: '2026-03-19T00:00:00'
+goals:
+- Four-stat allocation system (POWER/SPEED/ARMOR/MIND, 100-point budget)
+- Derived stats calculator (HP, energy, damage range, dodge, DR from allocation)
+- Bot class and loader accept stat allocation
+- State dict exposes stats to bots
+- 25/25/25/25 backward compatible with current game

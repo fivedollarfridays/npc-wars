@@ -5,7 +5,7 @@ from typing import Any
 
 from engine.combat import (
     Bot, STORM_DAMAGE, REST_HEAL, REST_ENERGY_RESTORE, DEFEND_BONUS,
-    MAX_HP, MAX_ENERGY, MAX_CONSECUTIVE_FAILURES, STARTING_DEFENSE,
+    MAX_CONSECUTIVE_FAILURES, STARTING_DEFENSE,
     KILL_BOUNTY_ENERGY, RANGED_ATTACK_DAMAGE, TAUNT_RANGE, calculate_damage,
 )
 from engine.bumpers import resolve_bumps
@@ -277,9 +277,9 @@ def apply_energy_and_rest(
     for bot in alive_bots:
         action = actions.get(bot.emoji)
         if action and action[0] == "rest":
-            bot.hp = min(MAX_HP, bot.hp + REST_HEAL)
-            energy_restore = REST_ENERGY_RESTORE + bot.momentum_energy_bonus
-            bot.energy = min(MAX_ENERGY, bot.energy + energy_restore)
+            bot.hp = min(bot.derived.max_hp, bot.hp + REST_HEAL)
+            energy_restore = REST_ENERGY_RESTORE + bot.derived.energy_regen + bot.momentum_energy_bonus
+            bot.energy = min(bot.derived.max_energy, bot.energy + energy_restore)
 
 
 def attribute_kills(
@@ -309,7 +309,7 @@ def attribute_kills(
             for b in bots:
                 if b.emoji == killer_emoji:
                     b.kills += 1
-                    b.energy = min(b.energy + KILL_BOUNTY_ENERGY, MAX_ENERGY)
+                    b.energy = min(b.energy + KILL_BOUNTY_ENERGY, b.derived.max_energy)
         round_events.append({"type": "kill", "attacker": killer_emoji or "unknown",
                              "victim": elim["emoji"], "round": round_num})
 
@@ -328,6 +328,7 @@ def build_round_record(
             "action": action_str, "alive": bot.alive,
             "score": bot.score, "momentum_tier": bot.momentum_tier,
             "is_leader": bot.is_leader,
+            "max_hp": bot.derived.max_hp,
         })
     return {"round": round_num, "storm_border": storm_border,
             "positions": positions, "events": events}

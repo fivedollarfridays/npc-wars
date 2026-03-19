@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import random
+from types import SimpleNamespace
 
 
 class FakeBot:
@@ -20,6 +21,7 @@ class FakeBot:
         y: int = 0,
         emoji: str = "\U0001f986",
         is_watcher: bool = False,
+        max_hp: int = 100,
     ) -> None:
         self.hp = hp
         self.kills = kills
@@ -30,6 +32,7 @@ class FakeBot:
         self.y = y
         self.emoji = emoji
         self.is_watcher = is_watcher
+        self.derived = SimpleNamespace(max_hp=max_hp)
 
 
 # ---------------------------------------------------------------------------

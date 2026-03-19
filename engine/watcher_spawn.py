@@ -6,7 +6,6 @@ import logging
 import random
 from typing import Any
 
-from engine.combat import MAX_HP
 from engine.grid import is_in_storm, is_valid_position
 
 log = logging.getLogger(__name__)
@@ -42,7 +41,7 @@ def check_watcher_spawn(
     for h in humans:
         if h.kills > 0:
             return True
-        if h.rounds_survived >= _MIN_ROUNDS_SURVIVED and h.hp > MAX_HP * _MIN_HP_RATIO:
+        if h.rounds_survived >= _MIN_ROUNDS_SURVIVED and h.hp > h.derived.max_hp * _MIN_HP_RATIO:
             return True
 
     return False

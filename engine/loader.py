@@ -5,6 +5,7 @@ import os
 from typing import Any
 
 from engine.bot_scanner import load_bot_module
+from engine.stats import DEFAULT_ALLOCATION, validate_allocation
 
 log = logging.getLogger(__name__)
 
@@ -30,8 +31,20 @@ def _load_single_bot(filepath: str, filename: str) -> dict[str, Any] | None:
         log.warning("Skipping %s — missing required attributes", filename)
         return None
 
+    # Read stat allocation constants (default 25 each if absent)
+    power = getattr(module, "BOT_POWER", 25)
+    speed = getattr(module, "BOT_SPEED", 25)
+    armor = getattr(module, "BOT_ARMOR", 25)
+    mind = getattr(module, "BOT_MIND", 25)
+    try:
+        allocation = validate_allocation(power, speed, armor, mind)
+    except ValueError as e:
+        log.warning("%s: invalid stat allocation (%s), using defaults", filename, e)
+        allocation = DEFAULT_ALLOCATION
+
     return {"name": name, "emoji": emoji, "bio": getattr(module, "BOT_BIO", ""),
-            "author": getattr(module, "BOT_AUTHOR", "unknown"), "decide_func": decide}
+            "author": getattr(module, "BOT_AUTHOR", "unknown"), "decide_func": decide,
+            "stat_allocation": allocation}
 
 
 def _deduplicate_emojis(bots: list[dict[str, Any]]) -> list[dict[str, Any]]:

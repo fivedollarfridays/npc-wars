@@ -9,7 +9,7 @@ from __future__ import annotations
 import random
 from typing import Any
 
-from engine.combat import Bot, MAX_HP
+from engine.combat import Bot
 from engine.watcher import WATCHER_ACTIONS, WatcherBot
 from engine.watcher_brain import (
     HumanPerformance,
@@ -140,7 +140,7 @@ class WatcherController:
         )
 
         perf = HumanPerformance(
-            hp_ratio=target_bot.hp / MAX_HP,
+            hp_ratio=target_bot.hp / target_bot.derived.max_hp,
             kills=target_bot.kills,
             rounds_survived=target_bot.rounds_survived,
         )
