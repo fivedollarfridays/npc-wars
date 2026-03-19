@@ -1,6 +1,5 @@
 """Tests for engine/glyphs.py — BOT_GLYPH format and glyph registry."""
 
-import types
 
 from tests.conftest import make_bot
 
