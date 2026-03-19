@@ -10,18 +10,19 @@ __all__ = ["build_state"]
 
 def _compute_incoming_threats(
     bot: Bot, alive_enemies: list[Bot],
-) -> list[dict[str, Any]]:
+) -> list[dict[str, object]]:
     """Compute incoming threat from each alive enemy, sorted by danger."""
-    threats = []
+    threats: list[tuple[float, dict[str, object]]] = []
     for enemy in alive_enemies:
         prob = calculate_hit_probability(enemy.derived, bot.derived)
-        threats.append({
+        entry: dict[str, object] = {
             "emoji": enemy.emoji,
             "hit_chance": prob["hit_chance"],
             "expected_damage": prob["expected_damage"],
-        })
-    threats.sort(key=lambda t: float(t["expected_damage"]), reverse=True)
-    return threats
+        }
+        threats.append((prob["expected_damage"], entry))
+    threats.sort(key=lambda t: t[0], reverse=True)
+    return [t[1] for t in threats]
 
 
 def build_state(
