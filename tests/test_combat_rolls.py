@@ -171,11 +171,11 @@ def test_crit_damage_multiplied() -> None:
     for seed in range(1000):
         rng = random.Random(seed)
         result = roll_attack(_DEFAULT, _DEFAULT, rng=rng)
-        if result.is_crit:
+        if result.is_crit and not result.dodged:
             # Crit damage should be >= min_damage * crit_multiplier
             assert result.damage >= int(_DEFAULT.min_damage * _DEFAULT.crit_multiplier)
             return
-    raise AssertionError("No crit found in 1000 seeds")
+    raise AssertionError("No non-dodged crit found in 1000 seeds")
 
 
 def test_default_crit_rate() -> None:

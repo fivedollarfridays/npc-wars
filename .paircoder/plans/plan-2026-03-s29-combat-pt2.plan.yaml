@@ -1,0 +1,12 @@
+id: plan-2026-03-s29-combat-pt2
+title: 'Sprint 29: Combat Overhaul pt.2 — Dodge, Modifiers, Initiative'
+type: feature
+status: planned
+created_at: '2026-03-19T18:00:00'
+goals:
+- Dodge system (SPEED-based, halve damage on dodge)
+- Situational to-hit modifiers (resting +3, taunted -3)
+- Initiative ordering (higher SPEED resolves first)
+- Hit probability calculator in state dict
+- Incoming threat estimator in state dict
+- Extract combat helpers from rounds.py (arch compliance)
