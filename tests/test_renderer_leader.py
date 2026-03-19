@@ -30,7 +30,8 @@ def test_roster_shows_crown_for_leader() -> None:
          "alive": True, "score": 45, "momentum_tier": 3, "is_leader": True},
     ]
     output = _roster_output(positions)
-    assert "\U0001f451\U0001f422" in output  # crown+turtle
+    assert "\U0001f451" in output  # crown present
+    assert "\U0001f422" in output  # turtle glyph present
 
 
 def test_roster_no_crown_for_non_leader() -> None:

@@ -18,7 +18,7 @@ class TestDictSerialization:
         d = make_bot(name="A", emoji="🅰️", x=3, y=4, hp=80).to_enemy_dict()
         assert set(d.keys()) == {
             "name", "emoji", "x", "y", "hp", "score",
-            "momentum_tier", "is_leader", "max_hp", "speed_class",
+            "momentum_tier", "is_leader", "max_hp", "speed_class", "glyph",
         }
 
     def test_enemy_dict_hides_energy(self):
@@ -41,7 +41,7 @@ class TestDictSerialization:
             "momentum_tier", "momentum_name", "is_leader",
             "power", "speed", "armor", "mind",
             "max_hp", "max_energy", "min_damage", "max_damage",
-            "dodge_chance", "damage_reduction",
+            "dodge_chance", "damage_reduction", "glyph",
         }
 
     def test_self_dict_includes_energy(self):

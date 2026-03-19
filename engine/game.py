@@ -53,6 +53,7 @@ def _create_bots(
             bio=config["bio"], author=config.get("author", "unknown"),
             decide_func=config["decide_func"], x=x, y=y,
             stat_allocation=config.get("stat_allocation"),
+            glyph=config.get("glyph"),
         )
         for fld in _PROGRESSION_FIELDS:
             if fld in config:
@@ -160,7 +161,7 @@ def _prepare_match(
     if mode is not None and mode.starting_hp != 100:
         for b in bots:
             b.hp = mode.starting_hp
-    players = [{"emoji": b.emoji, "name": b.name, "bio": b.bio, "author": b.author} for b in bots]
+    players = [{"emoji": b.emoji, "name": b.name, "bio": b.bio, "author": b.author, "glyph": b.glyph} for b in bots]
     return bots, players, grid_size, rng
 
 

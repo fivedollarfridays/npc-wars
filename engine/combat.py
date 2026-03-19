@@ -83,9 +83,11 @@ class Bot:
 
     def __init__(self, *, name: str, emoji: str, bio: str, author: str,
                  decide_func: Callable[..., Any], x: int, y: int,
-                 stat_allocation: StatAllocation | None = None) -> None:
+                 stat_allocation: StatAllocation | None = None,
+                 glyph: str | None = None) -> None:
         self.name = name
         self.emoji = emoji
+        self.glyph: str = glyph if glyph is not None else self.emoji
         self.bio = bio
         self.author = author
         self.decide_func = decide_func
@@ -148,6 +150,7 @@ class Bot:
         return {
             "name": self.name,
             "emoji": self.emoji,
+            "glyph": self.glyph,
             "x": self.x,
             "y": self.y,
             "hp": self.hp,
@@ -164,6 +167,7 @@ class Bot:
         return {
             "x": self.x,
             "y": self.y,
+            "glyph": self.glyph,
             "hp": self.hp,
             "energy": self.energy,
             "attack_power": self.attack_power,

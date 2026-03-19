@@ -10,6 +10,7 @@ _rng = random.Random()
 
 BOT_NAME = "Starter"
 BOT_EMOJI = "\U0001f31f"
+BOT_GLYPH = "◆"
 BOT_BIO = "A solid foundation -- tweak the TODOs to make it your own"
 BOT_AUTHOR = "agentgrounds"
 

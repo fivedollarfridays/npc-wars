@@ -247,7 +247,7 @@ def build_round_record(
     for bot in bots:
         action_str = " ".join(str(a) for a in actions.get(bot.emoji, ("dead",)))
         positions.append({
-            "emoji": bot.emoji, "x": bot.x, "y": bot.y,
+            "emoji": bot.emoji, "glyph": bot.glyph, "x": bot.x, "y": bot.y,
             "hp": bot.hp, "energy": bot.energy,
             "action": action_str, "alive": bot.alive,
             "score": bot.score, "momentum_tier": bot.momentum_tier,

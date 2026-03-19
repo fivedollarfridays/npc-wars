@@ -5,6 +5,7 @@ import os
 from typing import Any
 
 from engine.bot_scanner import load_bot_module
+from engine.glyphs import validate_glyph
 from engine.stats import DEFAULT_ALLOCATION, validate_allocation
 
 log = logging.getLogger(__name__)
@@ -42,9 +43,13 @@ def _load_single_bot(filepath: str, filename: str) -> dict[str, Any] | None:
         log.warning("%s: invalid stat allocation (%s), using defaults", filename, e)
         allocation = DEFAULT_ALLOCATION
 
+    # Glyph: prefer BOT_GLYPH, fall back to BOT_EMOJI
+    raw_glyph = getattr(module, "BOT_GLYPH", None) or emoji
+    glyph = validate_glyph(raw_glyph)
+
     return {"name": name, "emoji": emoji, "bio": getattr(module, "BOT_BIO", ""),
             "author": getattr(module, "BOT_AUTHOR", "unknown"), "decide_func": decide,
-            "stat_allocation": allocation}
+            "stat_allocation": allocation, "glyph": glyph}
 
 
 def _deduplicate_emojis(bots: list[dict[str, Any]]) -> list[dict[str, Any]]:

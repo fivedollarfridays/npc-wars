@@ -2,6 +2,7 @@
 
 BOT_NAME = "KiteBot"
 BOT_EMOJI = "🎯"
+BOT_GLYPH = "◇"
 BOT_BIO = "catch me if you can"
 BOT_AUTHOR = "agentgrounds"
 

@@ -4,6 +4,7 @@ import random
 
 BOT_NAME = "ChaosBot"
 BOT_EMOJI = "🎲"
+BOT_GLYPH = "✦"
 BOT_BIO = "embrace the void"
 BOT_AUTHOR = "agentgrounds"
 

@@ -2,6 +2,7 @@
 
 BOT_NAME = "TankBot"
 BOT_EMOJI = "🐢"
+BOT_GLYPH = "■"
 BOT_BIO = "you shall not pass"
 BOT_AUTHOR = "agentgrounds"
 
