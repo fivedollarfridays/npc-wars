@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from agentgrounds.wars.cli.feed import format_feed_event as _format_feed_event
+from engine.momentum import TIER_ENERGY_DRAIN
 
 __all__ = ["TerminalRenderer", "WEAPON_FX", "DEFEND_FX"]
 
@@ -40,11 +41,6 @@ _TIER_LABELS: dict[int, str] = {
     3: f"{_RED}\U0001f525CROWD FAVORITE{_RST}",
     4: f"{_BOLD}{_PURPLE}\U0001f48eUNSTOPPABLE{_RST}",
 }
-
-
-def _tier_label(tier: int) -> str:
-    """Return colored tier label for the roster, or empty string for tier 0."""
-    return _TIER_LABELS.get(tier, "")
 
 
 class TerminalRenderer:
@@ -228,12 +224,14 @@ class TerminalRenderer:
             name = self._players.get(p["emoji"], "???")
             score = p.get("score", 0)
             tier = p.get("momentum_tier", 0)
-            tier_label = _tier_label(tier)
+            tier_label = _TIER_LABELS.get(tier, "")
+            is_leader = p.get("is_leader", False)
+            emoji_display = f"\U0001f451{p['emoji']}" if is_leader else p["emoji"]
             if not p["alive"]:
                 tail = f"  [{score} pts]"
                 if tier_label:
                     tail += f" {tier_label}"
-                lines.append(f"  {_DIM}{p['emoji']} {name:<12} ELIMINATED{_RST}{tail}")
+                lines.append(f"  {_DIM}{emoji_display} {name:<12} ELIMINATED{_RST}{tail}")
                 continue
             hp = max(0, p.get("hp", 0))
             energy = max(0, p.get("energy", 0))
@@ -241,8 +239,11 @@ class TerminalRenderer:
             tail = f"  [{score} pts]"
             if tier_label:
                 tail += f" {tier_label}"
+            drain = TIER_ENERGY_DRAIN.get(tier, 0)
+            if drain > 0:
+                tail += f"  \u26a1-{drain}/rd"
             lines.append(
-                f"  {p['emoji']} {name:<12} {hp_bar} {hp:>3}hp  \u26a1{energy}{tail}"
+                f"  {emoji_display} {name:<12} {hp_bar} {hp:>3}hp  \u26a1{energy}{tail}"
             )
         return lines
 

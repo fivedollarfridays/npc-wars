@@ -1,12 +1,11 @@
 """Main match engine for NPC Wars."""
 
-import asyncio
 import random
 from pathlib import Path
 from typing import Any
 
 from engine.combat import Bot, resolve_deaths, STARTING_ATTACK_POWER, get_round_bonus_attack, tick_damage_bonus
-from engine.momentum import apply_momentum_bonuses, calculate_carryover, get_tier_name
+from engine.momentum import apply_energy_drain, apply_momentum_bonuses, calculate_carryover, determine_leader, get_tier_name
 from engine.scoring import calculate_round_scores
 from engine.grid import calculate_grid_size, spawn_positions
 from engine.match_modes import MatchMode, get_mode, get_storm_border_for_mode
@@ -22,6 +21,20 @@ from engine.rounds import (
 )
 
 __all__ = ["MAX_ROUNDS", "run_match", "run_match_async"]
+
+
+async def run_match_async(
+    bot_configs: list[dict[str, Any]], match_id: int = 1, seed: int | None = None,
+    profiles_path: Path | None = None, human_timeout: float = 2.0,
+    match_mode: str = "standard",
+) -> dict[str, Any]:
+    """Async match loop — delegates to engine.game_async."""
+    from engine.game_async import run_match_async as _impl
+    return await _impl(
+        bot_configs, match_id=match_id, seed=seed,
+        profiles_path=profiles_path, human_timeout=human_timeout,
+        match_mode=match_mode,
+    )
 
 MAX_ROUNDS = 200  # Safety limit
 
@@ -69,6 +82,7 @@ def _resolve_tiebreaker(
 def _apply_round_scores(
     bots: list[Bot], round_data: dict[str, Any],
     round_num: int, storm_border: int, prev_storm_border: int,
+    leader_emoji: str | None = None,
 ) -> None:
     """Calculate and apply per-round scores to bots, attach to round_data."""
     bot_dicts = [
@@ -78,6 +92,7 @@ def _apply_round_scores(
     scores, score_events = calculate_round_scores(
         bot_dicts, round_data.get("events", []),
         round_num, storm_border, prev_storm_border,
+        leader_emoji=leader_emoji,
     )
     for bot in bots:
         bot.score += scores.get(bot.emoji, 0)
@@ -85,6 +100,20 @@ def _apply_round_scores(
         {"emoji": e.emoji, "source": e.source, "points": e.points}
         for e in score_events
     ]
+    # Append leader_bounty events to round events for feed display
+    events = round_data.get("events", [])
+    kill_victims_by_attacker = {
+        e.get("attacker"): e.get("victim")
+        for e in events if e.get("type") == "kill"
+    }
+    for e in score_events:
+        if e.source == "leader_bounty" and e.emoji in kill_victims_by_attacker:
+            events.append({
+                "type": "leader_bounty",
+                "killer": e.emoji,
+                "victim": kill_victims_by_attacker[e.emoji],
+                "bonus": e.points,
+            })
 
 
 def _resolve_combat_phases(
@@ -168,6 +197,33 @@ def _finalize_match(
     return match_data
 
 
+def _apply_momentum_phase(
+    bots: list[Bot], round_data: dict[str, Any],
+    round_num: int, storm_border: int, prev_storm_border: int,
+) -> None:
+    """Determine leader, apply scores/momentum/drain for one round."""
+    leader = determine_leader([b for b in bots if b.alive])
+    leader_emoji = leader.emoji if leader is not None else None
+    _apply_round_scores(
+        bots, round_data, round_num, storm_border, prev_storm_border,
+        leader_emoji=leader_emoji,
+    )
+    for b in bots:
+        b.is_leader = (leader is not None and b is leader)
+    for b in bots:
+        if b.alive:
+            apply_momentum_bonuses(b, is_leader=b.is_leader)
+    for b in bots:
+        if b.alive:
+            drain = apply_energy_drain(b)
+            if drain > 0:
+                round_data.setdefault("events", []).append({
+                    "type": "momentum_drain",
+                    "emoji": b.emoji,
+                    "energy_cost": drain,
+                })
+
+
 def _score_spectacle(
     spectacle_engine: SpectacleEngine, round_data: dict[str, Any], bots: list[Bot],
 ) -> None:
@@ -201,204 +257,6 @@ def _execute_round(
     )
 
 
-async def _collect_human_override(
-    bot: Bot, state: dict[str, Any], timeout_s: float,
-) -> tuple[str, tuple[str, ...] | None]:
-    """Collect one human's async input. Returns (emoji, action_or_None).
-
-    The outer ``wait_for`` is the authoritative timeout; the adapter receives
-    ``float('inf')`` so it does not race with a second timer.
-    """
-    try:
-        raw = await asyncio.wait_for(
-            bot.human_adapter.get_action_async(state, float("inf")),  # type: ignore[union-attr]
-            timeout=timeout_s,
-        )
-    except asyncio.TimeoutError:
-        raw = None
-    return bot.emoji, raw
-
-
-async def _execute_round_async(
-    bots: list[Bot], round_num: int, grid_size: int, storm_border: int,
-    bumps_last_round: list[dict[str, Any]] | None = None,
-    human_timeout: float = 2.0,
-) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], set[str]]:
-    """Async round: gathers human inputs concurrently after bot decisions.
-
-    Returns (round_data, eliminations, bump_events, human_responded_emojis).
-    """
-    from engine.combat import MAX_CONSECUTIVE_FAILURES
-    from engine.sandbox import execute_decide, validate_action
-    from engine.state import build_state
-
-    alive_bots = [b for b in bots if b.alive]
-    emoji_to_bot = {b.emoji: b for b in alive_bots}
-
-    bonus = get_round_bonus_attack(round_num)
-    for bot in alive_bots:
-        bot.attack_power = STARTING_ATTACK_POWER + bonus
-
-    # Phase 1a: collect bot decisions (sync)
-    actions: dict[str, tuple[str, ...]] = {}
-    forced_rest: set[str] = set()
-    human_bots: list[tuple[Bot, dict[str, Any]]] = []
-    override_events: list[dict[str, Any]] = []
-
-    for bot in alive_bots:
-        if not bot.can_act():
-            actions[bot.emoji] = ("rest",)
-            forced_rest.add(bot.emoji)
-            bot.consecutive_failures = 0
-            continue
-        state = build_state(bot, bots, round_num, grid_size, storm_border,
-                            bumps_last_round=bumps_last_round)
-        raw_action = execute_decide(bot.decide_func, state)
-        action = validate_action(raw_action, unlocked_actions=set(bot.unlocked_actions))
-        actions[bot.emoji] = action if action is not None else ("nothing",)
-        if bot.human_adapter is not None:
-            human_bots.append((bot, state))
-
-    # Phase 1b: gather human overrides concurrently
-    human_responded: set[str] = set()
-    if human_bots:
-        tasks = [
-            _collect_human_override(bot, st, human_timeout)
-            for bot, st in human_bots
-        ]
-        results = await asyncio.gather(*tasks)
-        for emoji, human_raw in results:
-            if human_raw is not None:
-                human_action = validate_action(
-                    human_raw, unlocked_actions=set(emoji_to_bot[emoji].unlocked_actions),
-                )
-                if human_action is not None:
-                    original = actions[emoji]
-                    if human_action != original:
-                        override_events.append({
-                            "type": "human_override",
-                            "player": emoji,
-                            "original": " ".join(original),
-                            "override": " ".join(human_action),
-                        })
-                    actions[emoji] = human_action
-                    human_responded.add(emoji)
-
-    # Handle consecutive failures
-    for bot in alive_bots:
-        if bot.emoji in forced_rest:
-            continue
-        act = actions[bot.emoji]
-        if act[0] == "nothing":
-            bot.consecutive_failures += 1
-            if bot.consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
-                bot.hp = 0
-                actions[bot.emoji] = ("disconnected",)
-        else:
-            bot.consecutive_failures = 0
-
-    round_data, round_elims, bump_events = _resolve_combat_phases(
-        alive_bots, bots, actions, forced_rest, override_events,
-        round_num, grid_size, storm_border,
-    )
-    return round_data, round_elims, bump_events, human_responded
-
-
-async def run_match_async(
-    bot_configs: list[dict[str, Any]], match_id: int = 1, seed: int | None = None,
-    profiles_path: Path | None = None, human_timeout: float = 2.0,
-    match_mode: str = "standard",
-) -> dict[str, Any]:
-    """Async match loop. Uses async rounds when humans are present."""
-    from engine.afk import AFKTracker
-    from engine.watcher_controller import WatcherController
-
-    mode = get_mode(match_mode)
-    bots, players, grid_size, rng = _prepare_match(bot_configs, seed, mode=mode)
-    has_humans = any(b.human_adapter is not None for b in bots)
-    afk_tracker = AFKTracker()
-    for b in bots:
-        if b.human_adapter is not None:
-            afk_tracker.register(b.emoji)
-    notify_match_start(match_id=match_id, players=players, seed=seed)
-
-    watcher_ctrl: WatcherController | None = None
-    if has_humans:
-        watcher_ctrl = WatcherController(rng=rng)
-
-    all_rounds: list[dict[str, Any]] = []
-    all_eliminations: list[dict[str, Any]] = []
-    last_bump_events: list[dict[str, Any]] = []
-    spectacle_engine = SpectacleEngine()
-    prev_storm_border = 0
-
-    for round_num in range(1, mode.max_rounds + 1):
-        if sum(b.alive for b in bots) <= 1:
-            break
-
-        storm_border = get_storm_border_for_mode(round_num, mode)
-
-        # Watcher spawn check (before decisions)
-        spawn_events: list[dict[str, Any]] = []
-        if watcher_ctrl is not None:
-            spawn_events = watcher_ctrl.try_spawn(bots, round_num, grid_size, storm_border)
-
-        if has_humans:
-            round_data, round_elims, last_bump_events, responded = await _execute_round_async(
-                bots, round_num, grid_size, storm_border,
-                bumps_last_round=last_bump_events, human_timeout=human_timeout,
-            )
-            if spawn_events:
-                round_data.setdefault("events", []).extend(spawn_events)
-            if watcher_ctrl is not None:
-                watcher_ctrl.post_round(
-                    bots, round_data, round_elims, round_num, grid_size, storm_border,
-                )
-            for b in bots:
-                if b.human_adapter is not None:
-                    if b.emoji in responded:
-                        afk_tracker.record_input(b.emoji)
-                    else:
-                        afk_tracker.record_miss(b.emoji)
-                        if afk_tracker.is_kicked(b.emoji):
-                            b.human_adapter = None
-        else:
-            round_data, round_elims, last_bump_events = _execute_round(
-                bots, round_num, grid_size, storm_border,
-                bumps_last_round=last_bump_events,
-            )
-
-        _apply_round_scores(bots, round_data, round_num, storm_border, prev_storm_border)
-        for b in bots:
-            if b.alive:
-                apply_momentum_bonuses(b)
-        _score_spectacle(spectacle_engine, round_data, bots)
-        all_rounds.append(round_data)
-        all_eliminations.extend(round_elims)
-        prev_storm_border = storm_border
-
-        if sum(b.alive for b in bots) <= 1:
-            break
-    else:
-        round_num = mode.max_rounds
-
-    # Finalize watcher persistence
-    if watcher_ctrl is not None:
-        winner_alive = [b for b in bots if b.alive]
-        watcher_won = (
-            watcher_ctrl.watcher_bot is not None
-            and watcher_ctrl.watcher_bot.alive
-            and len(winner_alive) <= 1
-        )
-        watcher_ctrl.finalize(won=watcher_won)
-
-    return _finalize_match(
-        bots, players, all_rounds, all_eliminations,
-        round_num, match_id, grid_size, profiles_path,
-        match_mode=mode.name,
-    )
-
-
 def run_match(
     bot_configs: list[dict[str, Any]], match_id: int = 1, seed: int | None = None,
     profiles_path: Path | None = None, match_mode: str = "standard",
@@ -423,10 +281,7 @@ def run_match(
             bots, round_num, grid_size, storm_border,
             bumps_last_round=last_bump_events,
         )
-        _apply_round_scores(bots, round_data, round_num, storm_border, prev_storm_border)
-        for b in bots:
-            if b.alive:
-                apply_momentum_bonuses(b)
+        _apply_momentum_phase(bots, round_data, round_num, storm_border, prev_storm_border)
         _score_spectacle(spectacle_engine, round_data, bots)
         all_rounds.append(round_data)
         all_eliminations.extend(round_elims)

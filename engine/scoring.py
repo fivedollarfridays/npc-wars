@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-__all__ = ["ScoreEvent", "calculate_round_scores"]
+__all__ = ["ScoreEvent", "calculate_round_scores", "LEADER_BOUNTY_POINTS"]
 
 # Scoring table
 SURVIVAL_POINTS = 1
@@ -15,6 +15,7 @@ DAMAGE_PER_CHUNK = 25  # +1 per 25 hp dealt
 CLEAN_KILL_BONUS = 5
 LAST_STANDING_POINTS = 15
 STORM_SURVIVOR_POINTS = 3
+LEADER_BOUNTY_POINTS = 20
 
 
 @dataclass(frozen=True, slots=True)
@@ -98,12 +99,30 @@ def _score_one_bot(
     return total, events
 
 
+_INVALID_ATTACKERS = frozenset({"storm", "unknown", ""})
+
+
+def _find_leader_killers(
+    round_events: list[dict[str, Any]], leader_emoji: str,
+) -> list[str]:
+    """Return emojis of bots who killed the leader this round."""
+    return [
+        e["attacker"] for e in round_events
+        if (
+            e.get("type") == "kill"
+            and e.get("victim") == leader_emoji
+            and e.get("attacker", "") not in _INVALID_ATTACKERS
+        )
+    ]
+
+
 def calculate_round_scores(
     bots: list[dict[str, Any]],
     round_events: list[dict[str, Any]],
     round_num: int,
     storm_border: int,
     prev_storm_border: int,
+    leader_emoji: str | None = None,
 ) -> tuple[dict[str, int], list[ScoreEvent]]:
     """Calculate per-round scores for all bots.
 
@@ -113,6 +132,11 @@ def calculate_round_scores(
     score_events: list[ScoreEvent] = []
     alive_count = sum(1 for b in bots if b.get("alive", False))
     storm_just_activated = prev_storm_border == 0 and storm_border > 0
+
+    # Determine who killed the leader (if any)
+    leader_killers: list[str] = []
+    if leader_emoji is not None:
+        leader_killers = _find_leader_killers(round_events, leader_emoji)
 
     for bot in bots:
         emoji = bot["emoji"]
@@ -124,6 +148,14 @@ def calculate_round_scores(
             emoji, bot.get("hp", 0), round_events,
             alive_count, storm_just_activated,
         )
+
+        # Leader bounty
+        if emoji in leader_killers:
+            total += LEADER_BOUNTY_POINTS
+            evts.append(ScoreEvent(
+                emoji=emoji, source="leader_bounty", points=LEADER_BOUNTY_POINTS,
+            ))
+
         scores[emoji] = total
         score_events.extend(evts)
 

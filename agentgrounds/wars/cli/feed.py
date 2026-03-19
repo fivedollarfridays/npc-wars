@@ -53,6 +53,13 @@ def _fmt_miss(evt: dict, rnd: int) -> str:
     )
 
 
+def _fmt_ranged_hit(evt: dict, rnd: int) -> str:
+    return (
+        f"  {_RED}R{rnd}:{_RST} {evt.get('attacker', '?')} \U0001f3f9 "
+        f"{evt.get('target', '?')} {_RED}-{evt.get('damage', '?')}hp{_RST}"
+    )
+
+
 def _fmt_ranged_miss(evt: dict, rnd: int) -> str:
     return (
         f"  {_DIM}R{rnd}:{_RST} {evt.get('attacker', '?')} "
@@ -103,15 +110,25 @@ def _fmt_taunt(evt: dict, rnd: int) -> str:
 
 _Formatter = Callable[[dict, int], str]
 
+def _fmt_leader_bounty(evt: dict, rnd: int) -> str:
+    return (
+        f"  {_RED}{_BOLD}R{rnd}: {evt.get('killer', '?')} "
+        f"\U0001f451 REGICIDE! eliminated leader {evt.get('victim', '?')} "
+        f"+{evt.get('bonus', 20)}pts{_RST}"
+    )
+
+
 _FORMATTERS: dict[str, _Formatter] = {
     "hit": _fmt_hit,
     "kill": _fmt_kill,
     "bump": _fmt_bump,
     "miss": _fmt_miss,
+    "ranged_hit": _fmt_ranged_hit,
     "ranged_miss": _fmt_ranged_miss,
     "defend": _fmt_defend,
     "dash": _fmt_dash,
     "wall_splat": _fmt_wall_splat,
     "storm_bounce": _fmt_storm_bounce,
     "taunt": _fmt_taunt,
+    "leader_bounty": _fmt_leader_bounty,
 }

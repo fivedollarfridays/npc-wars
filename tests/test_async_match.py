@@ -79,7 +79,7 @@ class AsyncMockAdapter:
 @pytest.mark.asyncio
 async def test_async_round_uses_human_override():
     """_execute_round_async applies human override from get_action_async."""
-    from engine.game import _execute_round_async
+    from engine.game_async import _execute_round_async
 
     adapter = AsyncMockAdapter([("attack", "north")])
     bot_h = make_bot(name="Human", emoji="HU", x=3, y=3)
@@ -107,7 +107,7 @@ async def test_async_round_uses_human_override():
 @pytest.mark.asyncio
 async def test_async_timeout_falls_back_to_bot():
     """When async adapter returns None (timeout), bot's decide() is used."""
-    from engine.game import _execute_round_async
+    from engine.game_async import _execute_round_async
 
     adapter = AsyncMockAdapter([None])  # simulate timeout
     bot_h = make_bot(name="Human", emoji="HU", x=3, y=3)
@@ -126,7 +126,7 @@ async def test_async_timeout_falls_back_to_bot():
 @pytest.mark.asyncio
 async def test_async_real_timeout_falls_back():
     """When get_action_async takes too long, asyncio.TimeoutError triggers fallback."""
-    from engine.game import _execute_round_async
+    from engine.game_async import _execute_round_async
 
     class SlowAdapter:
         async def get_action_async(self, state, timeout_s):
@@ -157,7 +157,7 @@ async def test_async_real_timeout_falls_back():
 @pytest.mark.asyncio
 async def test_async_multiple_humans_concurrent():
     """Multiple human adapters are gathered concurrently via asyncio.gather."""
-    from engine.game import _execute_round_async
+    from engine.game_async import _execute_round_async
 
     call_order: list[str] = []
 
@@ -221,7 +221,7 @@ async def test_async_match_completes_with_humans():
 @pytest.mark.asyncio
 async def test_async_match_mixed_timeout_and_respond():
     """Async round handles mix: one human responds, one times out."""
-    from engine.game import _execute_round_async
+    from engine.game_async import _execute_round_async
 
     respond_adapter = AsyncMockAdapter([("attack", "south")])
     timeout_adapter = AsyncMockAdapter([None])  # timeout
