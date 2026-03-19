@@ -23,10 +23,18 @@ from engine.rounds import (
 __all__ = ["MAX_ROUNDS", "run_match", "run_match_async"]
 
 
-def run_match_async(*args, **kwargs):  # type: ignore[no-untyped-def]
+async def run_match_async(
+    bot_configs: list[dict[str, Any]], match_id: int = 1, seed: int | None = None,
+    profiles_path: Path | None = None, human_timeout: float = 2.0,
+    match_mode: str = "standard",
+) -> dict[str, Any]:
     """Async match loop — delegates to engine.game_async."""
     from engine.game_async import run_match_async as _impl
-    return _impl(*args, **kwargs)
+    return await _impl(
+        bot_configs, match_id=match_id, seed=seed,
+        profiles_path=profiles_path, human_timeout=human_timeout,
+        match_mode=match_mode,
+    )
 
 MAX_ROUNDS = 200  # Safety limit
 
