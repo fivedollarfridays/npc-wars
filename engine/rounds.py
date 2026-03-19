@@ -327,6 +327,7 @@ def build_round_record(
             "hp": bot.hp, "energy": bot.energy,
             "action": action_str, "alive": bot.alive,
             "score": bot.score, "momentum_tier": bot.momentum_tier,
+            "is_leader": bot.is_leader,
         })
     return {"round": round_num, "storm_border": storm_border,
             "positions": positions, "events": events}

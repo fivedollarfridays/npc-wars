@@ -115,6 +115,8 @@ class Bot:
         self.momentum_energy_bonus: int = 0
         self.momentum_damage_multiplier: float = 1.0
         self.momentum_defense_reduction: float = 0.0
+        # Leader status (set by engine.momentum.apply_momentum_bonuses)
+        self.is_leader: bool = False
 
     def can_act(self) -> bool:
         """Check if bot has enough energy for any action (move is cheapest at 5)."""
@@ -134,6 +136,7 @@ class Bot:
             "hp": self.hp,
             "score": self.score,
             "momentum_tier": self.momentum_tier,
+            "is_leader": self.is_leader,
         }
 
     def to_self_dict(self) -> dict[str, Any]:
@@ -152,6 +155,7 @@ class Bot:
             "score": self.score,
             "momentum_tier": self.momentum_tier,
             "momentum_name": get_tier_name(self.score),
+            "is_leader": self.is_leader,
         }
 
 

@@ -30,10 +30,11 @@ state = {
         "score": 18,               # cumulative match score
         "momentum_tier": 1,        # 0-4, see Momentum System
         "momentum_name": "Momentum",  # tier display name
+        "is_leader": False,        # True if you're the highest scorer
     },
     "enemies": [
         {"x": 7, "y": 2, "hp": 45, "emoji": "🎯", "name": "Rival",
-         "score": 12, "momentum_tier": 1},
+         "score": 12, "momentum_tier": 1, "is_leader": True},
         # ... more living enemies
     ],
     "grid_size": 10,               # 10x10 grid
@@ -121,6 +122,20 @@ Bots earn points each round. Points build momentum tiers that grant combat bonus
 
 Bonuses are cumulative: tier 4 gets all lower-tier bonuses too.
 
+### King of the Hill
+
+Only **one bot** can be tier 3 or higher -- the **leader** (highest score). All other bots are capped at tier 2 regardless of score.
+
+- The leader is visible to all bots via `state["me"]["is_leader"]` and `state["enemies"][i]["is_leader"]`
+- **Leader bounty**: Kill the leader for **+20 bonus points** (on top of normal +10 kill points)
+- **Energy drain**: Tier 2+ costs energy per round: tier 2 = -3, tier 3 = -5, tier 4 = -8
+- **Crown transfer**: If you overtake the leader's score, you become the new leader instantly
+
+**Strategy implications:**
+- Target the leader for +20 bounty points -- a leader kill can instantly push you to a higher tier
+- Being the leader makes you a target and drains your energy -- staying on top is expensive
+- Energy drain at tier 4 (-8/rd) means the leader must keep fighting to sustain energy
+
 ### Carryover
 
 The match winner carries 50% of their final score into the next match, capped at 50 points. This means winning streaks build early momentum in follow-up matches.
@@ -132,6 +147,8 @@ The match winner carries 50% of their final score into the next match, capped at
 - **Clean kills (+5 bonus) reward aggressive play** without taking damage in the same round.
 - **Target high-momentum enemies** to deny their combat advantages (energy regen, damage boost).
 - **Early kills snowball** -- 10 points per kill means 1-2 kills can push you to tier 1 quickly.
+- **Target the leader** -- +20 bounty for killing the leader makes them a high-value target.
+- **Leader bleeds energy** -- tier 3+ costs 5-8 energy/round. The leader must keep fighting or drain out.
 
 ## Helpers API (Optional)
 

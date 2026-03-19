@@ -37,15 +37,15 @@ Wave 5 (gate):        T20.8 — INTEGRATION GATE           (20 Cx)
 
 ## Current Focus
 
-S20 complete. All 8 tasks done.
+S26 complete. All tasks T26.1-T26.5 done.
 
 ## What Was Just Done
 
-T20.8: S20 integration test. Wrote `tests/test_s20_integration.py` with 30 tests across 9 test classes verifying: CLI command registration (play/watch/generate in --help), TerminalRenderer output (title, grid, HP bars, combatants, kill feed), PROMPT.md required sections (state dict, actions, decide, strategies, examples), starter bot (validation, 7+ TODOs, helpers DSL, builtin_bots location), npcwars play e2e (subprocess --no-watch --seed 42 exits 0, prints winner), npcwars watch e2e (fixture JSON + --speed 100 --no-clear exits 0), npcwars generate e2e (prints PROMPT.md content), README updated (mentions play, generate, PROMPT.md, starter), no dead public functions (all modules importable and wired in __init__). All 30 tests pass. Ruff clean, arch check clean.
+T26.5: S26 integration test + balance verification (INTEGRATION GATE). Created `tests/test_s26_integration.py` with 14 tests covering: one-leader-per-round rule, non-leader tier cap at 2, leader reaching tier 3+, is_leader in position data, energy drain events, drain field validation, leader bounty constant, REGICIDE in feed output, crown in rendered roster, drain rate in roster, PROMPT.md leader/bounty/king-of-the-hill/is_leader content, and public API importability. Updated `PROMPT.md` with King of the Hill section, is_leader in state dict example, and leader strategy tips. All 14 S26 tests pass, all S25 and renderer tests pass, ruff clean.
 
 ## What's Next
 
-S20 sprint complete. Ready for PR or next sprint.
+S26 sprint complete. Ready for branch merge/PR.
 
 ## Completed Sprints
 

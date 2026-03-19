@@ -12,6 +12,8 @@ __all__ = [
     "MomentumTier", "TIERS",
     "get_tier", "get_tier_name",
     "apply_momentum_bonuses", "calculate_carryover",
+    "determine_leader",
+    "TIER_ENERGY_DRAIN", "apply_energy_drain",
 ]
 
 CARRYOVER_PERCENT = 0.5
@@ -55,16 +57,34 @@ def get_tier_name(score: int) -> str:
     return TIERS[tier_num].name
 
 
-def apply_momentum_bonuses(bot: Bot) -> None:
+def determine_leader(bots: list[Bot]) -> Bot | None:
+    """Return the leader bot — highest score among alive bots.
+
+    Ties broken by kills (most wins), then emoji (alphabetical sort).
+    Returns None if no alive bots or all scores are zero.
+    """
+    alive = [b for b in bots if b.alive and b.score > 0]
+    if not alive:
+        return None
+    alive.sort(key=lambda b: (-b.score, -b.kills, b.emoji))
+    return alive[0]
+
+
+def apply_momentum_bonuses(bot: Bot, *, is_leader: bool = False) -> None:
     """Apply cumulative momentum bonuses based on bot.score.
 
     Tier 1+: +5 energy regen per round (momentum_energy_bonus)
     Tier 2+: +10% damage dealt (momentum_damage_multiplier)
     Tier 3:  Crowd Favorite — visual only, no stat bonus
     Tier 4:  -15% incoming damage (momentum_defense_reduction)
+
+    Non-leaders are capped at tier 2 (one-leader rule).
     """
     tier_num = get_tier(bot.score)
+    if not is_leader and tier_num > 2:
+        tier_num = 2
     bot.momentum_tier = tier_num
+    bot.is_leader = is_leader
 
     # Reset to defaults
     bot.momentum_energy_bonus = 0
@@ -77,6 +97,17 @@ def apply_momentum_bonuses(bot: Bot) -> None:
         bot.momentum_damage_multiplier = DAMAGE_MULTIPLIER
     if tier_num >= 4:
         bot.momentum_defense_reduction = DEFENSE_REDUCTION
+
+
+TIER_ENERGY_DRAIN: dict[int, int] = {0: 0, 1: 0, 2: 3, 3: 5, 4: 8}
+
+
+def apply_energy_drain(bot: Bot) -> int:
+    """Apply energy drain for high momentum tiers. Returns drain amount."""
+    drain = TIER_ENERGY_DRAIN.get(bot.momentum_tier, 0)
+    if drain > 0:
+        bot.energy = max(0, bot.energy - drain)
+    return drain
 
 
 def calculate_carryover(score: int, *, is_winner: bool) -> int:

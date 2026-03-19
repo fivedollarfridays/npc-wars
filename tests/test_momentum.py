@@ -152,7 +152,7 @@ def test_apply_tier2_energy_and_damage():
 def test_apply_tier3_no_extra_stat_bonus():
     from engine.momentum import apply_momentum_bonuses
     bot = _make_bot(score=45)
-    apply_momentum_bonuses(bot)
+    apply_momentum_bonuses(bot, is_leader=True)
     assert bot.momentum_tier == 3
     assert bot.momentum_energy_bonus == 5
     assert bot.momentum_damage_multiplier == 1.1
@@ -162,7 +162,7 @@ def test_apply_tier3_no_extra_stat_bonus():
 def test_apply_tier4_all_cumulative():
     from engine.momentum import apply_momentum_bonuses
     bot = _make_bot(score=65)
-    apply_momentum_bonuses(bot)
+    apply_momentum_bonuses(bot, is_leader=True)
     assert bot.momentum_tier == 4
     assert bot.momentum_energy_bonus == 5
     assert bot.momentum_damage_multiplier == 1.1
@@ -220,7 +220,7 @@ def test_defense_reduction_applied_tier4():
 
     attacker = _make_bot(score=0)
     defender = _make_bot(score=65)  # tier 4
-    apply_momentum_bonuses(defender)
+    apply_momentum_bonuses(defender, is_leader=True)
 
     dmg = calculate_damage(attacker, defender)
     # base = 25 - 0 = 25, reduced by 15% -> 25 * 0.85 = 21.25 -> 21
@@ -233,9 +233,9 @@ def test_damage_and_defense_both_apply():
     from engine.momentum import apply_momentum_bonuses
 
     attacker = _make_bot(score=65)  # tier 4
-    apply_momentum_bonuses(attacker)
+    apply_momentum_bonuses(attacker, is_leader=True)
     defender = _make_bot(score=65)  # tier 4
-    apply_momentum_bonuses(defender)
+    apply_momentum_bonuses(defender, is_leader=True)
 
     dmg = calculate_damage(attacker, defender)
     # base = 25 - 0 = 25
