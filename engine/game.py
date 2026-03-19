@@ -122,6 +122,7 @@ def _resolve_combat_phases(
     alive_bots: list[Bot], bots: list[Bot], actions: dict[str, tuple[str, ...]],
     forced_rest: set[str], override_events: list[dict[str, Any]],
     round_num: int, grid_size: int, storm_border: int,
+    rng: random.Random | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
     """Phases 2-7: defense, movement, attacks, storm, energy, deaths."""
     defend_events = resolve_defense(alive_bots, actions)
@@ -130,9 +131,9 @@ def _resolve_combat_phases(
     )
     taunt_events = resolve_taunt(alive_bots, actions)
     pos_map = build_pos_map(alive_bots)
-    round_events = override_events + defend_events + bump_events + resolve_attacks(alive_bots, actions, pos_map)
+    round_events = override_events + defend_events + bump_events + resolve_attacks(alive_bots, actions, pos_map, rng=rng)
     round_events.extend(taunt_events)
-    round_events.extend(resolve_ranged_attacks(alive_bots, actions, pos_map))
+    round_events.extend(resolve_ranged_attacks(alive_bots, actions, pos_map, rng=rng))
     round_events.extend(apply_storm_damage(alive_bots, grid_size, storm_border))
     apply_energy_and_rest(alive_bots, actions, forced_rest)
 
@@ -241,6 +242,7 @@ def _score_spectacle(
 def _execute_round(
     bots: list[Bot], round_num: int, grid_size: int, storm_border: int,
     bumps_last_round: list[dict[str, Any]] | None = None,
+    rng: random.Random | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
     """Execute one round of the match. Returns (round_data, eliminations, bump_events)."""
     alive_bots = [b for b in bots if b.alive]
@@ -255,7 +257,7 @@ def _execute_round(
     )
     return _resolve_combat_phases(
         alive_bots, bots, actions, forced_rest, override_events,
-        round_num, grid_size, storm_border,
+        round_num, grid_size, storm_border, rng=rng,
     )
 
 
@@ -265,7 +267,7 @@ def run_match(
 ) -> dict[str, Any]:
     """Run a complete match. Returns match data dict."""
     mode = get_mode(match_mode)
-    bots, players, grid_size, _rng = _prepare_match(bot_configs, seed, mode=mode)
+    bots, players, grid_size, rng = _prepare_match(bot_configs, seed, mode=mode)
     notify_match_start(match_id=match_id, players=players, seed=seed)
 
     all_rounds: list[dict[str, Any]] = []
@@ -281,7 +283,7 @@ def run_match(
         storm_border = get_storm_border_for_mode(round_num, mode)
         round_data, round_elims, last_bump_events = _execute_round(
             bots, round_num, grid_size, storm_border,
-            bumps_last_round=last_bump_events,
+            bumps_last_round=last_bump_events, rng=rng,
         )
         _apply_momentum_phase(bots, round_data, round_num, storm_border, prev_storm_border)
         _score_spectacle(spectacle_engine, round_data, bots)

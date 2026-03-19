@@ -1,0 +1,13 @@
+id: plan-2026-03-s28-combat-rolls
+title: 'Sprint 28: Roll-Based Combat Overhaul'
+type: feature
+status: planned
+created_at: '2026-03-19T12:00:00'
+goals:
+- Replace flat damage with d20 roll-based combat (hit/miss/crit)
+- Thread match RNG through game loop into combat resolution
+- Damage ranges from POWER stat (min_damage to max_damage)
+- Critical hits (natural 20 or high roll, multiplied by crit_multiplier)
+- Ranged attacks use roll system with -2 to-hit penalty
+- Combat events carry roll/ac/crit data for renderer
+- ~85% base hit rate at default stats, avg damage ~25
