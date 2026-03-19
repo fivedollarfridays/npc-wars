@@ -234,8 +234,9 @@ class TerminalRenderer:
                 lines.append(f"  {_DIM}{emoji_display} {name:<12} ELIMINATED{_RST}{tail}")
                 continue
             hp = max(0, p.get("hp", 0))
+            max_hp = p.get("max_hp", 100)
             energy = max(0, p.get("energy", 0))
-            hp_bar = self._hp_bar(hp)
+            hp_bar = self._hp_bar(hp, max_hp=max_hp)
             tail = f"  [{score} pts]"
             if tier_label:
                 tail += f" {tier_label}"
@@ -261,12 +262,14 @@ class TerminalRenderer:
         return lines
 
     @staticmethod
-    def _hp_bar(hp: int, width: int = 10) -> str:
-        filled = max(0, min(width, int(hp / 100 * width)))
+    def _hp_bar(hp: int, width: int = 10, max_hp: int = 100) -> str:
+        effective_max = max(1, max_hp)
+        filled = max(0, min(width, int(hp / effective_max * width)))
         empty = width - filled
-        if hp > 50:
+        pct = hp / effective_max
+        if pct > 0.5:
             color = _GREEN
-        elif hp > 25:
+        elif pct > 0.25:
             color = _YELLOW
         else:
             color = _RED

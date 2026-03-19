@@ -4,8 +4,11 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Callable
 
+from engine.stats import DEFAULT_ALLOCATION, StatAllocation, calculate_derived
+
 if TYPE_CHECKING:
     from engine.human_input import HumanInputAdapter
+    from engine.stats import DerivedStats
 
 # Starting stats (identical for all bots)
 STARTING_HP = 100
@@ -79,7 +82,8 @@ class Bot:
     """Runtime state for a bot in a match."""
 
     def __init__(self, *, name: str, emoji: str, bio: str, author: str,
-                 decide_func: Callable[..., Any], x: int, y: int) -> None:
+                 decide_func: Callable[..., Any], x: int, y: int,
+                 stat_allocation: StatAllocation | None = None) -> None:
         self.name = name
         self.emoji = emoji
         self.bio = bio
@@ -87,8 +91,11 @@ class Bot:
         self.decide_func = decide_func
         self.x = x
         self.y = y
-        self.hp = STARTING_HP
-        self.energy = STARTING_ENERGY
+        # Stat allocation and derived stats
+        self.stats: StatAllocation = stat_allocation if stat_allocation is not None else DEFAULT_ALLOCATION
+        self.derived: DerivedStats = calculate_derived(self.stats)
+        self.hp = self.derived.max_hp
+        self.energy = self.derived.max_energy
         self.attack_power = STARTING_ATTACK_POWER
         self.defense = STARTING_DEFENSE
         self.alive = True
@@ -126,6 +133,16 @@ class Bot:
         """Deduct energy for an action."""
         self.energy = max(0, self.energy - ACTION_COSTS.get(action_type, 0))
 
+    def _speed_class(self) -> str:
+        """Qualitative speed label based on raw speed stat."""
+        if self.stats.speed < 15:
+            return "slow"
+        if self.stats.speed <= 30:
+            return "normal"
+        if self.stats.speed <= 45:
+            return "fast"
+        return "blazing"
+
     def to_enemy_dict(self) -> dict[str, Any]:
         """Bot info visible to other bots."""
         return {
@@ -137,6 +154,8 @@ class Bot:
             "score": self.score,
             "momentum_tier": self.momentum_tier,
             "is_leader": self.is_leader,
+            "max_hp": self.derived.max_hp,
+            "speed_class": self._speed_class(),
         }
 
     def to_self_dict(self) -> dict[str, Any]:
@@ -156,6 +175,16 @@ class Bot:
             "momentum_tier": self.momentum_tier,
             "momentum_name": get_tier_name(self.score),
             "is_leader": self.is_leader,
+            "power": self.stats.power,
+            "speed": self.stats.speed,
+            "armor": self.stats.armor,
+            "mind": self.stats.mind,
+            "max_hp": self.derived.max_hp,
+            "max_energy": self.derived.max_energy,
+            "min_damage": self.derived.min_damage,
+            "max_damage": self.derived.max_damage,
+            "dodge_chance": self.derived.dodge_chance,
+            "damage_reduction": self.derived.damage_reduction,
         }
 
 

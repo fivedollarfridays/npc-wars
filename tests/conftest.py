@@ -7,12 +7,16 @@ import discord
 from engine.combat import Bot
 
 
-def make_bot(name="TestBot", emoji="🤖", hp=100, energy=100, x=5, y=5, **kwargs):
+def make_bot(name="TestBot", emoji="🤖", hp=None, energy=None, x=5, y=5,
+             stat_allocation=None, **kwargs):
     """Create a Bot with optional overrides."""
     bot = Bot(name=name, emoji=emoji, bio="test", author="tester",
-              decide_func=lambda s: ("rest",), x=x, y=y)
-    bot.hp = hp
-    bot.energy = energy
+              decide_func=lambda s: ("rest",), x=x, y=y,
+              stat_allocation=stat_allocation)
+    if hp is not None:
+        bot.hp = hp
+    if energy is not None:
+        bot.energy = energy
     for k, v in kwargs.items():
         setattr(bot, k, v)
     return bot

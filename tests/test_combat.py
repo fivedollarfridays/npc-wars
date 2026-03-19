@@ -2,6 +2,13 @@
 
 from tests.conftest import make_bot
 
+from engine.stats import (
+    DEFAULT_ALLOCATION,
+    DerivedStats,
+    StatAllocation,
+    calculate_derived,
+)
+
 from engine.combat import (
     ACTION_COSTS,
     ATTACK_COST,
@@ -163,3 +170,59 @@ class TestBalanceConstants:
 
     def test_action_costs_attack_is_10(self):
         assert ACTION_COSTS["attack"] == 10
+
+
+# --- Stat allocation on Bot (T27.3) ---
+
+
+class TestBotStatAllocation:
+    def test_bot_default_stats(self):
+        """Bot() without stat_allocation has stats == DEFAULT_ALLOCATION."""
+        bot = make_bot()
+        assert bot.stats == DEFAULT_ALLOCATION
+
+    def test_bot_default_hp_100(self):
+        """Bot() without stat_allocation has hp == 100."""
+        bot = make_bot()
+        assert bot.hp == 100
+
+    def test_bot_default_energy_100(self):
+        """Bot() without stat_allocation has energy == 100."""
+        bot = make_bot()
+        assert bot.energy == 100
+
+    def test_bot_custom_stats_hp(self):
+        """Bot with high armor (50) has hp == 120."""
+        alloc = StatAllocation(15, 15, 50, 20)
+        bot = make_bot(stat_allocation=alloc)
+        expected_hp = calculate_derived(alloc).max_hp
+        assert expected_hp == 120
+        assert bot.hp == 120
+
+    def test_bot_custom_stats_energy(self):
+        """Bot with high mind (50) has energy == 120."""
+        alloc = StatAllocation(15, 15, 20, 50)
+        bot = make_bot(stat_allocation=alloc)
+        expected_energy = calculate_derived(alloc).max_energy
+        assert expected_energy == 120
+        assert bot.energy == 120
+
+    def test_bot_has_derived(self):
+        """Bot().derived is a DerivedStats instance."""
+        bot = make_bot()
+        assert isinstance(bot.derived, DerivedStats)
+
+    def test_bot_stats_accessible(self):
+        """Bot().stats.power == 25 for default allocation."""
+        bot = make_bot()
+        assert bot.stats.power == 25
+        assert bot.stats.speed == 25
+        assert bot.stats.armor == 25
+        assert bot.stats.mind == 25
+
+    def test_make_bot_with_stats(self):
+        """make_bot(stat_allocation=...) passes through to Bot."""
+        alloc = StatAllocation(30, 30, 20, 20)
+        bot = make_bot(stat_allocation=alloc)
+        assert bot.stats == alloc
+        assert bot.derived == calculate_derived(alloc)

@@ -52,6 +52,7 @@ def _create_bots(
             name=config["name"], emoji=config["emoji"],
             bio=config["bio"], author=config.get("author", "unknown"),
             decide_func=config["decide_func"], x=x, y=y,
+            stat_allocation=config.get("stat_allocation"),
         )
         for fld in _PROGRESSION_FIELDS:
             if fld in config:
@@ -86,7 +87,8 @@ def _apply_round_scores(
 ) -> None:
     """Calculate and apply per-round scores to bots, attach to round_data."""
     bot_dicts = [
-        {"emoji": b.emoji, "alive": b.alive, "hp": b.hp}
+        {"emoji": b.emoji, "alive": b.alive, "hp": b.hp,
+         "max_hp": b.derived.max_hp}
         for b in bots
     ]
     scores, score_events = calculate_round_scores(

@@ -10,7 +10,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from engine.combat import Bot, MAX_HP, MAX_ENERGY
+from engine.combat import Bot
 
 __all__ = [
     "BOUNTY_SCALING",
@@ -86,8 +86,8 @@ def apply_bounty_reward(bot: Bot, reward: dict[str, Any]) -> None:
     Restores HP and energy to max, and sets a temporary damage bonus.
     """
     if reward["hp_restore"] != "none":
-        bot.hp = MAX_HP
-    bot.energy = MAX_ENERGY
+        bot.hp = bot.derived.max_hp
+    bot.energy = bot.derived.max_energy
     bot.damage_bonus = {
         "multiplier": 1.0 + float(reward["damage_bonus"]),
         "rounds_remaining": int(reward["bonus_rounds"]),

@@ -7,6 +7,7 @@ from engine.combat import (
     STARTING_ATTACK_POWER,
     calculate_damage,
 )
+from engine.stats import StatAllocation
 
 
 # --- Dict serialization ---
@@ -15,7 +16,10 @@ from engine.combat import (
 class TestDictSerialization:
     def test_enemy_dict_keys(self):
         d = make_bot(name="A", emoji="🅰️", x=3, y=4, hp=80).to_enemy_dict()
-        assert set(d.keys()) == {"name", "emoji", "x", "y", "hp", "score", "momentum_tier", "is_leader"}
+        assert set(d.keys()) == {
+            "name", "emoji", "x", "y", "hp", "score",
+            "momentum_tier", "is_leader", "max_hp", "speed_class",
+        }
 
     def test_enemy_dict_hides_energy(self):
         d = make_bot().to_enemy_dict()
@@ -35,6 +39,9 @@ class TestDictSerialization:
             "x", "y", "hp", "energy", "attack_power", "defense",
             "unlocked_actions", "line_budget", "win_streak", "score",
             "momentum_tier", "momentum_name", "is_leader",
+            "power", "speed", "armor", "mind",
+            "max_hp", "max_energy", "min_damage", "max_damage",
+            "dodge_chance", "damage_reduction",
         }
 
     def test_self_dict_includes_energy(self):
@@ -51,6 +58,54 @@ class TestDictSerialization:
         assert d["energy"] == 60
         assert d["attack_power"] == STARTING_ATTACK_POWER
         assert d["defense"] == DEFEND_BONUS
+
+    def test_self_dict_has_stat_fields(self):
+        alloc = StatAllocation(power=30, speed=20, armor=30, mind=20)
+        d = make_bot(stat_allocation=alloc).to_self_dict()
+        assert d["power"] == 30
+        assert d["speed"] == 20
+        assert d["armor"] == 30
+        assert d["mind"] == 20
+
+    def test_self_dict_has_derived_fields(self):
+        d = make_bot().to_self_dict()
+        # Default 25/25/25/25 derived values
+        assert d["max_hp"] == 100
+        assert d["max_energy"] == 100
+        assert d["min_damage"] == 15
+        assert d["max_damage"] == 35
+        assert d["dodge_chance"] == 10.0
+        assert d["damage_reduction"] == 0
+
+    def test_enemy_dict_has_max_hp(self):
+        alloc = StatAllocation(power=20, speed=20, armor=40, mind=20)
+        d = make_bot(stat_allocation=alloc).to_enemy_dict()
+        # armor=40 -> max_hp = 80 + 40*0.8 = 112
+        assert d["max_hp"] == 112
+
+    def test_enemy_dict_has_speed_class(self):
+        d = make_bot().to_enemy_dict()
+        assert "speed_class" in d
+
+    def test_enemy_dict_default_speed_class_normal(self):
+        # default speed=25 -> "normal"
+        d = make_bot().to_enemy_dict()
+        assert d["speed_class"] == "normal"
+
+    def test_enemy_dict_speed_class_slow(self):
+        alloc = StatAllocation(power=35, speed=10, armor=30, mind=25)
+        d = make_bot(stat_allocation=alloc).to_enemy_dict()
+        assert d["speed_class"] == "slow"
+
+    def test_enemy_dict_speed_class_fast(self):
+        alloc = StatAllocation(power=15, speed=40, armor=20, mind=25)
+        d = make_bot(stat_allocation=alloc).to_enemy_dict()
+        assert d["speed_class"] == "fast"
+
+    def test_enemy_dict_speed_class_blazing(self):
+        alloc = StatAllocation(power=10, speed=50, armor=15, mind=25)
+        d = make_bot(stat_allocation=alloc).to_enemy_dict()
+        assert d["speed_class"] == "blazing"
 
 
 # --- calculate_damage ---
