@@ -1,48 +1,46 @@
 # Current State
 
-> Last updated: 2026-03-19 T28.8 done
+> Last updated: 2026-03-19 T29.7 done
 
 ## Active Plans
 
-**Plan:** Sprint 28: Roll-Based Combat Overhaul
-- **Sprint:** S28 | **Type:** feature | **Status:** Complete (8/8 tasks done)
+**Plan:** Sprint 29: Combat Overhaul pt.2 — Dodge, Modifiers, Initiative
+- **Sprint:** S29 | **Type:** feature | **Status:** Done (7/7 tasks)
 - **Part of:** Phase 1 — Agent Wars v2 Foundation (S27-S31, 35 tasks, 810 Cx)
 
-### S28 Tasks
+### S29 Tasks
 
 | Task | Title | Cx | Depends On | Status |
 |------|-------|----|------------|--------|
-| T28.1 | Combat roll engine + CombatResult | 30 | — | done |
-| T28.2 | Critical hit system | 20 | T28.1 | done |
-| T28.3 | Thread RNG through game loop | 25 | T28.1 | done |
-| T28.4 | Wire roll combat into resolve_attacks | 25 | T28.1-3 | done |
-| T28.5 | Ranged attacks use roll system | 20 | T28.4 | done |
-| T28.6 | Combat events carry roll/crit data | 15 | T28.4-5 | done |
-| T28.7 | Feed formatters for crit/miss events | 20 | T28.6 | done |
-| T28.8 | GATE: Statistical validation | 25 | all | done |
+| T29.1 | Extract combat helpers from rounds.py | 20 | — | done |
+| T29.2 | Dodge system (SPEED-based) | 25 | T29.1 | done |
+| T29.3 | Situational to-hit modifiers | 25 | T29.2 | done |
+| T29.4 | Initiative system (SPEED priority) | 20 | T29.1 | done |
+| T29.5 | Hit probability calculator | 25 | T29.2, T29.3 | done |
+| T29.6 | Incoming threat estimator | 20 | T29.5 | done |
+| T29.7 | GATE: Mixed archetypes audit | 25 | all | done |
 
-### S28 Wave Plan
+### S29 Wave Plan
 
 ```
-Wave 1 (parallel): T28.1, T28.2              (50 Cx)
-Wave 2:            T28.3                       (25 Cx)
-Wave 3:            T28.4                       (25 Cx)
-Wave 4 (parallel): T28.5, T28.6              (35 Cx)
-Wave 5:            T28.7                       (20 Cx)
-Wave 6:            T28.8 — INTEGRATION GATE    (25 Cx)
+Wave 1:             T29.1 — Extract helpers          (20 Cx)
+Wave 2 (parallel):  T29.2, T29.4 — Dodge + init      (45 Cx)
+Wave 3:             T29.3 — Modifiers                  (25 Cx)
+Wave 4 (parallel):  T29.5, T29.6 — Hit calc + threat  (45 Cx)
+Wave 5:             T29.7 — INTEGRATION GATE           (25 Cx)
 ```
 
 ## Current Focus
 
-Sprint 28 complete. All 8 tasks done. Ready for next sprint.
+S29 complete. All 7 tasks done.
 
 ## What Was Just Done
 
-T28.8: GATE — Statistical validation for roll-based combat. Created `tests/test_s28_integration.py` with 12 integration tests across 6 test classes. Ran 20 seeded matches to validate: avg damage ~32.5 (within [20,40]), miss rate ~24.6% (within [5%,30%]), crit rate within [30%,70%], match length within [15,60] rounds. Verified all hit/miss events carry roll/modifier/ac/is_crit fields. Confirmed high-power bots deal more damage, high-armor bots take fewer hits, feed shows CRIT and dodged text, builtin bots complete matches, and deterministic bots with same seed produce identical results. Fixed S27 `test_default_bots_damage_is_25` to accept roll-based range instead of exact value. All 2618 tracked tests pass, ruff clean.
+T29.7 (GATE): Integration gate for S29. Created `tests/test_s29_integration.py` with 13 tests covering: dodge events in real matches, high-speed dodge rate advantage, initiative kill attribution, resting-target hit-rate modifier, state dict `hit_chance_vs` presence and structure, `incoming_threat` sorting, architecture compliance for `rounds.py` and `rounds_combat.py`, builtin bot regression, and feed "(glancing)" rendering for dodged hits. All 13 tests pass. No regressions introduced (pre-existing failures in `test_bot_memory_wiring.py` are unrelated).
 
 ## What's Next
 
-Sprint 28 complete. Ready for next sprint (S29+).
+S29 sprint complete. Ready for PR or next sprint.
 
 ## Completed Sprints
 
@@ -52,4 +50,4 @@ Sprint 28 complete. Ready for next sprint (S29+).
 | S20-S24 | Experience, Memory, Tournament, Restructure, FX | — | Done |
 | S25-S26 | Momentum, King of the Hill | #21 | Done |
 | S27 | Stat Budget System | #22 | Done |
-| S28 | Roll-Based Combat Overhaul | — | Done |
+| S28 | Roll-Based Combat | #23 | Done |

@@ -27,9 +27,10 @@ def format_feed_event(evt: dict, rnd: int) -> str | None:
 
 def _fmt_hit(evt: dict, rnd: int) -> str:
     crit = " CRIT!" if evt.get("is_crit") else ""
+    dodge = " (glancing)" if evt.get("dodged") else ""
     return (
         f"  {_RED}R{rnd}:{_RST} {evt['attacker']} \u2192 "
-        f"{evt['target']} \U0001f4a5{crit} {_RED}-{evt.get('damage', '?')}hp{_RST}"
+        f"{evt['target']} \U0001f4a5{crit}{dodge} {_RED}-{evt.get('damage', '?')}hp{_RST}"
     )
 
 
@@ -56,9 +57,10 @@ def _fmt_miss(evt: dict, rnd: int) -> str:
 
 def _fmt_ranged_hit(evt: dict, rnd: int) -> str:
     crit = " CRIT!" if evt.get("is_crit") else ""
+    dodge = " (glancing)" if evt.get("dodged") else ""
     return (
         f"  {_RED}R{rnd}:{_RST} {evt.get('attacker', '?')} \U0001f3f9 "
-        f"{evt.get('target', '?')}{crit} {_RED}-{evt.get('damage', '?')}hp{_RST}"
+        f"{evt.get('target', '?')}{crit}{dodge} {_RED}-{evt.get('damage', '?')}hp{_RST}"
     )
 
 

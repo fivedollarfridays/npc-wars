@@ -58,10 +58,10 @@ def test_resolve_attacks_damage_applied_with_rng():
 
 def test_resolve_attacks_miss_produces_attack_miss():
     """When roll < AC with rng, event type is 'attack_miss' with roll data."""
-    actions = {"A": ("attack", "north"), "D": ("rest",)}
+    # Use defending target for higher AC (easier to miss)
+    actions = {"A": ("attack", "north"), "D": ("defend",)}
 
-    # Try seeds until we get a miss
-    for seed in range(200):
+    for seed in range(500):
         a = make_bot(emoji="A", x=5, y=5)
         d = make_bot(emoji="D", x=5, y=4, hp=100)
         rng = random.Random(seed)
@@ -76,7 +76,6 @@ def test_resolve_attacks_miss_produces_attack_miss():
             assert "ac" in miss
             return
 
-    # If we reach here, no seed produced a miss — skip or fail
     raise AssertionError("Could not find a seed that produces a miss")
 
 
