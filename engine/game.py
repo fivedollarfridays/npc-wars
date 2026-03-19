@@ -87,7 +87,8 @@ def _apply_round_scores(
 ) -> None:
     """Calculate and apply per-round scores to bots, attach to round_data."""
     bot_dicts = [
-        {"emoji": b.emoji, "alive": b.alive, "hp": b.hp}
+        {"emoji": b.emoji, "alive": b.alive, "hp": b.hp,
+         "max_hp": b.derived.max_hp}
         for b in bots
     ]
     scores, score_events = calculate_round_scores(

@@ -76,20 +76,34 @@ class DerivedStats:
     energy_regen: int
 
 
-def calculate_derived(alloc: StatAllocation) -> DerivedStats:
-    """Map raw stat allocation to gameplay values.
+# Scaling coefficients — tuned so DEFAULT_ALLOCATION (25/25/25/25)
+# produces the pre-overhaul constants (HP=100, energy=100, damage=25, etc.)
+_BASE_HP = 80
+_HP_PER_ARMOR = 0.8
+_BASE_ENERGY = 80
+_ENERGY_PER_MIND = 0.8
+_MIN_DMG_SCALE = 0.6
+_MAX_DMG_SCALE = 1.4
+_BASE_CRIT = 1.5
+_CRIT_PER_POWER = 0.02
+_DODGE_PER_SPEED = 0.4
+_DODGE_CAP = 40.0
+_DR_PER_ARMOR = 0.3
+_DR_BASELINE = 25  # armor value that gives 0 DR
+_REGEN_PER_MIND = 0.2
+_REGEN_BASELINE = 25  # mind value that gives 0 regen
 
-    Formulas are calibrated so DEFAULT_ALLOCATION (25/25/25/25) produces
-    exactly the pre-overhaul game constants.
-    """
+
+def calculate_derived(alloc: StatAllocation) -> DerivedStats:
+    """Map raw stat allocation to gameplay values."""
     return DerivedStats(
-        max_hp=int(80 + alloc.armor * 0.8),
-        max_energy=int(80 + alloc.mind * 0.8),
-        min_damage=max(1, int(alloc.power * 0.6)),
-        max_damage=int(alloc.power * 1.4),
-        crit_multiplier=round(1.5 + (alloc.power - 25) * 0.02, 2),
-        dodge_chance=min(40.0, round(alloc.speed * 0.4, 1)),
+        max_hp=int(_BASE_HP + alloc.armor * _HP_PER_ARMOR),
+        max_energy=int(_BASE_ENERGY + alloc.mind * _ENERGY_PER_MIND),
+        min_damage=max(1, int(alloc.power * _MIN_DMG_SCALE)),
+        max_damage=int(alloc.power * _MAX_DMG_SCALE),
+        crit_multiplier=round(_BASE_CRIT + (alloc.power - 25) * _CRIT_PER_POWER, 2),
+        dodge_chance=min(_DODGE_CAP, round(alloc.speed * _DODGE_PER_SPEED, 1)),
         initiative=alloc.speed,
-        damage_reduction=max(0, int((alloc.armor - 25) * 0.3)),
-        energy_regen=max(0, int((alloc.mind - 25) * 0.2)),
+        damage_reduction=max(0, int((alloc.armor - _DR_BASELINE) * _DR_PER_ARMOR)),
+        energy_regen=max(0, int((alloc.mind - _REGEN_BASELINE) * _REGEN_PER_MIND)),
     )

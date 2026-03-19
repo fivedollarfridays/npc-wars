@@ -52,7 +52,7 @@ def _total_damage_taken(emoji: str, events: list[dict[str, Any]]) -> int:
 
 
 def _score_one_bot(
-    emoji: str, hp: int, round_events: list[dict[str, Any]],
+    emoji: str, hp: int, max_hp: int, round_events: list[dict[str, Any]],
     alive_count: int, storm_just_activated: bool,
 ) -> tuple[int, list[ScoreEvent]]:
     """Score a single alive bot for one round."""
@@ -82,7 +82,7 @@ def _score_one_bot(
         events.append(ScoreEvent(emoji=emoji, source="clean_kill", points=CLEAN_KILL_BONUS))
 
     # Full HP
-    if hp == 100:
+    if hp >= max_hp:
         total += FULL_HP_POINTS
         events.append(ScoreEvent(emoji=emoji, source="full_hp", points=FULL_HP_POINTS))
 
@@ -145,8 +145,8 @@ def calculate_round_scores(
             continue
 
         total, evts = _score_one_bot(
-            emoji, bot.get("hp", 0), round_events,
-            alive_count, storm_just_activated,
+            emoji, bot.get("hp", 0), bot.get("max_hp", 100),
+            round_events, alive_count, storm_just_activated,
         )
 
         # Leader bounty
