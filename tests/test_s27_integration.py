@@ -63,7 +63,7 @@ class TestBackwardCompatibility:
             )
             assert bot.energy == 100, f"{bot.name} energy != 100"
 
-    def test_default_bots_damage_is_25(self) -> None:
+    def test_default_bots_damage_in_range(self) -> None:
         match = _seeded_match()
         hit_damages: list[int] = []
         for rnd in match["rounds"]:
@@ -71,10 +71,10 @@ class TestBackwardCompatibility:
                 if evt.get("type") == "hit":
                     hit_damages.append(evt["damage"])
         assert len(hit_damages) > 0, "No hit events found"
-        # With default stats, base damage is 25 (flat, no rolls yet)
-        # Momentum multipliers can change damage, so check early hits
-        # Find first hit — should be 25 (before momentum kicks in)
-        assert hit_damages[0] == 25, f"First hit damage {hit_damages[0]} != 25"
+        # S28: roll-based combat produces damage in [15, 35] base range
+        # with crits up to ~52. Check average is near 25.
+        avg = sum(hit_damages) / len(hit_damages)
+        assert 15 <= avg <= 45, f"Avg hit damage {avg:.1f} outside [15, 45]"
 
     def test_default_match_length_reasonable(self) -> None:
         match = _seeded_match()

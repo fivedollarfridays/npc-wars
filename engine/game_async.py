@@ -1,6 +1,7 @@
 """Async match engine for NPC Wars (human/copilot mode)."""
 
 import asyncio
+import random
 from pathlib import Path
 from typing import Any
 
@@ -38,6 +39,7 @@ async def _execute_round_async(
     bots: list[Bot], round_num: int, grid_size: int, storm_border: int,
     bumps_last_round: list[dict[str, Any]] | None = None,
     human_timeout: float = 2.0,
+    rng: random.Random | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], set[str]]:
     """Async round: gathers human inputs concurrently after bot decisions."""
     from engine.combat import MAX_CONSECUTIVE_FAILURES
@@ -108,7 +110,7 @@ async def _execute_round_async(
 
     round_data, round_elims, bump_events = _resolve_combat_phases(
         alive_bots, bots, actions, forced_rest, override_events,
-        round_num, grid_size, storm_border,
+        round_num, grid_size, storm_border, rng=rng,
     )
     return round_data, round_elims, bump_events, human_responded
 
@@ -155,6 +157,7 @@ async def run_match_async(
             round_data, round_elims, last_bump_events, responded = await _execute_round_async(
                 bots, round_num, grid_size, storm_border,
                 bumps_last_round=last_bump_events, human_timeout=human_timeout,
+                rng=rng,
             )
             if spawn_events:
                 round_data.setdefault("events", []).extend(spawn_events)
@@ -173,7 +176,7 @@ async def run_match_async(
         else:
             round_data, round_elims, last_bump_events = _execute_round(
                 bots, round_num, grid_size, storm_border,
-                bumps_last_round=last_bump_events,
+                bumps_last_round=last_bump_events, rng=rng,
             )
 
         _apply_momentum_phase(bots, round_data, round_num, storm_border, prev_storm_border)
