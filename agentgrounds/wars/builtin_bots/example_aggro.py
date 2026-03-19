@@ -2,6 +2,7 @@
 
 BOT_NAME = "AggroBot"
 BOT_EMOJI = "🤖"
+BOT_GLYPH = "⚔"
 BOT_BIO = "all gas no brakes"
 BOT_AUTHOR = "agentgrounds"
 

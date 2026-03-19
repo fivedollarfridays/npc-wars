@@ -1,0 +1,12 @@
+id: plan-2026-03-s30-identity
+title: 'Sprint 30: Visual Identity System'
+type: feature
+status: planned
+created_at: '2026-03-19T20:00:00'
+goals:
+- BOT_GLYPH optional character with approved registry
+- HP-dependent foreground coloring (white/green/yellow/red)
+- Stat-based background hint colors
+- Wire glyph rendering into grid and roster
+- Extended aura effects for leader
+- Update builtin bots with glyphs

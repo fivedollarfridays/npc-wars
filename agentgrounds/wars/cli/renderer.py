@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from agentgrounds.wars.cli.feed import format_feed_event as _format_feed_event
+from agentgrounds.wars.cli.glyph_render import render_glyph as _render_glyph
 from engine.momentum import TIER_ENERGY_DRAIN
 
 __all__ = ["TerminalRenderer", "WEAPON_FX", "DEFEND_FX"]
@@ -48,6 +49,9 @@ class TerminalRenderer:
 
     def __init__(self, players: list[dict], grid_size: int) -> None:
         self._players: dict[str, str] = {p["emoji"]: p["name"] for p in players}
+        for p in players:
+            if "glyph" in p:
+                self._players[p["glyph"]] = p["name"]
         self._grid_size = grid_size
         self._kill_feed: list[str] = []
         self._first_frame = True
@@ -192,9 +196,13 @@ class TerminalRenderer:
         overlay: dict[tuple[int, int], str] | None = None,
     ) -> list[str]:
         gs = self._grid_size
-        pos_map = {
-            (p["x"], p["y"]): p["emoji"] for p in positions if p["alive"]
-        }
+        pos_map = {}
+        for p in positions:
+            if p["alive"]:
+                glyph = p.get("glyph", p["emoji"])
+                pos_map[(p["x"], p["y"])] = _render_glyph(
+                    glyph, p.get("hp", 100), p.get("max_hp", 100),
+                )
         fx = overlay or {}
 
         border = f"  {_PURPLE}{STORM_CHAR * (gs + 2)}{_RST}"
@@ -226,15 +234,17 @@ class TerminalRenderer:
             tier = p.get("momentum_tier", 0)
             tier_label = _TIER_LABELS.get(tier, "")
             is_leader = p.get("is_leader", False)
-            emoji_display = f"\U0001f451{p['emoji']}" if is_leader else p["emoji"]
+            glyph = p.get("glyph", p["emoji"])
+            hp = max(0, p.get("hp", 0))
+            max_hp = p.get("max_hp", 100)
+            colored_glyph = _render_glyph(glyph, hp, max_hp)
+            emoji_display = f"\U0001f451{colored_glyph}" if is_leader else colored_glyph
             if not p["alive"]:
                 tail = f"  [{score} pts]"
                 if tier_label:
                     tail += f" {tier_label}"
                 lines.append(f"  {_DIM}{emoji_display} {name:<12} ELIMINATED{_RST}{tail}")
                 continue
-            hp = max(0, p.get("hp", 0))
-            max_hp = p.get("max_hp", 100)
             energy = max(0, p.get("energy", 0))
             hp_bar = self._hp_bar(hp, max_hp=max_hp)
             tail = f"  [{score} pts]"

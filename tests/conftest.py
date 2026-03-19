@@ -8,11 +8,11 @@ from engine.combat import Bot
 
 
 def make_bot(name="TestBot", emoji="🤖", hp=None, energy=None, x=5, y=5,
-             stat_allocation=None, **kwargs):
+             stat_allocation=None, glyph=None, **kwargs):
     """Create a Bot with optional overrides."""
     bot = Bot(name=name, emoji=emoji, bio="test", author="tester",
               decide_func=lambda s: ("rest",), x=x, y=y,
-              stat_allocation=stat_allocation)
+              stat_allocation=stat_allocation, glyph=glyph)
     if hp is not None:
         bot.hp = hp
     if energy is not None:

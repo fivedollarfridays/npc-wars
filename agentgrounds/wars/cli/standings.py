@@ -3,6 +3,7 @@ from __future__ import annotations
 
 from collections.abc import Callable
 
+from agentgrounds.wars.cli.glyph_render import render_glyph as _render_glyph
 from engine.momentum import TIERS
 
 __all__ = ["build_standings", "build_final_roster"]
@@ -64,22 +65,28 @@ def build_final_roster(
     lines = [f"  {_BOLD}Combatants{_RST}"]
     for p in positions:
         name = player_names.get(p["emoji"], "???")
+        glyph = p.get("glyph", p["emoji"])
         if p["emoji"] == winner_emoji:
             hp = max(0, p.get("hp", 0))
+            max_hp = p.get("max_hp", 100)
             energy = max(0, p.get("energy", 0))
             hp_bar = hp_bar_fn(hp)
+            colored = _render_glyph(glyph, hp, max_hp)
             lines.append(
-                f"  {_BOLD}{_YELLOW}{p['emoji']} {name:<12}{_RST} "
+                f"  {_BOLD}{_YELLOW}{colored} {name:<12}{_RST} "
                 f"{hp_bar} {hp:>3}hp  \u26a1{energy}  "
                 f"{_BOLD}{_YELLOW}WINNER{_RST}"
             )
         elif not p["alive"]:
-            lines.append(f"  {_DIM}{p['emoji']} {name:<12} ELIMINATED{_RST}")
+            colored = _render_glyph(glyph, 0, p.get("max_hp", 100))
+            lines.append(f"  {_DIM}{colored} {name:<12} ELIMINATED{_RST}")
         else:
             hp = max(0, p.get("hp", 0))
+            max_hp = p.get("max_hp", 100)
             energy = max(0, p.get("energy", 0))
             hp_bar = hp_bar_fn(hp)
-            lines.append(f"  {p['emoji']} {name:<12} {hp_bar} {hp:>3}hp  \u26a1{energy}")
+            colored = _render_glyph(glyph, hp, max_hp)
+            lines.append(f"  {colored} {name:<12} {hp_bar} {hp:>3}hp  \u26a1{energy}")
     return lines
 
 

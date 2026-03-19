@@ -145,4 +145,17 @@ def build_aura_overlay(
             if (nx, ny) in occupied:
                 continue
             overlay[(nx, ny)] = dot
+
+    # Leader gold diamond on first available adjacent empty cell
+    for p in positions:
+        if not p["alive"] or not p.get("is_leader", False):
+            continue
+        bx, by = p["x"], p["y"]
+        for dx, dy in _ADJACENTS:
+            nx, ny = bx + dx, by + dy
+            if 0 <= nx < grid_size and 0 <= ny < grid_size:
+                if (nx, ny) not in occupied:
+                    overlay[(nx, ny)] = f"{_YELLOW}\u2666{_RST}"
+                    break
+
     return overlay
