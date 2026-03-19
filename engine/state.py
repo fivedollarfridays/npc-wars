@@ -20,7 +20,7 @@ def _compute_incoming_threats(
             "hit_chance": prob["hit_chance"],
             "expected_damage": prob["expected_damage"],
         })
-    threats.sort(key=lambda t: t["expected_damage"], reverse=True)
+    threats.sort(key=lambda t: float(t["expected_damage"]), reverse=True)
     return threats
 
 
