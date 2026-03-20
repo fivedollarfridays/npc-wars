@@ -87,18 +87,17 @@ MAX_LEVEL = 30
 
 def level_from_xp(total_xp: int) -> int:
     """Return the highest level where xp_required <= total_xp."""
-    result = 1
-    for lvl in range(1, MAX_LEVEL + 1):
+    for lvl in range(MAX_LEVEL, 0, -1):
         if LEVEL_TABLE[lvl]["xp_required"] <= total_xp:
-            result = lvl
-    return result
+            return lvl
+    return 1
 
 
 def xp_for_next_level(current_level: int) -> int:
     """Total XP needed for the next level. At max, returns max XP."""
     if current_level >= MAX_LEVEL:
-        return LEVEL_TABLE[MAX_LEVEL]["xp_required"]
-    return LEVEL_TABLE[current_level + 1]["xp_required"]
+        return int(LEVEL_TABLE[MAX_LEVEL]["xp_required"])
+    return int(LEVEL_TABLE[current_level + 1]["xp_required"])
 
 
 def xp_to_next_level(current_level: int, current_xp: int) -> int:

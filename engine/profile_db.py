@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import sqlite3
 from datetime import datetime, timezone
+from typing import Any
 
 from engine.levels import level_from_xp
 
@@ -41,14 +42,14 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _row_to_dict(row: sqlite3.Row | None) -> dict | None:
+def _row_to_dict(row: sqlite3.Row | None) -> dict[str, Any] | None:
     """Convert a sqlite3.Row to a plain dict, or None."""
     if row is None:
         return None
     return dict(row)
 
 
-def get_or_create_profile(conn: sqlite3.Connection, name: str) -> dict:
+def get_or_create_profile(conn: sqlite3.Connection, name: str) -> dict[str, Any]:
     """Return existing profile or create a new one with defaults."""
     row = conn.execute(
         "SELECT * FROM profiles WHERE name = ?", (name,)
@@ -62,13 +63,14 @@ def get_or_create_profile(conn: sqlite3.Connection, name: str) -> dict:
         (name, now, now),
     )
     conn.commit()
-    row = conn.execute(
-        "SELECT * FROM profiles WHERE name = ?", (name,)
-    ).fetchone()
-    return dict(row)
+    return {
+        "name": name, "total_xp": 0, "level": 1,
+        "matches": 0, "wins": 0, "kills": 0,
+        "created_at": now, "updated_at": now,
+    }
 
 
-def get_profile(conn: sqlite3.Connection, name: str) -> dict | None:
+def get_profile(conn: sqlite3.Connection, name: str) -> dict[str, Any] | None:
     """Look up a profile by name. Returns None if not found."""
     row = conn.execute(
         "SELECT * FROM profiles WHERE name = ?", (name,)
@@ -82,7 +84,7 @@ def update_profile(
     xp_earned: int,
     kills: int,
     won: bool,
-) -> dict:
+) -> dict[str, Any]:
     """Add XP, increment stats, recalculate level. Upserts if needed."""
     profile = get_or_create_profile(conn, name)
     new_xp = profile["total_xp"] + xp_earned
@@ -97,17 +99,18 @@ def update_profile(
         (new_xp, new_level, new_matches, new_wins, new_kills, now, name),
     )
     conn.commit()
-    row = conn.execute(
-        "SELECT * FROM profiles WHERE name = ?", (name,)
-    ).fetchone()
-    return dict(row)
+    return {
+        "name": name, "total_xp": new_xp, "level": new_level,
+        "matches": new_matches, "wins": new_wins, "kills": new_kills,
+        "created_at": profile["created_at"], "updated_at": now,
+    }
 
 
 def list_profiles(
     conn: sqlite3.Connection,
     order_by: str = "level",
     limit: int = 20,
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     """Return sorted profiles. order_by must be a valid column name."""
     _ORDER_QUERIES = {
         "level": "SELECT * FROM profiles ORDER BY level DESC LIMIT ?",
@@ -125,7 +128,7 @@ def list_profiles(
 def get_leaderboard(
     conn: sqlite3.Connection,
     limit: int = 10,
-) -> list[dict]:
+) -> list[dict[str, Any]]:
     """Top profiles by level DESC, total_xp DESC."""
     rows = conn.execute(
         "SELECT * FROM profiles ORDER BY level DESC, total_xp DESC LIMIT ?",

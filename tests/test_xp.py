@@ -246,10 +246,11 @@ class TestCalculateMatchXp:
             ],
         )
         result = calculate_match_xp(match)
-        # A and B tied at round 8 = rank 1, C at round 5 = rank 2
+        # A and B tied at round 8 = rank 1, C at round 5 = rank 3
+        # (competition ranking: two 1sts → skip 2nd)
         assert result["A"].placement == 50  # tied 1st
         assert result["B"].placement == 50  # tied 1st
-        assert result["C"].placement == 25  # 2nd (after tied 1sts)
+        assert result["C"].placement == 15  # 3rd (competition ranking skips 2nd)
 
     def test_tie_elimination_same_round(self) -> None:
         """Bots eliminated in the same round share the higher placement."""

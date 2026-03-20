@@ -9,12 +9,15 @@ import os
 import sqlite3
 from typing import Any
 
-from engine.profile_db import get_or_create_profile, init_profile_db, update_profile
+from engine.profile_db import (
+    DEFAULT_DB_PATH,
+    get_or_create_profile,
+    init_profile_db,
+    update_profile,
+)
 from engine.xp import calculate_match_xp
 
 __all__ = ["apply_xp_awards", "inject_xp_into_match"]
-
-from engine.profile_db import DEFAULT_DB_PATH
 
 
 def apply_xp_awards(

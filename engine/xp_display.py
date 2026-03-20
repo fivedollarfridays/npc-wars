@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import Any
 
 from engine.levels import unlocks_at_level
+from engine.xp import WIN_BONUS
 
 __all__ = ["format_xp_summary"]
 
@@ -13,8 +14,8 @@ FOOTER = "───────────────────────�
 
 
 def _placement_label(placement_xp: int) -> str:
-    """Return 'win' for 50, 'place' for 15/25, empty for 0."""
-    if placement_xp == 50:
+    """Return 'win' for winner bonus, 'place' for runner-up, empty for 0."""
+    if placement_xp == WIN_BONUS:
         return "win"
     if placement_xp > 0:
         return "place"

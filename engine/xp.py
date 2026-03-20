@@ -81,8 +81,11 @@ def _determine_placements(
         next_rank = 1
 
     # Assign ranks from elimination order (latest elimination first)
+    # Uses competition ranking: ties share a rank, next rank skips
+    # e.g. two tied 2nd → next is 4th, not 3rd
     prev_round: int | None = None
     current_rank = next_rank
+    tie_count = 0
     for elim in elims_sorted:
         emoji = elim["emoji"]
         if emoji in placements:
@@ -91,11 +94,13 @@ def _determine_placements(
         if prev_round is not None and rnd == prev_round:
             # Same round = same rank (tie)
             placements[emoji] = current_rank
+            tie_count += 1
         else:
             current_rank = next_rank
             placements[emoji] = current_rank
+            tie_count = 0
         prev_round = rnd
-        next_rank = current_rank + 1
+        next_rank = current_rank + 1 + tie_count
 
     # Any remaining bots not eliminated and not winner (edge case)
     for emoji in player_emojis:
@@ -112,7 +117,7 @@ def _find_first_blood_killer(eliminations: list[dict[str, Any]]) -> str | None:
         if elim.get("cause") == "combat" and elim.get("killed_by") not in (
             "storm", "tiebreaker", "plague", "none",
         ):
-            return elim["killed_by"]
+            return str(elim["killed_by"])
     return None
 
 

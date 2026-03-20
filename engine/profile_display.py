@@ -4,6 +4,8 @@ Pure formatting functions, no I/O.
 """
 from __future__ import annotations
 
+from typing import Any
+
 from engine.levels import (
     LEVEL_TABLE,
     MAX_LEVEL,
@@ -35,7 +37,7 @@ def _next_unlock(level: int) -> tuple[str, int] | None:
     return None
 
 
-def format_profile(profile: dict) -> str:
+def format_profile(profile: dict[str, Any]) -> str:
     """Render a single player profile as a boxed display string."""
     name = profile["name"]
     level = profile["level"]
@@ -82,7 +84,7 @@ def format_profile(profile: dict) -> str:
     return "\n".join(boxed)
 
 
-def format_leaderboard(profiles: list[dict]) -> str:
+def format_leaderboard(profiles: list[dict[str, Any]]) -> str:
     """Render a leaderboard table from a list of profile dicts."""
     if not profiles:
         return "No profiles found."
