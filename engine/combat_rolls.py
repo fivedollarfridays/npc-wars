@@ -25,9 +25,9 @@ __all__ = [
 # Constants
 # ---------------------------------------------------------------------------
 
-BASE_AC: int = 5
-DEFEND_AC_BONUS: int = 8
-CRIT_THRESHOLD: int = 8
+BASE_AC: int = 8
+DEFEND_AC_BONUS: int = 6
+CRIT_THRESHOLD: int = 15
 RANGED_HIT_PENALTY: int = 2
 RANGED_DAMAGE_SCALE: float = 0.6
 REST_HIT_BONUS: int = 3       # +3 to hit resting targets

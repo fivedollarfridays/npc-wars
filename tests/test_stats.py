@@ -165,28 +165,28 @@ def test_derived_default_energy_regen() -> None:
 
 
 def test_derived_high_armor_hp() -> None:
-    """High armor (50) → max_hp == 120."""
+    """High armor (50) → max_hp == 95 (reduced by versatility penalty)."""
     ds = calculate_derived(StatAllocation(15, 15, 50, 20))
-    assert ds.max_hp == 120
+    assert ds.max_hp == 95
 
 
 def test_derived_high_armor_dr() -> None:
-    """High armor (50) → damage_reduction == 7."""
+    """High armor (50) → damage_reduction == 3 (reduced from 7 for balance)."""
     ds = calculate_derived(StatAllocation(15, 15, 50, 20))
-    assert ds.damage_reduction == 7
+    assert ds.damage_reduction == 3
 
 
 def test_derived_high_power_damage() -> None:
-    """High power (50) → min_damage == 30, max_damage == 70."""
+    """High power (50) → diminishing returns: min=22, max=50 (was 30,70)."""
     ds = calculate_derived(StatAllocation(50, 15, 15, 20))
-    assert ds.min_damage == 30
-    assert ds.max_damage == 70
+    assert ds.min_damage == 22
+    assert ds.max_damage == 50
 
 
 def test_derived_high_speed_dodge() -> None:
-    """High speed (50) → dodge_chance == 20.0."""
+    """High speed (50) → boosted dodge: 35.0% (was 20.0%)."""
     ds = calculate_derived(StatAllocation(15, 50, 15, 20))
-    assert ds.dodge_chance == 20.0
+    assert ds.dodge_chance == 35.0
 
 
 def test_derived_high_mind_energy() -> None:
@@ -196,9 +196,66 @@ def test_derived_high_mind_energy() -> None:
 
 
 def test_derived_high_mind_regen() -> None:
-    """High mind (50) → energy_regen == 5."""
+    """High mind (50) → energy_regen == 10 (boosted from 5 for balance)."""
     ds = calculate_derived(StatAllocation(15, 15, 20, 50))
-    assert ds.energy_regen == 5
+    assert ds.energy_regen == 10
+
+
+# --- DerivedStats: below-baseline behavior unchanged ---
+
+
+def test_derived_low_power_damage_unchanged() -> None:
+    """Power below 25 uses original linear scaling."""
+    ds = calculate_derived(StatAllocation(15, 25, 35, 25))
+    assert ds.min_damage == max(1, int(15 * 0.6))  # 9
+    assert ds.max_damage == int(15 * 1.4)  # 21
+
+
+def test_derived_at_baseline_power_damage_unchanged() -> None:
+    """Power=25 (baseline) gives same values as before: min=15, max=35."""
+    ds = calculate_derived(DEFAULT_ALLOCATION)
+    assert ds.min_damage == 15
+    assert ds.max_damage == 35
+
+
+def test_derived_extreme_power_damage_compressed() -> None:
+    """Power=80 damage compressed vs old linear: min=31, max=68."""
+    ds = calculate_derived(StatAllocation(80, 5, 10, 5))
+    assert ds.min_damage == 31
+    assert ds.max_damage == 68
+
+
+def test_derived_dodge_below_baseline_unchanged() -> None:
+    """Speed below 25 uses original 0.4 scaling."""
+    ds = calculate_derived(StatAllocation(25, 15, 35, 25))
+    assert ds.dodge_chance == 6.0  # 15 * 0.4 = 6.0
+
+
+# --- DerivedStats: versatility bonus ---
+
+
+def test_versatility_bonus_default_full() -> None:
+    """25/25/25/25 (zero variance) gets full versatility HP bonus."""
+    ds = calculate_derived(DEFAULT_ALLOCATION)
+    # 70 + 25*0.8 + 10 = 100
+    assert ds.max_hp == 100
+
+
+def test_versatility_bonus_specialist_zero() -> None:
+    """High-variance build (specialist) gets no versatility HP bonus."""
+    ds = calculate_derived(StatAllocation(50, 15, 15, 20))
+    # variance = (625+100+100+25)/4 = 212.5 >= cap(200) → bonus=0
+    # HP = 55 + 15*0.8 + 0 = 67
+    assert ds.max_hp == 67
+
+
+def test_versatility_bonus_partial() -> None:
+    """Moderate-variance build gets partial versatility HP bonus."""
+    # Bruiser (35/15/35/15): variance = (100+100+100+100)/4 = 100
+    # ratio = 100/200 = 0.5, bonus = int(25 * 0.5) = 12
+    ds = calculate_derived(StatAllocation(35, 15, 35, 15))
+    # HP = 55 + 35*0.8 + 12 = 95
+    assert ds.max_hp == 95
 
 
 def test_derived_is_frozen() -> None:

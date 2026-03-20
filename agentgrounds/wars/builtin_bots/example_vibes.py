@@ -5,6 +5,10 @@ BOT_EMOJI = "\U0001f9e0"
 BOT_GLYPH = "◈"
 BOT_BIO = "rests until it doesn't"
 BOT_AUTHOR = "kevin"
+BOT_POWER = 15
+BOT_SPEED = 20
+BOT_ARMOR = 20
+BOT_MIND = 45
 
 
 def decide(state):

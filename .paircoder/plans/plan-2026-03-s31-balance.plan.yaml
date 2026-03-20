@@ -1,0 +1,13 @@
+id: plan-2026-03-s31-balance
+title: 'Sprint 31: Balance Tuning + Phase 1 Integration'
+type: chore
+status: planned
+created_at: '2026-03-20T00:00:00'
+goals:
+- Tune crit threshold (8→15) and BASE_AC (5→8) for balanced combat
+- Run archetype round-robin simulation to validate balance
+- Tune stat scaling curves based on sim results
+- Update builtin bots with diverse stat allocations
+- Update PROMPT.md with full v2 documentation
+- Regression testing for 25/25/25/25 baseline
+- Phase 1 integration audit

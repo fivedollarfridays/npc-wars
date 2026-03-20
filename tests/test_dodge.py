@@ -79,7 +79,7 @@ def test_miss_has_dodged_false() -> None:
 
 def test_dodge_halves_damage() -> None:
     """When dodge triggers, damage is halved (integer division)."""
-    # d20=10, modifier=2, total=12, AC=5 → hit but NOT crit (12 < 5+8=13)
+    # d20=10, modifier=2, total=12, AC=8 → hit, NOT crit (12 < 8+15=23)
     rng = MockRNG(d20=10, damage=30, dodge=True)
     result = roll_attack(_DEFAULT, _DEFAULT, rng=rng)
     assert result.hit is True

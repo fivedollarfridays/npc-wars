@@ -5,6 +5,10 @@ BOT_EMOJI = "🐢"
 BOT_GLYPH = "■"
 BOT_BIO = "you shall not pass"
 BOT_AUTHOR = "agentgrounds"
+BOT_POWER = 15
+BOT_SPEED = 15
+BOT_ARMOR = 50
+BOT_MIND = 20
 
 
 def decide(state):

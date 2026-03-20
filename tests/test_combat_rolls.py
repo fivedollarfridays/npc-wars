@@ -41,7 +41,7 @@ def test_hit_when_roll_above_ac() -> None:
     # Seed 0 gives d20=14 on first call to randint(1,20)
     rng = random.Random(0)
     result = roll_attack(_DEFAULT, _DEFAULT, rng=rng)
-    # default AC = BASE_AC + 0 = 5, modifier = 25//10 = 2, so 14+2=16 >= 5
+    # default AC = BASE_AC + 0 = 8, modifier = 25//10 = 2, so 14+2=16 >= 8
     assert result.hit is True
     assert result.is_miss is False
     assert result.damage > 0
@@ -63,31 +63,31 @@ def test_miss_when_roll_below_ac() -> None:
     )
     rng = _make_rng(42)
     result = roll_attack(_DEFAULT, defender, rng=rng)
-    # AC = 5 + 30 = 35, modifier = 2, need roll >= 33 on d20 — impossible
+    # AC = 8 + 30 = 38, modifier = 2, need roll >= 36 on d20 — impossible
     assert result.hit is False
     assert result.is_miss is True
     assert result.damage == 0
 
 
-def test_default_stats_hit_rate_90pct() -> None:
-    """At default stats, hit rate should be ~85-95%."""
+def test_default_stats_hit_rate_75pct() -> None:
+    """At default stats, hit rate should be ~65-85% (AC=8, mod=+2)."""
     rng = _make_rng(42)
     hits = sum(
         roll_attack(_DEFAULT, _DEFAULT, rng=rng).hit for _ in range(1000)
     )
     rate = hits / 1000
-    assert 0.85 <= rate <= 0.95, f"Hit rate {rate:.3f} out of expected range"
+    assert 0.65 <= rate <= 0.85, f"Hit rate {rate:.3f} out of expected range"
 
 
 def test_defending_halves_hit_rate() -> None:
-    """Defending target reduces hit rate to ~40-60%."""
+    """Defending target (AC=14) reduces hit rate to ~35-55%."""
     rng = _make_rng(42)
     hits = sum(
         roll_attack(_DEFAULT, _DEFAULT, defending=True, rng=rng).hit
         for _ in range(1000)
     )
     rate = hits / 1000
-    assert 0.30 <= rate <= 0.65, f"Defending hit rate {rate:.3f} out of expected range"
+    assert 0.35 <= rate <= 0.55, f"Defending hit rate {rate:.3f} out of expected range"
 
 
 # ---------------------------------------------------------------------------
@@ -149,18 +149,23 @@ def test_natural_20_always_crits() -> None:
 
 
 def test_high_roll_crits() -> None:
-    """Roll far above AC triggers crit via threshold."""
-    # AC=5, crit when total_roll >= 5 + CRIT_THRESHOLD = 13
-    # modifier=2, so need d20 >= 11
+    """Roll far above AC triggers crit via threshold.
+
+    With AC=8 and CRIT_THRESHOLD=15, crit when total_roll >= 23.
+    modifier=2, so need d20 >= 21 — only nat 20 can crit at default stats.
+    This test verifies the threshold formula using the constants.
+    """
     for seed in range(1000):
         rng = random.Random(seed)
         val = rng.randint(1, 20)
-        if val >= 15 and val != 20:  # high but not nat 20
+        if val >= 10 and val != 20:  # high-ish but not nat 20
             rng = random.Random(seed)
             result = roll_attack(_DEFAULT, _DEFAULT, rng=rng)
-            # total = val + 2, AC = 5, crit threshold = 5 + 8 = 13
+            # total = val + 2, AC = 8, crit threshold = 8 + 15 = 23
             if val + 2 >= BASE_AC + CRIT_THRESHOLD:
                 assert result.is_crit is True
+            else:
+                assert result.is_crit is False
             return
     raise AssertionError("Could not find suitable seed")
 
@@ -179,17 +184,17 @@ def test_crit_damage_multiplied() -> None:
 
 
 def test_default_crit_rate() -> None:
-    """Crit rate at default stats is 45-65%.
+    """Crit rate at default stats is 3-15%.
 
-    With AC=5, CRIT_THRESHOLD=8, modifier=2: crit when d20 >= 11 (~50%).
-    This is by design — crits are common, making combat swingy.
+    With AC=8, CRIT_THRESHOLD=15, modifier=2: crit when d20 >= 21 — only nat 20.
+    Crits are now rare and impactful (~5% from nat 20 alone).
     """
     rng = _make_rng(42)
     results = [roll_attack(_DEFAULT, _DEFAULT, rng=rng) for _ in range(1000)]
     hits = [r for r in results if r.hit]
     crits = [r for r in hits if r.is_crit]
     crit_rate = len(crits) / len(hits)
-    assert 0.45 <= crit_rate <= 0.65, f"Crit rate {crit_rate:.3f} out of range"
+    assert 0.03 <= crit_rate <= 0.15, f"Crit rate {crit_rate:.3f} out of range"
 
 
 # ---------------------------------------------------------------------------
