@@ -9,13 +9,13 @@ from tests.conftest import make_bot
 
 
 def test_rest_caps_hp_at_derived_max():
-    """Bot with ARMOR=50 (max_hp=120), set hp=118, rest -> hp=120 (not 100)."""
+    """Bot with ARMOR=50 (max_hp=95 after versatility), set hp=93, rest -> hp=95."""
     bot = make_bot(emoji="🧪", stat_allocation=StatAllocation(15, 15, 50, 20))
-    assert bot.derived.max_hp == 120
-    bot.hp = 118
+    assert bot.derived.max_hp == 95
+    bot.hp = 93
     actions = {"🧪": ("rest",)}
     apply_energy_and_rest([bot], actions, set())
-    assert bot.hp == 120  # capped at derived max, not 100
+    assert bot.hp == 95  # capped at derived max
 
 
 def test_rest_caps_energy_at_derived_max():
@@ -25,7 +25,7 @@ def test_rest_caps_energy_at_derived_max():
     bot.energy = 110
     actions = {"🧪": ("rest",)}
     apply_energy_and_rest([bot], actions, set())
-    assert bot.energy == 120  # capped at derived max, not 100
+    assert bot.energy == 120  # capped at derived max
 
 
 def test_default_stats_hp_cap_100():
@@ -52,13 +52,13 @@ def test_default_stats_rest_unchanged():
 
 
 def test_rest_adds_mind_regen_bonus():
-    """Bot with MIND=50 (energy_regen=5), rest gives 25 energy (20 base + 5 regen)."""
+    """Bot with MIND=50 (energy_regen=10), rest gives 30 energy (20 base + 10 regen)."""
     bot = make_bot(emoji="🧪", stat_allocation=StatAllocation(15, 15, 20, 50))
-    assert bot.derived.energy_regen == 5
+    assert bot.derived.energy_regen == 10
     bot.energy = 50
     actions = {"🧪": ("rest",)}
     apply_energy_and_rest([bot], actions, set())
-    assert bot.energy == 75  # 50 + 20 base + 5 regen
+    assert bot.energy == 80  # 50 + 20 base + 10 regen
 
 
 # --- Cycle 3: Kill bounty energy cap uses derived ---
@@ -72,7 +72,7 @@ def test_kill_bounty_energy_caps_at_derived_max():
     bot.energy = 100
     bot.kills = 0
     victim = make_bot(emoji="💀", hp=0)
-    victim.alive = True  # will be resolved by resolve_deaths, but we set manually
+    victim.alive = True
     bots = [bot, victim]
 
     round_elims = [{"emoji": "💀", "round": 1}]
@@ -90,13 +90,13 @@ def test_bounty_reward_uses_derived_max():
     """apply_bounty_reward should restore to derived max_hp/max_energy."""
     from engine.bounty import apply_bounty_reward
     bot = make_bot(emoji="🧪", stat_allocation=StatAllocation(15, 15, 50, 50))
-    assert bot.derived.max_hp == 120
+    assert bot.derived.max_hp == 95
     assert bot.derived.max_energy == 120
     bot.hp = 50
     bot.energy = 30
     reward = {"hp_restore": "full", "damage_bonus": 0.5, "bonus_rounds": 3}
     apply_bounty_reward(bot, reward)
-    assert bot.hp == 120
+    assert bot.hp == 95
     assert bot.energy == 120
 
 
@@ -108,22 +108,21 @@ def test_watcher_spawn_uses_derived_max_hp():
     from unittest.mock import MagicMock
     from engine.watcher_spawn import check_watcher_spawn
     bot = make_bot(emoji="🧪", stat_allocation=StatAllocation(15, 15, 50, 20))
-    assert bot.derived.max_hp == 120
-    # hp=55 is >50% of hardcoded 100 (55>50), but NOT >50% of derived 120 (55<=60)
-    # With derived stats this should NOT spawn; with hardcoded it would.
-    bot.hp = 55
+    assert bot.derived.max_hp == 95
+    # hp=44 is NOT >50% of derived 95 (44 < 47.5)
+    bot.hp = 44
     bot.rounds_survived = 5
     bot.kills = 0
     bot.human_adapter = MagicMock()
     result = check_watcher_spawn([bot], round_num=10, watcher_present=False)
-    assert result is False  # 55/120 = 45.8% < 50%
+    assert result is False  # 44/95 = 46.3% < 50%
 
 
 # --- Cycle 6: Integration — high armor bot starts with more hp ---
 
 
-def test_high_armor_bot_starts_with_more_hp():
-    """Bot with high ARMOR should start with hp > 100."""
+def test_high_armor_bot_starts_with_different_hp():
+    """Bot with high ARMOR starts with hp != default (versatility changes HP)."""
     from engine.game import run_match
     from tests.conftest import bot_config, always_rest
 
@@ -133,11 +132,12 @@ def test_high_armor_bot_starts_with_more_hp():
         bot_config("Normal", "⚔️", always_rest),
     ]
     result = run_match(configs, seed=42)
-    # Find the tank in round 1
     round1 = result["rounds"][0]
     tank_pos = next(p for p in round1["positions"] if p["emoji"] == "🛡️")
     normal_pos = next(p for p in round1["positions"] if p["emoji"] == "⚔️")
-    assert tank_pos["hp"] > normal_pos["hp"]
+    # Tank (specialist) has 95 HP; Normal (balanced 25/25/25/25) has 100 HP
+    assert tank_pos["hp"] == 95
+    assert normal_pos["hp"] == 100
 
 
 def test_mode_override_still_works():

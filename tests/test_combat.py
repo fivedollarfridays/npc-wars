@@ -192,12 +192,12 @@ class TestBotStatAllocation:
         assert bot.energy == 100
 
     def test_bot_custom_stats_hp(self):
-        """Bot with high armor (50) has hp == 120."""
+        """Bot with high armor (50) has hp == 95 (versatility-penalized)."""
         alloc = StatAllocation(15, 15, 50, 20)
         bot = make_bot(stat_allocation=alloc)
         expected_hp = calculate_derived(alloc).max_hp
-        assert expected_hp == 120
-        assert bot.hp == 120
+        assert expected_hp == 95
+        assert bot.hp == 95
 
     def test_bot_custom_stats_energy(self):
         """Bot with high mind (50) has energy == 120."""
