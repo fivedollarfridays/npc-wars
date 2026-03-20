@@ -7,7 +7,7 @@ from engine.game import run_match
 from engine.loader import load_bots
 from engine.state import build_state
 from engine.stats import DEFAULT_ALLOCATION, validate_allocation
-from tests.conftest import bot_config, chase_and_attack, make_bot
+from tests.conftest import chase_and_attack, make_bot
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -91,13 +91,18 @@ class TestStatSystemWired:
     """Verify the stat allocation system is fully integrated."""
 
     def test_custom_stat_bot_different_hp(self) -> None:
-        # armor=50 -> max_hp = 80 + 50*0.8 = 120
+        # armor=50 -> base HP = 55 + 50*0.8 = 95 (plus versatility bonus)
+        # High-armor specialist has less HP than balanced due to versatility
+        # penalty, but more than a low-armor specialist.
         tank = _custom_stat_config("Tank", "\U0001f6e1\ufe0f", 15, 15, 50, 20)
-        filler = bot_config("Filler", "\U0001f47e", chase_and_attack)
-        match = _seeded_match(configs=[tank, filler])
+        low_armor = _custom_stat_config("Weak", "\U0001f47e", 50, 15, 15, 20)
+        match = _seeded_match(configs=[tank, low_armor])
         r1 = match["rounds"][0]
         tank_pos = next(p for p in r1["positions"] if p["emoji"] == "\U0001f6e1\ufe0f")
-        assert tank_pos["max_hp"] > 100, f"Tank max_hp {tank_pos['max_hp']} should be > 100"
+        weak_pos = next(p for p in r1["positions"] if p["emoji"] == "\U0001f47e")
+        assert tank_pos["max_hp"] > weak_pos["max_hp"], (
+            f"Tank max_hp {tank_pos['max_hp']} should exceed low-armor {weak_pos['max_hp']}"
+        )
 
     def test_state_dict_has_stat_fields(self) -> None:
         match = _seeded_match()
@@ -127,10 +132,10 @@ class TestStatSystemWired:
             name="MindBot", emoji="\U0001f9e0", x=5, y=5,
             stat_allocation=alloc, energy=50,
         )
-        # Rest restores: REST_ENERGY_RESTORE(20) + energy_regen(5) = 25
+        # Rest restores: REST_ENERGY_RESTORE(20) + energy_regen(10) = 30
         # but we just check the derived value
         assert bot.derived.energy_regen > 0, "High-mind bot should have energy_regen > 0"
-        assert bot.derived.energy_regen == 5, f"Expected regen=5, got {bot.derived.energy_regen}"
+        assert bot.derived.energy_regen == 10, f"Expected regen=10, got {bot.derived.energy_regen}"
 
 
 # ===========================================================================
