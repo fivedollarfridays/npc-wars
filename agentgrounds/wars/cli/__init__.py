@@ -7,6 +7,28 @@ import sys
 __all__ = ["main"]
 
 
+def _register_subcommands(subs: argparse._SubParsersAction) -> None:
+    """Register all CLI subcommands."""
+    from agentgrounds.wars.cli import (
+        cmd_analyze,
+        cmd_battle,
+        cmd_generate,
+        cmd_init,
+        cmd_play,
+        cmd_profile,
+        cmd_sim,
+        cmd_validate,
+        cmd_watch,
+        cmd_wizard,
+    )
+
+    for cmd in (
+        cmd_init, cmd_wizard, cmd_validate, cmd_battle, cmd_watch,
+        cmd_generate, cmd_play, cmd_sim, cmd_analyze, cmd_profile,
+    ):
+        cmd.register(subs)
+
+
 def _build_parser() -> argparse.ArgumentParser:
     """Build the CLI argument parser."""
     parser = argparse.ArgumentParser(
@@ -22,43 +44,7 @@ def _build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--version", action="version", version=f"agentgrounds {ver}")
 
     subs = parser.add_subparsers(dest="subcommand")
-
-    from agentgrounds.wars.cli import cmd_init
-
-    cmd_init.register(subs)
-
-    from agentgrounds.wars.cli import cmd_wizard
-
-    cmd_wizard.register(subs)
-
-    from agentgrounds.wars.cli import cmd_validate
-
-    cmd_validate.register(subs)
-
-    from agentgrounds.wars.cli import cmd_battle
-
-    cmd_battle.register(subs)
-
-    from agentgrounds.wars.cli import cmd_watch
-
-    cmd_watch.register(subs)
-
-    from agentgrounds.wars.cli import cmd_generate
-
-    cmd_generate.register(subs)
-
-    from agentgrounds.wars.cli import cmd_play
-
-    cmd_play.register(subs)
-
-    from agentgrounds.wars.cli import cmd_sim
-
-    cmd_sim.register(subs)
-
-    from agentgrounds.wars.cli import cmd_analyze
-
-    cmd_analyze.register(subs)
-
+    _register_subcommands(subs)
     return parser
 
 

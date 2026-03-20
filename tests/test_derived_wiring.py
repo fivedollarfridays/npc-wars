@@ -9,13 +9,13 @@ from tests.conftest import make_bot
 
 
 def test_rest_caps_hp_at_derived_max():
-    """Bot with ARMOR=50 (max_hp=95 after versatility), set hp=93, rest -> hp=95."""
+    """Bot with ARMOR=50 (max_hp=90, specialist no versatility), set hp=88, rest -> hp=90."""
     bot = make_bot(emoji="🧪", stat_allocation=StatAllocation(15, 15, 50, 20))
-    assert bot.derived.max_hp == 95
-    bot.hp = 93
+    assert bot.derived.max_hp == 90
+    bot.hp = 88
     actions = {"🧪": ("rest",)}
     apply_energy_and_rest([bot], actions, set())
-    assert bot.hp == 95  # capped at derived max
+    assert bot.hp == 90  # capped at derived max
 
 
 def test_rest_caps_energy_at_derived_max():
@@ -28,14 +28,14 @@ def test_rest_caps_energy_at_derived_max():
     assert bot.energy == 120  # capped at derived max
 
 
-def test_default_stats_hp_cap_100():
-    """Default bot (25/25/25/25) hp capped at 100 on rest."""
+def test_default_stats_hp_cap_145():
+    """Default bot (25/25/25/25) hp capped at 145 on rest."""
     bot = make_bot(emoji="🧪")
-    assert bot.derived.max_hp == 100
-    bot.hp = 98
+    assert bot.derived.max_hp == 145
+    bot.hp = 143
     actions = {"🧪": ("rest",)}
     apply_energy_and_rest([bot], actions, set())
-    assert bot.hp == 100  # capped at 100 for default stats
+    assert bot.hp == 145  # capped at 145 for default stats
 
 
 def test_default_stats_rest_unchanged():
@@ -52,13 +52,13 @@ def test_default_stats_rest_unchanged():
 
 
 def test_rest_adds_mind_regen_bonus():
-    """Bot with MIND=50 (energy_regen=10), rest gives 30 energy (20 base + 10 regen)."""
+    """Bot with MIND=50 (energy_regen=15), rest gives 35 energy (20 base + 15 regen)."""
     bot = make_bot(emoji="🧪", stat_allocation=StatAllocation(15, 15, 20, 50))
-    assert bot.derived.energy_regen == 10
+    assert bot.derived.energy_regen == 15
     bot.energy = 50
     actions = {"🧪": ("rest",)}
     apply_energy_and_rest([bot], actions, set())
-    assert bot.energy == 80  # 50 + 20 base + 10 regen
+    assert bot.energy == 85  # 50 + 20 base + 15 regen
 
 
 # --- Cycle 3: Kill bounty energy cap uses derived ---
@@ -90,13 +90,13 @@ def test_bounty_reward_uses_derived_max():
     """apply_bounty_reward should restore to derived max_hp/max_energy."""
     from engine.bounty import apply_bounty_reward
     bot = make_bot(emoji="🧪", stat_allocation=StatAllocation(15, 15, 50, 50))
-    assert bot.derived.max_hp == 95
+    assert bot.derived.max_hp == 90
     assert bot.derived.max_energy == 120
     bot.hp = 50
     bot.energy = 30
     reward = {"hp_restore": "full", "damage_bonus": 0.5, "bonus_rounds": 3}
     apply_bounty_reward(bot, reward)
-    assert bot.hp == 95
+    assert bot.hp == 90
     assert bot.energy == 120
 
 
@@ -108,14 +108,14 @@ def test_watcher_spawn_uses_derived_max_hp():
     from unittest.mock import MagicMock
     from engine.watcher_spawn import check_watcher_spawn
     bot = make_bot(emoji="🧪", stat_allocation=StatAllocation(15, 15, 50, 20))
-    assert bot.derived.max_hp == 95
-    # hp=44 is NOT >50% of derived 95 (44 < 47.5)
+    assert bot.derived.max_hp == 90
+    # hp=44 is NOT >50% of derived 90 (44 < 45)
     bot.hp = 44
     bot.rounds_survived = 5
     bot.kills = 0
     bot.human_adapter = MagicMock()
     result = check_watcher_spawn([bot], round_num=10, watcher_present=False)
-    assert result is False  # 44/95 = 46.3% < 50%
+    assert result is False  # 44/90 = 48.9% < 50%
 
 
 # --- Cycle 6: Integration — high armor bot starts with more hp ---
@@ -135,9 +135,9 @@ def test_high_armor_bot_starts_with_different_hp():
     round1 = result["rounds"][0]
     tank_pos = next(p for p in round1["positions"] if p["emoji"] == "🛡️")
     normal_pos = next(p for p in round1["positions"] if p["emoji"] == "⚔️")
-    # Tank (specialist) has 95 HP; Normal (balanced 25/25/25/25) has 100 HP
-    assert tank_pos["hp"] == 95
-    assert normal_pos["hp"] == 100
+    # Tank (specialist) has 90 HP; Normal (balanced 25/25/25/25) has 145 HP
+    assert tank_pos["hp"] == 90
+    assert normal_pos["hp"] == 145
 
 
 def test_mode_override_still_works():

@@ -124,6 +124,6 @@ def test_create_bots_default_stats_when_missing():
     bots = _create_bots([config], [(0, 0)])
     assert len(bots) == 1
     assert bots[0].stats == DEFAULT_ALLOCATION
-    # Default: hp=100, energy=100
-    assert bots[0].hp == 100
+    # Default: hp=145 (with versatility bonus), energy=100
+    assert bots[0].hp == 145
     assert bots[0].energy == 100

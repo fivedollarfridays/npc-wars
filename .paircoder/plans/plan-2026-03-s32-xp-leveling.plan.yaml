@@ -1,0 +1,13 @@
+id: plan-2026-03-s32-xp-leveling
+title: 'Sprint 32: XP and Leveling System'
+type: feature
+status: in_progress
+created_at: '2026-03-20T02:38:55.083082'
+skills:
+- planning-with-pm
+goals:
+- XP calculation engine (base/kill/survival/placement/bonus)
+- Level progression table (1-30) with unlock gates
+- SQLite player profile persistence
+- XP integration into match runner
+- CLI profile command and post-match XP summary

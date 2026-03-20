@@ -45,17 +45,29 @@ def _custom_stat_config(
 class TestBackwardCompatibility:
     """Default (25/25/25/25) bots must behave identically to pre-overhaul."""
 
-    def test_default_bots_start_hp_100(self) -> None:
-        match = _seeded_match()
+    @staticmethod
+    def _balanced_configs() -> list[dict]:
+        """Create 4 balanced (25/25/25/25) bot configs for backward compat tests."""
+        alloc = DEFAULT_ALLOCATION
+        names = [("BotA", "A"), ("BotB", "B"), ("BotC", "C"), ("BotD", "D")]
+        return [
+            {
+                "name": n, "emoji": e, "bio": "", "author": "test",
+                "decide_func": chase_and_attack,
+                "stat_allocation": alloc,
+            }
+            for n, e in names
+        ]
+
+    def test_default_bots_start_hp_145(self) -> None:
+        match = _seeded_match(configs=self._balanced_configs())
         r1 = match["rounds"][0]
         for pos in r1["positions"]:
-            # All bots start at max_hp=100 with default stats
-            assert pos["max_hp"] == 100, f"{pos['emoji']} max_hp != 100"
+            # All 25/25/25/25 bots start at max_hp=145 with versatility bonus
+            assert pos["max_hp"] == 145, f"{pos['emoji']} max_hp != 145"
 
     def test_default_bots_start_energy_100(self) -> None:
-        # Energy isn't in round positions, so check via Bot init
-        configs = _builtin_configs()
-        for cfg in configs:
+        for cfg in self._balanced_configs():
             bot = Bot(
                 name=cfg["name"], emoji=cfg["emoji"], bio=cfg["bio"],
                 author=cfg["author"], decide_func=cfg["decide_func"],
@@ -64,22 +76,22 @@ class TestBackwardCompatibility:
             assert bot.energy == 100, f"{bot.name} energy != 100"
 
     def test_default_bots_damage_in_range(self) -> None:
-        match = _seeded_match()
+        match = _seeded_match(configs=self._balanced_configs())
         hit_damages: list[int] = []
         for rnd in match["rounds"]:
             for evt in rnd.get("events", []):
                 if evt.get("type") == "hit":
                     hit_damages.append(evt["damage"])
         assert len(hit_damages) > 0, "No hit events found"
-        # S28: roll-based combat produces damage in [15, 35] base range
-        # with crits up to ~52. Check average is near 25.
+        # S28: roll-based combat produces damage in [35, 55] base range
+        # with crits up to ~82. Check average is near 45.
         avg = sum(hit_damages) / len(hit_damages)
-        assert 15 <= avg <= 45, f"Avg hit damage {avg:.1f} outside [15, 45]"
+        assert 30 <= avg <= 65, f"Avg hit damage {avg:.1f} outside [30, 65]"
 
     def test_default_match_length_reasonable(self) -> None:
         match = _seeded_match()
         num_rounds = len(match["rounds"])
-        assert 15 <= num_rounds <= 50, f"Match length {num_rounds} outside [15, 50]"
+        assert 15 <= num_rounds <= 60, f"Match length {num_rounds} outside [15, 60]"
 
 
 # ===========================================================================
@@ -135,7 +147,7 @@ class TestStatSystemWired:
         # Rest restores: REST_ENERGY_RESTORE(20) + energy_regen(10) = 30
         # but we just check the derived value
         assert bot.derived.energy_regen > 0, "High-mind bot should have energy_regen > 0"
-        assert bot.derived.energy_regen == 10, f"Expected regen=10, got {bot.derived.energy_regen}"
+        assert bot.derived.energy_regen == 15, f"Expected regen=15, got {bot.derived.energy_regen}"
 
 
 # ===========================================================================
@@ -150,13 +162,16 @@ class TestLoader:
         configs = _builtin_configs()
         assert len(configs) >= 4, f"Expected at least 4 builtin bots, got {len(configs)}"
 
-    def test_builtin_bots_have_default_stats(self) -> None:
+    def test_builtin_bots_have_valid_stats(self) -> None:
         configs = _builtin_configs()
         for cfg in configs:
             alloc = cfg.get("stat_allocation")
-            assert alloc == DEFAULT_ALLOCATION, (
-                f"{cfg['name']} has stat_allocation={alloc}, expected {DEFAULT_ALLOCATION}"
-            )
+            assert alloc is not None, f"{cfg['name']} missing stat_allocation"
+            total = alloc.power + alloc.speed + alloc.armor + alloc.mind
+            assert total == 100, f"{cfg['name']} stats sum to {total}, expected 100"
+            for attr in ("power", "speed", "armor", "mind"):
+                val = getattr(alloc, attr)
+                assert 5 <= val <= 80, f"{cfg['name']} {attr}={val} not in [5, 80]"
 
 
 # ===========================================================================

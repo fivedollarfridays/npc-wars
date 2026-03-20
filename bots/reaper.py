@@ -2,7 +2,13 @@ import random
 
 BOT_NAME = "Reaper"
 BOT_EMOJI = "💀"
+BOT_GLYPH = "☠"
 BOT_BIO = "You rest, you die."
+BOT_AUTHOR = "agentgrounds"
+BOT_POWER = 30
+BOT_SPEED = 25
+BOT_ARMOR = 20
+BOT_MIND = 25
 
 
 def decide(state):
