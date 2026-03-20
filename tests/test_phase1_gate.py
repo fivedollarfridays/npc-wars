@@ -9,6 +9,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from engine.combat import Bot
 from engine.combat_rolls import CombatResult, roll_attack
 from engine.game import run_match
@@ -222,6 +224,10 @@ class TestVisualIdentity:
 # ---------------------------------------------------------------------------
 
 
+_HAS_BALANCE_RESULTS = BALANCE_PATH.exists()
+
+
+@pytest.mark.skipif(not _HAS_BALANCE_RESULTS, reason="balance_results.json not generated")
 class TestBalanceTargets:
     """Verify balance sim results meet Phase 1 targets."""
 
