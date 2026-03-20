@@ -96,7 +96,7 @@ class Bot:
         # Stat allocation and derived stats
         self.stats: StatAllocation = stat_allocation if stat_allocation is not None else DEFAULT_ALLOCATION
         self.derived: DerivedStats = calculate_derived(self.stats)
-        self.hp = self.derived.max_hp
+        self.hp: float = float(self.derived.max_hp)
         self.energy = self.derived.max_energy
         self.attack_power = STARTING_ATTACK_POWER
         self.defense = STARTING_DEFENSE
@@ -119,6 +119,7 @@ class Bot:
         self.damage_bonus: dict[str, float | int] | None = None
         # Scoring
         self.score: int = 0
+        self.passive_rounds: int = 0
         # Momentum tier bonuses (set by engine.momentum.apply_momentum_bonuses)
         self.momentum_tier: int = 0
         self.momentum_energy_bonus: int = 0
@@ -189,6 +190,7 @@ class Bot:
             "max_damage": self.derived.max_damage,
             "dodge_chance": self.derived.dodge_chance,
             "damage_reduction": self.derived.damage_reduction,
+            "passive_rounds": self.passive_rounds,
         }
 
 
@@ -228,11 +230,18 @@ def resolve_deaths(bots: list[Bot], round_num: int) -> list[dict[str, Any]]:
     """Check for deaths and return elimination records.
 
     Death ordering: lower HP dies first, then lower energy, then less total damage dealt.
+    If ALL remaining bots would die, the best one survives at 1 HP — someone always wins.
     """
     newly_dead = [b for b in bots if b.alive and b.hp <= 0]
 
     # Sort by death priority (first to die = worst stats)
     newly_dead.sort(key=lambda b: (b.hp, b.energy, b.damage_dealt))
+
+    # If everyone alive would die, spare the best one
+    alive_count = sum(1 for b in bots if b.alive)
+    if len(newly_dead) == alive_count and alive_count > 1:
+        survivor = newly_dead.pop()  # best stats (last in sorted order)
+        survivor.hp = 1
 
     eliminations = []
     for bot in newly_dead:

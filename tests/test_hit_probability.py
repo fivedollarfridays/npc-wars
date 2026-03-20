@@ -35,17 +35,17 @@ def _high_speed_stats() -> DerivedStats:
 
 
 def test_default_vs_default_hit_chance() -> None:
-    """Both at default stats. hit_chance should be ~85-95%."""
+    """Both at default stats. hit_chance should be ~65-85% (AC=8, mod=+2)."""
     result = calculate_hit_probability(_DEFAULT, _DEFAULT)
-    assert 85.0 <= result["hit_chance"] <= 95.0, (
-        f"Expected ~90%, got {result['hit_chance']}%"
+    assert 65.0 <= result["hit_chance"] <= 85.0, (
+        f"Expected ~75%, got {result['hit_chance']}%"
     )
 
 
 def test_defending_reduces_hit_chance() -> None:
-    """Defending target: hit_chance should drop significantly (~40-55%)."""
+    """Defending target (AC=14): hit_chance should drop to ~35-55%."""
     result = calculate_hit_probability(_DEFAULT, _DEFAULT, defending=True)
-    assert 30.0 <= result["hit_chance"] <= 60.0, (
+    assert 35.0 <= result["hit_chance"] <= 55.0, (
         f"Expected ~45%, got {result['hit_chance']}%"
     )
 

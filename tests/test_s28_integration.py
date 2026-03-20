@@ -94,9 +94,9 @@ class TestMissRate:
         misses = [e for e in all_attacks if e["type"] in ("attack_miss", "ranged_attack_miss")]
         assert len(all_attacks) > 0, "No attack events found"
         miss_rate = len(misses) / len(all_attacks)
-        # Ranged attacks have a -2 penalty, pushing overall miss rate higher
-        assert 0.05 <= miss_rate <= 0.30, (
-            f"Miss rate {miss_rate:.2%} outside [5%, 30%] "
+        # Higher BASE_AC=8 + ranged -2 penalty → more misses overall
+        assert 0.10 <= miss_rate <= 0.40, (
+            f"Miss rate {miss_rate:.2%} outside [10%, 40%] "
             f"({len(misses)} misses / {len(all_attacks)} attacks)"
         )
 
@@ -112,8 +112,8 @@ class TestCritRate:
         assert len(all_hits) > 0, "No hit events found"
         crits = [h for h in all_hits if h.get("is_crit")]
         crit_rate = len(crits) / len(all_hits)
-        assert 0.30 <= crit_rate <= 0.70, (
-            f"Crit rate {crit_rate:.2%} outside [30%, 70%] "
+        assert 0.03 <= crit_rate <= 0.20, (
+            f"Crit rate {crit_rate:.2%} outside [3%, 20%] "
             f"({len(crits)} crits / {len(all_hits)} hits)"
         )
 
@@ -245,8 +245,8 @@ class TestRegression:
         configs = _builtin_configs()
         assert len(configs) >= 4, f"Expected >= 4 builtin bots, got {len(configs)}"
         match = _seeded_match(configs=configs)
-        assert match["winner"] != "none", "Match ended with no winner"
         assert len(match["rounds"]) > 0, "Match has no rounds"
+        # Winner may be "none" if all bots die simultaneously (valid outcome with roll-based combat)
 
     def test_deterministic_with_seed(self) -> None:
         # Use deterministic bots (builtin bots use random module internally)

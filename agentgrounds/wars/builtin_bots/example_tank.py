@@ -5,13 +5,15 @@ BOT_EMOJI = "🐢"
 BOT_GLYPH = "■"
 BOT_BIO = "you shall not pass"
 BOT_AUTHOR = "agentgrounds"
+BOT_POWER = 15
+BOT_SPEED = 15
+BOT_ARMOR = 50
+BOT_MIND = 20
 
 
 def decide(state):
     me = state["me"]
     enemies = state["enemies"]
-    storm_border = state["storm_border"]
-    grid_size = state["grid_size"]
 
     if not enemies:
         return ("rest",)
@@ -34,19 +36,17 @@ def decide(state):
             if dy == -1: return ("attack", "north")
 
     # If someone is close (2-3 tiles), defend
-    closest_dist = min(abs(e["x"] - me["x"]) + abs(e["y"] - me["y"]) for e in enemies)
+    closest = min(enemies, key=lambda e: abs(e["x"] - me["x"]) + abs(e["y"] - me["y"]))
+    closest_dist = abs(closest["x"] - me["x"]) + abs(closest["y"] - me["y"])
     if closest_dist <= 3 and me["energy"] >= 10:
         return ("defend",)
 
-    # If in storm, move toward center
-    if storm_border > 0:
-        center = grid_size // 2
-        dx = center - me["x"]
-        dy = center - me["y"]
+    # Chase closest enemy — tanks need to engage or plague gets them
+    if me["energy"] >= 10:
+        dx = closest["x"] - me["x"]
+        dy = closest["y"] - me["y"]
         if abs(dx) >= abs(dy):
             return ("move", "east" if dx > 0 else "west")
-        else:
-            return ("move", "south" if dy > 0 else "north")
+        return ("move", "south" if dy > 0 else "north")
 
-    # Otherwise rest up
     return ("rest",)

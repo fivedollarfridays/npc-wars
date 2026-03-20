@@ -105,10 +105,10 @@ def _roll_melee(bot: Bot, target: Bot, actions: _ActionsMap,
     if result.hit:
         hp_before = target.hp
         target.hp -= result.damage
-        target.damage_taken += result.damage
-        bot.damage_dealt += result.damage
+        target.damage_taken += int(result.damage)
+        bot.damage_dealt += int(result.damage)
         return {"type": "hit", "attacker": bot.emoji, "target": target.emoji,
-                "damage": result.damage, "hp_before": hp_before,
+                "damage": result.damage, "hp_before": round(hp_before, 2),
                 "roll": result.roll, "modifier": result.modifier,
                 "ac": result.target_ac, "is_crit": result.is_crit,
                 "dodged": result.dodged}
@@ -167,10 +167,10 @@ def _roll_ranged(bot: Bot, target: Bot, actions: _ActionsMap,
     if result.hit:
         hp_before = target.hp
         target.hp -= result.damage
-        target.damage_taken += result.damage
-        bot.damage_dealt += result.damage
+        target.damage_taken += int(result.damage)
+        bot.damage_dealt += int(result.damage)
         return {"type": "ranged_hit", "attacker": bot.emoji, "target": target.emoji,
-                "damage": result.damage, "hp_before": hp_before,
+                "damage": result.damage, "hp_before": round(hp_before, 2),
                 "roll": result.roll, "modifier": result.modifier,
                 "ac": result.target_ac, "is_crit": result.is_crit,
                 "dodged": result.dodged}

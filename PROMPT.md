@@ -24,17 +24,29 @@ def decide(state):
 state = {
     "me": {
         "x": 3, "y": 5,          # grid position (0-indexed)
-        "hp": 80,                  # 0-100
-        "energy": 60,              # 0-100
+        "hp": 80,                  # 0-max_hp
+        "energy": 60,              # 0-max_energy
         "attack_power": 25,        # base + round scaling
         "score": 18,               # cumulative match score
         "momentum_tier": 1,        # 0-4, see Momentum System
         "momentum_name": "Momentum",  # tier display name
         "is_leader": False,        # True if you're the highest scorer
+        "power": 25, "speed": 25, "armor": 25, "mind": 25,  # stat allocation
+        "max_hp": 100, "max_energy": 100,     # derived from stats
+        "min_damage": 15, "max_damage": 35,   # damage range from POWER
+        "dodge_chance": 10.0,                  # % chance to halve incoming damage
+        "damage_reduction": 0,                 # flat DR from ARMOR
+        "hit_chance_vs": {                     # your hit probability vs each enemy
+            "🎯": {"hit_chance": 75.0, "crit_chance": 5.0, "dodge_chance": 10.0, "expected_damage": 16.8},
+        },
+        "incoming_threat": [                   # enemies ranked by danger to you
+            {"emoji": "🎯", "hit_chance": 75.0, "expected_damage": 16.8},
+        ],
     },
     "enemies": [
         {"x": 7, "y": 2, "hp": 45, "emoji": "🎯", "name": "Rival",
-         "score": 12, "momentum_tier": 1, "is_leader": True},
+         "score": 12, "momentum_tier": 1, "is_leader": True,
+         "max_hp": 120, "speed_class": "normal"},
         # ... more living enemies
     ],
     "grid_size": 10,               # 10x10 grid
@@ -43,7 +55,7 @@ state = {
 }
 ```
 
-**Important:** Enemy energy is NOT visible. You can see position, HP, emoji, name, score, and momentum tier. Infer energy from behavior (low HP enemies are likely resting).
+**Important:** Enemy energy is NOT visible. You can see position, HP, emoji, name, score, momentum tier, max_hp, and speed_class. Use `hit_chance_vs` to make informed attack decisions.
 
 ## Actions and Costs
 
@@ -136,6 +148,62 @@ Only **one bot** can be tier 3 or higher -- the **leader** (highest score). All 
 - Being the leader makes you a target and drains your energy -- staying on top is expensive
 - Energy drain at tier 4 (-8/rd) means the leader must keep fighting to sustain energy
 
+## Stat Allocation
+
+Customize your bot's build with four stats that sum to 100 (minimum 5 each):
+
+```python
+BOT_POWER = 25    # Attack damage range and crit multiplier
+BOT_SPEED = 25    # Dodge chance, initiative (attack order), to-hit bonus
+BOT_ARMOR = 25    # Max HP and damage reduction
+BOT_MIND = 25     # Max energy and energy regen per rest
+```
+
+Default is 25/25/25/25 (balanced). Specializing creates tradeoffs — high POWER hits harder but low ARMOR means less HP.
+
+### Derived Stats
+
+| Stat | Effect | At 25 (default) | At 50 (specialized) |
+|------|--------|-----------------|---------------------|
+| POWER | Damage range (min-max) | 15-35 (avg 25) | 22-50 (avg 36) |
+| POWER | Crit multiplier | 1.5x | 2.0x |
+| SPEED | Dodge chance | 10% | 35% |
+| SPEED | Initiative (attack order) | 25 | 50 (attacks first) |
+| ARMOR | Max HP | 100 | 120 |
+| ARMOR | Damage reduction | 0 | 3 |
+| MIND | Max energy | 100 | 120 |
+| MIND | Energy regen per rest | +0 | +10 |
+
+Balanced builds (25/25/25/25) get a **versatility HP bonus** of +25 HP. Specializing reduces this bonus.
+
+## Combat Mechanics
+
+Attacks use a **d20 roll system**:
+
+1. **Roll**: d20 + (SPEED / 10) modifier
+2. **Hit**: roll >= target's AC (base 8 + damage_reduction + 6 if defending)
+3. **Critical**: natural 20 always crits. Crit damage = base × crit_multiplier
+4. **Dodge**: after hit, defender rolls dodge chance. Dodged hits deal half damage
+5. **Miss**: roll < AC = 0 damage
+
+**Situational modifiers:**
+- +3 to-hit vs resting targets (they're stationary)
+- -3 to-hit when taunted, attacking a non-taunter
+
+**Ranged attacks**: -2 to-hit penalty, 60% damage scaling (avg ~15 at default stats).
+
+Your bot can see hit probabilities: `state["me"]["hit_chance_vs"]` shows your chance to hit each enemy, and `state["me"]["incoming_threat"]` ranks enemies by danger.
+
+## Visual Identity
+
+Optional: set `BOT_GLYPH` to a Unicode character for your bot's visual identity:
+
+```python
+BOT_GLYPH = "◆"  # Rendered with HP-dependent coloring
+```
+
+Glyphs are colored based on HP (white > green > yellow > red). If not set, your BOT_EMOJI is used instead.
+
 ### Carryover
 
 The match winner carries 50% of their final score into the next match, capped at 50 points. This means winning streaks build early momentum in follow-up matches.
@@ -149,6 +217,8 @@ The match winner carries 50% of their final score into the next match, capped at
 - **Early kills snowball** -- 10 points per kill means 1-2 kills can push you to tier 1 quickly.
 - **Target the leader** -- +20 bounty for killing the leader makes them a high-value target.
 - **Leader bleeds energy** -- tier 3+ costs 5-8 energy/round. The leader must keep fighting or drain out.
+- **Build to your strategy** -- high POWER for burst damage, high SPEED for evasion, high ARMOR for survival, high MIND for sustained fights.
+- **Read hit_chance_vs** -- check your probability before committing to an attack. Low chance? Defend or reposition instead.
 
 ## Helpers API (Optional)
 

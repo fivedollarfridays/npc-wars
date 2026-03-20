@@ -5,6 +5,10 @@ BOT_EMOJI = "\U0001f9e0"
 BOT_GLYPH = "◈"
 BOT_BIO = "rests until it doesn't"
 BOT_AUTHOR = "kevin"
+BOT_POWER = 15
+BOT_SPEED = 20
+BOT_ARMOR = 20
+BOT_MIND = 45
 
 
 def decide(state):
@@ -39,17 +43,18 @@ def decide(state):
             return me.attack(weakest)
         return me.defend()
 
-    # P4: Rest when safe
-    if me.energy < 30:
+    # P4: Rest briefly when low energy
+    if me.energy < 20:
         return me.rest()
 
-    # P5: Chase wounded
-    if me.hp > 50 and me.energy >= 40:
-        wounded = enemies.wounded(50)
-        if wounded:
-            target = min(wounded, key=lambda e: e["hp"])
-            if me.dist_to(target) <= 4:
-                return me.move_toward(target)
+    # P5: Chase closest — don't idle, plague punishes passivity
+    closest = enemies.closest()
+    if closest:
+        if me.dist_to(closest) <= 5:
+            return me.move_toward(closest)
 
-    # P6: Drift center
+    # P6: Always move toward someone
+    if closest:
+        return me.move_toward(closest)
+
     return me.move_toward_center()

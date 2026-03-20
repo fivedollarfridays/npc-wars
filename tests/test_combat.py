@@ -126,21 +126,25 @@ class TestResolveDeaths:
         assert bots[0].alive is False
 
     def test_death_priority_lowest_hp_first(self):
+        # Third alive bot prevents "spare the best" rule from triggering
+        alive = make_bot(hp=50, emoji="🟢")
         b1 = make_bot(hp=-5, emoji="🅰️", energy=50, damage_dealt=100)
         b2 = make_bot(hp=0, emoji="🅱️", energy=50, damage_dealt=100)
-        elims = resolve_deaths([b1, b2], round_num=10)
+        elims = resolve_deaths([alive, b1, b2], round_num=10)
         assert [e["emoji"] for e in elims] == ["🅰️", "🅱️"]
 
     def test_death_priority_hp_tied_lower_energy_first(self):
+        alive = make_bot(hp=50, emoji="🟢")
         b1 = make_bot(hp=0, emoji="🅰️", energy=10, damage_dealt=100)
         b2 = make_bot(hp=0, emoji="🅱️", energy=50, damage_dealt=100)
-        elims = resolve_deaths([b1, b2], round_num=10)
+        elims = resolve_deaths([alive, b1, b2], round_num=10)
         assert [e["emoji"] for e in elims] == ["🅰️", "🅱️"]
 
     def test_death_priority_hp_energy_tied_less_damage_first(self):
+        alive = make_bot(hp=50, emoji="🟢")
         b1 = make_bot(hp=0, emoji="🅰️", energy=50, damage_dealt=10)
         b2 = make_bot(hp=0, emoji="🅱️", energy=50, damage_dealt=100)
-        elims = resolve_deaths([b1, b2], round_num=10)
+        elims = resolve_deaths([alive, b1, b2], round_num=10)
         assert [e["emoji"] for e in elims] == ["🅰️", "🅱️"]
 
     def test_already_dead_not_re_eliminated(self):
@@ -192,12 +196,12 @@ class TestBotStatAllocation:
         assert bot.energy == 100
 
     def test_bot_custom_stats_hp(self):
-        """Bot with high armor (50) has hp == 120."""
+        """Bot with high armor (50) has hp == 95 (versatility-penalized)."""
         alloc = StatAllocation(15, 15, 50, 20)
         bot = make_bot(stat_allocation=alloc)
         expected_hp = calculate_derived(alloc).max_hp
-        assert expected_hp == 120
-        assert bot.hp == 120
+        assert expected_hp == 95
+        assert bot.hp == 95
 
     def test_bot_custom_stats_energy(self):
         """Bot with high mind (50) has energy == 120."""

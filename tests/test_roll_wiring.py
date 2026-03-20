@@ -28,7 +28,7 @@ def test_resolve_attacks_hit_event_has_roll_data():
     assert "ac" in hit, "Hit event should contain 'ac' field"
     assert "is_crit" in hit, "Hit event should contain 'is_crit' field"
     assert isinstance(hit["roll"], int)
-    assert isinstance(hit["damage"], int)
+    assert isinstance(hit["damage"], (int, float))
     assert hit["damage"] > 0
 
 
@@ -168,7 +168,7 @@ def test_ranged_with_rng_uses_rolls():
             assert "modifier" in hit, "ranged_hit should contain 'modifier' field"
             assert "is_crit" in hit, "ranged_hit should contain 'is_crit' field"
             assert isinstance(hit["roll"], int)
-            assert isinstance(hit["damage"], int)
+            assert isinstance(hit["damage"], (int, float))
             assert hit["damage"] > 0
             return
 

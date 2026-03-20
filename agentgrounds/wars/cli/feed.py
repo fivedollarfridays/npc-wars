@@ -136,6 +136,15 @@ def _fmt_leader_bounty(evt: dict, rnd: int) -> str:
     )
 
 
+def _fmt_plague(evt: dict, rnd: int) -> str:
+    dmg = evt.get("hp_damage", 0)
+    rounds = evt.get("passive_rounds", 0)
+    return (
+        f"  {_PURPLE}R{rnd}:{_RST} {evt.get('emoji', '?')} "
+        f"\U0001f9a0 plague! {_RED}-{dmg}hp{_RST} {_DIM}(idle {rounds}rd){_RST}"
+    )
+
+
 _FORMATTERS: dict[str, _Formatter] = {
     "hit": _fmt_hit,
     "kill": _fmt_kill,
@@ -151,4 +160,5 @@ _FORMATTERS: dict[str, _Formatter] = {
     "leader_bounty": _fmt_leader_bounty,
     "attack_miss": _fmt_attack_miss,
     "ranged_attack_miss": _fmt_ranged_attack_miss,
+    "plague": _fmt_plague,
 }

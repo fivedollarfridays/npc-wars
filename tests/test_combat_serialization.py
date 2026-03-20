@@ -7,7 +7,7 @@ from engine.combat import (
     STARTING_ATTACK_POWER,
     calculate_damage,
 )
-from engine.stats import StatAllocation
+from engine.stats import StatAllocation, calculate_derived
 
 
 # --- Dict serialization ---
@@ -42,6 +42,7 @@ class TestDictSerialization:
             "power", "speed", "armor", "mind",
             "max_hp", "max_energy", "min_damage", "max_damage",
             "dodge_chance", "damage_reduction", "glyph",
+            "passive_rounds",
         }
 
     def test_self_dict_includes_energy(self):
@@ -80,8 +81,7 @@ class TestDictSerialization:
     def test_enemy_dict_has_max_hp(self):
         alloc = StatAllocation(power=20, speed=20, armor=40, mind=20)
         d = make_bot(stat_allocation=alloc).to_enemy_dict()
-        # armor=40 -> max_hp = 80 + 40*0.8 = 112
-        assert d["max_hp"] == 112
+        assert d["max_hp"] == calculate_derived(alloc).max_hp
 
     def test_enemy_dict_has_speed_class(self):
         d = make_bot().to_enemy_dict()
