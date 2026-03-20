@@ -42,6 +42,7 @@ class TestDictSerialization:
             "power", "speed", "armor", "mind",
             "max_hp", "max_energy", "min_damage", "max_damage",
             "dodge_chance", "damage_reduction", "glyph",
+            "passive_rounds",
         }
 
     def test_self_dict_includes_energy(self):

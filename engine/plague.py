@@ -83,9 +83,10 @@ def _move_closes_distance(
     closest = min(enemies, key=lambda e: abs(e["x"] - bot.x) + abs(e["y"] - bot.y))
     current_dist = abs(closest["x"] - bot.x) + abs(closest["y"] - bot.y)
 
-    dx, dy = {"north": (0, -1), "south": (0, 1), "east": (1, 0), "west": (-1, 0)}.get(
-        direction, (0, 0)
-    )
+    _DIRS: dict[str, tuple[int, int]] = {
+        "north": (0, -1), "south": (0, 1), "east": (1, 0), "west": (-1, 0),
+    }
+    dx, dy = _DIRS.get(direction, (0, 0))
     new_dist = abs(closest["x"] - (bot.x + dx)) + abs(closest["y"] - (bot.y + dy))
     return new_dist < current_dist
 
