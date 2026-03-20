@@ -29,8 +29,8 @@ def test_hit_probability_returns_dict():
 
 
 def test_hit_probability_high_power_more_damage():
-    """Higher power attacker should have higher expected damage."""
-    weak = calculate_derived(StatAllocation(25, 25, 25, 25))
+    """Higher power attacker should have higher expected damage than low-power specialist."""
+    weak = calculate_derived(StatAllocation(15, 50, 15, 20))
     strong = calculate_derived(StatAllocation(50, 15, 20, 15))
     defender = calculate_derived(StatAllocation(25, 25, 25, 25))
     assert (calculate_hit_probability(strong, defender)["expected_damage"]
@@ -97,9 +97,10 @@ def test_incoming_threat_has_expected_damage():
 def test_incoming_threat_sorted_by_damage():
     """Threats sorted by expected_damage descending."""
     me = _make_bot("A")
-    weak = _make_bot("W", x=3, y=3)  # default 25/25/25/25
+    weak = _make_bot("W", x=3, y=3,
+                     alloc=StatAllocation(15, 50, 15, 20))  # low-power specialist
     strong = _make_bot("S", x=5, y=5,
-                       alloc=StatAllocation(50, 15, 20, 15))
+                       alloc=StatAllocation(70, 10, 10, 10))  # extreme power
     state = build_state(me, [me, weak, strong], round_num=1, grid_size=10, storm_border=0)
     threats = state["me"]["incoming_threat"]
     assert threats[0]["emoji"] == "S"
@@ -107,12 +108,13 @@ def test_incoming_threat_sorted_by_damage():
 
 
 def test_high_power_enemy_ranks_higher():
-    """Enemy with POWER=50 ranks above default enemy in threat list."""
+    """Enemy with extreme POWER ranks above low-power enemy in threat list."""
     me = _make_bot("A")
-    default_enemy = _make_bot("D", x=2, y=2)
+    low_power_enemy = _make_bot("D", x=2, y=2,
+                                alloc=StatAllocation(15, 50, 15, 20))
     power_enemy = _make_bot("P", x=4, y=4,
-                            alloc=StatAllocation(50, 15, 20, 15))
-    state = build_state(me, [me, default_enemy, power_enemy],
+                            alloc=StatAllocation(70, 10, 10, 10))
+    state = build_state(me, [me, low_power_enemy, power_enemy],
                         round_num=1, grid_size=10, storm_border=0)
     threats = state["me"]["incoming_threat"]
     assert threats[0]["emoji"] == "P"

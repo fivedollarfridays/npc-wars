@@ -32,9 +32,9 @@ state = {
         "momentum_name": "Momentum",  # tier display name
         "is_leader": False,        # True if you're the highest scorer
         "power": 25, "speed": 25, "armor": 25, "mind": 25,  # stat allocation
-        "max_hp": 100, "max_energy": 100,     # derived from stats
-        "min_damage": 15, "max_damage": 35,   # damage range from POWER
-        "dodge_chance": 10.0,                  # % chance to halve incoming damage
+        "max_hp": 145, "max_energy": 100,     # derived from stats
+        "min_damage": 35, "max_damage": 55,   # damage range from POWER
+        "dodge_chance": 7.5,                   # % chance to halve incoming damage
         "damage_reduction": 0,                 # flat DR from ARMOR
         "hit_chance_vs": {                     # your hit probability vs each enemy
             "🎯": {"hit_chance": 75.0, "crit_chance": 5.0, "dodge_chance": 10.0, "expected_damage": 16.8},
@@ -87,7 +87,7 @@ Simultaneous attacks: if two bots attack each other, both take damage. Both can 
 
 | Stat | Value |
 |------|-------|
-| Starting HP | 100 (max 100) |
+| Starting HP | 145 (max 145) |
 | Starting Energy | 100 (max 100) |
 | Base Attack Power | 25 damage |
 | Attack Scaling | +2 per 10 rounds after round 15 |
@@ -118,7 +118,7 @@ Bots earn points each round. Points build momentum tiers that grant combat bonus
 | Kill | +10 | Per kill |
 | Clean Kill | +5 | Got a kill AND took 0 damage that round |
 | Damage Dealt | +1 | Per 25 HP dealt |
-| Full HP | +2 | End round at 100 HP |
+| Full HP | +2 | End round at 145 HP |
 | Storm Survivor | +3 | Alive when storm first activates |
 | Last Standing | +15 | Only bot alive |
 
@@ -165,16 +165,29 @@ Default is 25/25/25/25 (balanced). Specializing creates tradeoffs — high POWER
 
 | Stat | Effect | At 25 (default) | At 50 (specialized) |
 |------|--------|-----------------|---------------------|
-| POWER | Damage range (min-max) | 15-35 (avg 25) | 22-50 (avg 36) |
+| POWER | Damage range (min-max) | 35-55 (avg 45) | 22-55 (avg 38) |
 | POWER | Crit multiplier | 1.5x | 2.0x |
-| SPEED | Dodge chance | 10% | 35% |
+| SPEED | Dodge chance | 7.5% | 17.5% |
 | SPEED | Initiative (attack order) | 25 | 50 (attacks first) |
-| ARMOR | Max HP | 100 | 120 |
-| ARMOR | Damage reduction | 0 | 3 |
+| ARMOR | Max HP | 145 | 90 |
+| ARMOR | Damage reduction | 0 | 6 |
 | MIND | Max energy | 100 | 120 |
-| MIND | Energy regen per rest | +0 | +10 |
+| MIND | Energy regen per rest | +0 | +15 |
 
-Balanced builds (25/25/25/25) get a **versatility HP bonus** of +25 HP. Specializing reduces this bonus.
+Balanced builds (25/25/25/25) get a **versatility HP bonus** of up to +75 HP. Specializing reduces this bonus.
+
+### Archetype Guide
+
+| Archetype | Stats (P/S/A/M) | Strengths | Weaknesses |
+|-----------|-----------------|-----------|------------|
+| **Balanced** | 25/25/25/25 | Versatility HP bonus, no weak stat | No specialization edge |
+| **Bruiser** | 35/15/35/15 | High damage + armor | Slow, low energy |
+| **Assassin** | 20/50/15/15 | Fast, high dodge, attacks first | Fragile, low damage |
+| **Tank** | 15/15/50/20 | Maximum HP, high DR | Low damage, slow |
+| **Mage** | 15/20/20/45 | Huge energy pool, fast regen | Low damage, fragile |
+| **Glass Cannon** | 50/15/15/20 | Highest burst damage | Very fragile, slow |
+
+Choose an archetype that matches your strategy: Bruiser for aggressive play, Tank for survival, Assassin for hit-and-run, Mage for sustained fights, or Balanced for adaptability.
 
 ## Combat Mechanics
 

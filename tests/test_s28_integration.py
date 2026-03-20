@@ -166,43 +166,46 @@ class TestStatEffects:
 
     def test_high_power_more_damage(self) -> None:
         power_bot = _custom_stat_config("PowerBot", "\U0001f4aa", 50, 20, 15, 15)
-        default_bot = bot_config("Default", "\U0001f47e", chase_and_attack)
-        configs = [power_bot, default_bot]
+        low_power_bot = _custom_stat_config("LowPow", "\U0001f47e", 15, 50, 15, 20)
+        configs = [power_bot, low_power_bot]
         matches = _run_many(10, configs=configs)
         power_hits = [
             e for e in _collect_events(matches, "hit")
             if e["attacker"] == "\U0001f4aa"
         ]
-        default_hits = [
+        low_hits = [
             e for e in _collect_events(matches, "hit")
             if e["attacker"] == "\U0001f47e"
         ]
-        if not power_hits or not default_hits:
+        if not power_hits or not low_hits:
             # Skip if one bot never hit (unlikely but possible)
             return
         power_avg = sum(h["damage"] for h in power_hits) / len(power_hits)
-        default_avg = sum(h["damage"] for h in default_hits) / len(default_hits)
-        assert power_avg > default_avg, (
-            f"PowerBot avg {power_avg:.1f} should exceed default avg {default_avg:.1f}"
+        low_avg = sum(h["damage"] for h in low_hits) / len(low_hits)
+        assert power_avg > low_avg, (
+            f"PowerBot avg {power_avg:.1f} should exceed LowPow avg {low_avg:.1f}"
         )
 
-    def test_high_armor_fewer_hits(self) -> None:
+    def test_high_armor_higher_ac(self) -> None:
         tank = _custom_stat_config("Tank", "\U0001f6e1\ufe0f", 15, 15, 50, 20)
-        default_bot = bot_config("Default", "\U0001f47e", chase_and_attack)
-        configs = [tank, default_bot]
+        glass = _custom_stat_config("Glass", "\U0001f47e", 50, 15, 15, 20)
+        configs = [tank, glass]
         matches = _run_many(10, configs=configs)
-        # Count hits against each bot
+        # Tank (DR=6, AC=14) vs Glass (DR=0, AC=8)
+        # Count hit rate against each: fewer attacks should land on tank
         all_hits = _collect_events(matches, "hit")
-        hits_vs_tank = [h for h in all_hits if h["target"] == "\U0001f6e1\ufe0f"]
-        hits_vs_default = [h for h in all_hits if h["target"] == "\U0001f47e"]
-        if not hits_vs_tank or not hits_vs_default:
+        all_misses = _collect_events(matches, "attack_miss")
+        attacks_vs_tank = [e for e in all_hits + all_misses if e["target"] == "\U0001f6e1\ufe0f"]
+        hits_vs_tank = [e for e in all_hits if e["target"] == "\U0001f6e1\ufe0f"]
+        attacks_vs_glass = [e for e in all_hits + all_misses if e["target"] == "\U0001f47e"]
+        hits_vs_glass = [e for e in all_hits if e["target"] == "\U0001f47e"]
+        if not attacks_vs_tank or not attacks_vs_glass:
             return
-        # Tank has higher AC from DR, so should receive fewer hits
-        # Use ratio rather than absolute count (matches may vary)
-        tank_hit_rate = len(hits_vs_tank) / (len(hits_vs_tank) + len(hits_vs_default))
-        assert tank_hit_rate < 0.50, (
-            f"Tank received {tank_hit_rate:.2%} of hits, expected < 50% "
-            f"({len(hits_vs_tank)} vs {len(hits_vs_default)})"
+        # Tank has higher AC → lower hit rate when attacked
+        tank_rate = len(hits_vs_tank) / len(attacks_vs_tank) if attacks_vs_tank else 1.0
+        glass_rate = len(hits_vs_glass) / len(attacks_vs_glass) if attacks_vs_glass else 0.0
+        assert tank_rate < glass_rate, (
+            f"Tank hit rate {tank_rate:.2%} should be lower than glass {glass_rate:.2%}"
         )
 
 

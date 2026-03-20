@@ -78,7 +78,7 @@ class DerivedStats:
 
 # Scaling coefficients — tuned so DEFAULT_ALLOCATION (25/25/25/25)
 # produces the pre-overhaul constants (HP=100, energy=100, damage=25, etc.)
-_BASE_HP = 55  # lowered from 80; versatility bonus restores default to 100
+_BASE_HP = 50  # lowered; versatility bonus restores default to 145
 _HP_PER_ARMOR = 0.8
 _BASE_ENERGY = 80
 _ENERGY_PER_MIND = 0.8
@@ -86,27 +86,28 @@ _MIN_DMG_SCALE = 0.6
 _MAX_DMG_SCALE = 1.4
 # Diminishing-return damage scales above baseline (power > 25)
 _MIN_DMG_SCALE_HIGH = 0.3
-_MAX_DMG_SCALE_HIGH = 0.6
+_MAX_DMG_SCALE_HIGH = 0.8  # buffed from 0.6 — rewards Glass Cannon
 _BASE_CRIT = 1.5
 _CRIT_PER_POWER = 0.02
-_DODGE_PER_SPEED = 0.4
+_DODGE_PER_SPEED = 0.3  # nerfed from 0.4 — dodge less dominant
 # Accelerated dodge above baseline (speed > 25)
-_DODGE_PER_SPEED_HIGH = 1.0
-_DODGE_CAP = 40.0
-_DR_PER_ARMOR = 0.15  # was 0.3 — reduced to weaken armor-heavy builds
+_DODGE_PER_SPEED_HIGH = 0.4  # nerfed from 1.0 — speed specialization less dominant
+_DODGE_CAP = 20.0  # nerfed from 40.0 — hard cap on dodge
+_DR_PER_ARMOR = 0.25  # buffed from 0.15 — rewards Tank builds
 _DR_BASELINE = 25  # armor value that gives 0 DR
-_REGEN_PER_MIND = 0.4  # was 0.2 — boosted to reward mind investment
+_REGEN_PER_MIND = 0.6  # buffed from 0.4 — rewards Mage builds
 _REGEN_BASELINE = 25  # mind value that gives 0 regen
 
 # Baseline values at power/speed = 25 (anchors for piecewise formulas)
 _BASELINE_MIN_DMG = 15  # 25 * 0.6
 _BASELINE_MAX_DMG = 35  # 25 * 1.4
-_BASELINE_DODGE = 10.0  # 25 * 0.4
+_BASELINE_DODGE = 7.5  # 25 * 0.3
 
 # Versatility bonus — rewards balanced stat distributions.
 # Max bonus at 25/25/25/25 (variance=0), linearly decays with stat spread.
-_VERSATILITY_HP_MAX = 25  # bonus HP for perfectly balanced build
-_VERSATILITY_VARIANCE_CAP = 200.0  # variance at which bonus reaches 0
+_VERSATILITY_HP_MAX = 75  # bonus HP for perfectly balanced build (buffed from 25)
+_VERSATILITY_VARIANCE_CAP = 100.0  # variance at which bonus reaches 0 (tightened from 200)
+_VERSATILITY_DMG_BONUS = 20  # flat damage bonus for balanced builds
 
 
 def _calc_damage(power: int) -> tuple[int, int]:
@@ -121,33 +122,35 @@ def _calc_damage(power: int) -> tuple[int, int]:
 
 
 def _calc_dodge(speed: int) -> float:
-    """Piecewise dodge: 0.4/pt below 25, 1.0/pt above 25."""
+    """Piecewise dodge: 0.3/pt below 25, 0.4/pt above 25."""
     if speed <= 25:
         return min(_DODGE_CAP, round(speed * _DODGE_PER_SPEED, 1))
     excess = speed - 25
     return min(_DODGE_CAP, round(_BASELINE_DODGE + excess * _DODGE_PER_SPEED_HIGH, 1))
 
 
-def _calc_versatility_hp(alloc: StatAllocation) -> int:
-    """Bonus HP for balanced stat distributions (low variance)."""
+def _calc_versatility_ratio(alloc: StatAllocation) -> float:
+    """Return 1.0 for perfectly balanced, 0.0 for specialized builds."""
     mean = 25.0  # STAT_BUDGET / 4
     variance = sum(
         (v - mean) ** 2
         for v in (alloc.power, alloc.speed, alloc.armor, alloc.mind)
     ) / 4.0
     ratio = min(1.0, variance / _VERSATILITY_VARIANCE_CAP)
-    return int(_VERSATILITY_HP_MAX * (1.0 - ratio))
+    return 1.0 - ratio
 
 
 def calculate_derived(alloc: StatAllocation) -> DerivedStats:
     """Map raw stat allocation to gameplay values."""
     min_dmg, max_dmg = _calc_damage(alloc.power)
-    bonus_hp = _calc_versatility_hp(alloc)
+    v_ratio = _calc_versatility_ratio(alloc)
+    bonus_hp = int(_VERSATILITY_HP_MAX * v_ratio)
+    bonus_dmg = int(_VERSATILITY_DMG_BONUS * v_ratio)
     return DerivedStats(
         max_hp=int(_BASE_HP + alloc.armor * _HP_PER_ARMOR) + bonus_hp,
         max_energy=int(_BASE_ENERGY + alloc.mind * _ENERGY_PER_MIND),
-        min_damage=min_dmg,
-        max_damage=max_dmg,
+        min_damage=min_dmg + bonus_dmg,
+        max_damage=max_dmg + bonus_dmg,
         crit_multiplier=round(_BASE_CRIT + (alloc.power - 25) * _CRIT_PER_POWER, 2),
         dodge_chance=_calc_dodge(alloc.speed),
         initiative=alloc.speed,

@@ -13,6 +13,10 @@ BOT_EMOJI = "\U0001f31f"
 BOT_GLYPH = "◆"
 BOT_BIO = "A solid foundation -- tweak the TODOs to make it your own"
 BOT_AUTHOR = "agentgrounds"
+BOT_POWER = 25
+BOT_SPEED = 25
+BOT_ARMOR = 25
+BOT_MIND = 25
 
 # ── Tuning knobs ────────────────────────────────────────────
 # TODO: Change these constants to reshape the bot's personality.

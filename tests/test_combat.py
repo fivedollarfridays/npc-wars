@@ -17,7 +17,6 @@ from engine.combat import (
     REST_HEAL,
     STARTING_DEFENSE,
     STARTING_ENERGY,
-    STARTING_HP,
     STARTING_ATTACK_POWER,
     resolve_deaths,
 )
@@ -29,7 +28,8 @@ from engine.combat import (
 class TestBotDefaults:
     def test_starting_hp(self):
         bot = make_bot()
-        assert bot.hp == STARTING_HP == 100
+        expected = calculate_derived(DEFAULT_ALLOCATION).max_hp
+        assert bot.hp == expected
 
     def test_starting_energy(self):
         bot = make_bot()
@@ -185,10 +185,11 @@ class TestBotStatAllocation:
         bot = make_bot()
         assert bot.stats == DEFAULT_ALLOCATION
 
-    def test_bot_default_hp_100(self):
-        """Bot() without stat_allocation has hp == 100."""
+    def test_bot_default_hp(self):
+        """Bot() without stat_allocation has hp from derived stats."""
         bot = make_bot()
-        assert bot.hp == 100
+        expected = calculate_derived(DEFAULT_ALLOCATION).max_hp
+        assert bot.hp == expected
 
     def test_bot_default_energy_100(self):
         """Bot() without stat_allocation has energy == 100."""
@@ -196,12 +197,12 @@ class TestBotStatAllocation:
         assert bot.energy == 100
 
     def test_bot_custom_stats_hp(self):
-        """Bot with high armor (50) has hp == 95 (versatility-penalized)."""
+        """Bot with high armor (50) has hp from derived stats."""
         alloc = StatAllocation(15, 15, 50, 20)
         bot = make_bot(stat_allocation=alloc)
         expected_hp = calculate_derived(alloc).max_hp
-        assert expected_hp == 95
-        assert bot.hp == 95
+        assert expected_hp == 90
+        assert bot.hp == 90
 
     def test_bot_custom_stats_energy(self):
         """Bot with high mind (50) has energy == 120."""

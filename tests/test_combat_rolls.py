@@ -106,8 +106,8 @@ def test_damage_in_range() -> None:
                 assert r.damage <= _DEFAULT.max_damage + 0.20  # fractional tiebreaker
 
 
-def test_default_avg_damage_around_25() -> None:
-    """Average damage at default stats ≈ 20-30 (including crits)."""
+def test_default_avg_damage_around_45() -> None:
+    """Average damage at default stats ≈ 35-60 (including crits, with versatility bonus)."""
     rng = _make_rng(42)
     damages = [
         r.damage
@@ -115,17 +115,20 @@ def test_default_avg_damage_around_25() -> None:
         if (r := roll_attack(_DEFAULT, _DEFAULT, rng=rng)).hit
     ]
     avg = sum(damages) / len(damages)
-    assert 20 <= avg <= 35, f"Avg damage {avg:.1f} out of expected range"
+    assert 35 <= avg <= 60, f"Avg damage {avg:.1f} out of expected range"
 
 
 def test_high_power_more_damage() -> None:
-    """POWER=50 bot deals higher average damage than default."""
+    """POWER=50 bot deals higher average damage than a low-power specialist."""
     hp = _high_power_stats()
+    # Compare against a low-power specialist (same versatility tier)
+    from engine.stats import StatAllocation, calculate_derived as calc
+    low_power = calc(StatAllocation(15, 50, 15, 20))
     rng1 = _make_rng(42)
     rng2 = _make_rng(42)
-    hits_default = [r.damage for _ in range(500) if (r := roll_attack(_DEFAULT, _DEFAULT, rng=rng1)).hit]
+    hits_low = [r.damage for _ in range(500) if (r := roll_attack(low_power, _DEFAULT, rng=rng1)).hit]
     hits_high = [r.damage for _ in range(500) if (r := roll_attack(hp, _DEFAULT, rng=rng2)).hit]
-    assert sum(hits_high) / len(hits_high) > sum(hits_default) / len(hits_default)
+    assert sum(hits_high) / len(hits_high) > sum(hits_low) / len(hits_low)
 
 
 # ---------------------------------------------------------------------------
@@ -210,8 +213,8 @@ def test_ranged_lower_hit_rate() -> None:
     assert ranged_hits < melee_hits
 
 
-def test_ranged_avg_damage_around_15() -> None:
-    """Ranged avg damage ≈ 12-18."""
+def test_ranged_avg_damage_around_30() -> None:
+    """Ranged avg damage ≈ 20-40 (scaled from default 35-55 range)."""
     rng = _make_rng(42)
     damages = [
         r.damage
@@ -219,7 +222,7 @@ def test_ranged_avg_damage_around_15() -> None:
         if (r := roll_ranged_attack(_DEFAULT, _DEFAULT, rng=rng)).hit
     ]
     avg = sum(damages) / len(damages)
-    assert 10 <= avg <= 22, f"Ranged avg {avg:.1f} out of range"
+    assert 20 <= avg <= 40, f"Ranged avg {avg:.1f} out of range"
 
 
 def test_ranged_min_damage_at_least_1() -> None:

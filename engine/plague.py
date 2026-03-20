@@ -113,11 +113,11 @@ def apply_plague(bot: Bot) -> list[dict[str, Any]]:
 
     # Energy drain (constant)
     energy_lost = min(bot.energy, PLAGUE_ENERGY_DRAIN)
-    bot.energy = max(0, bot.energy - PLAGUE_ENERGY_DRAIN)
+    bot.energy -= energy_lost
 
     # HP damage (escalating)
     hp_damage = PLAGUE_HP_BASE + rounds_past_grace * PLAGUE_HP_ESCALATION
-    bot.hp = max(1, bot.hp - hp_damage)  # never kills, leaves at 1 HP
+    bot.hp = max(1.0, bot.hp - hp_damage)  # never kills, leaves at 1 HP
 
     events.append({
         "type": "plague",

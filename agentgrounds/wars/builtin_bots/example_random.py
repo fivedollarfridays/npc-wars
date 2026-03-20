@@ -7,6 +7,10 @@ BOT_EMOJI = "🎲"
 BOT_GLYPH = "✦"
 BOT_BIO = "embrace the void"
 BOT_AUTHOR = "agentgrounds"
+BOT_POWER = 25
+BOT_SPEED = 25
+BOT_ARMOR = 25
+BOT_MIND = 25
 
 # Bot-local RNG seeded per round for reproducibility
 _rng = random.Random()

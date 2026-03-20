@@ -2,8 +2,13 @@
 
 BOT_NAME = "KiteBot"
 BOT_EMOJI = "🎯"
+BOT_GLYPH = "➤"
 BOT_BIO = "catch me if you can"
 BOT_AUTHOR = "agentgrounds"
+BOT_POWER = 20
+BOT_SPEED = 45
+BOT_ARMOR = 15
+BOT_MIND = 20
 
 
 def _dir_toward(dx, dy):

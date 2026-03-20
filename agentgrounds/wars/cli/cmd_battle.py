@@ -23,6 +23,10 @@ def register(subparser: argparse._SubParsersAction) -> None:
         "--replay", type=str, default=None,
         help="Directory to save match replay JSON",
     )
+    p.add_argument(
+        "--no-xp", action="store_true",
+        help="Skip XP tracking and profile updates",
+    )
     p.set_defaults(func=run)
 
 
@@ -78,6 +82,13 @@ def run(args: argparse.Namespace) -> None:
     from engine.game import run_match
 
     match_data = run_match(bot_configs, match_id=1, seed=seed)
+
+    # XP integration
+    no_xp = getattr(args, "no_xp", False)
+    if not no_xp:
+        from engine.xp_runner import inject_xp_into_match
+
+        inject_xp_into_match(match_data)
 
     _print_summary(match_data)
 

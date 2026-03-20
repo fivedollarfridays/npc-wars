@@ -3,8 +3,13 @@
 
 BOT_NAME = "GooseLoose"
 BOT_EMOJI = "🪿"
+BOT_GLYPH = "◆"
 BOT_BIO = "the goose is loose"
 BOT_AUTHOR = "kmasty"
+BOT_POWER = 15
+BOT_SPEED = 20
+BOT_ARMOR = 20
+BOT_MIND = 45
 
 
 def _attack_adjacent(dx, dy):
