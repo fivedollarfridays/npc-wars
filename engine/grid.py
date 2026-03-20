@@ -75,6 +75,22 @@ def is_in_storm(x: int, y: int, grid_size: int, storm_border: int) -> bool:
             y < storm_border or y >= grid_size - storm_border)
 
 
+def storm_depth(x: int, y: int, grid_size: int, storm_border: int) -> int:
+    """How many tiles deep into the storm a position is (0 if safe)."""
+    if storm_border <= 0:
+        return 0
+    depths = []
+    if x < storm_border:
+        depths.append(storm_border - x)
+    if x >= grid_size - storm_border:
+        depths.append(x - (grid_size - storm_border) + 1)
+    if y < storm_border:
+        depths.append(storm_border - y)
+    if y >= grid_size - storm_border:
+        depths.append(y - (grid_size - storm_border) + 1)
+    return max(depths) if depths else 0
+
+
 def is_valid_position(x: int, y: int, grid_size: int) -> bool:
     """Check if a position is within the grid bounds."""
     return 0 <= x < grid_size and 0 <= y < grid_size

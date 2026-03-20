@@ -8,7 +8,7 @@ from engine.combat import (
     KILL_BOUNTY_ENERGY, TAUNT_RANGE,
 )
 from engine.bumpers import resolve_bumps
-from engine.grid import is_in_storm, is_valid_position, apply_direction, direction_toward
+from engine.grid import is_in_storm, is_valid_position, apply_direction, direction_toward, storm_depth  # noqa: F401
 from engine.state import build_state
 from engine.sandbox import execute_decide, validate_action
 from engine.rounds_combat import (  # noqa: F401 — re-exported for backward compat
@@ -180,13 +180,19 @@ def resolve_taunt(alive_bots: list[Bot], actions: _ActionsMap) -> list[_Event]:
 
 
 def apply_storm_damage(alive_bots: list[Bot], grid_size: int, storm_border: int) -> list[_Event]:
-    """Phase 5: Apply storm damage and return storm events."""
+    """Phase 5: Apply depth-scaled storm damage. Deeper = more damage."""
     events: list[_Event] = []
     for bot in alive_bots:
-        if bot.alive and is_in_storm(bot.x, bot.y, grid_size, storm_border):
-            bot.hp -= STORM_DAMAGE
-            bot.damage_taken += STORM_DAMAGE
-            events.append({"type": "storm_damage", "target": bot.emoji, "damage": STORM_DAMAGE})
+        if not bot.alive:
+            continue
+        depth = storm_depth(bot.x, bot.y, grid_size, storm_border)
+        if depth > 0:
+            # Base 10 + 3 per tile of depth, with fractional component for tiebreaking
+            damage = STORM_DAMAGE + (depth - 1) * 3.0 + depth * 0.1
+            bot.hp -= damage
+            bot.damage_taken += int(damage)
+            events.append({"type": "storm_damage", "target": bot.emoji,
+                           "damage": round(damage, 1), "depth": depth})
     return events
 
 
@@ -201,7 +207,7 @@ def apply_energy_and_rest(
     for bot in alive_bots:
         action = actions.get(bot.emoji)
         if action and action[0] == "rest":
-            bot.hp = min(bot.derived.max_hp, bot.hp + REST_HEAL)
+            bot.hp = min(float(bot.derived.max_hp), bot.hp + REST_HEAL)
             energy_restore = REST_ENERGY_RESTORE + bot.derived.energy_regen + bot.momentum_energy_bonus
             bot.energy = min(bot.derived.max_energy, bot.energy + energy_restore)
 

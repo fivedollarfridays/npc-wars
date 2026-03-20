@@ -85,8 +85,8 @@ def test_dodge_halves_damage() -> None:
     assert result.hit is True
     assert result.is_crit is False
     assert result.dodged is True
-    # 30 // 2 = 15
-    assert result.damage == 15
+    # 30.10 / 2 = 15.05 (fractional tiebreaker)
+    assert int(result.damage) == 15
 
 
 def test_no_dodge_full_damage() -> None:
@@ -96,7 +96,7 @@ def test_no_dodge_full_damage() -> None:
     assert result.hit is True
     assert result.is_crit is False
     assert result.dodged is False
-    assert result.damage == 30
+    assert int(result.damage) == 30
 
 
 def test_dodged_crit_still_halved() -> None:
@@ -109,7 +109,7 @@ def test_dodged_crit_still_halved() -> None:
     assert result.dodged is True
     crit_damage = int(30 * _DEFAULT.crit_multiplier)
     expected = max(1, crit_damage // 2)
-    assert result.damage == expected
+    assert int(result.damage) == expected
 
 
 def test_dodge_minimum_1_damage() -> None:

@@ -103,7 +103,7 @@ def test_damage_in_range() -> None:
         if r.hit:
             assert r.damage >= 1
             if not r.is_crit:
-                assert r.damage <= _DEFAULT.max_damage
+                assert r.damage <= _DEFAULT.max_damage + 0.20  # fractional tiebreaker
 
 
 def test_default_avg_damage_around_25() -> None:

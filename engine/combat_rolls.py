@@ -43,7 +43,7 @@ class CombatResult:
     """Outcome of a single attack roll."""
 
     hit: bool
-    damage: int
+    damage: float  # includes fractional component for tiebreaking
     roll: int  # d20 result (before modifier)
     modifier: int  # to-hit modifier from initiative
     target_ac: int  # defender's effective AC
@@ -95,14 +95,17 @@ def _resolve_hit(
     is_crit = d20 == 20 or total_roll >= ac + CRIT_THRESHOLD
     if is_crit:
         base = int(base * crit_multiplier)
-    damage = max(1, int(base * momentum_damage_mult))
+    whole = max(1, int(base * momentum_damage_mult))
+    # Fractional component from roll for natural HP tiebreaking
+    fraction = d20 * 0.01
+    damage = whole + fraction
 
     dodged = rng.random() < dodge_chance / 100
     if dodged:
-        damage = max(1, damage // 2)
+        damage = max(1.0, damage / 2)
 
     return CombatResult(
-        hit=True, damage=damage, roll=d20, modifier=modifier,
+        hit=True, damage=round(damage, 2), roll=d20, modifier=modifier,
         target_ac=ac, is_crit=is_crit, is_miss=False, dodged=dodged,
     )
 

@@ -96,7 +96,7 @@ class Bot:
         # Stat allocation and derived stats
         self.stats: StatAllocation = stat_allocation if stat_allocation is not None else DEFAULT_ALLOCATION
         self.derived: DerivedStats = calculate_derived(self.stats)
-        self.hp = self.derived.max_hp
+        self.hp: float = float(self.derived.max_hp)
         self.energy = self.derived.max_energy
         self.attack_power = STARTING_ATTACK_POWER
         self.defense = STARTING_DEFENSE
