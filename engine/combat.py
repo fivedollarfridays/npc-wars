@@ -119,6 +119,7 @@ class Bot:
         self.damage_bonus: dict[str, float | int] | None = None
         # Scoring
         self.score: int = 0
+        self.passive_rounds: int = 0
         # Momentum tier bonuses (set by engine.momentum.apply_momentum_bonuses)
         self.momentum_tier: int = 0
         self.momentum_energy_bonus: int = 0
@@ -189,6 +190,7 @@ class Bot:
             "max_damage": self.derived.max_damage,
             "dodge_chance": self.derived.dodge_chance,
             "damage_reduction": self.derived.damage_reduction,
+            "passive_rounds": self.passive_rounds,
         }
 
 

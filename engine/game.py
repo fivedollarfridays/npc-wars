@@ -6,6 +6,7 @@ from typing import Any
 
 from engine.combat import Bot, resolve_deaths, STARTING_ATTACK_POWER, get_round_bonus_attack, tick_damage_bonus
 from engine.momentum import apply_energy_drain, apply_momentum_bonuses, calculate_carryover, determine_leader, get_tier_name
+from engine.plague import apply_plague, is_active_action, update_passivity
 from engine.scoring import calculate_round_scores
 from engine.grid import calculate_grid_size, spawn_positions
 from engine.match_modes import MatchMode, get_mode, get_storm_border_for_mode
@@ -137,6 +138,17 @@ def _resolve_combat_phases(
     round_events.extend(resolve_ranged_attacks(alive_bots, actions, pos_map, rng=rng))
     round_events.extend(apply_storm_damage(alive_bots, grid_size, storm_border))
     apply_energy_and_rest(alive_bots, actions, forced_rest)
+
+    # Passivity plague: track engagement, apply progressive penalties
+    for bot in alive_bots:
+        if not bot.alive:
+            continue
+        action = actions.get(bot.emoji, ("rest",))
+        enemy_dicts = [{"x": e.x, "y": e.y} for e in alive_bots if e.emoji != bot.emoji and e.alive]
+        active = is_active_action(action, bot, enemy_dicts)
+        update_passivity(bot, is_active=active)
+        plague_events = apply_plague(bot)
+        round_events.extend(plague_events)
 
     round_elims = resolve_deaths(bots, round_num)
     attribute_kills(round_elims, round_events, bots, round_num)
