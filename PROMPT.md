@@ -67,8 +67,28 @@ Return one of these tuples from `decide(state)`:
 | Attack | `("attack", "north")` | 10 | Deal damage to adjacent tile in that direction |
 | Defend | `("defend",)` | 10 | Halve incoming damage this round |
 | Rest | `("rest",)` | 0 | Recover +5 HP and +20 energy |
+| Dash | `("dash", "north")` | 15 | Move 2 tiles in a direction |
+| Ranged Attack | `("ranged_attack", "north")` | 10 | Shoot at range (-2 hit, 60% damage) |
+| Taunt | `("taunt", "🎯")` | 5 | Force target to attack you (-3 vs others) |
+| Trap | `("trap", "north")` | 15 | Place hidden trap 1 tile in direction (level 12+) |
 
 If your bot returns an invalid action or crashes, it defaults to rest.
+
+### Traps (Level 12+)
+
+Place invisible traps that trigger when an enemy steps on them.
+
+- **Damage**: 20 base + 0.5 × max(0, POWER − 25). Reduced by target's armor DR
+- **Cooldown**: 3 rounds between placements
+- **Lifetime**: 10 rounds or until triggered
+- **Visibility**: Hidden from enemies until triggered. You see your own traps in `state["me"]["traps"]`
+
+```python
+def decide(state):
+    # Place a trap to the north
+    if state["me"]["trap_cooldown"] == 0:
+        return ("trap", "north")
+```
 
 ## Resolution Order
 
@@ -232,6 +252,30 @@ The match winner carries 50% of their final score into the next match, capped at
 - **Leader bleeds energy** -- tier 3+ costs 5-8 energy/round. The leader must keep fighting or drain out.
 - **Build to your strategy** -- high POWER for burst damage, high SPEED for evasion, high ARMOR for survival, high MIND for sustained fights.
 - **Read hit_chance_vs** -- check your probability before committing to an attack. Low chance? Defend or reposition instead.
+
+## Callbacks (Optional)
+
+Define optional functions alongside `decide()` for advanced gameplay:
+
+| Callback | Level | Signature | Timing |
+|----------|-------|-----------|--------|
+| `setup` | 8+ | `setup(state)` | Once before round 1 |
+| `on_kill` | 5+ | `on_kill(state, victim_emoji)` | After you eliminate a bot |
+| `react` | 12+ | `react(state, events)` | Each round, after combat |
+
+```python
+def setup(state):
+    """Pre-match initialization. Track enemies, set strategy."""
+    pass  # Initialize counters, pick targets
+
+def react(state, events):
+    """See what happened nearby (3-tile radius) this round."""
+    for e in events:
+        if e["type"] == "kill":
+            pass  # Someone died nearby — adapt
+```
+
+Callbacks are read-only (no return value used). Exceptions are caught — a buggy callback won't crash your bot.
 
 ## Helpers API (Optional)
 

@@ -9,6 +9,8 @@ from engine.combat import Bot, STARTING_ATTACK_POWER, get_round_bonus_attack
 from engine.match_modes import get_mode, get_storm_border_for_mode
 from engine.spectacle import SpectacleEngine
 from engine.discord_integration import notify_match_start
+from engine.callback_runner import run_react_callbacks, run_setup_callbacks
+from engine.traps import TrapManager
 from engine.game import (
     _apply_momentum_phase, _execute_round, _finalize_match,
     _prepare_match, _resolve_combat_phases, _score_spectacle,
@@ -40,6 +42,7 @@ async def _execute_round_async(
     bumps_last_round: list[dict[str, Any]] | None = None,
     human_timeout: float = 2.0,
     rng: random.Random | None = None,
+    trap_manager: TrapManager | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]], set[str]]:
     """Async round: gathers human inputs concurrently after bot decisions."""
     from engine.combat import MAX_CONSECUTIVE_FAILURES
@@ -111,6 +114,7 @@ async def _execute_round_async(
     round_data, round_elims, bump_events = _resolve_combat_phases(
         alive_bots, bots, actions, forced_rest, override_events,
         round_num, grid_size, storm_border, rng=rng,
+        trap_manager=trap_manager,
     )
     return round_data, round_elims, bump_events, human_responded
 
@@ -133,6 +137,8 @@ async def run_match_async(
             afk_tracker.register(b.emoji)
     notify_match_start(match_id=match_id, players=players, seed=seed)
 
+    run_setup_callbacks(bots, grid_size=grid_size, storm_border=0)
+
     watcher_ctrl: WatcherController | None = None
     if has_humans:
         watcher_ctrl = WatcherController(rng=rng)
@@ -141,6 +147,9 @@ async def run_match_async(
     all_eliminations: list[dict[str, Any]] = []
     last_bump_events: list[dict[str, Any]] = []
     spectacle_engine = SpectacleEngine()
+    trap_manager = TrapManager()
+    for b in bots:
+        b._trap_manager = trap_manager
     prev_storm_border = 0
 
     for round_num in range(1, mode.max_rounds + 1):
@@ -148,6 +157,8 @@ async def run_match_async(
             break
 
         storm_border = get_storm_border_for_mode(round_num, mode)
+        for b in bots:
+            b._current_round = round_num
 
         spawn_events: list[dict[str, Any]] = []
         if watcher_ctrl is not None:
@@ -157,7 +168,7 @@ async def run_match_async(
             round_data, round_elims, last_bump_events, responded = await _execute_round_async(
                 bots, round_num, grid_size, storm_border,
                 bumps_last_round=last_bump_events, human_timeout=human_timeout,
-                rng=rng,
+                rng=rng, trap_manager=trap_manager,
             )
             if spawn_events:
                 round_data.setdefault("events", []).extend(spawn_events)
@@ -177,10 +188,12 @@ async def run_match_async(
             round_data, round_elims, last_bump_events = _execute_round(
                 bots, round_num, grid_size, storm_border,
                 bumps_last_round=last_bump_events, rng=rng,
+                trap_manager=trap_manager,
             )
 
         _apply_momentum_phase(bots, round_data, round_num, storm_border, prev_storm_border)
         _score_spectacle(spectacle_engine, round_data, bots)
+        run_react_callbacks(bots, round_data.get("events", []), grid_size, storm_border, round_num)
         all_rounds.append(round_data)
         all_eliminations.extend(round_elims)
         prev_storm_border = storm_border
