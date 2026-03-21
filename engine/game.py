@@ -12,7 +12,7 @@ from engine.grid import calculate_grid_size, spawn_positions
 from engine.match_modes import MatchMode, get_mode, get_storm_border_for_mode
 from engine.match_writer import build_match_data
 from engine.discord_integration import notify_match_start, notify_match_end
-from engine.callback_runner import run_react_callbacks, run_setup_callbacks
+from engine.callback_runner import run_on_kill_callbacks, run_react_callbacks, run_setup_callbacks
 from engine.spectacle import SpectacleEngine
 from engine.trap_resolution import resolve_trap_placement, resolve_trap_triggers
 from engine.traps import TrapManager
@@ -123,6 +123,22 @@ def _apply_round_scores(
             })
 
 
+def _apply_plague_phase(
+    alive_bots: list[Bot], actions: dict[str, tuple[str, ...]],
+) -> list[dict[str, Any]]:
+    """Track passivity and apply plague penalties for each alive bot."""
+    plague_events: list[dict[str, Any]] = []
+    for bot in alive_bots:
+        if not bot.alive:
+            continue
+        action = actions.get(bot.emoji, ("rest",))
+        enemy_dicts = [{"x": e.x, "y": e.y} for e in alive_bots if e.emoji != bot.emoji and e.alive]
+        active = is_active_action(action, bot, enemy_dicts)
+        update_passivity(bot, is_active=active)
+        plague_events.extend(apply_plague(bot))
+    return plague_events
+
+
 def _resolve_combat_phases(
     alive_bots: list[Bot], bots: list[Bot], actions: dict[str, tuple[str, ...]],
     forced_rest: set[str], override_events: list[dict[str, Any]],
@@ -151,19 +167,11 @@ def _resolve_combat_phases(
     round_events.extend(apply_storm_damage(alive_bots, grid_size, storm_border))
     apply_energy_and_rest(alive_bots, actions, forced_rest)
 
-    # Passivity plague: track engagement, apply progressive penalties
-    for bot in alive_bots:
-        if not bot.alive:
-            continue
-        action = actions.get(bot.emoji, ("rest",))
-        enemy_dicts = [{"x": e.x, "y": e.y} for e in alive_bots if e.emoji != bot.emoji and e.alive]
-        active = is_active_action(action, bot, enemy_dicts)
-        update_passivity(bot, is_active=active)
-        plague_events = apply_plague(bot)
-        round_events.extend(plague_events)
+    round_events.extend(_apply_plague_phase(alive_bots, actions))
 
     round_elims = resolve_deaths(bots, round_num)
     attribute_kills(round_elims, round_events, bots, round_num)
+    run_on_kill_callbacks(bots, round_elims, round_num, grid_size, storm_border)
     tick_damage_bonus(alive_bots)
 
     # Trap cleanup: expire old traps, remove dead bot traps

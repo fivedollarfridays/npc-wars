@@ -184,9 +184,9 @@ class Bot:
 
     def to_enemy_dict(self) -> dict[str, Any]:
         """Bot info visible to other bots."""
-        has_traps = False
+        trap_count = 0
         if self._trap_manager is not None:
-            has_traps = len(self._trap_manager.get_traps_for(self.emoji)) > 0
+            trap_count = len(self._trap_manager.get_traps_for(self.emoji))
         return {
             "name": self.name,
             "emoji": self.emoji,
@@ -199,7 +199,8 @@ class Bot:
             "is_leader": self.is_leader,
             "max_hp": self.derived.max_hp,
             "speed_class": self._speed_class(),
-            "has_traps": has_traps,
+            "has_traps": trap_count > 0,
+            "trap_count": trap_count,
         }
 
     def to_self_dict(self) -> dict[str, Any]:
