@@ -273,22 +273,7 @@ Stats = who you are. Equipment = what you carry. Set `BOT_EQUIPMENT` in your bot
 | **Boots of Speed** | 6 | +5 initiative |
 | **Compass** | 3 | +1 to-hit |
 
-### Equipment Archetype Examples
-
-| Build | Weapon + Armor + Accessories | Cost | Synergy |
-|-------|------------------------------|------|---------|
-| **Bruiser** | Axe + Reinforced + Ring of Health + Pendant of Mind | 27/40 | High burst + sustain |
-| **Assassin** | Dagger + Leather + Boots of Speed + Ring of Haste | 22/40 | Fast, precise, cheap |
-| **Tank** | Mace + Plate + Ring of Health + Charm of Evasion | 25/40 | Armor-pierce + unkillable |
-| **Mage** | Bow + Crystal + Pendant of Mind + Amulet of Crit | 30/40 | Ranged sustain + crits |
-
-### Equipment Strategy Tips
-
-- **Read enemy gear**: `state["enemies"][i]["weapon"]` and `["armor"]` are visible — adapt your strategy
-- **Armor-piercing mace** counters plate armor tanks (bypasses 4 DR)
-- **Finesse dagger** scales with SPEED — assassins get double benefit
-- **Plate armor** costs energy to move — don't equip on a kiting bot
-- **Crystal armor** is expensive but the +1 rest energy compounds over long matches
+**Tips:** Mace counters plate (bypasses 4 DR). Finesse dagger scales with SPEED. Plate costs energy to move. Enemy weapon/armor visible via `state["enemies"][i]["weapon"]`.
 
 ## Combat Mechanics
 
