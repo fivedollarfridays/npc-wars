@@ -90,6 +90,14 @@ def decide(state):
         return ("trap", "north")
 ```
 
+**Trap Strategy Tips:**
+- **Defensive**: Place traps on retreat paths to punish chasers
+- **Offensive**: Place traps toward enemies — they often move predictably
+- **Storm edge**: Traps near storm boundaries catch bots forced inward
+- **Enemy awareness**: `state["enemies"][i]["trap_count"]` tells you how many traps an enemy has active
+- **Energy budget**: 15 energy per trap vs 10 per attack — worth it when traps trigger (53%+ hit rate)
+- **POWER scaling**: High-POWER builds get more trap damage — Bruiser trappers hit hardest
+
 ## Resolution Order
 
 Every round resolves in this exact sequence:

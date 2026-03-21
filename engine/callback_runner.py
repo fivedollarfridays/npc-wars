@@ -12,7 +12,39 @@ from engine.callbacks import execute_callback
 from engine.combat import Bot
 from engine.state import build_state
 
-__all__ = ["run_react_callbacks", "run_setup_callbacks"]
+__all__ = ["run_on_kill_callbacks", "run_react_callbacks", "run_setup_callbacks"]
+
+# Killers with these identifiers are environmental, not player bots.
+_NON_BOT_KILLERS: frozenset[str] = frozenset({"storm", "plague", "tiebreaker", "unknown", ""})
+
+def run_on_kill_callbacks(
+    bots: list[Bot],
+    round_elims: list[dict[str, Any]],
+    round_num: int,
+    grid_size: int,
+    storm_border: int,
+) -> None:
+    """Call on_kill() for each bot that scored a combat kill this round.
+
+    Environmental kills (storm, plague, tiebreaker) are skipped.
+    Exceptions in any bot's on_kill are caught by execute_callback.
+    """
+    emoji_to_bot: dict[str, Bot] = {b.emoji: b for b in bots}
+
+    for elim in round_elims:
+        killer_emoji = elim.get("killed_by", "")
+        if killer_emoji in _NON_BOT_KILLERS:
+            continue
+        killer = emoji_to_bot.get(killer_emoji)
+        if killer is None:
+            continue
+        if killer.callbacks.on_kill is None:
+            continue
+        state = build_state(killer, bots, round_num=round_num,
+                            grid_size=grid_size, storm_border=storm_border)
+        victim_emoji = elim["emoji"]
+        execute_callback(killer.callbacks.on_kill, state, victim_emoji)
+
 
 def run_setup_callbacks(
     bots: list[Bot], grid_size: int, storm_border: int,

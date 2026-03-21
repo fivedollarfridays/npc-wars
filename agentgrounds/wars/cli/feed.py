@@ -145,6 +145,18 @@ def _fmt_plague(evt: dict, rnd: int) -> str:
     )
 
 
+def _fmt_trap_placed(evt: dict, rnd: int) -> str:
+    return f"  {_YELLOW}R{rnd}:{_RST} {evt.get('emoji', '?')} \U0001fa64 trap set"
+
+
+def _fmt_trap_trigger(evt: dict, rnd: int) -> str:
+    return (
+        f"  {_RED}R{rnd}:{_RST} {evt.get('victim', '?')} "
+        f"\U0001f4a5 hit {evt.get('owner', '?')}'s trap! "
+        f"{_RED}-{evt.get('damage', '?')}hp{_RST}"
+    )
+
+
 _FORMATTERS: dict[str, _Formatter] = {
     "hit": _fmt_hit,
     "kill": _fmt_kill,
@@ -161,4 +173,6 @@ _FORMATTERS: dict[str, _Formatter] = {
     "attack_miss": _fmt_attack_miss,
     "ranged_attack_miss": _fmt_ranged_attack_miss,
     "plague": _fmt_plague,
+    "trap_placed": _fmt_trap_placed,
+    "trap_trigger": _fmt_trap_trigger,
 }

@@ -3,6 +3,8 @@ from __future__ import annotations
 
 from agentgrounds.wars.cli.renderer import DEFEND_FX, WEAPON_FX
 
+TRAP_FX = "\U0001f4a5"
+
 # ANSI codes for aura effects
 _RST = "\033[0m"
 _BOLD = "\033[1m"
@@ -39,6 +41,8 @@ def build_combat_overlay(
             _overlay_ranged(emoji_pos, evt, overlay)
         elif etype == "defend":
             _overlay_defend(emoji_pos, evt, overlay, hit_targets)
+        elif etype == "trap_trigger":
+            _overlay_trap_trigger(evt, overlay)
     return overlay
 
 
@@ -98,6 +102,17 @@ def _overlay_defend(
     if bot:
         fx = WEAPON_FX["defend_block"] if bot_emoji in hit_targets else DEFEND_FX
         overlay[bot] = fx
+
+
+def _overlay_trap_trigger(
+    evt: dict,
+    overlay: dict[tuple[int, int], str],
+) -> None:
+    """Place explosion FX at the trap trigger coordinates."""
+    x = evt.get("x")
+    y = evt.get("y")
+    if x is not None and y is not None:
+        overlay[(int(x), int(y))] = TRAP_FX
 
 
 def _kill_victims(events: list[dict]) -> frozenset[str]:
