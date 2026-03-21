@@ -9,12 +9,27 @@ BOT_NAME = "MyBot"
 BOT_EMOJI = "🤖"
 BOT_BIO = "Short description of strategy"
 
+# Stat allocation (must sum to 100, min 5 each)
+BOT_POWER = 25
+BOT_SPEED = 25
+BOT_ARMOR = 25
+BOT_MIND = 25
+
+# Equipment (optional — defaults to sword + leather if omitted)
+BOT_EQUIPMENT = {
+    "weapon": "sword",           # 8 credits
+    "armor": "leather",          # 6 credits
+    "accessories": [],           # up to 2
+    "tactical": None,            # up to 1
+}
+# Total: 14 / 40 credits
+
 def decide(state):
     # Your logic here
     return ("rest",)
 ```
 
-`BOT_NAME`, `BOT_EMOJI`, and `BOT_BIO` are module-level strings. `decide(state)` is called every round and must return an action tuple.
+`BOT_NAME`, `BOT_EMOJI`, and `BOT_BIO` are module-level strings. `BOT_EQUIPMENT` is optional (defaults apply). `decide(state)` is called every round and must return an action tuple.
 
 ## The State Dict
 
@@ -36,6 +51,8 @@ state = {
         "min_damage": 35, "max_damage": 55,   # damage range from POWER
         "dodge_chance": 7.5,                   # % chance to halve incoming damage
         "damage_reduction": 0,                 # flat DR from ARMOR
+        "equipment": {"weapon": "sword", "armor": "leather", "accessories": [], "tactical": None},
+        "equipment_bonuses": {"to_hit": 1, "min_damage": 3, "max_damage": 5, "dr": 2, ...},
         "hit_chance_vs": {                     # your hit probability vs each enemy
             "🎯": {"hit_chance": 75.0, "crit_chance": 5.0, "dodge_chance": 10.0, "expected_damage": 16.8},
         },
@@ -46,7 +63,8 @@ state = {
     "enemies": [
         {"x": 7, "y": 2, "hp": 45, "emoji": "🎯", "name": "Rival",
          "score": 12, "momentum_tier": 1, "is_leader": True,
-         "max_hp": 120, "speed_class": "normal"},
+         "max_hp": 120, "speed_class": "normal",
+         "weapon": "axe", "armor": "plate"},
         # ... more living enemies
     ],
     "grid_size": 10,               # 10x10 grid
@@ -216,6 +234,61 @@ Balanced builds (25/25/25/25) get a **versatility HP bonus** of up to +75 HP. Sp
 | **Glass Cannon** | 50/15/15/20 | Highest burst damage | Very fragile, slow |
 
 Choose an archetype that matches your strategy: Bruiser for aggressive play, Tank for survival, Assassin for hit-and-run, Mage for sustained fights, or Balanced for adaptability.
+
+## Equipment System
+
+Stats = who you are. Equipment = what you carry. Set `BOT_EQUIPMENT` in your bot file (optional, defaults to sword + leather). Total budget: **40 credits**.
+
+### Weapons (pick 1, required)
+
+| Weapon | Cost | To-Hit | Damage | Special |
+|--------|------|--------|--------|---------|
+| **Dagger** | 5 | +2 | +2/+2 | Finesse (scales with SPEED) |
+| **Sword** | 8 | +1 | +3/+5 | Versatile (balanced) |
+| **Axe** | 9 | -1 | +1/+10 | Crit multiplier +0.2x |
+| **Mace** | 7 | 0 | +4/+4 | Armor-piercing (bypass 4 DR) |
+| **Bow** | 6 | +1 | +1/+3 | Ranged-preferred |
+| **Spear** | 8 | 0 | +2/+6 | Reach (attack at 2 tiles) |
+
+### Armor (pick 1, required)
+
+| Armor | Cost | DR | Energy Penalty | Special |
+|-------|------|----|----------------|---------|
+| **Leather** | 6 | +2 | None | Light |
+| **Chain Mail** | 8 | +4 | -2 all actions | Balanced |
+| **Plate** | 11 | +6 | -4 move/dash/ranged | Heavy tank |
+| **Reinforced** | 10 | +3 | -1 all actions | Efficient |
+| **Crystal** | 14 | +1 | None | +1 energy/rest |
+
+### Accessories (pick 0-2)
+
+| Accessory | Cost | Effect |
+|-----------|------|--------|
+| **Ring of Health** | 4 | +10 max HP |
+| **Ring of Haste** | 5 | +2 initiative, -1 energy cost |
+| **Amulet of Crit** | 6 | +0.3x crit, +5% crit chance |
+| **Charm of Evasion** | 5 | +3% dodge |
+| **Pendant of Mind** | 4 | +10 max energy, +2 regen |
+| **Cloak of Shadows** | 7 | +3 DR |
+| **Boots of Speed** | 6 | +5 initiative |
+| **Compass** | 3 | +1 to-hit |
+
+### Equipment Archetype Examples
+
+| Build | Weapon + Armor + Accessories | Cost | Synergy |
+|-------|------------------------------|------|---------|
+| **Bruiser** | Axe + Reinforced + Ring of Health + Pendant of Mind | 27/40 | High burst + sustain |
+| **Assassin** | Dagger + Leather + Boots of Speed + Ring of Haste | 22/40 | Fast, precise, cheap |
+| **Tank** | Mace + Plate + Ring of Health + Charm of Evasion | 25/40 | Armor-pierce + unkillable |
+| **Mage** | Bow + Crystal + Pendant of Mind + Amulet of Crit | 30/40 | Ranged sustain + crits |
+
+### Equipment Strategy Tips
+
+- **Read enemy gear**: `state["enemies"][i]["weapon"]` and `["armor"]` are visible — adapt your strategy
+- **Armor-piercing mace** counters plate armor tanks (bypasses 4 DR)
+- **Finesse dagger** scales with SPEED — assassins get double benefit
+- **Plate armor** costs energy to move — don't equip on a kiting bot
+- **Crystal armor** is expensive but the +1 rest energy compounds over long matches
 
 ## Combat Mechanics
 

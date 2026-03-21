@@ -10,6 +10,14 @@ BOT_SPEED = 25
 BOT_ARMOR = 20
 BOT_MIND = 25
 
+# axe(9) + leather(6) = 15 credits — high-variance death dealer
+BOT_EQUIPMENT = {
+    "weapon": "axe",
+    "armor": "leather",
+    "accessories": [],
+    "tactical": None,
+}
+
 
 def decide(state):
     from agentgrounds.wars.helpers import Me, Enemies, Storm

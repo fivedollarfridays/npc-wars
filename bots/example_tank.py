@@ -10,6 +10,14 @@ BOT_SPEED = 15
 BOT_ARMOR = 50
 BOT_MIND = 20
 
+# mace(7) + plate(11) + ring_of_health(4) = 22 credits — full tank
+BOT_EQUIPMENT = {
+    "weapon": "mace",
+    "armor": "plate",
+    "accessories": ["ring_of_health"],
+    "tactical": None,
+}
+
 
 def decide(state):
     me = state["me"]

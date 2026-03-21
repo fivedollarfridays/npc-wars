@@ -5,10 +5,22 @@ import os
 from typing import Any
 
 from engine.bot_scanner import load_bot_module
+from engine.equipment import EQUIPMENT_DEFAULTS, validate_equipment
 from engine.glyphs import validate_glyph
 from engine.stats import DEFAULT_ALLOCATION, validate_allocation
 
 log = logging.getLogger(__name__)
+
+
+def _read_equipment(module: Any, filename: str) -> dict[str, Any]:
+    """Read and validate BOT_EQUIPMENT from a module, falling back to defaults."""
+    raw = getattr(module, "BOT_EQUIPMENT", None)
+    if raw is not None:
+        valid, msg = validate_equipment(raw)
+        if valid:
+            return dict(raw)
+        log.warning("%s: invalid equipment (%s), using defaults", filename, msg)
+    return dict(EQUIPMENT_DEFAULTS)
 
 
 def _load_single_bot(filepath: str, filename: str) -> dict[str, Any] | None:
@@ -47,9 +59,11 @@ def _load_single_bot(filepath: str, filename: str) -> dict[str, Any] | None:
     raw_glyph = getattr(module, "BOT_GLYPH", None) or emoji
     glyph = validate_glyph(raw_glyph)
 
+    equipment = _read_equipment(module, filename)
+
     return {"name": name, "emoji": emoji, "bio": getattr(module, "BOT_BIO", ""),
             "author": getattr(module, "BOT_AUTHOR", "unknown"), "decide_func": decide,
-            "stat_allocation": allocation, "glyph": glyph}
+            "stat_allocation": allocation, "glyph": glyph, "equipment": equipment}
 
 
 def _deduplicate_emojis(bots: list[dict[str, Any]]) -> list[dict[str, Any]]:

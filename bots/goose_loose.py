@@ -11,6 +11,14 @@ BOT_SPEED = 20
 BOT_ARMOR = 20
 BOT_MIND = 45
 
+# sword(8) + leather(6) = 14 credits — chaotic needs no plan
+BOT_EQUIPMENT = {
+    "weapon": "sword",
+    "armor": "leather",
+    "accessories": [],
+    "tactical": None,
+}
+
 
 def _attack_adjacent(dx, dy):
     """Return attack action for an adjacent enemy, or None."""

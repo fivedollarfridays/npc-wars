@@ -61,14 +61,21 @@ def _compute_ac(
     defender: DerivedStats,
     defending: bool,
     momentum_defense_reduct: float,
+    equipment_dr: int = 0,
+    armor_pierce: int = 0,
 ) -> int:
-    """Compute effective AC for a defender."""
-    ac = BASE_AC + defender.damage_reduction
+    """Compute effective AC for a defender.
+
+    *equipment_dr* adds to DR (e.g. plate armor +6).
+    *armor_pierce* subtracts from total DR before AC calc.
+    """
+    total_dr = max(0, defender.damage_reduction + equipment_dr - armor_pierce)
+    ac = BASE_AC + total_dr
     if defending:
         ac += DEFEND_AC_BONUS
     if momentum_defense_reduct > 0:
         ac = max(1, ac - int(ac * momentum_defense_reduct))
-    return ac
+    return max(1, ac)
 
 
 def _resolve_hit(
@@ -115,6 +122,18 @@ def _resolve_hit(
 # ---------------------------------------------------------------------------
 
 
+def _d20_chance(min_roll_needed: int) -> float:
+    """Percentage chance of rolling *min_roll_needed* or higher on a d20.
+
+    Natural 20 always succeeds (minimum 5%).
+    """
+    if min_roll_needed <= 1:
+        return 100.0
+    if min_roll_needed > 20:
+        return 5.0  # nat 20 always succeeds
+    return (21 - min_roll_needed) / 20 * 100
+
+
 def calculate_hit_probability(
     attacker: DerivedStats,
     defender: DerivedStats,
@@ -131,35 +150,16 @@ def calculate_hit_probability(
     modifier = attacker.initiative // 10 + to_hit_modifier
     ac = _compute_ac(defender, defending, momentum_defense_reduct)
 
-    # d20 ranges 1-20; need d20 + modifier >= ac to hit
-    min_roll_to_hit = ac - modifier
-    if min_roll_to_hit <= 1:
-        hit_chance = 100.0
-    elif min_roll_to_hit > 20:
-        hit_chance = 5.0  # nat 20 always hits
-    else:
-        hit_chance = (21 - min_roll_to_hit) / 20 * 100
-
-    # Crit: d20 == 20 OR total_roll >= ac + CRIT_THRESHOLD
-    crit_min_roll = ac + CRIT_THRESHOLD - modifier
-    if crit_min_roll <= 1:
-        crit_chance = 100.0
-    elif crit_min_roll > 20:
-        crit_chance = 5.0  # nat 20 always crits
-    else:
-        crit_chance = (21 - crit_min_roll) / 20 * 100
-
+    hit_chance = _d20_chance(ac - modifier)
+    crit_chance = _d20_chance(ac + CRIT_THRESHOLD - modifier)
     dodge_chance = defender.dodge_chance
 
-    # Expected damage calculation
+    # Expected damage: weighted by crit rate, dodge rate, and hit rate
     avg_damage = (attacker.min_damage + attacker.max_damage) / 2
-    avg_crit_damage = avg_damage * attacker.crit_multiplier
-    # Weighted average: non-crit hits + crit hits
     crit_frac = crit_chance / 100
-    dmg_per_hit = avg_damage * (1 - crit_frac) + avg_crit_damage * crit_frac
-    # Dodge reduces damage by half
+    dmg_per_hit = avg_damage * (1 - crit_frac) + avg_damage * attacker.crit_multiplier * crit_frac
     dodge_frac = dodge_chance / 100
-    dmg_after_dodge = dmg_per_hit * (1 - dodge_frac) + (dmg_per_hit / 2) * dodge_frac
+    dmg_after_dodge = dmg_per_hit * (1 - dodge_frac / 2)
     expected_damage = dmg_after_dodge * hit_chance / 100
 
     return {
@@ -179,15 +179,27 @@ def roll_attack(
     momentum_damage_mult: float = 1.0,
     momentum_defense_reduct: float = 0.0,
     to_hit_modifier: int = 0,
+    equipment_to_hit: int = 0,
+    equipment_min_dmg: int = 0,
+    equipment_max_dmg: int = 0,
+    equipment_crit_mult: float = 0.0,
+    equipment_dr: int = 0,
+    armor_pierce: int = 0,
 ) -> CombatResult:
     """Roll a melee attack from *attacker* against *defender*."""
-    modifier = attacker.initiative // 10 + to_hit_modifier
+    modifier = attacker.initiative // 10 + to_hit_modifier + equipment_to_hit
     d20 = rng.randint(1, 20)
-    ac = _compute_ac(defender, defending, momentum_defense_reduct)
+    ac = _compute_ac(
+        defender, defending, momentum_defense_reduct,
+        equipment_dr=equipment_dr, armor_pierce=armor_pierce,
+    )
+    min_dmg = attacker.min_damage + equipment_min_dmg
+    max_dmg = attacker.max_damage + equipment_max_dmg
+    crit_mult = attacker.crit_multiplier + equipment_crit_mult
 
     return _resolve_hit(
-        d20, modifier, ac, attacker.min_damage, attacker.max_damage,
-        attacker.crit_multiplier, momentum_damage_mult, rng,
+        d20, modifier, ac, min_dmg, max_dmg,
+        crit_mult, momentum_damage_mult, rng,
         dodge_chance=defender.dodge_chance,
     )
 
@@ -201,17 +213,30 @@ def roll_ranged_attack(
     momentum_damage_mult: float = 1.0,
     momentum_defense_reduct: float = 0.0,
     to_hit_modifier: int = 0,
+    equipment_to_hit: int = 0,
+    equipment_min_dmg: int = 0,
+    equipment_max_dmg: int = 0,
+    equipment_crit_mult: float = 0.0,
+    equipment_dr: int = 0,
+    armor_pierce: int = 0,
 ) -> CombatResult:
-    """Roll a ranged attack — lower accuracy and damage than melee."""
-    modifier = attacker.initiative // 10 - RANGED_HIT_PENALTY + to_hit_modifier
+    """Roll a ranged attack -- lower accuracy and damage than melee."""
+    modifier = (
+        attacker.initiative // 10 - RANGED_HIT_PENALTY
+        + to_hit_modifier + equipment_to_hit
+    )
     d20 = rng.randint(1, 20)
-    ac = _compute_ac(defender, defending, momentum_defense_reduct)
+    ac = _compute_ac(
+        defender, defending, momentum_defense_reduct,
+        equipment_dr=equipment_dr, armor_pierce=armor_pierce,
+    )
 
-    min_dmg = max(1, int(attacker.min_damage * RANGED_DAMAGE_SCALE))
-    max_dmg = max(1, int(attacker.max_damage * RANGED_DAMAGE_SCALE))
+    min_dmg = max(1, int(attacker.min_damage * RANGED_DAMAGE_SCALE)) + equipment_min_dmg
+    max_dmg = max(1, int(attacker.max_damage * RANGED_DAMAGE_SCALE)) + equipment_max_dmg
+    crit_mult = attacker.crit_multiplier + equipment_crit_mult
 
     return _resolve_hit(
         d20, modifier, ac, min_dmg, max_dmg,
-        attacker.crit_multiplier, momentum_damage_mult, rng,
+        crit_mult, momentum_damage_mult, rng,
         dodge_chance=defender.dodge_chance,
     )

@@ -10,6 +10,14 @@ BOT_SPEED = 20
 BOT_ARMOR = 25
 BOT_MIND = 20
 
+# spear(8) + reinforced(10) = 18 credits — reach + control
+BOT_EQUIPMENT = {
+    "weapon": "spear",
+    "armor": "reinforced",
+    "accessories": [],
+    "tactical": None,
+}
+
 # Module-level tracking set by setup/react (persists across rounds)
 _last_enemy_positions: dict[str, tuple[int, int]] = {}
 
