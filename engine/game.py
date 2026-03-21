@@ -12,7 +12,10 @@ from engine.grid import calculate_grid_size, spawn_positions
 from engine.match_modes import MatchMode, get_mode, get_storm_border_for_mode
 from engine.match_writer import build_match_data
 from engine.discord_integration import notify_match_start, notify_match_end
+from engine.callback_runner import run_react_callbacks, run_setup_callbacks
 from engine.spectacle import SpectacleEngine
+from engine.trap_resolution import resolve_trap_placement, resolve_trap_triggers
+from engine.traps import TrapManager
 from data.player_profiles import update_profiles_after_match
 from engine.rounds import (
     resolve_decisions, resolve_defense, resolve_movement,
@@ -125,15 +128,24 @@ def _resolve_combat_phases(
     forced_rest: set[str], override_events: list[dict[str, Any]],
     round_num: int, grid_size: int, storm_border: int,
     rng: random.Random | None = None,
+    trap_manager: TrapManager | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
-    """Phases 2-7: defense, movement, attacks, storm, energy, deaths."""
+    """Phases 2-7: defense, movement, traps, attacks, storm, energy, deaths."""
     defend_events = resolve_defense(alive_bots, actions)
     bump_events = resolve_movement(
         alive_bots, actions, grid_size, all_bots=bots, storm_border=storm_border,
     )
+
+    # Trap phases: triggers after movement, then placement
+    trap_events: list[dict[str, Any]] = []
+    if trap_manager is not None:
+        trap_events.extend(resolve_trap_triggers(alive_bots, trap_manager, round_num))
+        trap_events.extend(resolve_trap_placement(alive_bots, actions, trap_manager, round_num, grid_size))
+
     taunt_events = resolve_taunt(alive_bots, actions)
     pos_map = build_pos_map(alive_bots)
-    round_events = override_events + defend_events + bump_events + resolve_attacks(alive_bots, actions, pos_map, rng=rng)
+    round_events = override_events + defend_events + bump_events + trap_events
+    round_events.extend(resolve_attacks(alive_bots, actions, pos_map, rng=rng))
     round_events.extend(taunt_events)
     round_events.extend(resolve_ranged_attacks(alive_bots, actions, pos_map, rng=rng))
     round_events.extend(apply_storm_damage(alive_bots, grid_size, storm_border))
@@ -153,6 +165,12 @@ def _resolve_combat_phases(
     round_elims = resolve_deaths(bots, round_num)
     attribute_kills(round_elims, round_events, bots, round_num)
     tick_damage_bonus(alive_bots)
+
+    # Trap cleanup: expire old traps, remove dead bot traps
+    if trap_manager is not None:
+        trap_manager.expire_traps(round_num)
+        for elim in round_elims:
+            trap_manager.remove_bot_traps(elim["emoji"])
 
     for bot in alive_bots:
         if bot.alive:
@@ -256,6 +274,7 @@ def _execute_round(
     bots: list[Bot], round_num: int, grid_size: int, storm_border: int,
     bumps_last_round: list[dict[str, Any]] | None = None,
     rng: random.Random | None = None,
+    trap_manager: TrapManager | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
     """Execute one round of the match. Returns (round_data, eliminations, bump_events)."""
     alive_bots = [b for b in bots if b.alive]
@@ -271,6 +290,7 @@ def _execute_round(
     return _resolve_combat_phases(
         alive_bots, bots, actions, forced_rest, override_events,
         round_num, grid_size, storm_border, rng=rng,
+        trap_manager=trap_manager,
     )
 
 
@@ -283,10 +303,15 @@ def run_match(
     bots, players, grid_size, rng = _prepare_match(bot_configs, seed, mode=mode)
     notify_match_start(match_id=match_id, players=players, seed=seed)
 
+    run_setup_callbacks(bots, grid_size=grid_size, storm_border=0)
+
     all_rounds: list[dict[str, Any]] = []
     all_eliminations: list[dict[str, Any]] = []
     last_bump_events: list[dict[str, Any]] = []
     spectacle_engine = SpectacleEngine()
+    trap_manager = TrapManager()
+    for b in bots:
+        b._trap_manager = trap_manager
     prev_storm_border = 0
 
     for round_num in range(1, mode.max_rounds + 1):
@@ -294,12 +319,16 @@ def run_match(
             break
 
         storm_border = get_storm_border_for_mode(round_num, mode)
+        for b in bots:
+            b._current_round = round_num
         round_data, round_elims, last_bump_events = _execute_round(
             bots, round_num, grid_size, storm_border,
             bumps_last_round=last_bump_events, rng=rng,
+            trap_manager=trap_manager,
         )
         _apply_momentum_phase(bots, round_data, round_num, storm_border, prev_storm_border)
         _score_spectacle(spectacle_engine, round_data, bots)
+        run_react_callbacks(bots, round_data.get("events", []), grid_size, storm_border, round_num)
         all_rounds.append(round_data)
         all_eliminations.extend(round_elims)
         prev_storm_border = storm_border

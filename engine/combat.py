@@ -25,6 +25,7 @@ RANGED_ATTACK_COST = 20
 RANGED_ATTACK_DAMAGE = 15
 TAUNT_COST = 10
 DASH_COST = 15
+TRAP_COST = 15
 
 # Rest healing
 REST_HEAL = 5
@@ -41,6 +42,7 @@ ACTION_COSTS = {
     "ranged_attack": RANGED_ATTACK_COST,
     "taunt": TAUNT_COST,
     "dash": DASH_COST,
+    "trap": TRAP_COST,
 }
 
 # Storm damage
@@ -71,7 +73,7 @@ __all__ = [
     "MOVE_COST", "ATTACK_COST", "DEFEND_COST", "REST_COST",
     "RANGED_ATTACK_COST", "RANGED_ATTACK_DAMAGE", "ACTION_COSTS",
     "REST_HEAL", "REST_ENERGY_RESTORE", "DEFEND_BONUS", "STORM_DAMAGE", "WALL_SPLAT_DAMAGE",
-    "KILL_BOUNTY_ENERGY", "TAUNT_COST", "TAUNT_RANGE", "DASH_COST",
+    "KILL_BOUNTY_ENERGY", "TAUNT_COST", "TAUNT_RANGE", "DASH_COST", "TRAP_COST",
     "DEFAULT_UNLOCKED_ACTIONS", "DEFAULT_LINE_BUDGET",
     "MAX_HP", "MAX_ENERGY", "MAX_CONSECUTIVE_FAILURES",
     "Bot", "calculate_damage", "resolve_deaths", "get_round_bonus_attack",
@@ -120,6 +122,9 @@ class Bot:
         # Scoring
         self.score: int = 0
         self.passive_rounds: int = 0
+        # Trap manager reference (set by game loop for state dict)
+        self._trap_manager: Any = None
+        self._current_round: int = 0
         # Momentum tier bonuses (set by engine.momentum.apply_momentum_bonuses)
         self.momentum_tier: int = 0
         self.momentum_energy_bonus: int = 0
@@ -127,6 +132,10 @@ class Bot:
         self.momentum_defense_reduction: float = 0.0
         # Leader status (set by engine.momentum.apply_momentum_bonuses)
         self.is_leader: bool = False
+        # Callbacks (populated by engine.callbacks.discover_callbacks)
+        from engine.callbacks import CallbackSet
+        self.callbacks: CallbackSet = CallbackSet()
+        self.trap_cooldown: int = 0  # managed by engine.traps.TrapManager
 
     def can_act(self) -> bool:
         """Check if bot has enough energy for any action (move is cheapest at 5)."""
@@ -146,8 +155,38 @@ class Bot:
             return "fast"
         return "blazing"
 
+    def _get_trap_info(self) -> list[dict[str, Any]]:
+        """Own trap positions and expiry for state dict."""
+        if self._trap_manager is None:
+            return []
+        traps = self._trap_manager.get_traps_for(self.emoji)
+        return [
+            {"x": t.x, "y": t.y, "expires_in": t.expires_round - self._current_round}
+            for t in traps
+        ]
+
+    def _get_trap_cooldown(self) -> int:
+        """Rounds until next trap placement allowed."""
+        if self._trap_manager is None:
+            return 0
+        return self._trap_manager.get_cooldown_at(self.emoji, self._current_round)
+
+    def _get_active_callbacks(self) -> list[str]:
+        """List of active callback names."""
+        names: list[str] = []
+        if self.callbacks.setup is not None:
+            names.append("setup")
+        if self.callbacks.on_kill is not None:
+            names.append("on_kill")
+        if self.callbacks.react is not None:
+            names.append("react")
+        return names
+
     def to_enemy_dict(self) -> dict[str, Any]:
         """Bot info visible to other bots."""
+        has_traps = False
+        if self._trap_manager is not None:
+            has_traps = len(self._trap_manager.get_traps_for(self.emoji)) > 0
         return {
             "name": self.name,
             "emoji": self.emoji,
@@ -160,6 +199,7 @@ class Bot:
             "is_leader": self.is_leader,
             "max_hp": self.derived.max_hp,
             "speed_class": self._speed_class(),
+            "has_traps": has_traps,
         }
 
     def to_self_dict(self) -> dict[str, Any]:
@@ -191,6 +231,9 @@ class Bot:
             "dodge_chance": self.derived.dodge_chance,
             "damage_reduction": self.derived.damage_reduction,
             "passive_rounds": self.passive_rounds,
+            "traps": self._get_trap_info(),
+            "trap_cooldown": self._get_trap_cooldown(),
+            "callbacks": self._get_active_callbacks(),
         }
 
 

@@ -231,6 +231,17 @@ def attribute_kills(
                     killer_emoji = evt["attacker"]
         if killer_emoji is None:
             for evt in round_events:
+                if (evt.get("type") == "trap_trigger" and evt.get("victim") == elim["emoji"]
+                        and evt.get("hp_before", 1) > 0
+                        and evt["hp_before"] - evt["damage"] <= 0):
+                    killer_emoji = evt["owner"]
+                    break
+        if killer_emoji is None:
+            for evt in round_events:
+                if evt.get("type") == "trap_trigger" and evt.get("victim") == elim["emoji"]:
+                    killer_emoji = evt["owner"]
+        if killer_emoji is None:
+            for evt in round_events:
                 if evt.get("type") == "storm_damage" and evt.get("target") == elim["emoji"]:
                     killer_emoji = "storm"
         elim["killed_by"] = killer_emoji or "unknown"

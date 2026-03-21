@@ -90,6 +90,7 @@ VALID_ACTIONS = {
     "ranged_attack": 1,  # expects 1 extra arg (direction)
     "taunt": 0,          # no extra args
     "dash": 1,           # expects 1 extra arg (direction)
+    "trap": 1,           # expects 1 extra arg (direction)
 }
 
 
@@ -122,7 +123,7 @@ def validate_action(action: Any, unlocked_actions: set[str] | None = None) -> tu
     if len(action) < 2:
         return None
 
-    if action_type in ("move", "attack", "ranged_attack", "dash"):
+    if action_type in ("move", "attack", "ranged_attack", "dash", "trap"):
         direction = action[1]
         if direction not in VALID_DIRECTIONS:
             return None
