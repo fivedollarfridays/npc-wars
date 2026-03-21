@@ -169,7 +169,7 @@ class Bot:
         """Rounds until next trap placement allowed."""
         if self._trap_manager is None:
             return 0
-        return self._trap_manager.get_cooldown_at(self.emoji, self._current_round)
+        return int(self._trap_manager.get_cooldown_at(self.emoji, self._current_round))
 
     def _get_active_callbacks(self) -> list[str]:
         """List of active callback names."""
