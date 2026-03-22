@@ -1,0 +1,12 @@
+id: plan-2026-03-s36-tactical-abilities
+title: 'Sprint 36: Tactical Items + Ability System'
+type: feature
+status: planned
+created_at: '2026-03-21T12:00:00.000000'
+goals:
+- Tactical equipment slot (4th slot) with activated abilities and cooldowns
+- use_ability action wired into combat loop (level 18+)
+- power_up callback for ability definition (level 18+)
+- evolve callback for mid-match adaptation (level 22+)
+- State dict exposure for tactical cooldown and ability info
+- Integration gate with full equipment + ability pipeline

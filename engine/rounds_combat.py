@@ -59,6 +59,14 @@ def resolve_attacks(alive_bots: list[Bot], actions: _ActionsMap,
             continue
         target_x, target_y = apply_direction(bot.x, bot.y, action[1])
         target = _find_target(pos_map, target_x, target_y, bot.emoji)
+        # Reach weapon: check further tiles if no adjacent target
+        if target is None and bot.equipment_bonuses.reach_distance >= 2:
+            rx, ry = target_x, target_y
+            for _ in range(1, bot.equipment_bonuses.reach_distance):
+                rx, ry = apply_direction(rx, ry, action[1])
+                target = _find_target(pos_map, rx, ry, bot.emoji)
+                if target:
+                    break
         if target:
             if rng is not None:
                 events.append(_roll_melee(bot, target, actions, rng))
@@ -96,11 +104,23 @@ def _roll_melee(bot: Bot, target: Bot, actions: _ActionsMap,
     target_action = actions.get(target.emoji)
     defending = target_action is not None and target_action[0] == "defend"
     to_hit_mod = _compute_to_hit_mod(bot, target, actions)
+    atk_eq = bot.equipment_bonuses
+    def_eq = target.equipment_bonuses
+    # Finesse weapon: speed-based to-hit bonus
+    eq_to_hit = atk_eq.to_hit
+    if atk_eq.special_weapon == "finesse":
+        eq_to_hit += max(0, (bot.stats.speed - 25) // 10)
     result = roll_attack(
         bot.derived, target.derived, defending=defending, rng=rng,
         momentum_damage_mult=bot.momentum_damage_multiplier,
         momentum_defense_reduct=target.momentum_defense_reduction,
         to_hit_modifier=to_hit_mod,
+        equipment_to_hit=eq_to_hit,
+        equipment_min_dmg=atk_eq.min_damage,
+        equipment_max_dmg=atk_eq.max_damage,
+        equipment_crit_mult=atk_eq.crit_mult,
+        equipment_dr=def_eq.dr,
+        armor_pierce=atk_eq.armor_pierce,
     )
     if result.hit:
         hp_before = target.hp
@@ -158,11 +178,23 @@ def _roll_ranged(bot: Bot, target: Bot, actions: _ActionsMap,
     target_action = actions.get(target.emoji)
     defending = target_action is not None and target_action[0] == "defend"
     to_hit_mod = _compute_to_hit_mod(bot, target, actions)
+    atk_eq = bot.equipment_bonuses
+    def_eq = target.equipment_bonuses
+    # Bow (ranged_preferred): add weapon to_hit as ranged bonus
+    eq_to_hit = atk_eq.to_hit
+    if atk_eq.special_weapon == "finesse":
+        eq_to_hit += max(0, (bot.stats.speed - 25) // 10)
     result = roll_ranged_attack(
         bot.derived, target.derived, defending=defending, rng=rng,
         momentum_damage_mult=bot.momentum_damage_multiplier,
         momentum_defense_reduct=target.momentum_defense_reduction,
         to_hit_modifier=to_hit_mod,
+        equipment_to_hit=eq_to_hit,
+        equipment_min_dmg=atk_eq.min_damage,
+        equipment_max_dmg=atk_eq.max_damage,
+        equipment_crit_mult=atk_eq.crit_mult,
+        equipment_dr=def_eq.dr,
+        armor_pierce=atk_eq.armor_pierce,
     )
     if result.hit:
         hp_before = target.hp

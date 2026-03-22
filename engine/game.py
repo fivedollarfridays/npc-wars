@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Any
 
 from engine.combat import Bot, resolve_deaths, STARTING_ATTACK_POWER, get_round_bonus_attack, tick_damage_bonus
+from engine.equipment import EQUIPMENT_DEFAULTS, compute_equipment_bonuses
 from engine.momentum import apply_energy_drain, apply_momentum_bonuses, calculate_carryover, determine_leader, get_tier_name
 from engine.plague import apply_plague, is_active_action, update_passivity
 from engine.scoring import calculate_round_scores
@@ -64,6 +65,13 @@ def _create_bots(
                 setattr(bot_obj, fld, config[fld])
         if "human_adapter" in config:
             bot_obj.human_adapter = config["human_adapter"]
+        # Equipment: load selections and apply bonuses
+        equipment = config.get("equipment", dict(EQUIPMENT_DEFAULTS))
+        bot_obj.equipment = equipment
+        bonuses = compute_equipment_bonuses(equipment)
+        bot_obj.equipment_bonuses = bonuses
+        bot_obj.hp += bonuses.max_hp
+        bot_obj.energy += bonuses.max_energy
         bots.append(bot_obj)
     return bots
 

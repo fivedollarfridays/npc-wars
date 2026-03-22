@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, Callable
 
+from engine.equipment import EquipmentBonuses
 from engine.stats import DEFAULT_ALLOCATION, StatAllocation, calculate_derived
 
 if TYPE_CHECKING:
@@ -110,40 +111,39 @@ class Bot:
         self.damage_taken = 0
         self.rounds_survived = 0
         self.taunt_target: str | None = None
-        # Progression fields (defaults match sandbox.BASE_ACTIONS / BUDGET_BASE)
+        # Progression
         self.unlocked_actions: list[str] = sorted(DEFAULT_UNLOCKED_ACTIONS)
         self.line_budget: int = DEFAULT_LINE_BUDGET
         self.win_streak: int = 0
-        # Copilot: optional human input adapter
         self.human_adapter: HumanInputAdapter | None = None
-        # Bounty: temporary damage bonus from bounty reward
-        # Schema: {"multiplier": float, "rounds_remaining": int}
         self.damage_bonus: dict[str, float | int] | None = None
-        # Scoring
         self.score: int = 0
         self.passive_rounds: int = 0
-        # Trap manager reference (set by game loop for state dict)
         self._trap_manager: Any = None
         self._current_round: int = 0
-        # Momentum tier bonuses (set by engine.momentum.apply_momentum_bonuses)
+        # Momentum (set by engine.momentum.apply_momentum_bonuses)
         self.momentum_tier: int = 0
         self.momentum_energy_bonus: int = 0
         self.momentum_damage_multiplier: float = 1.0
         self.momentum_defense_reduction: float = 0.0
-        # Leader status (set by engine.momentum.apply_momentum_bonuses)
         self.is_leader: bool = False
-        # Callbacks (populated by engine.callbacks.discover_callbacks)
+        # Callbacks, traps, equipment (populated externally)
         from engine.callbacks import CallbackSet
         self.callbacks: CallbackSet = CallbackSet()
-        self.trap_cooldown: int = 0  # managed by engine.traps.TrapManager
+        self.trap_cooldown: int = 0
+        self.equipment: dict[str, Any] = {}
+        self.equipment_bonuses: EquipmentBonuses = EquipmentBonuses()
 
     def can_act(self) -> bool:
         """Check if bot has enough energy for any action (move is cheapest at 5)."""
         return self.energy >= MOVE_COST
 
     def apply_action_cost(self, action_type: str) -> None:
-        """Deduct energy for an action."""
-        self.energy = max(0, self.energy - ACTION_COSTS.get(action_type, 0))
+        """Deduct energy for an action, including equipment cost mods."""
+        base = ACTION_COSTS.get(action_type, 0)
+        equip_mod = self.equipment_bonuses.action_cost_mods.get(action_type, 0)
+        cost = max(0, base + equip_mod)
+        self.energy = max(0, self.energy - cost)
 
     def _speed_class(self) -> str:
         """Qualitative speed label based on raw speed stat."""
@@ -201,40 +201,55 @@ class Bot:
             "speed_class": self._speed_class(),
             "has_traps": trap_count > 0,
             "trap_count": trap_count,
+            "weapon": self.equipment.get("weapon", ""),
+            "armor": self.equipment.get("armor", ""),
         }
+
+    def _equipment_dicts(self) -> tuple[dict[str, Any], dict[str, Any]]:
+        """Build equipment and equipment_bonuses dicts for state exposure."""
+        eq = {
+            "weapon": self.equipment.get("weapon", ""),
+            "armor": self.equipment.get("armor", ""),
+            "accessories": self.equipment.get("accessories", []),
+            "tactical": self.equipment.get("tactical"),
+        }
+        eb = self.equipment_bonuses
+        bonuses = {
+            "to_hit": eb.to_hit, "min_damage": eb.min_damage,
+            "max_damage": eb.max_damage, "dr": eb.dr,
+            "max_hp": eb.max_hp, "max_energy": eb.max_energy,
+            "dodge": eb.dodge, "crit_mult": eb.crit_mult,
+            "initiative": eb.initiative, "armor_pierce": eb.armor_pierce,
+            "special_weapon": eb.special_weapon,
+        }
+        return eq, bonuses
 
     def to_self_dict(self) -> dict[str, Any]:
         """Full bot info visible to self."""
         from engine.momentum import get_tier_name
+        eq, bonuses = self._equipment_dicts()
         return {
-            "x": self.x,
-            "y": self.y,
-            "glyph": self.glyph,
-            "hp": self.hp,
-            "energy": self.energy,
-            "attack_power": self.attack_power,
-            "defense": self.defense,
+            "x": self.x, "y": self.y, "glyph": self.glyph,
+            "hp": self.hp, "energy": self.energy,
+            "attack_power": self.attack_power, "defense": self.defense,
             "unlocked_actions": list(self.unlocked_actions),
-            "line_budget": self.line_budget,
-            "win_streak": self.win_streak,
+            "line_budget": self.line_budget, "win_streak": self.win_streak,
             "score": self.score,
             "momentum_tier": self.momentum_tier,
             "momentum_name": get_tier_name(self.score),
             "is_leader": self.is_leader,
-            "power": self.stats.power,
-            "speed": self.stats.speed,
-            "armor": self.stats.armor,
-            "mind": self.stats.mind,
-            "max_hp": self.derived.max_hp,
-            "max_energy": self.derived.max_energy,
-            "min_damage": self.derived.min_damage,
-            "max_damage": self.derived.max_damage,
+            "power": self.stats.power, "speed": self.stats.speed,
+            "armor": self.stats.armor, "mind": self.stats.mind,
+            "max_hp": self.derived.max_hp, "max_energy": self.derived.max_energy,
+            "min_damage": self.derived.min_damage, "max_damage": self.derived.max_damage,
             "dodge_chance": self.derived.dodge_chance,
             "damage_reduction": self.derived.damage_reduction,
             "passive_rounds": self.passive_rounds,
             "traps": self._get_trap_info(),
             "trap_cooldown": self._get_trap_cooldown(),
             "callbacks": self._get_active_callbacks(),
+            "equipment": eq,
+            "equipment_bonuses": bonuses,
         }
 
 

@@ -10,6 +10,14 @@ BOT_SPEED = 20
 BOT_ARMOR = 15
 BOT_MIND = 25
 
+# sword(8) + chain_mail(8) = 16 credits — balanced aggressor
+BOT_EQUIPMENT = {
+    "weapon": "sword",
+    "armor": "chain_mail",
+    "accessories": [],
+    "tactical": None,
+}
+
 
 def decide(state):
     me = state["me"]

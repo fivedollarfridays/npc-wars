@@ -10,6 +10,14 @@ BOT_SPEED = 45
 BOT_ARMOR = 15
 BOT_MIND = 20
 
+# dagger(5) + leather(6) + boots_of_speed(6) = 17 credits — fast and evasive
+BOT_EQUIPMENT = {
+    "weapon": "dagger",
+    "armor": "leather",
+    "accessories": ["boots_of_speed"],
+    "tactical": None,
+}
+
 
 def _dir_toward(dx, dy):
     if abs(dx) >= abs(dy):
