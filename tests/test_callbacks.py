@@ -17,7 +17,7 @@ class TestCallbackSet:
         assert cs.react is None
 
     def test_callback_names_constant(self):
-        assert CALLBACK_NAMES == ("setup", "on_kill", "react")
+        assert CALLBACK_NAMES == ("setup", "on_kill", "react", "power_up", "evolve")
 
     def test_callable_fields_accept_functions(self):
         fn = lambda: None  # noqa: E731

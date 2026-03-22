@@ -6,6 +6,7 @@ from typing import Any
 
 from engine.combat import Bot, resolve_deaths, STARTING_ATTACK_POWER, get_round_bonus_attack, tick_damage_bonus
 from engine.equipment import EQUIPMENT_DEFAULTS, compute_equipment_bonuses
+from engine.tactical import apply_overdrive, resolve_tactical_activation, tick_tactical_cooldowns, tick_tactical_effects
 from engine.momentum import apply_energy_drain, apply_momentum_bonuses, calculate_carryover, determine_leader, get_tier_name
 from engine.plague import apply_plague, is_active_action, update_passivity
 from engine.scoring import calculate_round_scores
@@ -13,7 +14,12 @@ from engine.grid import calculate_grid_size, spawn_positions
 from engine.match_modes import MatchMode, get_mode, get_storm_border_for_mode
 from engine.match_writer import build_match_data
 from engine.discord_integration import notify_match_start, notify_match_end
-from engine.callback_runner import run_on_kill_callbacks, run_react_callbacks, run_setup_callbacks
+from engine.abilities import resolve_ability_phase, tick_ability_cooldowns, tick_ability_effects
+from engine.callbacks import discover_callbacks
+from engine.callback_runner import (
+    run_evolve_callbacks, run_on_kill_callbacks, run_power_up_callbacks,
+    run_react_callbacks, run_setup_callbacks,
+)
 from engine.spectacle import SpectacleEngine
 from engine.trap_resolution import resolve_trap_placement, resolve_trap_triggers
 from engine.traps import TrapManager
@@ -72,6 +78,16 @@ def _create_bots(
         bot_obj.equipment_bonuses = bonuses
         bot_obj.hp += bonuses.max_hp
         bot_obj.energy += bonuses.max_energy
+        # Apply overdrive passive at match start
+        apply_overdrive(bot_obj)
+        # Discover callbacks from bot module (if available)
+        module = config.get("module")
+        if module is not None:
+            unlocked_cbs = set(config.get("unlocked_callbacks", []))
+            # Default: all callbacks unlocked for loaded bots (level gating is progression's job)
+            if not unlocked_cbs:
+                unlocked_cbs = {"setup", "on_kill", "react", "power_up", "evolve"}
+            bot_obj.callbacks = discover_callbacks(module, unlocked_cbs)
         bots.append(bot_obj)
     return bots
 
@@ -155,6 +171,19 @@ def _resolve_combat_phases(
     trap_manager: TrapManager | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
     """Phases 2-7: defense, movement, traps, attacks, storm, energy, deaths."""
+    # Tactical activation phase (before combat)
+    tactical_events: list[dict[str, Any]] = []
+    for bot in alive_bots:
+        action = actions.get(bot.emoji)
+        if action and action[0] == "use_tactical":
+            direction = action[1] if len(action) > 1 else None
+            tactical_events.extend(
+                resolve_tactical_activation(bot, round_num, direction=direction)
+            )
+
+    # Ability activation phase (before combat)
+    ability_events = resolve_ability_phase(alive_bots, bots, actions, round_num)
+
     defend_events = resolve_defense(alive_bots, actions)
     bump_events = resolve_movement(
         alive_bots, actions, grid_size, all_bots=bots, storm_border=storm_border,
@@ -168,7 +197,7 @@ def _resolve_combat_phases(
 
     taunt_events = resolve_taunt(alive_bots, actions)
     pos_map = build_pos_map(alive_bots)
-    round_events = override_events + defend_events + bump_events + trap_events
+    round_events = override_events + tactical_events + ability_events + defend_events + bump_events + trap_events
     round_events.extend(resolve_attacks(alive_bots, actions, pos_map, rng=rng))
     round_events.extend(taunt_events)
     round_events.extend(resolve_ranged_attacks(alive_bots, actions, pos_map, rng=rng))
@@ -181,6 +210,10 @@ def _resolve_combat_phases(
     attribute_kills(round_elims, round_events, bots, round_num)
     run_on_kill_callbacks(bots, round_elims, round_num, grid_size, storm_border)
     tick_damage_bonus(alive_bots)
+    tick_tactical_effects(alive_bots)
+    tick_tactical_cooldowns(alive_bots)
+    tick_ability_effects(alive_bots)
+    tick_ability_cooldowns(alive_bots)
 
     # Trap cleanup: expire old traps, remove dead bot traps
     if trap_manager is not None:
@@ -320,6 +353,7 @@ def run_match(
     notify_match_start(match_id=match_id, players=players, seed=seed)
 
     run_setup_callbacks(bots, grid_size=grid_size, storm_border=0)
+    run_power_up_callbacks(bots, grid_size=grid_size, storm_border=0)
 
     all_rounds: list[dict[str, Any]] = []
     all_eliminations: list[dict[str, Any]] = []
@@ -343,6 +377,10 @@ def run_match(
             trap_manager=trap_manager,
         )
         _apply_momentum_phase(bots, round_data, round_num, storm_border, prev_storm_border)
+        # Evolve phase: mid-match adaptation for bots with evolve callback
+        evolve_events = run_evolve_callbacks(bots, round_num, grid_size, storm_border)
+        if evolve_events:
+            round_data.setdefault("events", []).extend(evolve_events)
         _score_spectacle(spectacle_engine, round_data, bots)
         run_react_callbacks(bots, round_data.get("events", []), grid_size, storm_border, round_num)
         all_rounds.append(round_data)

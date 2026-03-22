@@ -9,7 +9,7 @@ from engine.combat import Bot, STARTING_ATTACK_POWER, get_round_bonus_attack
 from engine.match_modes import get_mode, get_storm_border_for_mode
 from engine.spectacle import SpectacleEngine
 from engine.discord_integration import notify_match_start
-from engine.callback_runner import run_react_callbacks, run_setup_callbacks
+from engine.callback_runner import run_evolve_callbacks, run_power_up_callbacks, run_react_callbacks, run_setup_callbacks
 from engine.traps import TrapManager
 from engine.game import (
     _apply_momentum_phase, _execute_round, _finalize_match,
@@ -138,6 +138,7 @@ async def run_match_async(
     notify_match_start(match_id=match_id, players=players, seed=seed)
 
     run_setup_callbacks(bots, grid_size=grid_size, storm_border=0)
+    run_power_up_callbacks(bots, grid_size=grid_size, storm_border=0)
 
     watcher_ctrl: WatcherController | None = None
     if has_humans:
@@ -192,6 +193,9 @@ async def run_match_async(
             )
 
         _apply_momentum_phase(bots, round_data, round_num, storm_border, prev_storm_border)
+        evolve_events = run_evolve_callbacks(bots, round_num, grid_size, storm_border)
+        if evolve_events:
+            round_data.setdefault("events", []).extend(evolve_events)
         _score_spectacle(spectacle_engine, round_data, bots)
         run_react_callbacks(bots, round_data.get("events", []), grid_size, storm_border, round_num)
         all_rounds.append(round_data)

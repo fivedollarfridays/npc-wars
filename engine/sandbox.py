@@ -91,6 +91,8 @@ VALID_ACTIONS = {
     "taunt": 0,          # no extra args
     "dash": 1,           # expects 1 extra arg (direction)
     "trap": 1,           # expects 1 extra arg (direction)
+    "use_tactical": -1,  # 0 args (battle_cry/fortify) or 1 arg (teleport direction)
+    "use_ability": -1,   # 0 args (self-target) or 1 arg (direction for targeted)
 }
 
 
@@ -118,6 +120,15 @@ def validate_action(action: Any, unlocked_actions: set[str] | None = None) -> tu
     expected_args = VALID_ACTIONS[action_type]
 
     if expected_args == 0:
+        return (action_type,)
+
+    # Variable args: 0 or 1 (use_tactical)
+    if expected_args == -1:
+        if len(action) >= 2:
+            direction = action[1]
+            if direction not in VALID_DIRECTIONS:
+                return None
+            return (action_type, direction)
         return (action_type,)
 
     if len(action) < 2:

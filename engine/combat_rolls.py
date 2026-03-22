@@ -63,13 +63,15 @@ def _compute_ac(
     momentum_defense_reduct: float,
     equipment_dr: int = 0,
     armor_pierce: int = 0,
+    tactical_dr: int = 0,
 ) -> int:
     """Compute effective AC for a defender.
 
     *equipment_dr* adds to DR (e.g. plate armor +6).
+    *tactical_dr* adds temporary DR from tactical fortify.
     *armor_pierce* subtracts from total DR before AC calc.
     """
-    total_dr = max(0, defender.damage_reduction + equipment_dr - armor_pierce)
+    total_dr = max(0, defender.damage_reduction + equipment_dr + tactical_dr - armor_pierce)
     ac = BASE_AC + total_dr
     if defending:
         ac += DEFEND_AC_BONUS
@@ -185,6 +187,7 @@ def roll_attack(
     equipment_crit_mult: float = 0.0,
     equipment_dr: int = 0,
     armor_pierce: int = 0,
+    tactical_dr: int = 0,
 ) -> CombatResult:
     """Roll a melee attack from *attacker* against *defender*."""
     modifier = attacker.initiative // 10 + to_hit_modifier + equipment_to_hit
@@ -192,6 +195,7 @@ def roll_attack(
     ac = _compute_ac(
         defender, defending, momentum_defense_reduct,
         equipment_dr=equipment_dr, armor_pierce=armor_pierce,
+        tactical_dr=tactical_dr,
     )
     min_dmg = attacker.min_damage + equipment_min_dmg
     max_dmg = attacker.max_damage + equipment_max_dmg
@@ -219,6 +223,7 @@ def roll_ranged_attack(
     equipment_crit_mult: float = 0.0,
     equipment_dr: int = 0,
     armor_pierce: int = 0,
+    tactical_dr: int = 0,
 ) -> CombatResult:
     """Roll a ranged attack -- lower accuracy and damage than melee."""
     modifier = (
@@ -229,6 +234,7 @@ def roll_ranged_attack(
     ac = _compute_ac(
         defender, defending, momentum_defense_reduct,
         equipment_dr=equipment_dr, armor_pierce=armor_pierce,
+        tactical_dr=tactical_dr,
     )
 
     min_dmg = max(1, int(attacker.min_damage * RANGED_DAMAGE_SCALE)) + equipment_min_dmg
