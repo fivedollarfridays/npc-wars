@@ -7,7 +7,7 @@ files to compute lifetime averages before diffing.
 __all__ = ["compute_diff", "inject_diff_data"]
 
 _LOWER_IS_BETTER = frozenset({"damage_taken"})
-_SKIP_KEYS = frozenset({"momentum_name"})  # non-numeric stat fields
+_SKIP_KEYS = frozenset({"momentum_name", "archetype"})  # non-numeric stat fields
 
 
 def compute_diff(
@@ -31,14 +31,17 @@ def compute_diff(
         return _first_match_result(current_stats)
 
     all_keys = (set(lifetime_avg) | set(current_stats)) - _SKIP_KEYS
-    return {
-        key: _diff_single(
-            lifetime_avg.get(key, 0.0),
-            current_stats.get(key, 0.0),
+    result: dict[str, dict] = {}
+    for key in all_keys:
+        cur = current_stats.get(key, 0.0)
+        life = lifetime_avg.get(key, 0.0)
+        if not isinstance(cur, (int, float)) or not isinstance(life, (int, float)):
+            continue  # skip non-numeric fields
+        result[key] = _diff_single(
+            float(life), float(cur),
             lower_is_better=key in _LOWER_IS_BETTER,
         )
-        for key in all_keys
-    }
+    return result
 
 
 def _first_match_result(current_stats: dict[str, float]) -> dict:

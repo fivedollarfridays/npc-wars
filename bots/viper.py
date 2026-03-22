@@ -120,7 +120,7 @@ def decide(state):
     me = state["me"]
     mx, my = me["x"], me["y"]
     hp, energy = me["hp"], me["energy"]
-    max_hp = me["max_hp"]
+    max_hp = me.get("max_hp", 145)
     enemies = state["enemies"]
     gs = state["grid_size"]
     rnd = state["round"]
