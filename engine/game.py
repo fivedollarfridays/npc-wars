@@ -22,6 +22,7 @@ from engine.callback_runner import (
 )
 from engine.spectacle import SpectacleEngine
 from engine.trap_resolution import resolve_trap_placement, resolve_trap_triggers
+from engine.terrain import build_map
 from engine.traps import TrapManager
 from data.player_profiles import update_profiles_after_match
 from engine.rounds import (
@@ -169,6 +170,8 @@ def _resolve_combat_phases(
     round_num: int, grid_size: int, storm_border: int,
     rng: random.Random | None = None,
     trap_manager: TrapManager | None = None,
+    terrain: Any | None = None,
+    collected_crystals: set[tuple[int, int]] | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
     """Phases 2-7: defense, movement, traps, attacks, storm, energy, deaths."""
     # Tactical activation phase (before combat)
@@ -187,6 +190,7 @@ def _resolve_combat_phases(
     defend_events = resolve_defense(alive_bots, actions)
     bump_events = resolve_movement(
         alive_bots, actions, grid_size, all_bots=bots, storm_border=storm_border,
+        terrain=terrain, collected_crystals=collected_crystals,
     )
 
     # Trap phases: triggers after movement, then placement
@@ -324,6 +328,8 @@ def _execute_round(
     bumps_last_round: list[dict[str, Any]] | None = None,
     rng: random.Random | None = None,
     trap_manager: TrapManager | None = None,
+    terrain: Any | None = None,
+    collected_crystals: set[tuple[int, int]] | None = None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
     """Execute one round of the match. Returns (round_data, eliminations, bump_events)."""
     alive_bots = [b for b in bots if b.alive]
@@ -340,16 +346,21 @@ def _execute_round(
         alive_bots, bots, actions, forced_rest, override_events,
         round_num, grid_size, storm_border, rng=rng,
         trap_manager=trap_manager,
+        terrain=terrain, collected_crystals=collected_crystals,
     )
 
 
 def run_match(
     bot_configs: list[dict[str, Any]], match_id: int = 1, seed: int | None = None,
     profiles_path: Path | None = None, match_mode: str = "standard",
+    map_name: str = "arena",
 ) -> dict[str, Any]:
     """Run a complete match. Returns match data dict."""
     mode = get_mode(match_mode)
     bots, players, grid_size, rng = _prepare_match(bot_configs, seed, mode=mode)
+    terrain = build_map(map_name, grid_size)
+    for b in bots:
+        b._terrain = terrain
     notify_match_start(match_id=match_id, players=players, seed=seed)
 
     run_setup_callbacks(bots, grid_size=grid_size, storm_border=0)
@@ -363,6 +374,8 @@ def run_match(
     for b in bots:
         b._trap_manager = trap_manager
     prev_storm_border = 0
+    # Terrain state: collected_crystals persists across rounds
+    collected_crystals: set[tuple[int, int]] = set()
 
     for round_num in range(1, mode.max_rounds + 1):
         if sum(b.alive for b in bots) <= 1:
@@ -375,6 +388,7 @@ def run_match(
             bots, round_num, grid_size, storm_border,
             bumps_last_round=last_bump_events, rng=rng,
             trap_manager=trap_manager,
+            terrain=terrain, collected_crystals=collected_crystals,
         )
         _apply_momentum_phase(bots, round_data, round_num, storm_border, prev_storm_border)
         # Evolve phase: mid-match adaptation for bots with evolve callback
@@ -392,8 +406,11 @@ def run_match(
     else:
         round_num = mode.max_rounds
 
-    return _finalize_match(
+    result = _finalize_match(
         bots, players, all_rounds, all_eliminations,
         round_num, match_id, grid_size, profiles_path,
         match_mode=mode.name,
     )
+    result["map"] = map_name
+    result["terrain_tiles"] = terrain.tiles
+    return result

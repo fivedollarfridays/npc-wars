@@ -2,6 +2,7 @@
 
 import math
 import random
+from typing import Any
 
 __all__ = [
     "calculate_grid_size", "spawn_positions", "get_storm_border",
@@ -15,8 +16,14 @@ def calculate_grid_size(player_count: int) -> int:
     return max(10, int(math.sqrt(player_count) * 5))
 
 
-def spawn_positions(player_count: int, grid_size: int, rng: random.Random) -> list[tuple[int, int]]:
-    """Generate spawn positions with minimum 3-tile spacing, 2+ tiles from edge."""
+def spawn_positions(
+    player_count: int, grid_size: int, rng: random.Random,
+    terrain: Any | None = None,
+) -> list[tuple[int, int]]:
+    """Generate spawn positions with minimum 3-tile spacing, 2+ tiles from edge.
+
+    When *terrain* is provided, positions on non-walkable tiles are rejected.
+    """
     min_spacing = 3
     edge_buffer = 2
     positions: list[tuple[int, int]] = []
@@ -28,6 +35,10 @@ def spawn_positions(player_count: int, grid_size: int, rng: random.Random) -> li
         x = rng.randint(edge_buffer, grid_size - 1 - edge_buffer)
         y = rng.randint(edge_buffer, grid_size - 1 - edge_buffer)
         attempts += 1
+
+        # Reject non-walkable tiles
+        if terrain is not None and not terrain.is_walkable(x, y):
+            continue
 
         # Check minimum spacing from all existing positions
         too_close = False
@@ -45,7 +56,8 @@ def spawn_positions(player_count: int, grid_size: int, rng: random.Random) -> li
             x = rng.randint(edge_buffer, grid_size - 1 - edge_buffer)
             y = rng.randint(edge_buffer, grid_size - 1 - edge_buffer)
             if (x, y) not in positions:
-                positions.append((x, y))
+                if terrain is None or terrain.is_walkable(x, y):
+                    positions.append((x, y))
 
     return positions
 
