@@ -19,7 +19,7 @@ class TestDictSerialization:
         assert set(d.keys()) == {
             "name", "emoji", "x", "y", "hp", "score",
             "momentum_tier", "is_leader", "max_hp", "speed_class", "glyph",
-            "has_traps", "trap_count", "weapon", "armor",
+            "has_traps", "trap_count", "weapon", "armor", "has_ability",
         }
 
     def test_enemy_dict_hides_energy(self):
@@ -45,6 +45,7 @@ class TestDictSerialization:
             "dodge_chance", "damage_reduction", "glyph",
             "passive_rounds", "traps", "trap_cooldown", "callbacks",
             "equipment", "equipment_bonuses",
+            "ability", "tactical_cooldown",
         }
 
     def test_self_dict_includes_energy(self):

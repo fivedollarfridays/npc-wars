@@ -50,7 +50,7 @@ def resolve_attacks(alive_bots: list[Bot], actions: _ActionsMap,
         pos_map = build_pos_map(alive_bots)
     events: list[_Event] = []
     # Initiative: higher SPEED resolves first (stable sort preserves ties)
-    sorted_bots = sorted(alive_bots, key=lambda b: b.derived.initiative, reverse=True)
+    sorted_bots = sorted(alive_bots, key=lambda b: b.derived.initiative - b.ability_slow, reverse=True)
     for bot in sorted_bots:
         if not bot.alive or bot.hp <= 0:
             continue
@@ -112,7 +112,7 @@ def _roll_melee(bot: Bot, target: Bot, actions: _ActionsMap,
         eq_to_hit += max(0, (bot.stats.speed - 25) // 10)
     result = roll_attack(
         bot.derived, target.derived, defending=defending, rng=rng,
-        momentum_damage_mult=bot.momentum_damage_multiplier,
+        momentum_damage_mult=bot.momentum_damage_multiplier * bot.tactical_damage_mult,
         momentum_defense_reduct=target.momentum_defense_reduction,
         to_hit_modifier=to_hit_mod,
         equipment_to_hit=eq_to_hit,
@@ -121,6 +121,7 @@ def _roll_melee(bot: Bot, target: Bot, actions: _ActionsMap,
         equipment_crit_mult=atk_eq.crit_mult,
         equipment_dr=def_eq.dr,
         armor_pierce=atk_eq.armor_pierce,
+        tactical_dr=target.tactical_dr_bonus + target.ability_shield,
     )
     if result.hit:
         hp_before = target.hp
@@ -144,7 +145,7 @@ def resolve_ranged_attacks(alive_bots: list[Bot], actions: _ActionsMap,
         pos_map = build_pos_map(alive_bots)
     events: list[_Event] = []
     # Initiative: higher SPEED resolves first (stable sort preserves ties)
-    sorted_bots = sorted(alive_bots, key=lambda b: b.derived.initiative, reverse=True)
+    sorted_bots = sorted(alive_bots, key=lambda b: b.derived.initiative - b.ability_slow, reverse=True)
     for bot in sorted_bots:
         if not bot.alive or bot.hp <= 0:
             continue
@@ -186,7 +187,7 @@ def _roll_ranged(bot: Bot, target: Bot, actions: _ActionsMap,
         eq_to_hit += max(0, (bot.stats.speed - 25) // 10)
     result = roll_ranged_attack(
         bot.derived, target.derived, defending=defending, rng=rng,
-        momentum_damage_mult=bot.momentum_damage_multiplier,
+        momentum_damage_mult=bot.momentum_damage_multiplier * bot.tactical_damage_mult,
         momentum_defense_reduct=target.momentum_defense_reduction,
         to_hit_modifier=to_hit_mod,
         equipment_to_hit=eq_to_hit,
@@ -195,6 +196,7 @@ def _roll_ranged(bot: Bot, target: Bot, actions: _ActionsMap,
         equipment_crit_mult=atk_eq.crit_mult,
         equipment_dr=def_eq.dr,
         armor_pierce=atk_eq.armor_pierce,
+        tactical_dr=target.tactical_dr_bonus + target.ability_shield,
     )
     if result.hit:
         hp_before = target.hp

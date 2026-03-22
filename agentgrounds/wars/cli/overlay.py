@@ -4,6 +4,9 @@ from __future__ import annotations
 from agentgrounds.wars.cli.renderer import DEFEND_FX, WEAPON_FX
 
 TRAP_FX = "\U0001f4a5"
+TACTICAL_FX = "\u26a1"
+ABILITY_FX = "\U0001f52e"
+EVOLVE_FX = "\U0001f9ec"
 
 # ANSI codes for aura effects
 _RST = "\033[0m"
@@ -43,6 +46,12 @@ def build_combat_overlay(
             _overlay_defend(emoji_pos, evt, overlay, hit_targets)
         elif etype == "trap_trigger":
             _overlay_trap_trigger(evt, overlay)
+        elif etype == "tactical_activate":
+            _overlay_tactical(emoji_pos, evt, overlay)
+        elif etype == "ability_damage":
+            _overlay_ability_damage(emoji_pos, evt, overlay)
+        elif etype == "evolve":
+            _overlay_evolve(emoji_pos, evt, overlay)
     return overlay
 
 
@@ -113,6 +122,39 @@ def _overlay_trap_trigger(
     y = evt.get("y")
     if x is not None and y is not None:
         overlay[(int(x), int(y))] = TRAP_FX
+
+
+def _overlay_tactical(
+    emoji_pos: dict[str, tuple[int, int]],
+    evt: dict,
+    overlay: dict[tuple[int, int], str],
+) -> None:
+    """Place lightning FX on tactical activator's tile."""
+    pos = emoji_pos.get(evt.get("emoji", ""))
+    if pos:
+        overlay[pos] = TACTICAL_FX
+
+
+def _overlay_ability_damage(
+    emoji_pos: dict[str, tuple[int, int]],
+    evt: dict,
+    overlay: dict[tuple[int, int], str],
+) -> None:
+    """Place crystal ball FX on ability damage target's tile."""
+    pos = emoji_pos.get(evt.get("target", ""))
+    if pos:
+        overlay[pos] = ABILITY_FX
+
+
+def _overlay_evolve(
+    emoji_pos: dict[str, tuple[int, int]],
+    evt: dict,
+    overlay: dict[tuple[int, int], str],
+) -> None:
+    """Place DNA FX on evolved bot's tile."""
+    pos = emoji_pos.get(evt.get("emoji", ""))
+    if pos:
+        overlay[pos] = EVOLVE_FX
 
 
 def _kill_victims(events: list[dict]) -> frozenset[str]:

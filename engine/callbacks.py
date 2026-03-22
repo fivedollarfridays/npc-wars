@@ -22,7 +22,7 @@ __all__ = [
 
 logger = logging.getLogger(__name__)
 
-CALLBACK_NAMES: tuple[str, ...] = ("setup", "on_kill", "react")
+CALLBACK_NAMES: tuple[str, ...] = ("setup", "on_kill", "react", "power_up", "evolve")
 
 
 @dataclass
@@ -32,6 +32,8 @@ class CallbackSet:
     setup: Callable[..., Any] | None = None
     on_kill: Callable[..., Any] | None = None
     react: Callable[..., Any] | None = None
+    power_up: Callable[..., Any] | None = None
+    evolve: Callable[..., Any] | None = None
 
 
 def discover_callbacks(

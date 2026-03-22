@@ -133,6 +133,21 @@ class Bot:
         self.trap_cooldown: int = 0
         self.equipment: dict[str, Any] = {}
         self.equipment_bonuses: EquipmentBonuses = EquipmentBonuses()
+        # Tactical item state (populated by engine.tactical)
+        self.tactical_cooldown: int = 0
+        self.tactical_damage_mult: float = 1.0
+        self.tactical_dr_bonus: int = 0
+        self.tactical_temp_hp: float = 0
+        # Ability state (populated by engine.abilities via power_up callback)
+        self.ability: Any = None  # AbilityDef or None
+        self.ability_cooldown: int = 0
+        self.ability_uses: int = 0
+        self.ability_shield: int = 0
+        self.ability_shield_rounds: int = 0
+        self.ability_slow: int = 0
+        self.ability_slow_rounds: int = 0
+        # Evolve state (set by engine.callback_runner.run_evolve_callback)
+        self.has_evolved: bool = False
 
     def can_act(self) -> bool:
         """Check if bot has enough energy for any action (move is cheapest at 5)."""
@@ -180,7 +195,27 @@ class Bot:
             names.append("on_kill")
         if self.callbacks.react is not None:
             names.append("react")
+        if self.callbacks.power_up is not None:
+            names.append("power_up")
+        if self.callbacks.evolve is not None:
+            names.append("evolve")
         return names
+
+    def _ability_dict(self) -> dict[str, Any] | None:
+        """Build ability info dict for state exposure."""
+        if self.ability is None:
+            return None
+        return {
+            "name": self.ability.name,
+            "type": self.ability.type,
+            "potency": self.ability.potency,
+            "range": self.ability.range,
+            "cooldown": self.ability.cooldown,
+            "energy_cost": self.ability.energy_cost,
+            "cooldown_remaining": self.ability_cooldown,
+            "uses": self.ability_uses,
+            "ready": self.ability_cooldown == 0,
+        }
 
     def to_enemy_dict(self) -> dict[str, Any]:
         """Bot info visible to other bots."""
@@ -203,6 +238,7 @@ class Bot:
             "trap_count": trap_count,
             "weapon": self.equipment.get("weapon", ""),
             "armor": self.equipment.get("armor", ""),
+            "has_ability": self.ability is not None,
         }
 
     def _equipment_dicts(self) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -247,9 +283,11 @@ class Bot:
             "passive_rounds": self.passive_rounds,
             "traps": self._get_trap_info(),
             "trap_cooldown": self._get_trap_cooldown(),
+            "tactical_cooldown": self.tactical_cooldown,
             "callbacks": self._get_active_callbacks(),
             "equipment": eq,
             "equipment_bonuses": bonuses,
+            "ability": self._ability_dict(),
         }
 
 

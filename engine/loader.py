@@ -63,7 +63,8 @@ def _load_single_bot(filepath: str, filename: str) -> dict[str, Any] | None:
 
     return {"name": name, "emoji": emoji, "bio": getattr(module, "BOT_BIO", ""),
             "author": getattr(module, "BOT_AUTHOR", "unknown"), "decide_func": decide,
-            "stat_allocation": allocation, "glyph": glyph, "equipment": equipment}
+            "stat_allocation": allocation, "glyph": glyph, "equipment": equipment,
+            "module": module}
 
 
 def _deduplicate_emojis(bots: list[dict[str, Any]]) -> list[dict[str, Any]]:
