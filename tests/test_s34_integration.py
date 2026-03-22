@@ -153,10 +153,10 @@ class TestStateDictRefinement:
 
 
 class TestNoDeadCode:
-    def test_on_kill_wired_in_game(self) -> None:
-        """run_on_kill_callbacks imported and called in game.py."""
-        import engine.game as game_mod
-        source = Path(game_mod.__file__).read_text()
+    def test_on_kill_wired_in_match_phases(self) -> None:
+        """run_on_kill_callbacks called in match_phases.py (extracted from game.py)."""
+        import engine.match_phases as mod
+        source = Path(mod.__file__).read_text()
         assert "run_on_kill_callbacks" in source
 
     def test_trap_formatters_registered(self) -> None:

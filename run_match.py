@@ -62,6 +62,50 @@ def main() -> None:
         print(f"   {emoji} -- K:{stats['kills']} DMG:{stats['damage_dealt']} Survived:{stats['rounds_survived']}r")
 
     _print_xp_summary(match_data)
+    _print_diff_summary(match_data, results_dir)
+
+
+def _print_diff_summary(match_data: dict, results_dir: str) -> None:
+    """Print post-match diff for each bot."""
+    from agentgrounds.wars.cli.diff_display import format_match_summary
+    from data.lifetime_stats import get_all_lifetime_stats
+    from data.stat_diff import compute_diff
+
+    lifetime = get_all_lifetime_stats(results_dir)
+    xp_awards = match_data.get("xp_awards", {})
+    stats = match_data.get("stats", {})
+    players = match_data.get("players", [])
+    winner = match_data.get("winner", "none")
+
+    # Show diff for winner only (keep output clean)
+    if winner == "none":
+        return
+    player = next((p for p in players if p["emoji"] == winner), None)
+    if not player:
+        return
+
+    emoji = winner
+    bot_stats = stats.get(emoji, {})
+    current = {
+        "win_rate": 100.0,
+        "avg_kills": float(bot_stats.get("kills", 0)),
+        "avg_rounds_survived": float(bot_stats.get("rounds_survived", 0)),
+        "avg_damage_dealt": float(bot_stats.get("damage_dealt", 0)),
+    }
+    diff_data = compute_diff(lifetime.get(emoji), current)
+    xp = xp_awards.get(emoji)
+    old_level = (xp.get("new_level", 1) - (1 if xp.get("leveled_up") else 0)) if xp else 1
+    new_level = xp.get("new_level", 1) if xp else 1
+
+    print(format_match_summary(
+        bot_name=player.get("name", emoji), bot_glyph=player.get("glyph", emoji),
+        placement=1, kills=bot_stats.get("kills", 0),
+        rounds_survived=bot_stats.get("rounds_survived", 0),
+        score=int(bot_stats.get("score", 0)),
+        momentum_name=bot_stats.get("momentum_name", ""),
+        diff_data=diff_data, xp_data=xp,
+        old_level=old_level, new_level=new_level,
+    ))
 
 
 def _print_xp_summary(match_data: dict) -> None:
