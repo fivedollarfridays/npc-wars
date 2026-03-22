@@ -3,9 +3,11 @@
 Contains melee and ranged attack phases plus spatial lookup helpers.
 """
 
+from __future__ import annotations
+
 import random
 from collections import defaultdict
-from typing import Any
+from typing import Any, TYPE_CHECKING
 
 from engine.combat import Bot, RANGED_ATTACK_DAMAGE, calculate_damage
 from engine.combat_rolls import (
@@ -15,6 +17,15 @@ from engine.combat_rolls import (
     roll_ranged_attack,
 )
 from engine.grid import apply_direction
+from engine.terrain_combat import (
+    get_terrain_to_hit_mod,
+    get_terrain_ac_mod,
+    get_terrain_damage_mult,
+    has_line_of_sight,
+)
+
+if TYPE_CHECKING:
+    from engine.terrain import TerrainMap
 
 __all__ = ["resolve_attacks", "resolve_ranged_attacks", "build_pos_map"]
 
@@ -44,7 +55,8 @@ def _find_target(
 
 def resolve_attacks(alive_bots: list[Bot], actions: _ActionsMap,
                     pos_map: defaultdict[tuple[int, int], list[Bot]] | None = None,
-                    rng: random.Random | None = None) -> list[_Event]:
+                    rng: random.Random | None = None,
+                    terrain: TerrainMap | None = None) -> list[_Event]:
     """Phase 4: Resolve attack actions and return hit/miss events."""
     if pos_map is None:
         pos_map = build_pos_map(alive_bots)
@@ -69,7 +81,7 @@ def resolve_attacks(alive_bots: list[Bot], actions: _ActionsMap,
                     break
         if target:
             if rng is not None:
-                events.append(_roll_melee(bot, target, actions, rng))
+                events.append(_roll_melee(bot, target, actions, rng, terrain))
             else:
                 dmg = calculate_damage(bot, target)
                 hp_before = target.hp
@@ -99,11 +111,15 @@ def _compute_to_hit_mod(
 
 
 def _roll_melee(bot: Bot, target: Bot, actions: _ActionsMap,
-                rng: random.Random) -> _Event:
+                rng: random.Random,
+                terrain: TerrainMap | None = None) -> _Event:
     """Resolve a melee attack using roll_attack and apply damage."""
     target_action = actions.get(target.emoji)
     defending = target_action is not None and target_action[0] == "defend"
     to_hit_mod = _compute_to_hit_mod(bot, target, actions)
+    to_hit_mod += get_terrain_to_hit_mod(terrain, bot.x, bot.y)
+    terrain_ac = get_terrain_ac_mod(terrain, target.x, target.y)
+    terrain_dmg_mult = get_terrain_damage_mult(terrain, bot.x, bot.y)
     atk_eq = bot.equipment_bonuses
     def_eq = target.equipment_bonuses
     # Finesse weapon: speed-based to-hit bonus
@@ -112,7 +128,7 @@ def _roll_melee(bot: Bot, target: Bot, actions: _ActionsMap,
         eq_to_hit += max(0, (bot.stats.speed - 25) // 10)
     result = roll_attack(
         bot.derived, target.derived, defending=defending, rng=rng,
-        momentum_damage_mult=bot.momentum_damage_multiplier * bot.tactical_damage_mult,
+        momentum_damage_mult=bot.momentum_damage_multiplier * bot.tactical_damage_mult * terrain_dmg_mult,
         momentum_defense_reduct=target.momentum_defense_reduction,
         to_hit_modifier=to_hit_mod,
         equipment_to_hit=eq_to_hit,
@@ -122,6 +138,7 @@ def _roll_melee(bot: Bot, target: Bot, actions: _ActionsMap,
         equipment_dr=def_eq.dr,
         armor_pierce=atk_eq.armor_pierce,
         tactical_dr=target.tactical_dr_bonus + target.ability_shield,
+        terrain_ac=terrain_ac,
     )
     if result.hit:
         hp_before = target.hp
@@ -139,7 +156,8 @@ def _roll_melee(bot: Bot, target: Bot, actions: _ActionsMap,
 
 def resolve_ranged_attacks(alive_bots: list[Bot], actions: _ActionsMap,
                            pos_map: defaultdict[tuple[int, int], list[Bot]] | None = None,
-                           rng: random.Random | None = None) -> list[_Event]:
+                           rng: random.Random | None = None,
+                           terrain: TerrainMap | None = None) -> list[_Event]:
     """Phase 4b: Resolve ranged attack actions (range 2)."""
     if pos_map is None:
         pos_map = build_pos_map(alive_bots)
@@ -155,9 +173,13 @@ def resolve_ranged_attacks(alive_bots: list[Bot], actions: _ActionsMap,
         mid_x, mid_y = apply_direction(bot.x, bot.y, action[1])
         target_x, target_y = apply_direction(mid_x, mid_y, action[1])
         target = _find_target(pos_map, target_x, target_y, bot.emoji)
+        if target and not has_line_of_sight(terrain, bot.x, bot.y, target.x, target.y):
+            events.append({"type": "terrain_blocked", "attacker": bot.emoji,
+                           "target": target.emoji, "reason": "wall"})
+            continue
         if target:
             if rng is not None:
-                events.append(_roll_ranged(bot, target, actions, rng))
+                events.append(_roll_ranged(bot, target, actions, rng, terrain))
             else:
                 dmg = RANGED_ATTACK_DAMAGE
                 hp_before = target.hp
@@ -174,11 +196,15 @@ def resolve_ranged_attacks(alive_bots: list[Bot], actions: _ActionsMap,
 
 
 def _roll_ranged(bot: Bot, target: Bot, actions: _ActionsMap,
-                 rng: random.Random) -> _Event:
+                 rng: random.Random,
+                 terrain: TerrainMap | None = None) -> _Event:
     """Resolve a ranged attack using roll_ranged_attack and apply damage."""
     target_action = actions.get(target.emoji)
     defending = target_action is not None and target_action[0] == "defend"
     to_hit_mod = _compute_to_hit_mod(bot, target, actions)
+    to_hit_mod += get_terrain_to_hit_mod(terrain, bot.x, bot.y)
+    terrain_ac = get_terrain_ac_mod(terrain, target.x, target.y)
+    terrain_dmg_mult = get_terrain_damage_mult(terrain, bot.x, bot.y)
     atk_eq = bot.equipment_bonuses
     def_eq = target.equipment_bonuses
     # Bow (ranged_preferred): add weapon to_hit as ranged bonus
@@ -187,7 +213,7 @@ def _roll_ranged(bot: Bot, target: Bot, actions: _ActionsMap,
         eq_to_hit += max(0, (bot.stats.speed - 25) // 10)
     result = roll_ranged_attack(
         bot.derived, target.derived, defending=defending, rng=rng,
-        momentum_damage_mult=bot.momentum_damage_multiplier * bot.tactical_damage_mult,
+        momentum_damage_mult=bot.momentum_damage_multiplier * bot.tactical_damage_mult * terrain_dmg_mult,
         momentum_defense_reduct=target.momentum_defense_reduction,
         to_hit_modifier=to_hit_mod,
         equipment_to_hit=eq_to_hit,
@@ -197,6 +223,7 @@ def _roll_ranged(bot: Bot, target: Bot, actions: _ActionsMap,
         equipment_dr=def_eq.dr,
         armor_pierce=atk_eq.armor_pierce,
         tactical_dr=target.tactical_dr_bonus + target.ability_shield,
+        terrain_ac=terrain_ac,
     )
     if result.hit:
         hp_before = target.hp

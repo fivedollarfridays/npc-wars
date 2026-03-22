@@ -203,6 +203,36 @@ def _fmt_evolve(evt: dict, rnd: int) -> str:
     )
 
 
+def _fmt_wall_blocked(evt: dict, rnd: int) -> str:
+    return (
+        f"  {_DIM}R{rnd}:{_RST} {evt.get('emoji', '?')} "
+        f"blocked by wall"
+    )
+
+
+def _fmt_crystal_pickup(evt: dict, rnd: int) -> str:
+    energy = evt.get("energy", "?")
+    return (
+        f"  {_PURPLE}R{rnd}:{_RST} {evt.get('emoji', '?')} "
+        f"\u2728 crystal! +{energy} energy"
+    )
+
+
+def _fmt_terrain_blocked(evt: dict, rnd: int) -> str:
+    return (
+        f"  {_DIM}R{rnd}:{_RST} {evt.get('attacker', '?')} "
+        f"\U0001f3f9 blocked by wall"
+    )
+
+
+def _fmt_water_penalty(evt: dict, rnd: int) -> str:
+    cost = evt.get("cost", "?")
+    return (
+        f"  {_BLUE}R{rnd}:{_RST} {evt.get('emoji', '?')} "
+        f"\U0001f30a water! -{cost} energy"
+    )
+
+
 _FORMATTERS: dict[str, _Formatter] = {
     "hit": _fmt_hit,
     "kill": _fmt_kill,
@@ -227,4 +257,8 @@ _FORMATTERS: dict[str, _Formatter] = {
     "ability_shield": _fmt_ability_shield,
     "ability_slow": _fmt_ability_slow,
     "evolve": _fmt_evolve,
+    "wall_blocked": _fmt_wall_blocked,
+    "crystal_pickup": _fmt_crystal_pickup,
+    "terrain_blocked": _fmt_terrain_blocked,
+    "water_penalty": _fmt_water_penalty,
 }

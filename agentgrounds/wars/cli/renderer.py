@@ -17,12 +17,22 @@ _YELLOW = "\033[33m"
 _BLUE = "\033[34m"
 _PURPLE = "\033[35m"
 _CYAN = "\033[36m"
+_GRAY = "\033[90m"
 _CLEAR = "\033[2J\033[H"
 _ALT_SCREEN_ON = "\033[?1049h"
 _ALT_SCREEN_OFF = "\033[?1049l"
 
 STORM_CHAR = "\u2593\u2593"
 EMPTY_CHAR = " \u00b7"
+
+# Terrain tile characters and colors (tile_type -> (char, ansi_color))
+_TERRAIN_DISPLAY: dict[str, tuple[str, str]] = {
+    "wall": (" #", _GRAY),
+    "water": (" ~", _BLUE),
+    "high_ground": (" ^", _YELLOW),
+    "cover": (" %", _GREEN),
+    "crystal": (" *", _PURPLE),
+}
 
 WEAPON_FX: dict[str, str] = {
     "melee": "\U0001f4a5",
@@ -55,6 +65,11 @@ class TerminalRenderer:
         self._grid_size = grid_size
         self._kill_feed: list[str] = []
         self._first_frame = True
+        self._terrain_tiles: list[list[str]] | None = None
+
+    def set_terrain(self, tiles: list[list[str]]) -> None:
+        """Set terrain tile grid for rendering colored terrain characters."""
+        self._terrain_tiles = tiles
 
     def enter_alt_screen(self) -> str:
         """Enter alternate screen buffer for clean animation."""
@@ -204,6 +219,7 @@ class TerminalRenderer:
                     glyph, p.get("hp", 100), p.get("max_hp", 100),
                 )
         fx = overlay or {}
+        tt = self._terrain_tiles
 
         border = f"  {_PURPLE}{STORM_CHAR * (gs + 2)}{_RST}"
         lines = [border]
@@ -219,7 +235,11 @@ class TerminalRenderer:
                 elif in_storm:
                     cells.append(f"{_PURPLE}{STORM_CHAR}{_RST}")
                 else:
-                    cells.append(f"{_DIM} \u00b7{_RST}")
+                    td = _TERRAIN_DISPLAY.get(tt[y][x]) if tt else None
+                    if td is not None:
+                        cells.append(f"{td[1]}{td[0]}{_RST}")
+                    else:
+                        cells.append(f"{_DIM} \u00b7{_RST}")
             lines.append(
                 f"  {_PURPLE}{STORM_CHAR}{_RST}{''.join(cells)}{_PURPLE}{STORM_CHAR}{_RST}"
             )

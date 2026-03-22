@@ -20,6 +20,7 @@ class TestDictSerialization:
             "name", "emoji", "x", "y", "hp", "score",
             "momentum_tier", "is_leader", "max_hp", "speed_class", "glyph",
             "has_traps", "trap_count", "weapon", "armor", "has_ability",
+            "on_terrain",
         }
 
     def test_enemy_dict_hides_energy(self):
@@ -46,6 +47,7 @@ class TestDictSerialization:
             "passive_rounds", "traps", "trap_cooldown", "callbacks",
             "equipment", "equipment_bonuses",
             "ability", "tactical_cooldown",
+            "on_terrain", "terrain",
         }
 
     def test_self_dict_includes_energy(self):

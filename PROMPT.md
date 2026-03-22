@@ -275,6 +275,20 @@ Stats = who you are. Equipment = what you carry. Set `BOT_EQUIPMENT` in your bot
 
 **Tips:** Mace counters plate (bypasses 4 DR). Finesse dagger scales with SPEED. Plate costs energy to move. Enemy weapon/armor visible via `state["enemies"][i]["weapon"]`.
 
+## Terrain
+
+Matches can be played on different maps. Each map has terrain tiles that affect movement and combat.
+
+| Tile | Movement | Combat |
+|------|----------|--------|
+| **Wall** `#` | Blocked | Blocks ranged LoS |
+| **Water** `~` | +5 energy cost | -2 to-hit, no rest healing |
+| **High Ground** `^` | Normal | +2 to-hit, +15% damage |
+| **Cover** `%` | Normal | +3 AC |
+| **Crystal** `*` | Normal | +10 energy on first step |
+
+Maps: Arena, Fortress, Highlands, Maze, Storm Pit. Check `state["me"]["on_terrain"]` and `state["terrain"]`.
+
 ## Combat Mechanics
 
 Attacks use a **d20 roll system**:
@@ -309,15 +323,10 @@ The match winner carries 50% of their final score into the next match, capped at
 
 ### Strategy Tips
 
-- **High momentum makes you a target** -- enemies can see your tier and score. Expect aggression.
-- **Full HP rounds give +2 points** -- defending at full HP is efficient scoring.
-- **Clean kills (+5 bonus) reward aggressive play** without taking damage in the same round.
-- **Target high-momentum enemies** to deny their combat advantages (energy regen, damage boost).
-- **Early kills snowball** -- 10 points per kill means 1-2 kills can push you to tier 1 quickly.
-- **Target the leader** -- +20 bounty for killing the leader makes them a high-value target.
-- **Leader bleeds energy** -- tier 3+ costs 5-8 energy/round. The leader must keep fighting or drain out.
-- **Build to your strategy** -- high POWER for burst damage, high SPEED for evasion, high ARMOR for survival, high MIND for sustained fights.
-- **Read hit_chance_vs** -- check your probability before committing to an attack. Low chance? Defend or reposition instead.
+- **Target the leader** for +20 bounty. Leader bleeds 5-8 energy/round at tier 3+.
+- **Full HP rounds = +2 points**. Clean kills = +5 bonus.
+- **Read hit_chance_vs** before attacking. Low chance? Defend or reposition.
+- **Build to your strategy**: POWER for burst, SPEED for evasion, ARMOR for survival, MIND for sustain.
 
 ## Callbacks (Optional)
 

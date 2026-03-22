@@ -125,6 +125,9 @@ def _play_back(
     players = match_data.get("players", [])
     grid_size = match_data.get("grid_size", 10)
     renderer = TerminalRenderer(players, grid_size)
+    terrain_tiles = match_data.get("terrain_tiles")
+    if terrain_tiles is not None:
+        renderer.set_terrain(terrain_tiles)
 
     delay = 1.0 / max(0.01, speed)
     action_delay = delay * 0.3

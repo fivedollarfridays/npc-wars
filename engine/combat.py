@@ -120,6 +120,7 @@ class Bot:
         self.score: int = 0
         self.passive_rounds: int = 0
         self._trap_manager: Any = None
+        self._terrain: Any = None
         self._current_round: int = 0
         # Momentum (set by engine.momentum.apply_momentum_bonuses)
         self.momentum_tier: int = 0
@@ -239,6 +240,21 @@ class Bot:
             "weapon": self.equipment.get("weapon", ""),
             "armor": self.equipment.get("armor", ""),
             "has_ability": self.ability is not None,
+            "on_terrain": self._terrain.get_tile(self.x, self.y) if self._terrain else "open",
+        }
+
+    def _build_terrain_dict(self) -> dict[str, Any]:
+        """Build terrain info dict for state exposure."""
+        if self._terrain is None:
+            return {"map": "arena", "walls": [], "water": [], "high_ground": [], "cover": [], "crystals": []}
+        t = self._terrain
+        return {
+            "map": t.name,
+            "walls": t.get_tiles_of_type("wall"),
+            "water": t.get_tiles_of_type("water"),
+            "high_ground": t.get_tiles_of_type("high_ground"),
+            "cover": t.get_tiles_of_type("cover"),
+            "crystals": t.get_tiles_of_type("crystal"),
         }
 
     def _equipment_dicts(self) -> tuple[dict[str, Any], dict[str, Any]]:
@@ -288,6 +304,8 @@ class Bot:
             "equipment": eq,
             "equipment_bonuses": bonuses,
             "ability": self._ability_dict(),
+            "on_terrain": self._terrain.get_tile(self.x, self.y) if self._terrain else "open",
+            "terrain": self._build_terrain_dict(),
         }
 
 
