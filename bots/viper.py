@@ -1,3 +1,5 @@
+import random
+
 BOT_NAME = "Viper"
 BOT_EMOJI = "🐍"
 BOT_BIO = "Patient counter-puncher. Kites, traps, and strikes when the math says yes."
@@ -19,8 +21,6 @@ BOT_EQUIPMENT = {
     "tactical": None,
 }
 # Total: 27 / 40 credits (lean loadout, stats do the work)
-
-import random
 
 # persistent state across rounds
 _tracked = {}
