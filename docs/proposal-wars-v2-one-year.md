@@ -738,7 +738,7 @@ This is the diff. This is the game.
 
 ## Implementation Roadmap
 
-> **Updated 2026-03-21** — Revised to reflect actual progress and new systems (equipment, traps, code-built characters) added since original proposal.
+> **Updated 2026-03-23** — Phase 2 complete. Roadmap realigned: Phase 3 split into 3A (Playable Product: PyPI, viewer, server, Discord) and 3B (Spectacle: characters, sound, tournaments). Get people playing first, then add visual wow factor.
 
 ### Phase 1: Foundation (Q2 2026) — ✅ COMPLETE
 
@@ -781,44 +781,73 @@ This is the diff. This is the game.
 
 **Exit criteria:** Players have meaningful build decisions across 3 axes (stats, equipment, abilities). Terrain creates positional strategy. Post-match diff makes every match feel like progress.
 
-### Phase 3: Character & Spectacle (Q4 2026) — 8 Weeks
+### Phase 3A: Playable Product (Q3-Q4 2026) — 4 Sprints
 
-**Goal:** Code-built characters + viewer overhaul. The game is watchable and characters are iconic.
+**Goal:** People can install it, play it, and compete online. The game is a product, not a local tool.
 
-| Sprint | Focus | Key Deliverables |
-|--------|-------|-----------------|
-| S40 | **Code-built character system** | Stats + equipment → visual traits. Engine generates character appearance from code. Bulk for armor, sharp edges for speed, weapon silhouettes. |
-| S41 | Browser viewer overhaul | Canvas character rendering (not emoji), smooth interpolation, terrain rendering |
-| S42 | Character customization | Paid cosmetic layer on functional visuals. Players buy how their plate armor *looks*, not what it does. |
-| S43 | Kill cam + screen shake + death animations | Spectacle layer — crits shake, multi-kills zoom, deaths explode |
-| S44 | Generative sound | Web Audio API: impact FX, ability sounds, movement, ambient per terrain |
-| S45 | Matchmaking brackets | Rookie/Veteran/Elite/Champion/Open, bracket enforcement |
-| S46 | Tournament system | Claude vs GPT vs Gemini, automated iteration, spectator broadcast |
-| S47 | Phase 3 gate | Full spectator experience validation |
-
-**New since original proposal:**
-- **Code-built characters (S40):** Characters whose look informs their function. The code builds the character, the system interprets it visually. A tank looks tanky, an assassin looks fast. Replaces emoji rendering in browser viewer.
-- **Character customization (S42):** Monetization path — players pay for cosmetic overrides on their functional visual. Down the line: fully custom character appearance.
-- **Original Phase 3 (abilities)** compressed into Phase 2 (S36). 4 ability types + tactical items instead of 12 types across 8 sprints.
-
-**Exit criteria:** Characters are visually distinct and readable. The browser viewer is a spectator sport. Sound enhances drama. Tournaments attract viewers.
-
-### Phase 4: Platform (Q1 2027) — 6 Weeks
-
-**Goal:** Server, social, SDK. The game is a product and a platform.
+> **Strategic shift (2026-03-23):** Original plan had 8 sprints of spectacle (character visuals, sound, kill cam) before any server work. Realigned to interleave platform with spectacle — get `pip install` and server up first so people can play NOW, then add visual wow factor.
 
 | Sprint | Focus | Key Deliverables |
 |--------|-------|-----------------|
-| S48 | Server layer | Upload endpoint, matchmaking lobby, replay storage |
-| S49 | Diff view | Lifetime avg vs current game, GitHub-style stat diff — "the diff IS the game" |
-| S50 | Leaderboard + ranked mode | `agentgrounds wars upload`, `agentgrounds wars leaderboard` |
-| S51 | Discord integration | Match announcements, leaderboard bot, challenge command |
-| S52 | NPC-SDK extraction | Shared infra for Racing, Kitchen, etc. (extract after 2 working games) |
-| S53 | Launch polish | Onboarding flow, template picker by archetype, documentation, marketing |
+| S40 | **PyPI release + install flow** | `pip install agent-grounds` works. `agentgrounds wars init` → play in 3 commands. Package build, CI publish, README for real users. Fix the "paste into Claude" flow (generate command framing). |
+| S41 | **Browser viewer overhaul** | Canvas renderer (not emoji passthrough). Smooth movement interpolation. Terrain rendering. Equipment/weapon visible on characters. Match JSON → animated replay. Mobile-responsive. |
+| S42 | **Server layer** | Upload endpoint (`agentgrounds wars upload`). Matchmaking lobby — time-limited, bots fill empty slots. Replay storage (store forever). WebSocket for live spectating. API for match history. |
+| S43 | **Leaderboard + Discord** | `agentgrounds wars leaderboard`. Ranked mode with hidden MMR. Discord bot: match announcements, results, challenge command (`!challenge @player`). Player profiles on web. |
 
-**Exit criteria:** The full create → fight → watch → diff → iterate → upload → compete loop works end-to-end in CLI and browser. The game is fun to watch. The game is fun to play. The game is fun to talk about.
+**Exit criteria:** Someone discovers the game, runs `pip install agent-grounds`, creates a bot with Claude, uploads it, fights other players' bots online, sees their rank on a leaderboard, and gets match results in Discord. The full loop works.
+
+**Why this order:**
+- S40 (PyPI) unblocks sharing — you can tell people "pip install this"
+- S41 (viewer) makes it worth watching — the browser experience has to be good
+- S42 (server) enables multiplayer — local-only is a toy, online is a product
+- S43 (leaderboard + Discord) creates community — people need a reason to return
+
+### Phase 3B: Spectacle (Q4 2026) — 4 Sprints
+
+**Goal:** The game is watchable, characters are iconic, and tournaments are events.
+
+| Sprint | Focus | Key Deliverables |
+|--------|-------|-----------------|
+| S44 | **Code-built character system** | Stats + equipment → visual traits. Engine generates character appearance from code. Bulk for armor, sharp edges for speed, weapon silhouettes. Characters whose look informs their function. |
+| S45 | **Kill cam + animations + sound** | Screen shake on crits. Slow-mo zoom on eliminations. Death particle explosions. Web Audio generative sound: impact FX, ability sounds, ambient per terrain type. |
+| S46 | **Character customization** | Paid cosmetic layer on functional visuals. Players buy how their plate armor *looks*, not what it does. Character creator preview. Cosmetic marketplace. |
+| S47 | **Tournament system** | Claude vs GPT vs Gemini automated tournaments. Spectator broadcast mode. Tournament brackets. Automated bot iteration between rounds. Spectator chat/predictions. Phase 3 gate. |
+
+**Exit criteria:** Characters are visually distinct and readable from their code. The browser viewer is a spectator sport — people watch tournaments for entertainment. Sound enhances drama. Paid cosmetics generate revenue.
+
+**Why after 3A:**
+- Character visuals need the canvas viewer (S41) to render on
+- Tournaments need the server (S42) to run
+- Cosmetics need player accounts (S43) to persist
+- The spectacle layer amplifies a working product — it doesn't create one
+
+### Phase 4: Scale (Q1 2027) — 6 Sprints
+
+**Goal:** Multiple games, advanced features, growth. Agent Grounds is a platform.
+
+| Sprint | Focus | Key Deliverables |
+|--------|-------|-----------------|
+| S48 | **NPC-SDK extraction** | Extract shared infrastructure from Wars into `npc-sdk` package. CLI skeleton, renderer framework, bot scanner, sandbox, replay format, XP system, equipment validation, generate command. |
+| S49 | **NPC Racing** | Second game built on npc-sdk. F1-inspired: tire compounds, weather, pit strategy, DRS. Copy Wars experience layer, replace domain content. Validate SDK works for a second game. |
+| S50 | **Matchmaking brackets** | Rookie/Veteran/Elite/Champion/Open skill tiers. Bracket enforcement. Skill-based matchmaking. Seasonal resets. |
+| S51 | **Advanced analytics** | Per-match heatmaps (where you fought, where you died). Coaching tips based on weakness patterns. "You die to tanks 60% — try shifting POWER → SPEED." Replay analysis tools. |
+| S52 | **Mobile viewer** | Responsive canvas or lightweight native wrapper. Push notifications for match results. Watch tournaments on mobile. |
+| S53 | **Launch polish** | Onboarding flow with archetype quiz → starter bot. Template picker by playstyle. Marketing site at agentgrounds.ai. Press kit. Launch event: 100-player open tournament. |
+
+**Exit criteria:** Agent Grounds is a multi-game platform with Wars and Racing live. Matchmaking creates fair fights. Analytics help players improve. The game runs on mobile. The launch event proves the spectator sport thesis.
 
 ---
+
+## Milestone Markers
+
+| Milestone | Sprint | What It Proves |
+|-----------|--------|---------------|
+| **First external player** | S40 | Someone outside the team runs `pip install` and plays |
+| **10 uploaded bots** | S42 | Server works, people are creating |
+| **First Discord match** | S43 | Community loop works |
+| **First tournament** | S47 | Spectator sport thesis validated |
+| **Second game ships** | S49 | Platform thesis validated (SDK works for Racing) |
+| **100-player event** | S53 | Scale thesis validated |
 
 ## Success Metrics (March 2027)
 
@@ -832,20 +861,21 @@ This is the diff. This is the game.
 | Custom abilities created | 100+ unique | People design |
 | Discord members | 1,000+ | Community exists |
 | AI tournament viewers | 5,000+ per event | Spectator sport works |
+| Cosmetic revenue (monthly) | $500+ | Monetization works |
+| Games on platform | 2+ (Wars + Racing) | Platform scales |
 | Archetype win rate spread | 45-55% | Game is balanced |
-| Player-reported "fun" (survey) | 8/10+ | The point of everything |
 
 ---
 
 ## Open Questions
 
-1. **Ranked vs Casual split** — Do we need both at launch, or is casual with hidden MMR sufficient for year one?
-2. **Team modes** — 2v2 or 3v3 with `ally` in state dict. Huge design space but doubles the work.
-3. **Seasons and resets** — Should the leaderboard reset quarterly? Should XP persist forever?
-4. **Marketplace** — Can players share/sell bot strategies? Ethical and gameplay implications.
-5. **Spectator betting** — Prediction market on match outcomes. Engagement booster or distraction?
-6. **Mobile viewer** — Responsive canvas or native app? Year-one scope or year-two?
-7. **Modding** — Can players create custom maps? Custom ability types? Where's the line?
+1. **Ranked vs Casual split** — Hidden MMR for casual, visible rank for competitive? Or single queue?
+2. **Team modes** — 2v2 or 3v3 with `ally` in state dict. Huge design space but doubles the work. Year-two feature.
+3. **Seasons and resets** — Quarterly leaderboard resets with seasonal rewards. XP persists forever, rank resets.
+4. **Marketplace** — Players share bot strategies via "bot packs." Free sharing first, paid marketplace later.
+5. **Spectator betting** — Prediction market on tournament outcomes. Add after tournaments proven (S47+).
+6. **Pricing model** — Free core gameplay. Paid cosmetics (S46). Premium features TBD (replay analysis, private lobbies).
+7. **Modding** — Custom maps in year two. Custom ability types too dangerous for balance — keep the 4-type system.
 
 ---
 

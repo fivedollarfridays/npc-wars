@@ -140,28 +140,31 @@ One command. ANSI grid renders in the terminal. Watch your bot fight/race/cook i
 
 ## Build Order
 
-### Phase 1: NPC Wars (DONE → shipping experience layer)
-- ✅ Core engine (18 sprints, 2170 tests)
-- 🔧 S20: Experience layer (renderer, play, watch, generate, PROMPT.md, starter bot)
-- 📦 S19: PyPI release
+### NPC Wars — Phase 1: Foundation (✅ COMPLETE, S25-S31)
+- ✅ Stat budget, d20 combat, dodge/initiative, visual identity, balance tuning
+- 3200+ tests, 6 viable archetypes, mypy --strict
 
-### Phase 2: NPC Racing
-- Copy Wars' experience layer infrastructure (CLI, renderer framework, scanner, sandbox, generate)
-- Build racing-specific engine (tire degradation, weather, pit strategy)
-- Write racing PROMPT.md with real F1 domain knowledge
-- Write racing starter bot with racing-specific TODOs
-- Ship to PyPI as `npc-race`
+### NPC Wars — Phase 2: Depth (✅ COMPLETE, S32-S39)
+- ✅ XP/leveling, callbacks, traps, equipment (23 items), abilities, terrain (5 maps)
+- ✅ Post-match diff view, archetype classification, 1000-match balance
+- 3600+ tests, 13 builtin bots
 
-### Phase 3: Extract npc-sdk
-- Compare Wars and Racing implementations
-- Extract shared CLI framework, scanner, sandbox, renderer engine, generate command
-- Both games depend on `npc-sdk` going forward
-- Each new game: `pip install npc-sdk` + write the 30% domain-specific code
+### NPC Wars — Phase 3A: Playable Product (NEXT, S40-S43)
+- 📋 S40: PyPI release (`pip install agent-grounds`)
+- 📋 S41: Browser viewer overhaul (canvas, terrain, animation)
+- 📋 S42: Server layer (upload, matchmaking, replay storage)
+- 📋 S43: Leaderboard + Discord integration
 
-### Phase 4: Remaining Games
-- Each game is ~30% new code on top of npc-sdk
-- The PROMPT.md (domain knowledge) is the biggest per-game effort
-- Launch all announced titles for series volume
+### NPC Wars — Phase 3B: Spectacle (S44-S47)
+- 📋 S44: Code-built character system (stats → visuals)
+- 📋 S45: Kill cam + animations + generative sound
+- 📋 S46: Character customization (paid cosmetics)
+- 📋 S47: Tournament system (Claude vs GPT vs Gemini)
+
+### Phase 4: Scale (S48-S53)
+- 📋 S48: NPC-SDK extraction from Wars
+- 📋 S49: NPC Racing (second game on SDK)
+- 📋 S50-S53: Matchmaking brackets, analytics, mobile, launch
 
 ---
 
