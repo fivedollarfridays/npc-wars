@@ -1,0 +1,13 @@
+id: plan-2026-03-s21-bot-memory
+title: 'Sprint 21: Bot Memory — Cross-Match Learning'
+type: feature
+status: complete
+created_at: '2026-03-17T12:00:00'
+skills:
+- planning-with-pm
+goals:
+- Persistent bot memory dict survives between matches
+- state["memory"] available to all bot decide() functions
+- 10KB size limit per bot prevents abuse
+- --fresh flag clears memory for clean starts
+- Starter bot demonstrates memory-aware strategy

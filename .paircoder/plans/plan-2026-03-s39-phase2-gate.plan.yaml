@@ -1,0 +1,11 @@
+id: plan-2026-03-s39-phase2-gate
+title: 'Sprint 39: Phase 2 Balance Gate'
+type: chore
+status: planned
+created_at: '2026-03-22T23:00:00.000000'
+goals:
+- Unified balance sim across all systems (1000 matches)
+- Fix any balance issues found
+- Feed.py refactor (28 functions → split into formatters module)
+- Clean up architecture violations
+- Phase 2 completion tag + documentation update

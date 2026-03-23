@@ -1,0 +1,13 @@
+id: plan-2026-03-s18-polish-production
+title: 'Sprint 18: Polish + Production'
+type: feature
+status: complete
+created_at: '2026-03-16T01:11:54.936958'
+skills:
+- planning-with-pm
+goals:
+- SSE live streaming
+- Docker sandbox
+- Permalink sharing
+- Rate limiting
+- Docker Compose production config

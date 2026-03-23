@@ -1,0 +1,13 @@
+id: plan-2026-03-s22-tournament
+title: 'Sprint 22: Tournament Mode — Evolutionary Bot Breeding'
+type: feature
+status: planned
+created_at: '2026-03-17T12:00:00'
+skills:
+- planning-with-pm
+goals:
+- npcwars tournament command runs multi-generation evolution
+- AST-based threshold mutation on winning bots
+- Selection, mutation, crossover lifecycle per generation
+- Tournament state persistence and resume
+- Best bot export with lineage report

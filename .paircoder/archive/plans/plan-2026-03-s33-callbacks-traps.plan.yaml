@@ -1,0 +1,12 @@
+id: plan-2026-03-s33-callbacks-traps
+title: 'Sprint 33: Callback Infrastructure + Trap Action'
+type: feature
+status: planned
+created_at: '2026-03-20T20:30:00.000000'
+goals:
+- Callback registry and bot discovery for setup/on_kill/react callbacks
+- Setup callback execution at match start (level 8+)
+- React callback for nearby enemy actions (level 12+)
+- Trap action with zone tracking, collision detection, trigger resolution (level 12+)
+- State dict exposure for traps and callback status
+- Integration gate verifying full callback + trap pipeline

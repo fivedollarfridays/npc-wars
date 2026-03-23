@@ -738,65 +738,82 @@ This is the diff. This is the game.
 
 ## Implementation Roadmap
 
-### Phase 1: Foundation (Q2 2026) — 8 Weeks
+> **Updated 2026-03-21** — Revised to reflect actual progress and new systems (equipment, traps, code-built characters) added since original proposal.
+
+### Phase 1: Foundation (Q2 2026) — ✅ COMPLETE
 
 **Goal:** Stat allocation + combat overhaul. The game feels different.
 
-| Sprint | Focus | Key Deliverables |
-|--------|-------|-----------------|
-| S27 | Stat budget system | POWER/SPEED/ARMOR/MIND in bot files, loader validation, derived stat calculator |
-| S28 | Combat overhaul pt.1 | Roll-based hit resolution, damage ranges, miss/crit events |
-| S29 | Combat overhaul pt.2 | Dodge system, situational modifiers, hit probability in state dict |
-| S30 | Identity system | Glyph registry, HP color coding, class background hints, death animation |
-| S31 | Balance + integration | 10K-match sim, tune stat curves, update PROMPT.md, update all builtin bots |
+| Sprint | Focus | Status | PR |
+|--------|-------|--------|-----|
+| S25 | Momentum & scoring system | ✅ Done | #20 |
+| S26 | King of the Hill momentum refinement | ✅ Done | #21 |
+| S27 | Stat budget system (POWER/SPEED/ARMOR/MIND) | ✅ Done | #22 |
+| S28 | Roll-based combat overhaul (d20 mechanics) | ✅ Done | #23 |
+| S29 | Dodge, modifiers, initiative, hit probability | ✅ Done | #24 |
+| S30 | Visual identity (glyphs, HP colors, auras) | ✅ Done | #25 |
+| S31 | Balance tuning + passivity plague + Phase 1 gate | ✅ Done | #27 |
 
-**Exit criteria:** A 25/25/25/25 bot plays identically to today. Any other allocation creates a meaningfully different experience. Combat has variance and drama. The renderer shows bot state visually.
+**Outcomes:** 6 archetypes viable (45-55% win rates), d20 combat with crits/dodges/momentum, visual identity system, 3000+ tests.
 
-### Phase 2: Depth (Q3 2026) — 8 Weeks
+### Phase 2: Depth (Q3 2026) — ✅ COMPLETE
 
-**Goal:** Progression + terrain. The game has a reason to come back.
+**Goal:** Progression + equipment + terrain + abilities. The game has build diversity and a reason to return.
 
-| Sprint | Focus | Key Deliverables |
-|--------|-------|-----------------|
-| S32 | XP and leveling system | SQLite persistence, XP per match, level calculation, CLI profile command |
-| S33 | Line budget + action gating | AST line counter, action unlock table, sandbox enforcement |
-| S34 | Callback system pt.1 | `on_kill()` and `setup()` integration into game loop |
-| S35 | Terrain engine | 5 map definitions, terrain effects on combat, state dict exposure |
-| S36 | Terrain rendering | CLI terrain characters, viewer terrain rendering, map rotation |
-| S37 | Post-match experience | Stats summary, diff display, progression bar, matchup profile |
-| S38 | Matchmaking brackets | Rookie/Veteran/Elite/Champion/Open, bracket enforcement |
-| S39 | Balance + integration | Full sim across brackets, tune XP curve, update PROMPT.md |
+| Sprint | Focus | Status | PR |
+|--------|-------|--------|-----|
+| S32 | XP and leveling system (30 levels, SQLite profiles) | ✅ Done | #27 |
+| S33 | Callback infrastructure + trap action | ✅ Done | #28 |
+| S34 | Trap polish & balance (feed FX, on_kill, trapper bot) | ✅ Done | #29 |
+| S35 | Equipment system (weapon/armor/accessories, 40-credit budget) | ✅ Done | #30 |
+| S36 | Tactical items + ability system (power_up, evolve callbacks) | ✅ Done | #31 |
+| S37 | Terrain engine (5 maps, walls, water, high ground, cover) | ✅ Done | #32 |
+| S38 | Post-match experience (diff view, matchup profiles, progression) | ✅ Done | #33 |
+| S39 | Phase 2 balance gate (1000-match sim, feed refactor) | ✅ Done | #34 |
 
-**Exit criteria:** Players level up across sessions. New actions and callbacks unlock. Maps create strategic diversity. Post-match summary makes every match feel like progress.
+**Outcomes:** 3-axis build system (stats + equipment + abilities), 5 terrain maps, post-match diff view, archetype classification, 13 builtin bots, 3600+ tests. Balance: no bot >60%, no archetype >60%.
 
-### Phase 3: Mastery (Q4 2026) — 8 Weeks
+**New since original proposal:**
+- **Equipment system (S35):** D&D-inspired gear slots (weapon, armor, 2 accessories, tactical) with 40-credit budget. Inspired by NPC Race's component system. Stats = who you are, equipment = what you carry. Weapons modify to-hit/damage, armor modifies DR/energy costs, accessories add stat bonuses.
+- **Trap action (S33-34):** Hidden zones placed on tiles, trigger on enemy movement. POWER-scaled damage, 3-round cooldown. Fully rendered in CLI feed/overlay.
+- **Tactical items (S36):** Activated equipment abilities (Battle Cry, Fortify, Teleport, Overdrive) bridging equipment into the ability system.
+- **Terrain (S37):** Moved from S35-36 to S37. Not conflicting with equipment — terrain is grid-layer, equipment is combat-layer. Both additive.
 
-**Goal:** Custom abilities + advanced callbacks. The game has emergent depth.
+**Exit criteria:** Players have meaningful build decisions across 3 axes (stats, equipment, abilities). Terrain creates positional strategy. Post-match diff makes every match feel like progress.
 
-| Sprint | Focus | Key Deliverables |
-|--------|-------|-----------------|
-| S40 | Ability definition schema | Budget system, validation, 4 core ability types (damage, heal, teleport, shield) |
-| S41 | Ability resolution engine | Combat phase integration, cooldown tracking, energy costs |
-| S42 | 8 more ability types | lifesteal, slow, reveal, knockback, trap, buff, debuff, teleport_attack |
-| S43 | `react()` callback | Interrupt system, double-energy cost, defensive reaction window |
-| S44 | Ability visibility rules | Partial info exposure, type reveal after first use, state dict |
-| S45 | Second ability slot | Level 25 dual power-up, combo potential |
-| S46 | `evolve()` callback | Between-match stat shifting, tournament adaptation |
-| S47 | Balance + integration | Ability type sims, degenerate build detection, PROMPT.md ability guide |
+### Phase 3: Character & Spectacle (Q4 2026) — 8 Weeks
 
-**Exit criteria:** Level 18+ players design unique abilities. The meta has an information game layer. Tournaments feature adaptation across matches.
-
-### Phase 4: Polish (Q1 2027) — 6 Weeks
-
-**Goal:** Viewer, sound, upload, leaderboard. The game is a product.
+**Goal:** Code-built characters + viewer overhaul. The game is watchable and characters are iconic.
 
 | Sprint | Focus | Key Deliverables |
 |--------|-------|-----------------|
-| S48 | Browser viewer overhaul | Smooth animation, kill cam, ability FX, terrain rendering |
-| S49 | Sound design | Web Audio generative sound, impact FX, ability sounds, ambient |
-| S50 | Upload + leaderboard | `agentgrounds wars upload`, `agentgrounds wars leaderboard`, server integration |
+| S40 | **Code-built character system** | Stats + equipment → visual traits. Engine generates character appearance from code. Bulk for armor, sharp edges for speed, weapon silhouettes. |
+| S41 | Browser viewer overhaul | Canvas character rendering (not emoji), smooth interpolation, terrain rendering |
+| S42 | Character customization | Paid cosmetic layer on functional visuals. Players buy how their plate armor *looks*, not what it does. |
+| S43 | Kill cam + screen shake + death animations | Spectacle layer — crits shake, multi-kills zoom, deaths explode |
+| S44 | Generative sound | Web Audio API: impact FX, ability sounds, movement, ambient per terrain |
+| S45 | Matchmaking brackets | Rookie/Veteran/Elite/Champion/Open, bracket enforcement |
+| S46 | Tournament system | Claude vs GPT vs Gemini, automated iteration, spectator broadcast |
+| S47 | Phase 3 gate | Full spectator experience validation |
+
+**New since original proposal:**
+- **Code-built characters (S40):** Characters whose look informs their function. The code builds the character, the system interprets it visually. A tank looks tanky, an assassin looks fast. Replaces emoji rendering in browser viewer.
+- **Character customization (S42):** Monetization path — players pay for cosmetic overrides on their functional visual. Down the line: fully custom character appearance.
+- **Original Phase 3 (abilities)** compressed into Phase 2 (S36). 4 ability types + tactical items instead of 12 types across 8 sprints.
+
+**Exit criteria:** Characters are visually distinct and readable. The browser viewer is a spectator sport. Sound enhances drama. Tournaments attract viewers.
+
+### Phase 4: Platform (Q1 2027) — 6 Weeks
+
+**Goal:** Server, social, SDK. The game is a product and a platform.
+
+| Sprint | Focus | Key Deliverables |
+|--------|-------|-----------------|
+| S48 | Server layer | Upload endpoint, matchmaking lobby, replay storage |
+| S49 | Diff view | Lifetime avg vs current game, GitHub-style stat diff — "the diff IS the game" |
+| S50 | Leaderboard + ranked mode | `agentgrounds wars upload`, `agentgrounds wars leaderboard` |
 | S51 | Discord integration | Match announcements, leaderboard bot, challenge command |
-| S52 | AI tournament system | Claude vs GPT vs Gemini, automated iteration, spectator broadcast |
+| S52 | NPC-SDK extraction | Shared infra for Racing, Kitchen, etc. (extract after 2 working games) |
 | S53 | Launch polish | Onboarding flow, template picker by archetype, documentation, marketing |
 
 **Exit criteria:** The full create → fight → watch → diff → iterate → upload → compete loop works end-to-end in CLI and browser. The game is fun to watch. The game is fun to play. The game is fun to talk about.

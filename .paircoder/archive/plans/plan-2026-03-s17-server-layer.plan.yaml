@@ -1,0 +1,13 @@
+id: plan-2026-03-s17-server-layer
+title: 'Sprint 17: Server Layer'
+type: feature
+status: complete
+created_at: '2026-03-16T01:11:53.731147'
+skills:
+- planning-with-pm
+goals:
+- FastAPI server with bot submission
+- Redis queue + worker
+- Time-limited lobby with AI fill
+- Monaco code editor
+- SQLite player registry

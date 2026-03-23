@@ -1,0 +1,13 @@
+id: plan-2026-03-npc-wars-get-sellable
+title: NPC Wars — Get Sellable (Public Release)
+type: chore
+status: cancelled
+created_at: '2026-03-16T23:26:28.813538'
+skills:
+- planning-with-pm
+goals:
+- Version bump and build
+- Test PyPI publish
+- Publish to PyPI
+- GitHub release
+- Write announcement draft
