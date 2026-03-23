@@ -1,0 +1,12 @@
+id: plan-2026-03-s43-leaderboard
+title: 'Sprint 43: Leaderboard + Discord (Phase 3A Final)'
+type: feature
+status: planned
+created_at: '2026-03-23T18:00:00.000000'
+goals:
+- Web leaderboard page (HTML/JS at /leaderboard)
+- Web player profile page (match history, stats, equipment)
+- Discord match announcements (post results to channel after match)
+- Discord challenge command (!challenge @player)
+- Wire leaderboard API to use server player DB (not just match files)
+- Phase 3A completion gate — full product loop validated

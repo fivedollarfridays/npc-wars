@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kill Switch -- LEADERBOARD</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Silkscreen:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131f;
+    --border: #1e1e33;
+    --text: #e0e0f0;
+    --muted: #6a6a8a;
+    --accent: #ff3e6c;
+    --accent2: #00e5ff;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .header {
+    text-align: center;
+    padding: 20px 0 30px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 30px;
+  }
+  .header h1 {
+    font-family: 'Silkscreen', cursive;
+    font-size: 28px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header .subtitle {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 6px;
+    letter-spacing: 2px;
+  }
+  table {
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto;
+    border-collapse: collapse;
+  }
+  th, td {
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    font-size: 14px;
+  }
+  th {
+    cursor: pointer;
+    color: var(--accent2);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    user-select: none;
+  }
+  th:hover { color: var(--accent); }
+  th.active { color: var(--accent); }
+  tr:hover td { background: var(--surface); }
+  .rank-1 td { color: #ffd700; }
+  .rank-2 td { color: #c0c0c0; }
+  .rank-3 td { color: #cd7f32; }
+  a { color: var(--accent2); text-decoration: none; }
+  a:hover { color: var(--accent); text-decoration: underline; }
+  .emoji-cell { font-size: 20px; }
+  .loading {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px;
+    font-size: 14px;
+  }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>LEADERBOARD</h1>
+  <div class="subtitle">KILL SWITCH -- ALL TIME RANKINGS</div>
+</div>
+<div id="loading" class="loading">Loading rankings...</div>
+<table id="board" style="display:none">
+  <thead><tr>
+    <th>#</th>
+    <th>Bot</th>
+    <th data-sort="wins" class="active">Wins</th>
+    <th data-sort="win_rate">Win %</th>
+    <th data-sort="kills">Kills</th>
+    <th data-sort="matches_played">Played</th>
+    <th data-sort="avg_placement">Avg Place</th>
+  </tr></thead>
+  <tbody id="rows"></tbody>
+</table>
+<script>
+  let currentSort = 'wins';
+
+  async function load() {
+    try {
+      const resp = await fetch('/api/leaderboard?sort_by=' + currentSort);
+      const data = await resp.json();
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('board').style.display = 'table';
+
+      const tbody = document.getElementById('rows');
+      tbody.innerHTML = data.map(function(p, i) {
+        const rank = i + 1;
+        const cls = rank <= 3 ? ' class="rank-' + rank + '"' : '';
+        const wr = (p.win_rate * 100).toFixed(1);
+        const ap = p.avg_placement.toFixed(1);
+        const href = '/profile/' + encodeURIComponent(p.emoji);
+        return '<tr' + cls + '>'
+          + '<td>' + rank + '</td>'
+          + '<td class="emoji-cell"><a href="' + href + '">' + p.emoji + '</a></td>'
+          + '<td>' + p.wins + '</td>'
+          + '<td>' + wr + '%</td>'
+          + '<td>' + p.kills + '</td>'
+          + '<td>' + p.matches_played + '</td>'
+          + '<td>' + ap + '</td>'
+          + '</tr>';
+      }).join('');
+
+      document.querySelectorAll('th[data-sort]').forEach(function(th) {
+        th.classList.toggle('active', th.dataset.sort === currentSort);
+      });
+    } catch (err) {
+      document.getElementById('loading').textContent = 'Failed to load leaderboard.';
+    }
+  }
+
+  document.querySelectorAll('th[data-sort]').forEach(function(th) {
+    th.addEventListener('click', function() {
+      currentSort = th.dataset.sort;
+      load();
+    });
+  });
+
+  load();
+</script>
+</body>
+</html>

@@ -10,6 +10,7 @@ from discord_bot.commands.claims import register_commands as claims_register
 from discord_bot.commands.results import register_commands as results_register
 from discord_bot.commands.leaderboard import register_commands as leaderboard_register
 from discord_bot.commands.match_runner import register_commands as match_runner_register
+from discord_bot.commands.challenge import register_commands as challenge_register
 
 log = logging.getLogger(__name__)
 
@@ -62,6 +63,7 @@ class NpcWarsBot(discord.Client):
         results_register(self.tree, guild, self.deps.results_dir)
         leaderboard_register(self.tree, guild, self.deps.results_dir)
         match_runner_register(self.tree, guild, self.deps.bots_dir, self.deps.results_dir)
+        challenge_register(self.tree, guild)
         await self.tree.sync(guild=guild)
 
     async def on_ready(self) -> None:
