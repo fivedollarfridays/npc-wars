@@ -99,34 +99,13 @@ function applySpectacleEffects(tier, triggers, effects) {
 
   if (tier === 'calm') return;
 
-  if (tier === 'heating') {
-    grid.style.animation = 'subtle-pulse 2s ease-in-out';
-  }
-
-  if (tier === 'intense' || tier === 'hype' || tier === 'chaos') {
-    if (triggers.includes('kill') || triggers.includes('kill_streak')) {
-      grid.style.animation = 'screen-shake 0.3s ease-in-out';
-    }
-  }
-
+  // Smooth, subtle effects only — no flashing, no strobing
   if (tier === 'hype' || tier === 'chaos') {
-    grid.style.animation = (grid.style.animation ? grid.style.animation + ', ' : '') + 'fire-border 1s ease-in-out infinite';
+    grid.style.boxShadow = '0 0 20px rgba(255,62,108,0.3)';
   }
 
   if (effects.includes('slow_mo')) {
-    grid.style.filter = 'brightness(1.2) saturate(0.5)';
-  }
-
-  if (triggers.includes('storm_kill')) {
-    glitchEffect();
-  }
-
-  if (triggers.includes('watcher_spawn')) {
-    darkEntranceEffect();
-  }
-
-  if (triggers.includes('near_death')) {
-    skullFlashEffect();
+    grid.style.filter = 'saturate(0.7)';
   }
 
   if (triggers.includes('watcher_attack')) {

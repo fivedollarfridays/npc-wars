@@ -102,6 +102,11 @@ function initViewer() {
   ctx = canvas.getContext('2d');
 
   var gridSize = matchData.grid_size;
+  // Resize canvas to fit viewport (leave room for sidebar)
+  var arenaWrap = canvas.parentElement;
+  var maxSize = Math.min(arenaWrap.clientWidth || 600, window.innerHeight - 150);
+  TILE_SIZE = Math.floor(maxSize / gridSize);
+  TILE_SIZE = Math.max(24, Math.min(TILE_SIZE, 64));  // clamp 24-64px
   canvas.width = gridSize * TILE_SIZE;
   canvas.height = gridSize * TILE_SIZE;
 
