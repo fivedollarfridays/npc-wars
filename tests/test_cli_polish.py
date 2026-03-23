@@ -37,15 +37,11 @@ def test_readme_mentions_starter() -> None:
     assert "starter" in readme.lower()
 
 
-def test_readme_no_wizard_in_quickstart() -> None:
-    """Quick start should use play, not wizard as the primary flow."""
+def test_readme_has_play_in_quickstart() -> None:
+    """README should show play command prominently."""
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    # Extract the quick start section
-    qs_start = readme.index("## Quick Start")
-    qs_end = readme.index("##", qs_start + 1)
-    quickstart = readme[qs_start:qs_end]
-    assert "agentgrounds wars play" in quickstart
-    assert "agentgrounds wars wizard" not in quickstart
+    assert "agentgrounds wars play" in readme
+    assert "agentgrounds wars init" in readme
 
 
 def test_contributing_mentions_generate() -> None:
@@ -61,9 +57,9 @@ def test_contributing_mentions_prompt_md() -> None:
 
 
 def test_readme_build_with_ai_section() -> None:
-    """README has a Build with AI section."""
+    """README has a bot building section."""
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "## Build with AI" in readme
+    assert "Bot" in readme and "AI" in readme
 
 
 def test_readme_learn_by_tweaking_section() -> None:

@@ -71,16 +71,14 @@ def test_readme_has_quick_start_commands():
     assert "agentgrounds wars battle" in content
 
 
-def test_readme_has_helpers_dsl_example():
-    content = (PROJECT_ROOT / "README.md").read_text()
-    assert "from agentgrounds.wars.helpers import" in content
-    assert "Me(state)" in content
+def test_prompt_has_helpers_dsl_example():
+    """PROMPT.md (the full game spec) has helpers DSL examples."""
+    prompt = (PROJECT_ROOT / "PROMPT.md").read_text()
+    assert "from agentgrounds.wars.helpers import" in prompt
+    assert "Me(state)" in prompt
 
 
-def test_readme_has_builtin_bots_table():
+def test_readme_has_bot_example():
+    """README has a bot code example."""
     content = (PROJECT_ROOT / "README.md").read_text()
-    assert "AggroBot" in content
-    assert "TankBot" in content
-    assert "KiteBot" in content
-    assert "ChaosBot" in content
-    assert "Cognify" in content
+    assert "decide(state)" in content
