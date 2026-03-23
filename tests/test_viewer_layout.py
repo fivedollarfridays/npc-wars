@@ -1,15 +1,14 @@
-"""Tests for viewer layout — maximize battlefield (T15.7)."""
+"""Tests for viewer layout -- maximize battlefield (T15.7)."""
 
 from __future__ import annotations
 
 import re
-from pathlib import Path
 
-MATCH_HTML = Path(__file__).resolve().parent.parent / "viewer" / "match.html"
+from conftest import read_viewer_content
 
 
 def _read_html() -> str:
-    return MATCH_HTML.read_text()
+    return read_viewer_content()
 
 
 def _extract_css(html: str) -> str:

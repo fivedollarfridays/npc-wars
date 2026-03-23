@@ -128,7 +128,8 @@ class TestViewerEffects:
 
     @pytest.fixture()
     def viewer_source(self) -> str:
-        return (PROJECT_ROOT / "viewer" / "match.html").read_text()
+        from conftest import read_viewer_content
+        return read_viewer_content()
 
     def test_attack_swoosh_function(self, viewer_source: str) -> None:
         assert "function attackSwoosh" in viewer_source

@@ -1,12 +1,10 @@
-"""Tests for shatter effect (kill) in viewer/match.html."""
+"""Tests for shatter effect (kill) in viewer."""
 
-from pathlib import Path
-
-VIEWER_HTML = Path(__file__).resolve().parent.parent / "viewer" / "match.html"
+from conftest import read_viewer_content
 
 
 def _read_html() -> str:
-    return VIEWER_HTML.read_text()
+    return read_viewer_content()
 
 
 class TestShatterFunctionExists:
@@ -49,15 +47,15 @@ class TestShatterWiredToKillEvent:
         html = _read_html()
         # The events loop should call shatterEffect when evt.type === 'kill'
         assert "shatterEffect" in html
-        # Find the renderRound events loop — use first occurrence for draw effects
-        events_start = html.index("// Draw hit and bump effects")
-        events_chunk = html[events_start : events_start + 4000]
+        # Find the renderEventFX function for draw effects
+        events_start = html.index("function renderEventFX(")
+        events_chunk = html[events_start : events_start + 5000]
         assert "'kill'" in events_chunk
         assert "shatterEffect" in events_chunk
 
     def test_kill_uses_victim_position(self) -> None:
         html = _read_html()
-        events_start = html.index("// Draw hit and bump effects")
-        events_chunk = html[events_start : events_start + 4000]
+        events_start = html.index("function renderEventFX(")
+        events_chunk = html[events_start : events_start + 5000]
         # Should look up victim position from round.positions
         assert "evt.victim" in events_chunk

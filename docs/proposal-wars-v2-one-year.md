@@ -1,9 +1,10 @@
-# Agent Wars v2 — One-Year Strategic Proposal
+# Kill Switch — One-Year Strategic Proposal
 
-> **Date:** 2026-03-18
-> **Status:** Draft
+> **Date:** 2026-03-18 (updated 2026-03-23)
+> **Status:** Phase 2 complete, Phase 3A in progress
 > **Scope:** Complete game redesign targeting March 2027
-> **Premise:** Wars is the flagship. Every design decision here becomes the template for the entire Agent Grounds platform.
+> **Premise:** Kill Switch is the flagship. Every design decision here becomes the template for the entire Agent Grounds platform.
+> **Note:** Game renamed from "NPC Wars" → "Agent Wars" → "Kill Switch" (2026-03-23). Each game under Agent Grounds has its own unique name.
 
 ---
 
@@ -774,7 +775,7 @@ This is the diff. This is the game.
 **Outcomes:** 3-axis build system (stats + equipment + abilities), 5 terrain maps, post-match diff view, archetype classification, 13 builtin bots, 3600+ tests. Balance: no bot >60%, no archetype >60%.
 
 **New since original proposal:**
-- **Equipment system (S35):** D&D-inspired gear slots (weapon, armor, 2 accessories, tactical) with 40-credit budget. Inspired by NPC Race's component system. Stats = who you are, equipment = what you carry. Weapons modify to-hit/damage, armor modifies DR/energy costs, accessories add stat bonuses.
+- **Equipment system (S35):** D&D-inspired gear slots (weapon, armor, 2 accessories, tactical) with 40-credit budget. Inspired by Code Circuit's component system. Stats = who you are, equipment = what you carry. Weapons modify to-hit/damage, armor modifies DR/energy costs, accessories add stat bonuses.
 - **Trap action (S33-34):** Hidden zones placed on tiles, trigger on enemy movement. POWER-scaled damage, 3-round cooldown. Fully rendered in CLI feed/overlay.
 - **Tactical items (S36):** Activated equipment abilities (Battle Cry, Fortify, Teleport, Overdrive) bridging equipment into the ability system.
 - **Terrain (S37):** Moved from S35-36 to S37. Not conflicting with equipment — terrain is grid-layer, equipment is combat-layer. Both additive.
@@ -827,8 +828,8 @@ This is the diff. This is the game.
 
 | Sprint | Focus | Key Deliverables |
 |--------|-------|-----------------|
-| S48 | **NPC-SDK extraction** | Extract shared infrastructure from Wars into `npc-sdk` package. CLI skeleton, renderer framework, bot scanner, sandbox, replay format, XP system, equipment validation, generate command. |
-| S49 | **NPC Racing** | Second game built on npc-sdk. F1-inspired: tire compounds, weather, pit strategy, DRS. Copy Wars experience layer, replace domain content. Validate SDK works for a second game. |
+| S48 | **Agent Grounds SDK extraction** | Extract shared infrastructure from Wars into `agent-grounds-sdk` package. CLI skeleton, renderer framework, bot scanner, sandbox, replay format, XP system, equipment validation, generate command. |
+| S49 | **Code Circuit** | Second game built on agent-grounds-sdk. F1-inspired: tire compounds, weather, pit strategy, DRS. Copy Wars experience layer, replace domain content. Validate SDK works for a second game. |
 | S50 | **Matchmaking brackets** | Rookie/Veteran/Elite/Champion/Open skill tiers. Bracket enforcement. Skill-based matchmaking. Seasonal resets. |
 | S51 | **Advanced analytics** | Per-match heatmaps (where you fought, where you died). Coaching tips based on weakness patterns. "You die to tanks 60% — try shifting POWER → SPEED." Replay analysis tools. |
 | S52 | **Mobile viewer** | Responsive canvas or lightweight native wrapper. Push notifications for match results. Watch tournaments on mobile. |

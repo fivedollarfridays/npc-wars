@@ -1,20 +1,18 @@
-"""Tests that viewer/match.html contains bump event rendering code.
+"""Tests that viewer contains bump event rendering code.
 
-These are structural tests that parse the HTML file and verify the expected
+These are structural tests that parse the viewer files and verify the expected
 CSS animations, JS event handlers, and kill feed entries are present.
 """
 
-from pathlib import Path
-
 import pytest
 
-VIEWER_PATH = Path(__file__).parent.parent / "viewer" / "match.html"
+from conftest import read_viewer_content
 
 
 @pytest.fixture()
 def viewer_html() -> str:
-    """Read the viewer HTML file."""
-    return VIEWER_PATH.read_text(encoding="utf-8")
+    """Read all viewer files (index.html + js/*.js)."""
+    return read_viewer_content()
 
 
 class TestBumpCSSAnimations:

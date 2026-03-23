@@ -8,7 +8,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from engine.terrain import MAP_NAMES, TerrainMap, build_map
+from engine.terrain import MAP_NAMES, build_map
 
 TILE_TYPES = {"open", "wall", "water", "high_ground", "cover", "crystal"}
 VIEWER_TERRAIN_COLORS = {"wall", "water", "high_ground", "cover", "crystal"}

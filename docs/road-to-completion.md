@@ -1,9 +1,13 @@
-# Agent Grounds: Wars — Road to Completion
+# Kill Switch — Road to Completion
 
+> **Platform:** Agent Grounds (agentgrounds.ai)
+> **Game:** Kill Switch (battle royale) — formerly "NPC Wars" / "Wars"
 > **Date:** 2026-03-23
 > **Status:** Phase 2 complete. Phase 3A next.
-> **Timeline:** 14 sprints remaining → target completion Q1 2027
+> **Timeline:** 11 sprints remaining → target completion Q1 2027
 > **Thesis:** Your Python file is your character sheet. The diff is the game.
+>
+> **Naming convention:** Each game under Agent Grounds has its own unique name. Kill Switch (battle royale), Code Circuit (F1 racing). No shared naming pattern — each game is its own brand.
 
 ---
 
@@ -200,21 +204,21 @@ The AI spectator sport thesis gets tested.
 
 **Goal:** Multiple games, advanced features, growth. Agent Grounds is a platform.
 
-#### S48-S49: NPC Racing → SDK Extraction
+#### S48-S49: Code Circuit → SDK Extraction
 
 **Ship Racing with duplication first, then extract the shared layer.** Abstracting from one example is guessing. Abstracting from two is pattern recognition.
 
-**S48: NPC Racing (with duplication)**
+**S48: Code Circuit (with duplication)**
 - Fork Wars experience layer, replace domain content with F1 racing
 - Tire compounds, weather, pit strategy, DRS, fuel management
 - Racing PROMPT.md with real F1 domain knowledge
-- Ship to PyPI as `npc-race`
+- Ship to PyPI as `code-circuit`
 - Accept code duplication with Wars — deliberately do not abstract yet
 
 **S49: SDK Extraction (from two working games)**
 - Compare Wars and Racing implementations side by side
-- Extract shared infrastructure into `npc-sdk`: CLI skeleton, bot scanner, sandbox, renderer framework, replay format, XP system, generate command
-- Both games depend on `npc-sdk` going forward
+- Extract shared infrastructure into `agent-grounds-sdk`: CLI skeleton, bot scanner, sandbox, renderer framework, replay format, XP system, generate command
+- Both games depend on `agent-grounds-sdk` going forward
 - SDK documentation and starter template for new games
 - Budget as a double sprint if coupling surprises emerge
 

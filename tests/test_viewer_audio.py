@@ -1,13 +1,11 @@
-"""Structural tests for Web Audio integration in viewer/match.html."""
+"""Structural tests for Web Audio integration in viewer."""
 
-from pathlib import Path
-
-VIEWER_PATH = Path(__file__).parent.parent / "viewer" / "match.html"
+from conftest import read_viewer_content
 
 
 def _read_viewer() -> str:
-    """Read the viewer HTML file contents."""
-    return VIEWER_PATH.read_text()
+    """Read all viewer files (index.html + js/*.js)."""
+    return read_viewer_content()
 
 
 def test_audio_engine_class_defined():

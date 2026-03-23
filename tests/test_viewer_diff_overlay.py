@@ -1,16 +1,14 @@
-"""Tests for the diff overlay HTML component in viewer/match.html."""
-
-import pathlib
+"""Tests for the diff overlay HTML component in viewer."""
 
 import pytest
 
-VIEWER_HTML = pathlib.Path(__file__).parent.parent / "viewer" / "match.html"
+from conftest import read_viewer_content
 
 
 @pytest.fixture(scope="module")
 def html_content() -> str:
-    """Load viewer/match.html content once for all tests."""
-    return VIEWER_HTML.read_text()
+    """Load all viewer files (index.html + js/*.js) once for all tests."""
+    return read_viewer_content()
 
 
 class TestDiffOverlayCSS:
