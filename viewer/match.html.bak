@@ -145,6 +145,33 @@
     text-overflow: ellipsis;
   }
 
+  .archetype-badge {
+    display: inline-block;
+    font-size: 8px;
+    padding: 1px 4px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 4px;
+    vertical-align: middle;
+    opacity: 0.9;
+  }
+
+  .bot-equip {
+    font-size: 9px;
+    color: var(--muted);
+    opacity: 0.7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bot-score {
+    font-size: 9px;
+    color: var(--accent2);
+    white-space: nowrap;
+  }
+
   .hp-bar-wrap {
     height: 4px;
     background: rgba(255,255,255,0.05);
@@ -533,9 +560,69 @@
     margin-top: 6px;
   }
 
+  .zoom-controls {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+
+  .zoom-controls button {
+    padding: 4px 8px;
+    font-size: 12px;
+    background: var(--border);
+    border: none;
+    color: var(--text);
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .zoom-controls button:hover { background: var(--accent); }
+
+  .zoom-display {
+    font-size: 10px;
+    color: var(--muted);
+    min-width: 30px;
+    text-align: center;
+  }
+
   @media (min-width: 1024px) {
     .arena-wrap {
       min-width: 70%;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .main {
+      flex-direction: column;
+    }
+    .sidebar {
+      min-width: 100%;
+      max-width: 100%;
+      flex-direction: row;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .sidebar .panel {
+      flex: 1;
+      min-width: 140px;
+    }
+    #bot-list {
+      max-height: 150px;
+    }
+    .kill-feed {
+      max-height: 100px;
+    }
+    .controls {
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .header h1 {
+      font-size: 20px;
+    }
+    canvas {
+      width: 100% !important;
+      height: auto !important;
     }
   }
 
@@ -797,6 +884,11 @@
     <div class="live-controls">
       <button id="live-play-btn" onclick="startLiveMode()">Live Play</button>
     </div>
+    <div class="zoom-controls">
+      <button id="zoom-out" onclick="zoomOut()" title="Zoom out">-</button>
+      <span class="zoom-display" id="zoom-display">1x</span>
+      <button id="zoom-in" onclick="zoomIn()" title="Zoom in">+</button>
+    </div>
     <button id="copy-link-btn" onclick="copyPermalink()" title="Copy permalink">Share</button>
   </div>
 
@@ -910,6 +1002,199 @@ let interpAnimFrame = null;
 const TILE_SIZE = 48;
 const EMOJI_SIZE = 32;
 
+// Zoom state
+let zoomLevel = 1.0;
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 3.0;
+const ZOOM_STEP = 0.25;
+
+function zoomIn() {
+  zoomLevel = Math.min(MAX_ZOOM, zoomLevel + ZOOM_STEP);
+  applyZoom();
+}
+
+function zoomOut() {
+  zoomLevel = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoomLevel - ZOOM_STEP));
+  applyZoom();
+}
+
+function applyZoom() {
+  if (!canvas) return;
+  canvas.style.transform = 'scale(' + zoomLevel + ')';
+  canvas.style.transformOrigin = 'top left';
+  const display = document.getElementById('zoom-display');
+  if (display) display.textContent = zoomLevel.toFixed(1) + 'x';
+}
+
+// Archetype colors (Geometry Wars aesthetic)
+const ARCHETYPE_COLORS = {
+  Bruiser: '#ff4444',
+  Tank: '#4488ff',
+  Assassin: '#aa44ff',
+  Controller: '#44ff88',
+  Balanced: '#e0e0f0',
+};
+
+// Archetype -> shape mapping
+const ARCHETYPE_SHAPES = {
+  Balanced: 'circle',
+  Tank: 'square',
+  Assassin: 'triangle',
+  Bruiser: 'hexagon',
+  Controller: 'diamond',
+};
+
+// Build archetype lookup from matchData.stats after match loads
+let botArchetypes = {};
+
+function buildArchetypeLookup() {
+  botArchetypes = {};
+  if (matchData && matchData.stats) {
+    for (const [emoji, stats] of Object.entries(matchData.stats)) {
+      botArchetypes[emoji] = stats.archetype || 'Balanced';
+    }
+  }
+}
+
+// --- Shape drawing helpers ---
+
+function drawCircle(ctx, cx, cy, r) {
+  ctx.beginPath();
+  ctx.arc(cx, cy, r, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.stroke();
+}
+
+function drawSquare(ctx, cx, cy, r) {
+  const s = r * 1.4;
+  ctx.beginPath();
+  ctx.roundRect(cx - s / 2, cy - s / 2, s, s, 3);
+  ctx.fill();
+  ctx.stroke();
+}
+
+function drawTriangle(ctx, cx, cy, r) {
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - r);
+  ctx.lineTo(cx - r * 0.866, cy + r * 0.5);
+  ctx.lineTo(cx + r * 0.866, cy + r * 0.5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+}
+
+function drawHexagon(ctx, cx, cy, r) {
+  ctx.beginPath();
+  for (let i = 0; i < 6; i++) {
+    const angle = (Math.PI / 3) * i - Math.PI / 6;
+    const hx = cx + r * Math.cos(angle);
+    const hy = cy + r * Math.sin(angle);
+    if (i === 0) ctx.moveTo(hx, hy);
+    else ctx.lineTo(hx, hy);
+  }
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+}
+
+function drawDiamond(ctx, cx, cy, r) {
+  ctx.beginPath();
+  ctx.moveTo(cx, cy - r);
+  ctx.lineTo(cx + r, cy);
+  ctx.lineTo(cx, cy + r);
+  ctx.lineTo(cx - r, cy);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+}
+
+function drawBotShape(ctx, x, y, archetype, hpPct, radius) {
+  const color = ARCHETYPE_COLORS[archetype] || ARCHETYPE_COLORS.Balanced;
+
+  // HP-based opacity
+  let alpha = 1.0;
+  if (hpPct <= 0.25) alpha = 0.3;
+  else if (hpPct <= 0.5) alpha = 0.5;
+  else if (hpPct <= 0.75) alpha = 0.7;
+
+  ctx.globalAlpha = alpha;
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2;
+
+  switch (archetype) {
+    case 'Tank': drawSquare(ctx, x, y, radius); break;
+    case 'Assassin': drawTriangle(ctx, x, y, radius); break;
+    case 'Bruiser': drawHexagon(ctx, x, y, radius); break;
+    case 'Controller': drawDiamond(ctx, x, y, radius); break;
+    default: drawCircle(ctx, x, y, radius); break;
+  }
+
+  ctx.globalAlpha = 1.0;
+}
+
+function drawDeadBot(ctx, x, y, archetype, radius) {
+  const color = ARCHETYPE_COLORS[archetype] || ARCHETYPE_COLORS.Balanced;
+  ctx.globalAlpha = 0.15;
+  ctx.fillStyle = color;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 1;
+
+  switch (archetype) {
+    case 'Tank': drawSquare(ctx, x, y, radius); break;
+    case 'Assassin': drawTriangle(ctx, x, y, radius); break;
+    case 'Bruiser': drawHexagon(ctx, x, y, radius); break;
+    case 'Controller': drawDiamond(ctx, x, y, radius); break;
+    default: drawCircle(ctx, x, y, radius); break;
+  }
+
+  // Draw X through the shape
+  ctx.globalAlpha = 0.3;
+  ctx.strokeStyle = '#ff3e3e';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(x - radius * 0.6, y - radius * 0.6);
+  ctx.lineTo(x + radius * 0.6, y + radius * 0.6);
+  ctx.moveTo(x + radius * 0.6, y - radius * 0.6);
+  ctx.lineTo(x - radius * 0.6, y + radius * 0.6);
+  ctx.stroke();
+
+  ctx.globalAlpha = 1.0;
+}
+
+function drawMomentumAura(ctx, x, y, radius, momentumTier, isLeader) {
+  if (momentumTier < 3) return;
+  const glowSize = isLeader ? 18 : 12;
+  const glowAlpha = isLeader ? 0.6 : 0.35;
+  ctx.save();
+  ctx.shadowBlur = glowSize;
+  ctx.shadowColor = isLeader
+    ? 'rgba(255, 200, 50, ' + glowAlpha + ')'
+    : 'rgba(255, 255, 255, ' + glowAlpha + ')';
+  ctx.beginPath();
+  ctx.arc(x, y, radius + 2, 0, Math.PI * 2);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.01)';
+  ctx.fill();
+  ctx.restore();
+}
+
+// Terrain tile colors (muted, so bots/effects stand out)
+const TERRAIN_COLORS = {
+  open: null,           // transparent — use default background
+  wall: '#2a2a3a',
+  water: '#0a1a3a',
+  high_ground: '#2a2a1a',
+  cover: '#1a2a1a',
+  crystal: '#2a1a2a',
+};
+const TERRAIN_BORDER = {
+  wall: '#3a3a4a',
+  water: '#1a2a4a',
+  high_ground: '#3a3a2a',
+  cover: '#2a3a2a',
+  crystal: '#3a2a3a',
+};
+
 function sanitize(str) {
   const div = document.createElement('div');
   div.textContent = str;
@@ -968,8 +1253,9 @@ function initViewer() {
   canvas.width = gridSize * TILE_SIZE;
   canvas.height = gridSize * TILE_SIZE;
 
+  const mapName = matchData.map || 'arena';
   document.getElementById('match-info').textContent =
-    `Match #${matchData.match_id} — ${matchData.players.length} bots — ${matchData.duration_rounds} rounds`;
+    `Match #${matchData.match_id} — ${matchData.players.length} bots — ${mapName} — ${matchData.duration_rounds} rounds`;
 
   const scrubber = document.getElementById('scrubber');
   scrubber.max = matchData.rounds.length - 1;
@@ -994,8 +1280,16 @@ function initViewer() {
     document.getElementById('volume-slider').value = vol;
   }
 
-  // Build bot list
+  // Build bot list and archetype lookup
   buildBotList();
+  buildArchetypeLookup();
+
+  // Mousewheel zoom
+  canvas.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    if (e.deltaY < 0) zoomIn();
+    else zoomOut();
+  }, { passive: false });
 
   // Render first frame
   currentRound = 0;
@@ -1012,14 +1306,33 @@ function buildBotList() {
     row.className = 'bot-row';
     row.id = `bot-${idx}`;
     row.dataset.emoji = p.emoji;
+
+    // Archetype info from stats
+    const stats = (matchData.stats && matchData.stats[p.emoji]) || {};
+    const archetype = stats.archetype || 'Balanced';
+    const archetypeColor = ARCHETYPE_COLORS[archetype] || ARCHETYPE_COLORS.Balanced;
+
+    // Equipment from stats
+    const equip = stats.equipment || {};
+    const weapon = equip.weapon || '';
+    const armor = equip.armor || '';
+    const equipText = [weapon, armor].filter(Boolean).join(' / ') || '';
+
+    // Momentum tier name
+    const momentumName = stats.momentum_name || '';
+
     row.innerHTML = `
       <div class="bot-emoji">${sanitize(p.emoji)}</div>
       <div class="bot-info">
-        <div class="bot-name">${sanitize(p.name)}</div>
+        <div class="bot-name" style="color:${archetypeColor}">${sanitize(p.name)}<span class="archetype-badge" style="background:${archetypeColor};color:#000">${sanitize(archetype)}</span></div>
+        ${equipText ? '<div class="bot-equip">' + sanitize(equipText) + '</div>' : ''}
         <div class="hp-bar-wrap"><div class="hp-bar" id="hp-${idx}" style="width:100%;background:var(--heal);"></div></div>
         <div class="energy-bar-wrap"><div class="energy-bar" id="en-${idx}" style="width:100%;"></div></div>
       </div>
-      <div class="bot-hp-text" id="hptxt-${idx}">100</div>
+      <div>
+        <div class="bot-hp-text" id="hptxt-${idx}">100</div>
+        <div class="bot-score" id="score-${idx}">0 pts</div>
+      </div>
     `;
     container.appendChild(row);
   });
@@ -1075,6 +1388,53 @@ function renderCanvas(round) {
     );
   }
 
+  // Render terrain tiles (before grid lines and bots so they draw on top)
+  if (matchData.terrain_tiles) {
+    const tiles = matchData.terrain_tiles;
+    for (let y = 0; y < tiles.length; y++) {
+      for (let x = 0; x < (tiles[y] || []).length; x++) {
+        const tile = tiles[y][x];
+        const color = TERRAIN_COLORS[tile];
+        if (color) {
+          ctx.fillStyle = color;
+          ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+          const border = TERRAIN_BORDER[tile];
+          if (border) {
+            ctx.strokeStyle = border;
+            ctx.lineWidth = 1;
+            ctx.strokeRect(x * TILE_SIZE + 0.5, y * TILE_SIZE + 0.5, TILE_SIZE - 1, TILE_SIZE - 1);
+          }
+        }
+        // Terrain indicators
+        if (tile === 'wall') {
+          ctx.fillStyle = '#3a3a4a';
+          ctx.font = `${TILE_SIZE * 0.5}px monospace`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('#', x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
+        } else if (tile === 'crystal') {
+          ctx.fillStyle = '#aa44aa';
+          ctx.font = `${TILE_SIZE * 0.3}px monospace`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('\u2726', x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
+        } else if (tile === 'high_ground') {
+          ctx.fillStyle = '#4a4a2a';
+          ctx.font = `${TILE_SIZE * 0.3}px monospace`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('\u25B2', x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
+        } else if (tile === 'cover') {
+          ctx.fillStyle = '#2a4a2a';
+          ctx.font = `${TILE_SIZE * 0.3}px monospace`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText('\u2591', x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
+        }
+      }
+    }
+  }
+
   // Draw grid lines
   ctx.strokeStyle = 'rgba(255,255,255,0.03)';
   ctx.lineWidth = 1;
@@ -1090,31 +1450,55 @@ function renderCanvas(round) {
   }
 
   // Draw bots
-  ctx.font = `${EMOJI_SIZE}px serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
+  const BASE_RADIUS = 14;
 
   round.positions.forEach(pos => {
     const px = pos.x * TILE_SIZE + TILE_SIZE / 2;
     const py = pos.y * TILE_SIZE + TILE_SIZE / 2;
+    const archetype = botArchetypes[pos.emoji] || null;
+    const hasArchetype = archetype !== null;
+    const radius = BASE_RADIUS;
 
     if (!pos.alive) {
-      // Dead: show skull with reduced opacity
-      ctx.globalAlpha = 0.2;
-      ctx.fillText('💀', px, py - 2);
-      ctx.globalAlpha = 1;
+      if (hasArchetype) {
+        drawDeadBot(ctx, px, py, archetype, radius);
+      } else {
+        // Fallback: skull emoji for old matches without archetype data
+        ctx.font = `${EMOJI_SIZE}px serif`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.globalAlpha = 0.2;
+        ctx.fillText('\u{1F480}', px, py - 2);
+        ctx.globalAlpha = 1;
+      }
       return;
     }
 
-    // Draw emoji
-    ctx.fillText(pos.emoji, px, py - 4);
+    // Momentum aura glow (tier 3+)
+    const mTier = pos.momentum_tier || 0;
+    const isLeader = pos.is_leader || false;
+    drawMomentumAura(ctx, px, py, radius, mTier, isLeader);
 
-    // HP bar under emoji
+    if (hasArchetype) {
+      // Draw geometric shape
+      const maxHp = pos.max_hp || 100;
+      const hpPct = Math.max(0, pos.hp / maxHp);
+      drawBotShape(ctx, px, py, archetype, hpPct, radius);
+    } else {
+      // Fallback: emoji for old matches without archetype data
+      ctx.font = `${EMOJI_SIZE}px serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(pos.emoji, px, py - 4);
+    }
+
+    // HP bar under bot
     const barWidth = TILE_SIZE - 8;
     const barHeight = 3;
     const barX = pos.x * TILE_SIZE + 4;
     const barY = pos.y * TILE_SIZE + TILE_SIZE - 8;
-    const hpPct = Math.max(0, pos.hp / 100);
+    const maxHpBar = pos.max_hp || 100;
+    const hpPct = Math.max(0, pos.hp / maxHpBar);
 
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.fillRect(barX, barY, barWidth, barHeight);
@@ -1123,10 +1507,17 @@ function renderCanvas(round) {
     ctx.fillStyle = hpColor;
     ctx.fillRect(barX, barY, barWidth * hpPct, barHeight);
 
+    // Energy bar (thin, below HP)
+    const enBarY = barY + barHeight + 1;
+    const enPct = Math.max(0, (pos.energy || 0) / 100);
+    ctx.fillStyle = 'rgba(0,0,0,0.3)';
+    ctx.fillRect(barX, enBarY, barWidth, 2);
+    ctx.fillStyle = 'rgba(0, 229, 255, 0.5)';
+    ctx.fillRect(barX, enBarY, barWidth * enPct, 2);
+
     // Action indicator
     const action = pos.action;
     if (action.startsWith('attack')) {
-      // Red flash around tile
       ctx.strokeStyle = 'rgba(255, 62, 62, 0.5)';
       ctx.lineWidth = 2;
       ctx.strokeRect(pos.x * TILE_SIZE + 2, pos.y * TILE_SIZE + 2, TILE_SIZE - 4, TILE_SIZE - 4);
@@ -1203,6 +1594,160 @@ function renderCanvas(round) {
         shatterEffect(px, py, '#ff3e3e');
         deathExplosion(px, py);
       }
+    } else if (evt.type === 'trap_placed') {
+      // Small red diamond marker at tile position
+      const tx = evt.x * TILE_SIZE + TILE_SIZE / 2;
+      const ty = evt.y * TILE_SIZE + TILE_SIZE / 2;
+      ctx.globalAlpha = 0.4;
+      ctx.fillStyle = '#ff4444';
+      ctx.beginPath();
+      ctx.moveTo(tx, ty - 6);
+      ctx.lineTo(tx + 6, ty);
+      ctx.lineTo(tx, ty + 6);
+      ctx.lineTo(tx - 6, ty);
+      ctx.closePath();
+      ctx.fill();
+      ctx.globalAlpha = 1.0;
+    } else if (evt.type === 'trap_trigger') {
+      // Red-orange explosion circle with damage number
+      const tx = evt.x * TILE_SIZE + TILE_SIZE / 2;
+      const ty = evt.y * TILE_SIZE + TILE_SIZE / 2;
+      ctx.fillStyle = '#ff6600';
+      ctx.globalAlpha = 0.6;
+      ctx.beginPath();
+      ctx.arc(tx, ty, TILE_SIZE * 0.6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1.0;
+      ctx.fillStyle = '#ff4444';
+      ctx.font = 'bold 12px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('-' + Math.round(evt.damage || 0), tx, ty - TILE_SIZE * 0.4);
+    } else if (evt.type === 'tactical_activate') {
+      // Yellow lightning bolt flash on bot tile
+      const bot = round.positions.find(p => p.emoji === evt.emoji);
+      if (bot) {
+        const bx = bot.x * TILE_SIZE + TILE_SIZE / 2;
+        const by = bot.y * TILE_SIZE + TILE_SIZE / 2;
+        ctx.fillStyle = '#ffdd00';
+        ctx.globalAlpha = 0.7;
+        ctx.font = (TILE_SIZE * 0.5) + 'px monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('\u26A1', bx, by - TILE_SIZE * 0.3);
+        ctx.globalAlpha = 1.0;
+      }
+    } else if (evt.type === 'ability_damage') {
+      // Purple line from caster toward target
+      const caster = round.positions.find(p => p.emoji === evt.emoji);
+      const target = round.positions.find(p => p.emoji === evt.target);
+      if (caster && target) {
+        const cx = caster.x * TILE_SIZE + TILE_SIZE / 2;
+        const cy = caster.y * TILE_SIZE + TILE_SIZE / 2;
+        const tx = target.x * TILE_SIZE + TILE_SIZE / 2;
+        const ty = target.y * TILE_SIZE + TILE_SIZE / 2;
+        ctx.strokeStyle = '#aa44ff';
+        ctx.lineWidth = 2;
+        ctx.globalAlpha = 0.6;
+        ctx.shadowColor = '#aa44ff';
+        ctx.shadowBlur = 6;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.lineTo(tx, ty);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1.0;
+        // Damage number on target
+        ctx.fillStyle = '#aa44ff';
+        ctx.font = 'bold 12px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('-' + Math.round(evt.damage || 0), tx, ty - TILE_SIZE * 0.4);
+      }
+    } else if (evt.type === 'ability_heal') {
+      // Green expanding rings on bot
+      const bot = round.positions.find(p => p.emoji === evt.emoji);
+      if (bot) {
+        const bx = bot.x * TILE_SIZE + TILE_SIZE / 2;
+        const by = bot.y * TILE_SIZE + TILE_SIZE / 2;
+        ctx.strokeStyle = '#00ff88';
+        ctx.lineWidth = 1.5;
+        ctx.globalAlpha = 0.5;
+        ctx.beginPath();
+        ctx.arc(bx, by, TILE_SIZE * 0.3, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.globalAlpha = 0.3;
+        ctx.beginPath();
+        ctx.arc(bx, by, TILE_SIZE * 0.5, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.globalAlpha = 1.0;
+      }
+    } else if (evt.type === 'ability_shield') {
+      // Blue circle outline around bot
+      const bot = round.positions.find(p => p.emoji === evt.emoji);
+      if (bot) {
+        const bx = bot.x * TILE_SIZE + TILE_SIZE / 2;
+        const by = bot.y * TILE_SIZE + TILE_SIZE / 2;
+        ctx.strokeStyle = '#4488ff';
+        ctx.lineWidth = 3;
+        ctx.globalAlpha = 0.6;
+        ctx.beginPath();
+        ctx.arc(bx, by, TILE_SIZE * 0.45, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.globalAlpha = 1.0;
+      }
+    } else if (evt.type === 'ability_slow') {
+      // Purple dots trailing from target
+      const target = round.positions.find(p => p.emoji === evt.target);
+      if (target) {
+        const tx = target.x * TILE_SIZE + TILE_SIZE / 2;
+        const ty = target.y * TILE_SIZE + TILE_SIZE / 2;
+        ctx.fillStyle = '#8844cc';
+        ctx.globalAlpha = 0.5;
+        for (let i = 0; i < 4; i++) {
+          const ox = (Math.random() - 0.5) * TILE_SIZE * 0.6;
+          const oy = (Math.random() - 0.5) * TILE_SIZE * 0.6;
+          ctx.beginPath();
+          ctx.arc(tx + ox, ty + oy, 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.globalAlpha = 1.0;
+      }
+    } else if (evt.type === 'evolve') {
+      // Golden starburst expanding from bot
+      const bot = round.positions.find(p => p.emoji === evt.emoji);
+      if (bot) {
+        const bx = bot.x * TILE_SIZE + TILE_SIZE / 2;
+        const by = bot.y * TILE_SIZE + TILE_SIZE / 2;
+        ctx.strokeStyle = '#ffcc00';
+        ctx.lineWidth = 2;
+        ctx.globalAlpha = 0.7;
+        const spikes = 8;
+        for (let i = 0; i < spikes; i++) {
+          const angle = (i / spikes) * Math.PI * 2;
+          ctx.beginPath();
+          ctx.moveTo(bx, by);
+          ctx.lineTo(bx + Math.cos(angle) * TILE_SIZE * 0.5, by + Math.sin(angle) * TILE_SIZE * 0.5);
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1.0;
+      }
+    } else if (evt.type === 'crystal_pickup') {
+      // Magenta sparkle particles at position
+      const tx = evt.x * TILE_SIZE + TILE_SIZE / 2;
+      const ty = evt.y * TILE_SIZE + TILE_SIZE / 2;
+      ctx.fillStyle = '#ff44ff';
+      ctx.globalAlpha = 0.6;
+      for (let i = 0; i < 5; i++) {
+        const ox = (Math.random() - 0.5) * TILE_SIZE * 0.7;
+        const oy = (Math.random() - 0.5) * TILE_SIZE * 0.7;
+        ctx.beginPath();
+        ctx.arc(tx + ox, ty + oy, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1.0;
+    } else if (evt.type === 'wall_blocked') {
+      // Red flash on wall tile
+      ctx.fillStyle = 'rgba(255, 60, 60, 0.4)';
+      ctx.fillRect(evt.x * TILE_SIZE, evt.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
     }
   });
 }
@@ -1250,7 +1795,24 @@ function renderRound(idx) {
   });
 }
 
+// Momentum tier names matching engine/momentum.py
+const MOMENTUM_TIER_NAMES = ['', 'Building', 'Rolling', 'Surging', 'Unstoppable', 'Dominant'];
+
 function updateSidebar(round) {
+  // Sort bot rows: alive first (by score desc), dead at bottom (by elimination round)
+  const container = document.getElementById('bot-list');
+  const sortedPositions = [...round.positions].sort((a, b) => {
+    if (a.alive && !b.alive) return -1;
+    if (!a.alive && b.alive) return 1;
+    return (b.score || 0) - (a.score || 0);
+  });
+  sortedPositions.forEach(pos => {
+    const idx = emojiIndex[pos.emoji];
+    if (idx === undefined) return;
+    const row = document.getElementById(`bot-${idx}`);
+    if (row) container.appendChild(row);
+  });
+
   round.positions.forEach(pos => {
     const idx = emojiIndex[pos.emoji];
     if (idx === undefined) return;
@@ -1266,6 +1828,7 @@ function updateSidebar(round) {
     const hpBar = document.getElementById(`hp-${idx}`);
     const enBar = document.getElementById(`en-${idx}`);
     const hpTxt = document.getElementById(`hptxt-${idx}`);
+    const scoreTxt = document.getElementById(`score-${idx}`);
 
     if (hpBar) {
       const pct = Math.max(0, pos.hp / 100) * 100;
@@ -1276,7 +1839,11 @@ function updateSidebar(round) {
       enBar.style.width = Math.max(0, pos.energy / 100) * 100 + '%';
     }
     if (hpTxt) {
-      hpTxt.textContent = Math.max(0, pos.hp);
+      hpTxt.textContent = Math.max(0, Math.round(pos.hp));
+    }
+    if (scoreTxt) {
+      const tierName = MOMENTUM_TIER_NAMES[pos.momentum_tier || 0] || '';
+      scoreTxt.textContent = Math.round(pos.score || 0) + ' pts' + (tierName ? ' ' + tierName : '');
     }
   });
 }
@@ -1338,6 +1905,110 @@ function updateKillFeed(round) {
       span.textContent = 'R' + rn;
       entry.appendChild(span);
       entry.appendChild(document.createTextNode(' ' + evt.target + ' bounced into storm! (-' + evt.damage + ' HP)'));
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    } else if (evt.type === 'trap_trigger') {
+      const key = `trap-${rn}-${evt.victim}`;
+      if (shownKills.has(key)) return;
+      shownKills.add(key);
+      const entry = document.createElement('div');
+      entry.className = 'kill-entry';
+      const span = document.createElement('span');
+      span.className = 'round-num';
+      span.textContent = 'R' + rn;
+      entry.appendChild(span);
+      entry.appendChild(document.createTextNode(' ' + evt.victim + ' hit trap by ' + evt.owner + ' (-' + Math.round(evt.damage) + ' HP)'));
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    } else if (evt.type === 'tactical_activate') {
+      const key = `tact-${rn}-${evt.emoji}`;
+      if (shownKills.has(key)) return;
+      shownKills.add(key);
+      const entry = document.createElement('div');
+      entry.className = 'kill-entry';
+      const span = document.createElement('span');
+      span.className = 'round-num';
+      span.textContent = 'R' + rn;
+      entry.appendChild(span);
+      entry.appendChild(document.createTextNode(' ' + evt.emoji + ' used ' + (evt.tactical || 'tactical')));
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    } else if (evt.type === 'ability_damage') {
+      const key = `abdmg-${rn}-${evt.emoji}-${evt.target}`;
+      if (shownKills.has(key)) return;
+      shownKills.add(key);
+      const entry = document.createElement('div');
+      entry.className = 'kill-entry';
+      const span = document.createElement('span');
+      span.className = 'round-num';
+      span.textContent = 'R' + rn;
+      entry.appendChild(span);
+      entry.appendChild(document.createTextNode(' ' + evt.emoji + ' ' + (evt.ability || 'ability') + ' \u2192 ' + evt.target + ' (-' + Math.round(evt.damage) + ')'));
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    } else if (evt.type === 'ability_heal') {
+      const key = `abheal-${rn}-${evt.emoji}`;
+      if (shownKills.has(key)) return;
+      shownKills.add(key);
+      const entry = document.createElement('div');
+      entry.className = 'kill-entry';
+      const span = document.createElement('span');
+      span.className = 'round-num';
+      span.textContent = 'R' + rn;
+      entry.appendChild(span);
+      entry.appendChild(document.createTextNode(' ' + evt.emoji + ' healed (+' + Math.round(evt.healed || 0) + ')'));
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    } else if (evt.type === 'ability_shield') {
+      const key = `abshld-${rn}-${evt.emoji}`;
+      if (shownKills.has(key)) return;
+      shownKills.add(key);
+      const entry = document.createElement('div');
+      entry.className = 'kill-entry';
+      const span = document.createElement('span');
+      span.className = 'round-num';
+      span.textContent = 'R' + rn;
+      entry.appendChild(span);
+      entry.appendChild(document.createTextNode(' ' + evt.emoji + ' shielded'));
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    } else if (evt.type === 'ability_slow') {
+      const key = `abslow-${rn}-${evt.emoji}-${evt.target}`;
+      if (shownKills.has(key)) return;
+      shownKills.add(key);
+      const entry = document.createElement('div');
+      entry.className = 'kill-entry';
+      const span = document.createElement('span');
+      span.className = 'round-num';
+      span.textContent = 'R' + rn;
+      entry.appendChild(span);
+      entry.appendChild(document.createTextNode(' ' + evt.emoji + ' slowed ' + evt.target));
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    } else if (evt.type === 'evolve') {
+      const key = `evolve-${rn}-${evt.emoji}`;
+      if (shownKills.has(key)) return;
+      shownKills.add(key);
+      const entry = document.createElement('div');
+      entry.className = 'kill-entry';
+      const span = document.createElement('span');
+      span.className = 'round-num';
+      span.textContent = 'R' + rn;
+      entry.appendChild(span);
+      entry.appendChild(document.createTextNode(' ' + evt.emoji + ' evolved!'));
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    } else if (evt.type === 'crystal_pickup') {
+      const key = `crystal-${rn}-${evt.emoji}`;
+      if (shownKills.has(key)) return;
+      shownKills.add(key);
+      const entry = document.createElement('div');
+      entry.className = 'kill-entry';
+      const span = document.createElement('span');
+      span.className = 'round-num';
+      span.textContent = 'R' + rn;
+      entry.appendChild(span);
+      entry.appendChild(document.createTextNode(' ' + evt.emoji + ' picked up crystal (+' + (evt.energy || 0) + ' energy)'));
       container.appendChild(entry);
       container.scrollTop = container.scrollHeight;
     }
@@ -2055,18 +2726,26 @@ function renderLiveRound(round, gridSize) {
   }
 
   // Draw bots
-  ctx.font = EMOJI_SIZE + 'px serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
+  const BASE_RADIUS = 14;
 
   round.positions.forEach(function(pos) {
     const px = pos.x * TILE_SIZE + TILE_SIZE / 2;
     const py = pos.y * TILE_SIZE + TILE_SIZE / 2;
+    const archetype = botArchetypes[pos.emoji] || null;
+    const hasArchetype = archetype !== null;
+    const radius = BASE_RADIUS;
 
     if (!pos.alive) {
-      ctx.globalAlpha = 0.2;
-      ctx.fillText('\u{1F480}', px, py - 2);
-      ctx.globalAlpha = 1;
+      if (hasArchetype) {
+        drawDeadBot(ctx, px, py, archetype, radius);
+      } else {
+        ctx.font = EMOJI_SIZE + 'px serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.globalAlpha = 0.2;
+        ctx.fillText('\u{1F480}', px, py - 2);
+        ctx.globalAlpha = 1;
+      }
       return;
     }
 
@@ -2077,14 +2756,29 @@ function renderLiveRound(round, gridSize) {
       ctx.strokeRect(pos.x * TILE_SIZE + 1, pos.y * TILE_SIZE + 1, TILE_SIZE - 2, TILE_SIZE - 2);
     }
 
-    ctx.fillText(pos.emoji, px, py - 4);
+    // Momentum aura glow
+    const mTier = pos.momentum_tier || 0;
+    const isLeader = pos.is_leader || false;
+    drawMomentumAura(ctx, px, py, radius, mTier, isLeader);
+
+    if (hasArchetype) {
+      const maxHp = pos.max_hp || 100;
+      const hpPct = Math.max(0, pos.hp / maxHp);
+      drawBotShape(ctx, px, py, archetype, hpPct, radius);
+    } else {
+      ctx.font = EMOJI_SIZE + 'px serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(pos.emoji, px, py - 4);
+    }
 
     // HP bar
     const barWidth = TILE_SIZE - 8;
     const barHeight = 3;
     const barX = pos.x * TILE_SIZE + 4;
     const barY = pos.y * TILE_SIZE + TILE_SIZE - 8;
-    const hpPct = Math.max(0, pos.hp / 100);
+    const maxHpBar = pos.max_hp || 100;
+    const hpPct = Math.max(0, pos.hp / maxHpBar);
     ctx.fillStyle = 'rgba(0,0,0,0.5)';
     ctx.fillRect(barX, barY, barWidth, barHeight);
     const hpColor = hpPct > 0.5 ? '#00ff88' : hpPct > 0.25 ? '#ffaa00' : '#ff3e3e';

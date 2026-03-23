@@ -1,0 +1,7846 @@
+{
+  "match_id": 1,
+  "date": "2026-03-21T16:58:16.500416+00:00",
+  "grid_size": 15,
+  "players": [
+    {
+      "emoji": "\ud83e\udd16",
+      "name": "AggroBot",
+      "bio": "all gas no brakes",
+      "author": "agentgrounds",
+      "glyph": "\u2694"
+    },
+    {
+      "emoji": "\ud83c\udfaf",
+      "name": "KiteBot",
+      "bio": "catch me if you can",
+      "author": "agentgrounds",
+      "glyph": "\u27a4"
+    },
+    {
+      "emoji": "\ud83c\udfb2",
+      "name": "ChaosBot",
+      "bio": "embrace the void",
+      "author": "agentgrounds",
+      "glyph": "\u25cb"
+    },
+    {
+      "emoji": "\ud83d\udc22",
+      "name": "TankBot",
+      "bio": "you shall not pass",
+      "author": "agentgrounds",
+      "glyph": "\u25a0"
+    },
+    {
+      "emoji": "\ud83e\udea4",
+      "name": "Trapper",
+      "bio": "The ground remembers where you walk.",
+      "author": "agentgrounds",
+      "glyph": "T"
+    },
+    {
+      "emoji": "\ud83e\udde0",
+      "name": "Cognify",
+      "bio": "rests until it doesn't",
+      "author": "kevin",
+      "glyph": "\u25c8"
+    },
+    {
+      "emoji": "\ud83e\udebf",
+      "name": "GooseLoose",
+      "bio": "the goose is loose",
+      "author": "kmasty",
+      "glyph": "\u25c6"
+    },
+    {
+      "emoji": "\ud83d\udc80",
+      "name": "Reaper",
+      "bio": "You rest, you die.",
+      "author": "agentgrounds",
+      "glyph": "\u2620"
+    },
+    {
+      "emoji": "\ud83c\udf1f",
+      "name": "Starter",
+      "bio": "A solid foundation -- tweak the TODOs to make it your own",
+      "author": "agentgrounds",
+      "glyph": "\u25c6"
+    }
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "storm_border": 0,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 10,
+          "y": 8,
+          "hp": 71.0,
+          "energy": 95,
+          "action": "move east",
+          "alive": true,
+          "score": 0,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 10,
+          "y": 10,
+          "hp": 62.0,
+          "energy": 91,
+          "action": "move west",
+          "alive": true,
+          "score": 0,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 7,
+          "hp": 145.0,
+          "energy": 95,
+          "action": "move east",
+          "alive": true,
+          "score": 0,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 90.0,
+          "energy": 96,
+          "action": "rest",
+          "alive": true,
+          "score": 0,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 116.0,
+          "energy": 96,
+          "action": "nothing",
+          "alive": true,
+          "score": 0,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 6,
+          "y": 3,
+          "hp": 66.0,
+          "energy": 111,
+          "action": "move south",
+          "alive": true,
+          "score": 0,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 4,
+          "y": 5,
+          "hp": 66.0,
+          "energy": 111,
+          "action": "move east",
+          "alive": true,
+          "score": 0,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 5,
+          "y": 8,
+          "hp": 131.0,
+          "energy": 95,
+          "action": "move east",
+          "alive": true,
+          "score": 0,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 9,
+          "y": 4,
+          "hp": 145.0,
+          "energy": 95,
+          "action": "move south",
+          "alive": true,
+          "score": 0,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [],
+      "score_events": [
+        {
+          "emoji": "\ud83e\udd16",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udd16",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "full_hp",
+          "points": 2
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 2,
+      "storm_border": 0,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 10,
+          "y": 9,
+          "hp": 71.0,
+          "energy": 90,
+          "action": "move south",
+          "alive": true,
+          "score": 3,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 10,
+          "y": 9,
+          "hp": 62.0,
+          "energy": 86,
+          "action": "move north",
+          "alive": true,
+          "score": 3,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 6,
+          "hp": 145.0,
+          "energy": 90,
+          "action": "move north",
+          "alive": true,
+          "score": 3,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 90.0,
+          "energy": 86,
+          "action": "defend",
+          "alive": true,
+          "score": 3,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 116.0,
+          "energy": 96,
+          "action": "nothing",
+          "alive": true,
+          "score": 3,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 6,
+          "y": 4,
+          "hp": 66.0,
+          "energy": 106,
+          "action": "move south",
+          "alive": true,
+          "score": 3,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 5,
+          "y": 5,
+          "hp": 66.0,
+          "energy": 106,
+          "action": "move east",
+          "alive": true,
+          "score": 3,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 6,
+          "y": 8,
+          "hp": 131.0,
+          "energy": 90,
+          "action": "move east",
+          "alive": true,
+          "score": 3,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 9,
+          "y": 5,
+          "hp": 145.0,
+          "energy": 90,
+          "action": "move south",
+          "alive": true,
+          "score": 3,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "defend",
+          "emoji": "\ud83d\udc22"
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83e\udd16",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udd16",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "full_hp",
+          "points": 2
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 3,
+      "storm_border": 0,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 9,
+          "y": 9,
+          "hp": 66.0,
+          "energy": 73,
+          "action": "move west",
+          "alive": true,
+          "score": 6,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 9,
+          "y": 9,
+          "hp": 57.0,
+          "energy": 69,
+          "action": "move west",
+          "alive": true,
+          "score": 6,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 5,
+          "hp": 145.0,
+          "energy": 85,
+          "action": "move north",
+          "alive": true,
+          "score": 6,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 85.0,
+          "energy": 84,
+          "action": "rest",
+          "alive": true,
+          "score": 6,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 116.0,
+          "energy": 86,
+          "action": "attack south",
+          "alive": true,
+          "score": 6,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 6,
+          "y": 5,
+          "hp": 66.0,
+          "energy": 101,
+          "action": "move south",
+          "alive": true,
+          "score": 6,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 6,
+          "y": 5,
+          "hp": 66.0,
+          "energy": 101,
+          "action": "move east",
+          "alive": true,
+          "score": 6,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 6,
+          "y": 8,
+          "hp": 87.95,
+          "energy": 100,
+          "action": "rest",
+          "alive": true,
+          "score": 6,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 8,
+          "y": 5,
+          "hp": 145.0,
+          "energy": 85,
+          "action": "move west",
+          "alive": true,
+          "score": 6,
+          "momentum_tier": 0,
+          "is_leader": true,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "hit",
+          "attacker": "\ud83e\udea4",
+          "target": "\ud83d\udc80",
+          "damage": 48.05,
+          "hp_before": 131.0,
+          "roll": 5,
+          "modifier": 5,
+          "ac": 8,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83e\udd16",
+          "hp_damage": 5,
+          "energy_drain": 12,
+          "passive_rounds": 3
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83c\udfaf",
+          "hp_damage": 5,
+          "energy_drain": 12,
+          "passive_rounds": 3
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83d\udc22",
+          "hp_damage": 5,
+          "energy_drain": 12,
+          "passive_rounds": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83e\udd16",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "damage_dealt",
+          "points": 1.0
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "full_hp",
+          "points": 2
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 4,
+      "storm_border": 0,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": 58.0,
+          "energy": 56,
+          "action": "move west",
+          "alive": true,
+          "score": 7,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 9,
+          "y": 8,
+          "hp": 49.0,
+          "energy": 52,
+          "action": "move north",
+          "alive": true,
+          "score": 7,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 5,
+          "hp": 145.0,
+          "energy": 100,
+          "action": "rest",
+          "alive": true,
+          "score": 9,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 82.0,
+          "energy": 84,
+          "action": "rest",
+          "alive": true,
+          "score": 7,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 116.0,
+          "energy": 76,
+          "action": "attack south",
+          "alive": true,
+          "score": 10.0,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 6,
+          "y": 6,
+          "hp": 66.0,
+          "energy": 96,
+          "action": "move south",
+          "alive": true,
+          "score": 9,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 5,
+          "y": 5,
+          "hp": 66.0,
+          "energy": 96,
+          "action": "move west",
+          "alive": true,
+          "score": 9,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 6,
+          "y": 8,
+          "hp": 46.88,
+          "energy": 88,
+          "action": "rest",
+          "alive": true,
+          "score": 7,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 8,
+          "y": 6,
+          "hp": 145.0,
+          "energy": 80,
+          "action": "move south",
+          "alive": true,
+          "score": 9,
+          "momentum_tier": 0,
+          "is_leader": true,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "hit",
+          "attacker": "\ud83e\udea4",
+          "target": "\ud83d\udc80",
+          "damage": 41.07,
+          "hp_before": 87.95,
+          "roll": 7,
+          "modifier": 5,
+          "ac": 8,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83e\udd16",
+          "hp_damage": 8,
+          "energy_drain": 12,
+          "passive_rounds": 4
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83c\udfaf",
+          "hp_damage": 8,
+          "energy_drain": 12,
+          "passive_rounds": 4
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83d\udc22",
+          "hp_damage": 8,
+          "energy_drain": 12,
+          "passive_rounds": 4
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83d\udc80",
+          "hp_damage": 5,
+          "energy_drain": 12,
+          "passive_rounds": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83e\udd16",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "damage_dealt",
+          "points": 1.0
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "full_hp",
+          "points": 2
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 5,
+      "storm_border": 0,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 9,
+          "y": 9,
+          "hp": 47.0,
+          "energy": 39,
+          "action": "move east",
+          "alive": true,
+          "score": 8,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 8,
+          "y": 8,
+          "hp": 49.0,
+          "energy": 47,
+          "action": "move west",
+          "alive": true,
+          "score": 8,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 5,
+          "hp": 145.0,
+          "energy": 90,
+          "action": "attack west",
+          "alive": true,
+          "score": 12,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 76.0,
+          "energy": 84,
+          "action": "rest",
+          "alive": true,
+          "score": 8,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 116.0,
+          "energy": 66,
+          "action": "attack north",
+          "alive": true,
+          "score": 14.0,
+          "momentum_tier": 1,
+          "is_leader": true,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 6,
+          "y": 6,
+          "hp": 66.0,
+          "energy": 86,
+          "action": "defend",
+          "alive": true,
+          "score": 12,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 5,
+          "y": 6,
+          "hp": 66.0,
+          "energy": 91,
+          "action": "move south",
+          "alive": true,
+          "score": 12,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 7,
+          "y": 8,
+          "hp": 46.88,
+          "energy": 83,
+          "action": "move east",
+          "alive": true,
+          "score": 8,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 8,
+          "y": 7,
+          "hp": 145.0,
+          "energy": 75,
+          "action": "move south",
+          "alive": true,
+          "score": 12,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "defend",
+          "emoji": "\ud83e\udde0"
+        },
+        {
+          "type": "miss",
+          "attacker": "\ud83c\udfb2",
+          "direction": "west"
+        },
+        {
+          "type": "attack_miss",
+          "attacker": "\ud83e\udea4",
+          "target": "\ud83e\udde0",
+          "roll": 8,
+          "modifier": 2,
+          "ac": 14
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83e\udd16",
+          "hp_damage": 11,
+          "energy_drain": 12,
+          "passive_rounds": 5
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83d\udc22",
+          "hp_damage": 11,
+          "energy_drain": 12,
+          "passive_rounds": 5
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83e\udd16",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "full_hp",
+          "points": 2
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 6,
+      "storm_border": 0,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": 33.0,
+          "energy": 22,
+          "action": "move west",
+          "alive": true,
+          "score": 9,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 9,
+          "y": 8,
+          "hp": 49.0,
+          "energy": 37,
+          "action": "attack west",
+          "alive": true,
+          "score": 9,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 5,
+          "hp": 145.0,
+          "energy": 80,
+          "action": "attack south",
+          "alive": true,
+          "score": 15,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 67.0,
+          "energy": 84,
+          "action": "rest",
+          "alive": true,
+          "score": 9,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 116.0,
+          "energy": 56,
+          "action": "attack north",
+          "alive": true,
+          "score": 17.0,
+          "momentum_tier": 1,
+          "is_leader": true,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 7,
+          "y": 6,
+          "hp": 66.0,
+          "energy": 76,
+          "action": "defend",
+          "alive": true,
+          "score": 15,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 6,
+          "y": 6,
+          "hp": 15.810000000000002,
+          "energy": 86,
+          "action": "move east",
+          "alive": true,
+          "score": 15,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": 29.800000000000004,
+          "energy": 78,
+          "action": "move east",
+          "alive": true,
+          "score": 9,
+          "momentum_tier": 0,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 8,
+          "y": 8,
+          "hp": 145.0,
+          "energy": 70,
+          "action": "move south",
+          "alive": true,
+          "score": 15,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "defend",
+          "emoji": "\ud83e\udde0"
+        },
+        {
+          "type": "bump",
+          "pusher": "\ud83e\udebf",
+          "target": "\ud83e\udde0",
+          "direction": "(1,0)"
+        },
+        {
+          "type": "bump",
+          "pusher": "\ud83d\udc80",
+          "target": "\ud83c\udfaf",
+          "direction": "(1,0)"
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83c\udfaf",
+          "target": "\ud83d\udc80",
+          "damage": 17.08,
+          "hp_before": 46.88,
+          "roll": 8,
+          "modifier": 4,
+          "ac": 8,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "miss",
+          "attacker": "\ud83c\udfb2",
+          "direction": "south"
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83e\udea4",
+          "target": "\ud83e\udebf",
+          "damage": 50.19,
+          "hp_before": 66.0,
+          "roll": 19,
+          "modifier": 2,
+          "ac": 8,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83e\udd16",
+          "hp_damage": 14,
+          "energy_drain": 12,
+          "passive_rounds": 6
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83d\udc22",
+          "hp_damage": 14,
+          "energy_drain": 12,
+          "passive_rounds": 6
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83e\udd16",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "damage_dealt",
+          "points": 2.0
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "full_hp",
+          "points": 2
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 7,
+      "storm_border": 0,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "attack north",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 9,
+          "y": 8,
+          "hp": 49.0,
+          "energy": 57,
+          "action": "attack west",
+          "alive": true,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 4,
+          "y": 5,
+          "hp": 145.0,
+          "energy": 75,
+          "action": "move east",
+          "alive": true,
+          "score": 18,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 55.0,
+          "energy": 84,
+          "action": "rest",
+          "alive": true,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 116.0,
+          "energy": 46,
+          "action": "attack north",
+          "alive": true,
+          "score": 22.0,
+          "momentum_tier": 1,
+          "is_leader": true,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 8,
+          "y": 6,
+          "hp": 66.0,
+          "energy": 96,
+          "action": "attack west",
+          "alive": true,
+          "score": 18,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "move east",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "attack south",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 8,
+          "y": 8,
+          "hp": 145.0,
+          "energy": 90,
+          "action": "attack south",
+          "alive": true,
+          "score": 18,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "bump",
+          "pusher": "\ud83e\udebf",
+          "target": "\ud83e\udde0",
+          "direction": "(1,0)"
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83c\udfaf",
+          "target": "\ud83d\udc80",
+          "damage": 37.2,
+          "hp_before": 29.8,
+          "roll": 20,
+          "modifier": 4,
+          "ac": 8,
+          "is_crit": true,
+          "dodged": false
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83c\udf1f",
+          "target": "\ud83e\udd16",
+          "damage": 54.07,
+          "hp_before": 33.0,
+          "roll": 7,
+          "modifier": 2,
+          "ac": 8,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "miss",
+          "attacker": "\ud83e\udea4",
+          "direction": "north"
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83e\udde0",
+          "target": "\ud83e\udebf",
+          "damage": 20.2,
+          "hp_before": 15.81,
+          "roll": 20,
+          "modifier": 2,
+          "ac": 8,
+          "is_crit": true,
+          "dodged": false
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83d\udc22",
+          "hp_damage": 17,
+          "energy_drain": 12,
+          "passive_rounds": 7
+        },
+        {
+          "type": "kill",
+          "attacker": "\ud83c\udf1f",
+          "victim": "\ud83e\udd16",
+          "round": 7
+        },
+        {
+          "type": "kill",
+          "attacker": "\ud83c\udfaf",
+          "victim": "\ud83d\udc80",
+          "round": 7
+        },
+        {
+          "type": "kill",
+          "attacker": "\ud83e\udde0",
+          "victim": "\ud83e\udebf",
+          "round": 7
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udea4",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udde0",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udf1f",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "kill",
+          "points": 10
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "damage_dealt",
+          "points": 1.0
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "clean_kill",
+          "points": 5
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "kill",
+          "points": 10
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "clean_kill",
+          "points": 5
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "kill",
+          "points": 10
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "damage_dealt",
+          "points": 2.0
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "clean_kill",
+          "points": 5
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "full_hp",
+          "points": 2
+        }
+      ],
+      "spectacle": {
+        "drama_score": 9,
+        "tier": "intense",
+        "triggers": [
+          "kill"
+        ],
+        "effects": [
+          "shatter"
+        ]
+      }
+    },
+    {
+      "round": 8,
+      "storm_border": 0,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 10,
+          "y": 8,
+          "hp": 49.0,
+          "energy": 44,
+          "action": "attack west",
+          "alive": true,
+          "score": 27.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 4,
+          "y": 5,
+          "hp": 145.0,
+          "energy": 65,
+          "action": "defend",
+          "alive": true,
+          "score": 21,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 40.0,
+          "energy": 84,
+          "action": "rest",
+          "alive": true,
+          "score": 11,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 116.0,
+          "energy": 43,
+          "action": "nothing",
+          "alive": true,
+          "score": 25.0,
+          "momentum_tier": 2,
+          "is_leader": true,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 8,
+          "y": 7,
+          "hp": 66.0,
+          "energy": 88,
+          "action": "move south",
+          "alive": true,
+          "score": 36,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 9,
+          "y": 8,
+          "hp": 120.95,
+          "energy": 82,
+          "action": "move east",
+          "alive": true,
+          "score": 38.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "defend",
+          "emoji": "\ud83c\udfb2"
+        },
+        {
+          "type": "bump",
+          "pusher": "\ud83c\udf1f",
+          "target": "\ud83c\udfaf",
+          "direction": "(1,0)"
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83c\udfaf",
+          "target": "\ud83c\udf1f",
+          "damage": 24.05,
+          "hp_before": 145.0,
+          "roll": 5,
+          "modifier": 4,
+          "ac": 8,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83d\udc22",
+          "hp_damage": 20,
+          "energy_drain": 12,
+          "passive_rounds": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udea4",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udde0",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udf1f",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 9,
+      "storm_border": 0,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 11,
+          "y": 8,
+          "hp": 49.0,
+          "energy": 31,
+          "action": "attack west",
+          "alive": true,
+          "score": 28.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 4,
+          "y": 5,
+          "hp": 145.0,
+          "energy": 90,
+          "action": "rest",
+          "alive": true,
+          "score": 24,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 40.0,
+          "energy": 74,
+          "action": "defend",
+          "alive": true,
+          "score": 12,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 116.0,
+          "energy": 40,
+          "action": "nothing",
+          "alive": true,
+          "score": 28.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 9,
+          "y": 7,
+          "hp": 66.0,
+          "energy": 80,
+          "action": "move east",
+          "alive": true,
+          "score": 39,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 10,
+          "y": 8,
+          "hp": 113.38,
+          "energy": 74,
+          "action": "move east",
+          "alive": true,
+          "score": 39.0,
+          "momentum_tier": 2,
+          "is_leader": true,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "defend",
+          "emoji": "\ud83d\udc22"
+        },
+        {
+          "type": "bump",
+          "pusher": "\ud83c\udf1f",
+          "target": "\ud83c\udfaf",
+          "direction": "(1,0)"
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83c\udfaf",
+          "target": "\ud83c\udf1f",
+          "damage": 7.57,
+          "hp_before": 120.95,
+          "roll": 14,
+          "modifier": 4,
+          "ac": 8,
+          "is_crit": false,
+          "dodged": true
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udea4",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udde0",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udf1f",
+          "energy_cost": 5
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 10,
+      "storm_border": 0,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 12,
+          "y": 8,
+          "hp": 49.0,
+          "energy": 18,
+          "action": "attack west",
+          "alive": true,
+          "score": 29.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 4,
+          "y": 5,
+          "hp": 140.0,
+          "energy": 65,
+          "action": "defend",
+          "alive": true,
+          "score": 27,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 40.0,
+          "energy": 64,
+          "action": "defend",
+          "alive": true,
+          "score": 13,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "disconnected",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 8,
+          "y": 7,
+          "hp": 66.0,
+          "energy": 72,
+          "action": "move west",
+          "alive": true,
+          "score": 42,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 11,
+          "y": 8,
+          "hp": 85.31,
+          "energy": 64,
+          "action": "move east",
+          "alive": true,
+          "score": 40.0,
+          "momentum_tier": 3,
+          "is_leader": true,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "defend",
+          "emoji": "\ud83c\udfb2"
+        },
+        {
+          "type": "defend",
+          "emoji": "\ud83d\udc22"
+        },
+        {
+          "type": "bump",
+          "pusher": "\ud83c\udf1f",
+          "target": "\ud83c\udfaf",
+          "direction": "(1,0)"
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83c\udfaf",
+          "target": "\ud83c\udf1f",
+          "damage": 28.07,
+          "hp_before": 113.38,
+          "roll": 7,
+          "modifier": 4,
+          "ac": 8,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83c\udfb2",
+          "hp_damage": 5,
+          "energy_drain": 12,
+          "passive_rounds": 3
+        },
+        {
+          "type": "kill",
+          "attacker": "unknown",
+          "victim": "\ud83e\udea4",
+          "round": 10
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udde0",
+          "energy_cost": 5
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udf1f",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "damage_dealt",
+          "points": 1.0
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 3,
+        "tier": "calm",
+        "triggers": [
+          "kill"
+        ],
+        "effects": [
+          "shatter"
+        ]
+      }
+    },
+    {
+      "round": 11,
+      "storm_border": 0,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 13,
+          "y": 8,
+          "hp": 49.0,
+          "energy": 5,
+          "action": "attack north",
+          "alive": true,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 5,
+          "hp": 132.0,
+          "energy": 45,
+          "action": "move west",
+          "alive": true,
+          "score": 28,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 40.0,
+          "energy": 54,
+          "action": "attack south",
+          "alive": true,
+          "score": 14,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 9,
+          "y": 7,
+          "hp": 66.0,
+          "energy": 62,
+          "action": "move east",
+          "alive": true,
+          "score": 45,
+          "momentum_tier": 3,
+          "is_leader": true,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": 85.31,
+          "energy": 56,
+          "action": "move east",
+          "alive": true,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "bump",
+          "pusher": "\ud83c\udf1f",
+          "target": "\ud83c\udfaf",
+          "direction": "(1,0)"
+        },
+        {
+          "type": "miss",
+          "attacker": "\ud83c\udfaf",
+          "direction": "north"
+        },
+        {
+          "type": "attack_miss",
+          "attacker": "\ud83d\udc22",
+          "target": "\ud83c\udf1f",
+          "roll": 1,
+          "modifier": 1,
+          "ac": 8
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83c\udfb2",
+          "hp_damage": 8,
+          "energy_drain": 12,
+          "passive_rounds": 4
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udde0",
+          "energy_cost": 5
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udf1f",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 12,
+      "storm_border": 0,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 13,
+          "y": 8,
+          "hp": 54.0,
+          "energy": 27,
+          "action": "rest",
+          "alive": true,
+          "score": 32.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 5,
+          "hp": 132.0,
+          "energy": 32,
+          "action": "attack west",
+          "alive": true,
+          "score": 29,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 40.0,
+          "energy": 44,
+          "action": "attack south",
+          "alive": true,
+          "score": 15,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 10,
+          "y": 7,
+          "hp": 66.0,
+          "energy": 52,
+          "action": "move east",
+          "alive": true,
+          "score": 48,
+          "momentum_tier": 3,
+          "is_leader": true,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": 85.31,
+          "energy": 43,
+          "action": "defend",
+          "alive": true,
+          "score": 42.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "defend",
+          "emoji": "\ud83c\udf1f"
+        },
+        {
+          "type": "miss",
+          "attacker": "\ud83c\udfb2",
+          "direction": "west"
+        },
+        {
+          "type": "attack_miss",
+          "attacker": "\ud83d\udc22",
+          "target": "\ud83c\udf1f",
+          "roll": 9,
+          "modifier": 1,
+          "ac": 14
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udde0",
+          "energy_cost": 5
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udf1f",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 13,
+      "storm_border": 0,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 13,
+          "y": 8,
+          "hp": 54.0,
+          "energy": 14,
+          "action": "attack west",
+          "alive": true,
+          "score": 33.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 6,
+          "hp": 132.0,
+          "energy": 24,
+          "action": "move south",
+          "alive": true,
+          "score": 30,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 40.0,
+          "energy": 34,
+          "action": "attack south",
+          "alive": true,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": 66.0,
+          "energy": 42,
+          "action": "move east",
+          "alive": true,
+          "score": 51,
+          "momentum_tier": 3,
+          "is_leader": true,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": 44.959999999999994,
+          "energy": 30,
+          "action": "defend",
+          "alive": true,
+          "score": 43.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "defend",
+          "emoji": "\ud83c\udf1f"
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83c\udfaf",
+          "target": "\ud83c\udf1f",
+          "damage": 13.15,
+          "hp_before": 85.31,
+          "roll": 15,
+          "modifier": 4,
+          "ac": 14,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83d\udc22",
+          "target": "\ud83c\udf1f",
+          "damage": 27.2,
+          "hp_before": 72.16,
+          "roll": 20,
+          "modifier": 1,
+          "ac": 14,
+          "is_crit": true,
+          "dodged": false
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udde0",
+          "energy_cost": 5
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udf1f",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "damage_dealt",
+          "points": 1.0
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 14,
+      "storm_border": 1,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 13,
+          "y": 8,
+          "hp": 54.0,
+          "energy": 1,
+          "action": "attack west",
+          "alive": true,
+          "score": 34.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 7,
+          "hp": 132.0,
+          "energy": 16,
+          "action": "move south",
+          "alive": true,
+          "score": 31,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 40.0,
+          "energy": 24,
+          "action": "attack south",
+          "alive": true,
+          "score": 18.0,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": 66.0,
+          "energy": 27,
+          "action": "attack east",
+          "alive": true,
+          "score": 54,
+          "momentum_tier": 3,
+          "is_leader": true,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": 11.739999999999993,
+          "energy": 52,
+          "action": "rest",
+          "alive": true,
+          "score": 44.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "hit",
+          "attacker": "\ud83c\udfaf",
+          "target": "\ud83c\udf1f",
+          "damage": 29.1,
+          "hp_before": 44.96,
+          "roll": 10,
+          "modifier": 7,
+          "ac": 8,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "attack_miss",
+          "attacker": "\ud83e\udde0",
+          "target": "\ud83d\udc22",
+          "roll": 10,
+          "modifier": 2,
+          "ac": 14
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83d\udc22",
+          "target": "\ud83c\udf1f",
+          "damage": 9.12,
+          "hp_before": 15.86,
+          "roll": 12,
+          "modifier": 4,
+          "ac": 8,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udde0",
+          "energy_cost": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udf1f",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "damage_dealt",
+          "points": 1.0
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "storm_survivor",
+          "points": 3
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "storm_survivor",
+          "points": 3
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "storm_survivor",
+          "points": 3
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "storm_survivor",
+          "points": 3
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "source": "storm_survivor",
+          "points": 3
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 15,
+      "storm_border": 1,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 13,
+          "y": 8,
+          "hp": 59.0,
+          "energy": 25,
+          "action": "rest",
+          "alive": true,
+          "score": 39.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 7,
+          "hp": 132.0,
+          "energy": 3,
+          "action": "attack east",
+          "alive": true,
+          "score": 35,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 40.0,
+          "energy": 44,
+          "action": "attack south",
+          "alive": true,
+          "score": 22.0,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": 66.0,
+          "energy": 9,
+          "action": "attack east",
+          "alive": true,
+          "score": 60,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "defend",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "defend",
+          "emoji": "\ud83c\udf1f"
+        },
+        {
+          "type": "miss",
+          "attacker": "\ud83c\udfb2",
+          "direction": "east"
+        },
+        {
+          "type": "attack_miss",
+          "attacker": "\ud83e\udde0",
+          "target": "\ud83d\udc22",
+          "roll": 10,
+          "modifier": 2,
+          "ac": 14
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83d\udc22",
+          "target": "\ud83c\udf1f",
+          "damage": 19.2,
+          "hp_before": 11.74,
+          "roll": 20,
+          "modifier": 1,
+          "ac": 14,
+          "is_crit": true,
+          "dodged": false
+        },
+        {
+          "type": "kill",
+          "attacker": "\ud83d\udc22",
+          "victim": "\ud83c\udf1f",
+          "round": 15
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83d\udc22",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udde0",
+          "energy_cost": 8
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "kill",
+          "points": 10
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "clean_kill",
+          "points": 5
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "full_hp",
+          "points": 2
+        }
+      ],
+      "spectacle": {
+        "drama_score": 3,
+        "tier": "calm",
+        "triggers": [
+          "kill"
+        ],
+        "effects": [
+          "shatter"
+        ]
+      }
+    },
+    {
+      "round": 16,
+      "storm_border": 1,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 12,
+          "y": 8,
+          "hp": 59.0,
+          "energy": 17,
+          "action": "move west",
+          "alive": true,
+          "score": 40.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 7,
+          "hp": 137.0,
+          "energy": 25,
+          "action": "rest",
+          "alive": true,
+          "score": 36,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 40.0,
+          "energy": 31,
+          "action": "attack west",
+          "alive": true,
+          "score": 38.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": 53.89,
+          "energy": 38,
+          "action": "rest",
+          "alive": true,
+          "score": 63,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "hit",
+          "attacker": "\ud83d\udc22",
+          "target": "\ud83e\udde0",
+          "damage": 17.11,
+          "hp_before": 66.0,
+          "roll": 11,
+          "modifier": 4,
+          "ac": 7,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83d\udc22",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udde0",
+          "energy_cost": 8
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 17,
+      "storm_border": 1,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 12,
+          "y": 8,
+          "hp": 59.0,
+          "energy": 4,
+          "action": "attack north",
+          "alive": true,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 7,
+          "hp": 142.0,
+          "energy": 47,
+          "action": "rest",
+          "alive": true,
+          "score": 37,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 10.850000000000001,
+          "energy": 18,
+          "action": "attack west",
+          "alive": true,
+          "score": 39.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": 30.7,
+          "energy": 20,
+          "action": "attack east",
+          "alive": true,
+          "score": 64,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "hit",
+          "attacker": "\ud83c\udfaf",
+          "target": "\ud83d\udc22",
+          "damage": 29.15,
+          "hp_before": 40.0,
+          "roll": 15,
+          "modifier": 4,
+          "ac": 14,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "attack_miss",
+          "attacker": "\ud83e\udde0",
+          "target": "\ud83d\udc22",
+          "roll": 9,
+          "modifier": 2,
+          "ac": 14
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83d\udc22",
+          "target": "\ud83e\udde0",
+          "damage": 23.19,
+          "hp_before": 53.89,
+          "roll": 19,
+          "modifier": 1,
+          "ac": 7,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83d\udc22",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udde0",
+          "energy_cost": 8
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "damage_dealt",
+          "points": 1.0
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 18,
+      "storm_border": 1,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 12,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 26,
+          "action": "rest",
+          "alive": true,
+          "score": 43.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 7,
+          "hp": 142.0,
+          "energy": 34,
+          "action": "attack west",
+          "alive": true,
+          "score": 38,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": 5.260000000000002,
+          "energy": 5,
+          "action": "attack west",
+          "alive": true,
+          "score": 40.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": 30.7,
+          "energy": 2,
+          "action": "attack east",
+          "alive": true,
+          "score": 65,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "miss",
+          "attacker": "\ud83c\udfb2",
+          "direction": "west"
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83e\udde0",
+          "target": "\ud83d\udc22",
+          "damage": 5.59,
+          "hp_before": 10.85,
+          "roll": 18,
+          "modifier": 2,
+          "ac": 14,
+          "is_crit": false,
+          "dodged": true
+        },
+        {
+          "type": "attack_miss",
+          "attacker": "\ud83d\udc22",
+          "target": "\ud83e\udde0",
+          "roll": 2,
+          "modifier": 1,
+          "ac": 7
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83d\udc22",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udde0",
+          "energy_cost": 8
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 19,
+      "storm_border": 2,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 12,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 43,
+          "action": "attack north",
+          "alive": true,
+          "score": 46.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 7,
+          "hp": 142.0,
+          "energy": 21,
+          "action": "attack west",
+          "alive": true,
+          "score": 39,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "rest",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": 35.7,
+          "energy": 37,
+          "action": "rest",
+          "alive": true,
+          "score": 66,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "hit",
+          "attacker": "\ud83c\udfaf",
+          "target": "\ud83d\udc22",
+          "damage": 20.18,
+          "hp_before": 5.26,
+          "roll": 18,
+          "modifier": 7,
+          "ac": 14,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "miss",
+          "attacker": "\ud83c\udfb2",
+          "direction": "west"
+        },
+        {
+          "type": "kill",
+          "attacker": "\ud83c\udfaf",
+          "victim": "\ud83d\udc22",
+          "round": 19
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udde0",
+          "energy_cost": 8
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "kill",
+          "points": 10
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "clean_kill",
+          "points": 5
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 3,
+        "tier": "calm",
+        "triggers": [
+          "kill"
+        ],
+        "effects": [
+          "shatter"
+        ]
+      }
+    },
+    {
+      "round": 20,
+      "storm_border": 2,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 11,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 35,
+          "action": "move west",
+          "alive": true,
+          "score": 64.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 7,
+          "hp": 145.0,
+          "energy": 43,
+          "action": "rest",
+          "alive": true,
+          "score": 40,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": 40.7,
+          "energy": 66,
+          "action": "rest",
+          "alive": true,
+          "score": 67,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udde0",
+          "energy_cost": 8
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 21,
+      "storm_border": 2,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 11,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 22,
+          "action": "attack north",
+          "alive": true,
+          "score": 67.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 2,
+          "y": 7,
+          "hp": 145.0,
+          "energy": 35,
+          "action": "move west",
+          "alive": true,
+          "score": 43,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": 10.620000000000005,
+          "energy": 48,
+          "action": "defend",
+          "alive": true,
+          "score": 68,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "defend",
+          "emoji": "\ud83e\udde0"
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83c\udfaf",
+          "target": "\ud83e\udde0",
+          "damage": 30.08,
+          "hp_before": 40.7,
+          "roll": 8,
+          "modifier": 4,
+          "ac": 12,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83e\udde0",
+          "energy_cost": 8
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "damage_dealt",
+          "points": 1.0
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [],
+        "effects": []
+      }
+    },
+    {
+      "round": 22,
+      "storm_border": 2,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 11,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 39,
+          "action": "attack north",
+          "alive": true,
+          "score": 71.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 2,
+          "y": 7,
+          "hp": 145.0,
+          "energy": 22,
+          "action": "attack north",
+          "alive": true,
+          "score": 46,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": -4.519999999999996,
+          "energy": 30,
+          "action": "defend",
+          "alive": false,
+          "score": 69,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "defend",
+          "emoji": "\ud83e\udde0"
+        },
+        {
+          "type": "hit",
+          "attacker": "\ud83c\udfaf",
+          "target": "\ud83e\udde0",
+          "damage": 15.14,
+          "hp_before": 10.62,
+          "roll": 14,
+          "modifier": 4,
+          "ac": 12,
+          "is_crit": false,
+          "dodged": false
+        },
+        {
+          "type": "miss",
+          "attacker": "\ud83c\udfb2",
+          "direction": "north"
+        },
+        {
+          "type": "kill",
+          "attacker": "\ud83c\udfaf",
+          "victim": "\ud83e\udde0",
+          "round": 22
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "kill",
+          "points": 10
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "clean_kill",
+          "points": 5
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "full_hp",
+          "points": 2
+        }
+      ],
+      "spectacle": {
+        "drama_score": 3,
+        "tier": "calm",
+        "triggers": [
+          "kill",
+          "last_2"
+        ],
+        "effects": [
+          "shatter",
+          "split_screen"
+        ]
+      }
+    },
+    {
+      "round": 23,
+      "storm_border": 2,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 10,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 26,
+          "action": "move west",
+          "alive": true,
+          "score": 89.0,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 2,
+          "y": 7,
+          "hp": 145.0,
+          "energy": 44,
+          "action": "rest",
+          "alive": true,
+          "score": 49,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": -4.519999999999996,
+          "energy": 30,
+          "action": "dead",
+          "alive": false,
+          "score": 69,
+          "momentum_tier": 4,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "full_hp",
+          "points": 2
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [
+          "last_2"
+        ],
+        "effects": [
+          "split_screen"
+        ]
+      }
+    },
+    {
+      "round": 24,
+      "storm_border": 3,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 9,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 13,
+          "action": "move west",
+          "alive": true,
+          "score": 92.0,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 2,
+          "y": 7,
+          "hp": 134.9,
+          "energy": 31,
+          "action": "defend",
+          "alive": true,
+          "score": 52,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": -4.519999999999996,
+          "energy": 30,
+          "action": "dead",
+          "alive": false,
+          "score": 69,
+          "momentum_tier": 4,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "defend",
+          "emoji": "\ud83c\udfb2"
+        },
+        {
+          "type": "storm_damage",
+          "target": "\ud83c\udfb2",
+          "damage": 10.1,
+          "depth": 1
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [
+          "last_2"
+        ],
+        "effects": [
+          "split_screen"
+        ]
+      }
+    },
+    {
+      "round": 25,
+      "storm_border": 3,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 9,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 30,
+          "action": "rest",
+          "alive": true,
+          "score": 95.0,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 2,
+          "y": 7,
+          "hp": 124.80000000000001,
+          "energy": 41,
+          "action": "rest",
+          "alive": true,
+          "score": 53,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": -4.519999999999996,
+          "energy": 30,
+          "action": "dead",
+          "alive": false,
+          "score": 69,
+          "momentum_tier": 4,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "storm_damage",
+          "target": "\ud83c\udfb2",
+          "damage": 10.1,
+          "depth": 1
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83c\udfb2",
+          "hp_damage": 5,
+          "energy_drain": 12,
+          "passive_rounds": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [
+          "last_2"
+        ],
+        "effects": [
+          "split_screen"
+        ]
+      }
+    },
+    {
+      "round": 26,
+      "storm_border": 3,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 8,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 17,
+          "action": "move west",
+          "alive": true,
+          "score": 98.0,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 2,
+          "y": 7,
+          "hp": 111.70000000000002,
+          "energy": 51,
+          "action": "rest",
+          "alive": true,
+          "score": 54,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": -4.519999999999996,
+          "energy": 30,
+          "action": "dead",
+          "alive": false,
+          "score": 69,
+          "momentum_tier": 4,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "storm_damage",
+          "target": "\ud83c\udfb2",
+          "damage": 10.1,
+          "depth": 1
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83c\udfb2",
+          "hp_damage": 8,
+          "energy_drain": 12,
+          "passive_rounds": 4
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [
+          "last_2"
+        ],
+        "effects": [
+          "split_screen"
+        ]
+      }
+    },
+    {
+      "round": 27,
+      "storm_border": 3,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 8,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 34,
+          "action": "rest",
+          "alive": true,
+          "score": 101.0,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 2,
+          "y": 7,
+          "hp": 95.60000000000002,
+          "energy": 61,
+          "action": "rest",
+          "alive": true,
+          "score": 55,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": -4.519999999999996,
+          "energy": 30,
+          "action": "dead",
+          "alive": false,
+          "score": 69,
+          "momentum_tier": 4,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "storm_damage",
+          "target": "\ud83c\udfb2",
+          "damage": 10.1,
+          "depth": 1
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83c\udfb2",
+          "hp_damage": 11,
+          "energy_drain": 12,
+          "passive_rounds": 5
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [
+          "last_2"
+        ],
+        "effects": [
+          "split_screen"
+        ]
+      }
+    },
+    {
+      "round": 28,
+      "storm_border": 3,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 7,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 21,
+          "action": "move west",
+          "alive": true,
+          "score": 104.0,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 2,
+          "y": 7,
+          "hp": 85.50000000000003,
+          "energy": 48,
+          "action": "attack west",
+          "alive": true,
+          "score": 56,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": -4.519999999999996,
+          "energy": 30,
+          "action": "dead",
+          "alive": false,
+          "score": 69,
+          "momentum_tier": 4,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "miss",
+          "attacker": "\ud83c\udfb2",
+          "direction": "west"
+        },
+        {
+          "type": "storm_damage",
+          "target": "\ud83c\udfb2",
+          "damage": 10.1,
+          "depth": 1
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [
+          "last_2"
+        ],
+        "effects": [
+          "split_screen"
+        ]
+      }
+    },
+    {
+      "round": 29,
+      "storm_border": 4,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 6,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 8,
+          "action": "move west",
+          "alive": true,
+          "score": 107.0,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 2,
+          "y": 7,
+          "hp": 72.30000000000003,
+          "energy": 35,
+          "action": "defend",
+          "alive": true,
+          "score": 57,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": -4.519999999999996,
+          "energy": 30,
+          "action": "dead",
+          "alive": false,
+          "score": 69,
+          "momentum_tier": 4,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "defend",
+          "emoji": "\ud83c\udfb2"
+        },
+        {
+          "type": "storm_damage",
+          "target": "\ud83c\udfb2",
+          "damage": 13.2,
+          "depth": 2
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [
+          "last_2"
+        ],
+        "effects": [
+          "split_screen"
+        ]
+      }
+    },
+    {
+      "round": 30,
+      "storm_border": 4,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 6,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 25,
+          "action": "rest",
+          "alive": true,
+          "score": 110.0,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 7,
+          "hp": 62.200000000000024,
+          "energy": 27,
+          "action": "move east",
+          "alive": true,
+          "score": 58,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": -4.519999999999996,
+          "energy": 30,
+          "action": "dead",
+          "alive": false,
+          "score": 69,
+          "momentum_tier": 4,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "storm_damage",
+          "target": "\ud83c\udfb2",
+          "damage": 10.1,
+          "depth": 1
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [
+          "last_2"
+        ],
+        "effects": [
+          "split_screen"
+        ]
+      }
+    },
+    {
+      "round": 31,
+      "storm_border": 5,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 5,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 12,
+          "action": "move west",
+          "alive": true,
+          "score": 113.0,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 4,
+          "y": 7,
+          "hp": 52.10000000000002,
+          "energy": 19,
+          "action": "move east",
+          "alive": true,
+          "score": 59,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": -4.519999999999996,
+          "energy": 30,
+          "action": "dead",
+          "alive": false,
+          "score": 69,
+          "momentum_tier": 4,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "storm_damage",
+          "target": "\ud83c\udfb2",
+          "damage": 10.1,
+          "depth": 1
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [
+          "last_2"
+        ],
+        "effects": [
+          "split_screen"
+        ]
+      }
+    },
+    {
+      "round": 32,
+      "storm_border": 5,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 5,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 29,
+          "action": "rest",
+          "alive": true,
+          "score": 116.0,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 3,
+          "y": 7,
+          "hp": 38.90000000000002,
+          "energy": 11,
+          "action": "move west",
+          "alive": true,
+          "score": 60,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": -4.519999999999996,
+          "energy": 30,
+          "action": "dead",
+          "alive": false,
+          "score": 69,
+          "momentum_tier": 4,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "storm_damage",
+          "target": "\ud83c\udfb2",
+          "damage": 13.2,
+          "depth": 2
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [
+          "last_2"
+        ],
+        "effects": [
+          "split_screen"
+        ]
+      }
+    },
+    {
+      "round": 33,
+      "storm_border": 6,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 6,
+          "y": 8,
+          "hp": 62.0,
+          "energy": 16,
+          "action": "move east",
+          "alive": true,
+          "score": 119.0,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 4,
+          "y": 7,
+          "hp": 25.70000000000002,
+          "energy": 3,
+          "action": "move east",
+          "alive": true,
+          "score": 61,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": -4.519999999999996,
+          "energy": 30,
+          "action": "dead",
+          "alive": false,
+          "score": 69,
+          "momentum_tier": 4,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "storm_damage",
+          "target": "\ud83c\udfb2",
+          "damage": 13.2,
+          "depth": 2
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "full_hp",
+          "points": 2
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [
+          "last_2"
+        ],
+        "effects": [
+          "split_screen"
+        ]
+      }
+    },
+    {
+      "round": 34,
+      "storm_border": 6,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 6,
+          "y": 8,
+          "hp": 57.0,
+          "energy": 21,
+          "action": "rest",
+          "alive": true,
+          "score": 122.0,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 4,
+          "y": 7,
+          "hp": 17.50000000000002,
+          "energy": 25,
+          "action": "rest",
+          "alive": true,
+          "score": 62,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": -4.519999999999996,
+          "energy": 30,
+          "action": "dead",
+          "alive": false,
+          "score": 69,
+          "momentum_tier": 4,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "storm_damage",
+          "target": "\ud83c\udfb2",
+          "damage": 13.2,
+          "depth": 2
+        },
+        {
+          "type": "plague",
+          "emoji": "\ud83c\udfaf",
+          "hp_damage": 5,
+          "energy_drain": 12,
+          "passive_rounds": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 0,
+        "tier": "calm",
+        "triggers": [
+          "last_2"
+        ],
+        "effects": [
+          "split_screen"
+        ]
+      }
+    },
+    {
+      "round": 35,
+      "storm_border": 7,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 5,
+          "y": 8,
+          "hp": 43.8,
+          "energy": 8,
+          "action": "move west",
+          "alive": true,
+          "score": 123.0,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 4,
+          "y": 7,
+          "hp": 1.2000000000000206,
+          "energy": 12,
+          "action": "attack north",
+          "alive": true,
+          "score": 63,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": -4.519999999999996,
+          "energy": 30,
+          "action": "dead",
+          "alive": false,
+          "score": 69,
+          "momentum_tier": 4,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "miss",
+          "attacker": "\ud83c\udfb2",
+          "direction": "north"
+        },
+        {
+          "type": "storm_damage",
+          "target": "\ud83c\udfaf",
+          "damage": 13.2,
+          "depth": 2
+        },
+        {
+          "type": "storm_damage",
+          "target": "\ud83c\udfb2",
+          "damage": 16.3,
+          "depth": 3
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 8
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfb2",
+          "energy_cost": 3
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "source": "survival",
+          "points": 1
+        }
+      ],
+      "spectacle": {
+        "drama_score": 4,
+        "tier": "heating",
+        "triggers": [
+          "near_death",
+          "last_2"
+        ],
+        "effects": [
+          "slow_mo",
+          "split_screen"
+        ]
+      }
+    },
+    {
+      "round": 36,
+      "storm_border": 7,
+      "positions": [
+        {
+          "emoji": "\ud83e\udd16",
+          "glyph": "\u2694",
+          "x": 8,
+          "y": 9,
+          "hp": -21.07,
+          "energy": 12,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 71
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "glyph": "\u27a4",
+          "x": 5,
+          "y": 8,
+          "hp": 35.599999999999994,
+          "energy": 25,
+          "action": "rest",
+          "alive": true,
+          "score": 124.0,
+          "momentum_tier": 4,
+          "is_leader": true,
+          "max_hp": 62
+        },
+        {
+          "emoji": "\ud83c\udfb2",
+          "glyph": "\u25cb",
+          "x": 4,
+          "y": 7,
+          "hp": -15.09999999999998,
+          "energy": 0,
+          "action": "attack west",
+          "alive": false,
+          "score": 64,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        },
+        {
+          "emoji": "\ud83d\udc22",
+          "glyph": "\u25a0",
+          "x": 12,
+          "y": 7,
+          "hp": -9.919999999999998,
+          "energy": 27,
+          "action": "dead",
+          "alive": false,
+          "score": 41.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 90
+        },
+        {
+          "emoji": "\ud83e\udea4",
+          "glyph": "T",
+          "x": 6,
+          "y": 7,
+          "hp": 0,
+          "energy": 37,
+          "action": "dead",
+          "alive": false,
+          "score": 31.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 116
+        },
+        {
+          "emoji": "\ud83e\udde0",
+          "glyph": "\u25c8",
+          "x": 11,
+          "y": 7,
+          "hp": -4.519999999999996,
+          "energy": 30,
+          "action": "dead",
+          "alive": false,
+          "score": 69,
+          "momentum_tier": 4,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83e\udebf",
+          "glyph": "\u25c6",
+          "x": 7,
+          "y": 6,
+          "hp": -4.389999999999997,
+          "energy": 81,
+          "action": "dead",
+          "alive": false,
+          "score": 16,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 66
+        },
+        {
+          "emoji": "\ud83d\udc80",
+          "glyph": "\u2620",
+          "x": 8,
+          "y": 8,
+          "hp": -7.399999999999999,
+          "energy": 68,
+          "action": "dead",
+          "alive": false,
+          "score": 10,
+          "momentum_tier": 1,
+          "is_leader": false,
+          "max_hp": 131
+        },
+        {
+          "emoji": "\ud83c\udf1f",
+          "glyph": "\u25c6",
+          "x": 12,
+          "y": 8,
+          "hp": -7.460000000000006,
+          "energy": 39,
+          "action": "dead",
+          "alive": false,
+          "score": 48.0,
+          "momentum_tier": 2,
+          "is_leader": false,
+          "max_hp": 145
+        }
+      ],
+      "events": [
+        {
+          "type": "miss",
+          "attacker": "\ud83c\udfb2",
+          "direction": "west"
+        },
+        {
+          "type": "storm_damage",
+          "target": "\ud83c\udfaf",
+          "damage": 13.2,
+          "depth": 2
+        },
+        {
+          "type": "storm_damage",
+          "target": "\ud83c\udfb2",
+          "damage": 16.3,
+          "depth": 3
+        },
+        {
+          "type": "kill",
+          "attacker": "storm",
+          "victim": "\ud83c\udfb2",
+          "round": 36
+        },
+        {
+          "type": "momentum_drain",
+          "emoji": "\ud83c\udfaf",
+          "energy_cost": 8
+        }
+      ],
+      "score_events": [
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "survival",
+          "points": 1
+        },
+        {
+          "emoji": "\ud83c\udfaf",
+          "source": "last_standing",
+          "points": 15
+        }
+      ],
+      "spectacle": {
+        "drama_score": 3,
+        "tier": "calm",
+        "triggers": [
+          "kill"
+        ],
+        "effects": [
+          "shatter"
+        ]
+      }
+    }
+  ],
+  "eliminations": [
+    {
+      "emoji": "\ud83e\udd16",
+      "round": 7,
+      "killed_by": "\ud83c\udf1f",
+      "cause": "combat"
+    },
+    {
+      "emoji": "\ud83d\udc80",
+      "round": 7,
+      "killed_by": "\ud83c\udfaf",
+      "cause": "combat"
+    },
+    {
+      "emoji": "\ud83e\udebf",
+      "round": 7,
+      "killed_by": "\ud83e\udde0",
+      "cause": "combat"
+    },
+    {
+      "emoji": "\ud83e\udea4",
+      "round": 10,
+      "killed_by": "unknown",
+      "cause": "combat"
+    },
+    {
+      "emoji": "\ud83c\udf1f",
+      "round": 15,
+      "killed_by": "\ud83d\udc22",
+      "cause": "combat"
+    },
+    {
+      "emoji": "\ud83d\udc22",
+      "round": 19,
+      "killed_by": "\ud83c\udfaf",
+      "cause": "combat"
+    },
+    {
+      "emoji": "\ud83e\udde0",
+      "round": 22,
+      "killed_by": "\ud83c\udfaf",
+      "cause": "combat"
+    },
+    {
+      "emoji": "\ud83c\udfb2",
+      "round": 36,
+      "killed_by": "storm",
+      "cause": "storm"
+    }
+  ],
+  "winner": "\ud83c\udfaf",
+  "stats": {
+    "\ud83e\udd16": {
+      "kills": 0,
+      "damage_dealt": 0,
+      "damage_taken": 54,
+      "rounds_survived": 6,
+      "score": 10,
+      "momentum_tier": 1,
+      "momentum_name": "Momentum"
+    },
+    "\ud83c\udfaf": {
+      "kills": 3,
+      "damage_dealt": 249,
+      "damage_taken": 26,
+      "rounds_survived": 36,
+      "score": 140.0,
+      "momentum_tier": 4,
+      "momentum_name": "Unstoppable"
+    },
+    "\ud83c\udfb2": {
+      "kills": 0,
+      "damage_dealt": 0,
+      "damage_taken": 154,
+      "rounds_survived": 35,
+      "score": 64,
+      "momentum_tier": 2,
+      "momentum_name": "Unstoppable"
+    },
+    "\ud83d\udc22": {
+      "kills": 1,
+      "damage_dealt": 95,
+      "damage_taken": 54,
+      "rounds_survived": 18,
+      "score": 41.0,
+      "momentum_tier": 2,
+      "momentum_name": "Crowd Favorite"
+    },
+    "\ud83e\udea4": {
+      "kills": 0,
+      "damage_dealt": 139,
+      "damage_taken": 0,
+      "rounds_survived": 9,
+      "score": 31.0,
+      "momentum_tier": 2,
+      "momentum_name": "Battle Fury"
+    },
+    "\ud83e\udde0": {
+      "kills": 1,
+      "damage_dealt": 25,
+      "damage_taken": 85,
+      "rounds_survived": 21,
+      "score": 69,
+      "momentum_tier": 4,
+      "momentum_name": "Unstoppable"
+    },
+    "\ud83e\udebf": {
+      "kills": 0,
+      "damage_dealt": 0,
+      "damage_taken": 70,
+      "rounds_survived": 6,
+      "score": 16,
+      "momentum_tier": 1,
+      "momentum_name": "Momentum"
+    },
+    "\ud83d\udc80": {
+      "kills": 0,
+      "damage_dealt": 0,
+      "damage_taken": 143,
+      "rounds_survived": 6,
+      "score": 10,
+      "momentum_tier": 1,
+      "momentum_name": "Momentum"
+    },
+    "\ud83c\udf1f": {
+      "kills": 1,
+      "damage_dealt": 54,
+      "damage_taken": 156,
+      "rounds_survived": 14,
+      "score": 48.0,
+      "momentum_tier": 2,
+      "momentum_name": "Crowd Favorite"
+    }
+  },
+  "duration_rounds": 36,
+  "carryover": {
+    "\ud83c\udfaf": 50
+  },
+  "match_mode": "standard"
+}

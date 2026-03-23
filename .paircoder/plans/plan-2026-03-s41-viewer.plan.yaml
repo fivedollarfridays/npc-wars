@@ -1,0 +1,13 @@
+id: plan-2026-03-s41-viewer
+title: 'Sprint 41: Browser Viewer Overhaul'
+type: feature
+status: planned
+created_at: '2026-03-23T08:00:00.000000'
+goals:
+- Terrain rendering on canvas (walls, water, high ground, cover, crystals)
+- Bot rendering upgrade (geometric shapes with archetype colors instead of emoji text)
+- Equipment visibility (weapon indicator, armor thickness)
+- Trap visualization (hidden until triggered, explosion on trigger)
+- Ability/tactical FX in viewer (damage bolt, heal glow, shield bubble)
+- Responsive canvas with zoom/pan for large grids
+- Match loading from terrain_tiles data in match JSON

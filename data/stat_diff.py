@@ -7,7 +7,7 @@ files to compute lifetime averages before diffing.
 __all__ = ["compute_diff", "inject_diff_data"]
 
 _LOWER_IS_BETTER = frozenset({"damage_taken"})
-_SKIP_KEYS = frozenset({"momentum_name", "archetype"})  # non-numeric stat fields
+_SKIP_KEYS = frozenset({"momentum_name", "archetype", "equipment"})  # non-numeric stat fields
 
 
 def compute_diff(
