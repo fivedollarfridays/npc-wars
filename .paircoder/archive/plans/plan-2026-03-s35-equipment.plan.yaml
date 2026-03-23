@@ -1,0 +1,13 @@
+id: plan-2026-03-s35-equipment
+title: 'Sprint 35: Equipment System'
+type: feature
+status: planned
+created_at: '2026-03-21T12:00:00.000000'
+goals:
+- Equipment catalog with 4 slots (weapon, armor, 2 accessories) and 40-credit budget
+- Equipment validation (budget, mandatory slots, compatibility)
+- Combat hooks for weapon to-hit/damage, armor DR, accessory stat bonuses
+- Bot loader reads BOT_EQUIPMENT from bot modules
+- State dict exposes equipment loadout and bonuses
+- Equipment-using example bots demonstrating different archetypes
+- Balance simulation with equipment-varied bot pool

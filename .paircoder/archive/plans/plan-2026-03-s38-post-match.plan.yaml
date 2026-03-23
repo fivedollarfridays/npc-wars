@@ -1,0 +1,11 @@
+id: plan-2026-03-s38-post-match
+title: 'Sprint 38: Post-Match Experience'
+type: feature
+status: planned
+created_at: '2026-03-22T18:00:00.000000'
+goals:
+- Diff display formatter showing lifetime avg vs current match (the diff IS the game)
+- Progression display with level change, unlocked actions, next unlock preview
+- Integration into CLI post-match flow (cmd_play, cmd_battle, run_match.py)
+- Archetype tagging for matchup profile tracking
+- Game.py refactor to fix 408-line architecture violation

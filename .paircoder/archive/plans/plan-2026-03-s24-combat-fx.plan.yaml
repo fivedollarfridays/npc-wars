@@ -1,0 +1,10 @@
+id: plan-2026-03-s24-combat-fx
+title: 'Sprint 24: Combat Animations & Visual Polish'
+type: feature
+status: planned
+created_at: '2026-03-17T23:36:40.853709'
+goals:
+- Sub-frame combat animations (attack + defend indicators on grid)
+- Board visible after match ends
+- Weapon FX extensibility hook for future weapon types
+- TankBot emoji change to free shield for defend indicator
