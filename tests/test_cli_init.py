@@ -1,4 +1,4 @@
-"""Tests for npcwars init command (T14.4)."""
+"""Tests for agentgrounds wars init command."""
 from __future__ import annotations
 
 import tomllib
@@ -161,3 +161,56 @@ class TestInitDirFlag:
         out, code = _run_main(["init", "--dir", str(tmp_path), "--force"], capsys)
         assert code == 0
         assert (tmp_path / "bots" / "template.py").read_text() != "# marker"
+
+
+class TestInitPostMessage:
+    """Post-init message guides the user with correct next steps."""
+
+    def test_message_shows_play_command(self, tmp_path: object, capsys: pytest.CaptureFixture[str]) -> None:
+        out, _ = _run_main(["init", "--dir", str(tmp_path)], capsys)
+        assert "agentgrounds wars play" in out
+
+    def test_message_shows_generate_command(self, tmp_path: object, capsys: pytest.CaptureFixture[str]) -> None:
+        out, _ = _run_main(["init", "--dir", str(tmp_path)], capsys)
+        assert "agentgrounds wars generate" in out
+
+    def test_message_shows_starter_bot_path(self, tmp_path: object, capsys: pytest.CaptureFixture[str]) -> None:
+        out, _ = _run_main(["init", "--dir", str(tmp_path)], capsys)
+        assert "bots/starter.py" in out
+
+    def test_message_shows_next_steps_header(self, tmp_path: object, capsys: pytest.CaptureFixture[str]) -> None:
+        out, _ = _run_main(["init", "--dir", str(tmp_path)], capsys)
+        assert "Next steps:" in out
+
+    def test_message_shows_target_path(self, tmp_path: object, capsys: pytest.CaptureFixture[str]) -> None:
+        out, _ = _run_main(["init", "--dir", str(tmp_path)], capsys)
+        assert str(tmp_path) in out
+
+
+class TestBuiltinBotSelection:
+    """Builtin bots include only starter-appropriate bots."""
+
+    EXPECTED_BOTS = {
+        "starter", "template",
+        "example_aggro", "example_tank", "example_kiter",
+        "example_random", "example_vibes",
+    }
+    ADVANCED_BOTS = {"trapper", "knight", "mage", "viper", "example_trapper"}
+
+    def test_expected_bots_present(self) -> None:
+        names = set(list_builtin_bots())
+        assert names == self.EXPECTED_BOTS
+
+    def test_no_advanced_bots_included(self) -> None:
+        names = set(list_builtin_bots())
+        overlap = names & self.ADVANCED_BOTS
+        assert not overlap, f"Advanced bots should not be bundled: {overlap}"
+
+    def test_importlib_resources_reads_all_bots(self) -> None:
+        """Every listed bot can be read via importlib.resources (pip install path)."""
+        from agentgrounds.wars.builtin_bots import get_bot_source
+
+        for name in list_builtin_bots():
+            source = get_bot_source(name)
+            assert len(source) > 0, f"{name}.py is empty"
+            assert "def decide" in source, f"{name}.py missing decide function"

@@ -1,52 +1,43 @@
-# Agent Grounds — Wars
+# Agent Grounds -- Wars
 
-Autonomous bot battle royale. Write a `decide(state)` function, drop it in a folder, watch emojis fight on a shrinking grid. Last one standing wins.
+Autonomous bot battle royale. Write a `decide(state)` function, drop it in a folder, watch bots fight.
 
-## Quick Start
+## Install
 
 ```bash
 pip install agent-grounds
-agentgrounds wars init
-agentgrounds wars play          # watch your first match!
 ```
 
-That's it. Three commands from install to your first fight.
-
-## Build with AI
-
-Use an LLM to generate a competitive bot in seconds:
+## Play
 
 ```bash
-agentgrounds wars generate --strategy "defensive energy denier" | pbcopy
-# Paste into Claude, Gemini, or GPT
-# Save the response as bots/my_bot.py
-agentgrounds wars play --seed 42
+agentgrounds wars init        # Set up arena with starter bots
+agentgrounds wars play        # Watch your first match
 ```
 
-The `generate` command builds a full prompt from [PROMPT.md](PROMPT.md) -- game rules, state API, strategy tips -- so the AI writes tournament-ready code.
+## Build a Bot with AI
+
+```bash
+agentgrounds wars generate --strategy "aggressive kiter" | pbcopy
+# Paste into Claude/GPT -> save response as bots/my_bot.py
+agentgrounds wars play
+```
+
+The `generate` command builds a complete prompt from the game rules so the AI writes tournament-ready code.
 
 ## Learn by Tweaking
 
-Not ready to build from scratch? Start with `bots/starter.py` -- a working bot with guided TODO comments:
+Open `bots/starter.py` -- it has guided TODOs that teach game mechanics:
 
-1. Open `bots/starter.py` (created by `agentgrounds wars init`)
-2. Read the TODOs -- each one teaches a game mechanic
+1. Open the file (created by `agentgrounds wars init`)
+2. Read the TODOs -- each one teaches a mechanic
 3. Make a small change, run `agentgrounds wars play`, see the difference
-4. Repeat until your bot is unbeatable
 
-## How It Works
-
-1. **`agentgrounds wars init`** -- Creates a project with starter bots and config
-2. **`agentgrounds wars play`** -- Validates bots, runs a match, plays it back in terminal
-3. **`agentgrounds wars generate`** -- Builds an AI prompt for competitive bot creation
-4. **`agentgrounds wars wizard`** -- Interactive bot builder (name, emoji, play style, tuning)
-5. **`agentgrounds wars validate bots/my_bot.py`** -- Checks your bot is safe and valid
-
-## Write a Bot
+## Write from Scratch
 
 ```python
 BOT_NAME = "MyBot"
-BOT_EMOJI = "🔥"
+BOT_EMOJI = "X"
 BOT_BIO = "burns everything"
 BOT_AUTHOR = "you"
 
@@ -66,50 +57,34 @@ def decide(state):
     return ("move", "east" if target["x"] > me["x"] else "west")
 ```
 
-Or use the helpers DSL:
+## Game Features
 
-```python
-from agentgrounds.wars.helpers import Me, Enemies, Storm
+- D20 combat with crits, dodge, initiative
+- 4-stat allocation (POWER / SPEED / ARMOR / MIND)
+- 23 equipment items across 4 slots
+- 5 terrain maps with walls, water, high ground
+- Traps, abilities, tactical items
+- XP progression across 30 levels
+- Post-match stat diff vs lifetime average
+- Shrinking storm zone forces fights
 
-def decide(state):
-    me, enemies, storm = Me(state), Enemies(state), Storm(state)
-    if storm.danger: return me.flee_storm()
-    target = enemies.weakest()
-    if target and me.dist_to(target) == 1: return me.attack(target)
-    if target: return me.move_toward(target)
-    return me.rest()
-```
-
-## Game Rules
-
-- **Grid**: Bots spawn on an NxN grid
-- **Storm**: Shrinks the safe zone after round 20 -- stay inside or take damage
-- **Energy**: Every action costs energy. Run out and you're forced to rest
-- **Actions**: `rest`, `defend`, `move`, `attack` (see [CONTRIBUTING.md](CONTRIBUTING.md) for costs)
-
-## Play Options
+## Commands
 
 ```bash
-agentgrounds wars play                       # Run and watch a match
-agentgrounds wars play --seed 42             # Deterministic match
-agentgrounds wars play --bots-dir my_bots    # Custom bots directory
-agentgrounds wars play --no-watch            # Skip playback, just print results
-agentgrounds wars battle --replay replays    # Run without playback, save JSON
+agentgrounds wars init                    # Set up project with starter bots
+agentgrounds wars play                    # Run and watch a match
+agentgrounds wars play --seed 42          # Deterministic match
+agentgrounds wars play --no-watch         # Skip playback, print results
+agentgrounds wars generate --strategy "..." # Build AI prompt for bot creation
+agentgrounds wars wizard                  # Interactive bot builder
+agentgrounds wars validate bots/my.py     # Check bot is valid
+agentgrounds wars battle --replay dir     # Batch run, save JSON replays
 ```
 
-## Built-in Bots
+## Links
 
-| Bot | Style | Strategy |
-|-----|-------|----------|
-| AggroBot 🤖 | Aggro | Chase closest, attack relentlessly |
-| TankBot 🐢 | Tank | Defend, counter adjacent enemies |
-| KiteBot 🪁 | Kiter | Keep distance, poke wounded |
-| ChaosBot 🎲 | Chaos | Pure random mayhem |
-| Cognify 🧠 | Vibes | Storm-aware opportunist (helpers DSL) |
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md). Three paths: submit bots, pitch ideas, report bugs.
+- Full game rules: [PROMPT.md](PROMPT.md)
+- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
 
 ## License
 
