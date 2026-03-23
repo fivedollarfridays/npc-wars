@@ -8,6 +8,7 @@ from pathlib import Path
 __all__ = ["register", "run"]
 
 _PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+_PACKAGE_DATA = Path(__file__).resolve().parent.parent / "data"
 
 
 def register(subparsers: argparse._SubParsersAction) -> None:
@@ -37,7 +38,10 @@ def run(args: argparse.Namespace) -> None:
 
 def _build_prompt(strategy: str, name: str, emoji: str) -> str:
     """Load PROMPT.md and append optional customisation."""
-    prompt_path = _PROJECT_ROOT / "PROMPT.md"
+    # Try package data first (works after pip install), fall back to repo root
+    prompt_path = _PACKAGE_DATA / "PROMPT.md"
+    if not prompt_path.is_file():
+        prompt_path = _PROJECT_ROOT / "PROMPT.md"
     if not prompt_path.is_file():
         print("Error: PROMPT.md not found", file=sys.stderr)
         sys.exit(1)
@@ -59,12 +63,27 @@ def _build_prompt(strategy: str, name: str, emoji: str) -> str:
 
 
 def _manual_generate(prompt: str) -> None:
-    """Print prompt to stdout for copy-pasting into an LLM."""
-    print(prompt)
-    print("\n---")
-    print("Copy the above prompt and paste it into Claude, Gemini, or GPT.")
-    print("Save the response as a .py file in your bots/ directory.")
-    print("Then run: agentgrounds wars validate bots/your_bot.py")
+    """Print AI-ready prompt to stdout for piping or copy-paste."""
+    header = (
+        "Write me a Python bot file for a game. "
+        "Here are the rules:\n\n"
+    )
+    footer = (
+        "\n\nOutput ONLY the Python file. "
+        "No explanation, no markdown fences."
+    )
+    print(header + prompt + footer)
+
+    # Usage hints go to stderr so stdout is a clean, pipeable prompt
+    print(
+        "\nPaste this prompt into Claude, Gemini, or GPT.",
+        file=sys.stderr,
+    )
+    print(
+        "Save the response as bots/my_bot.py, then run:",
+        file=sys.stderr,
+    )
+    print("  agentgrounds wars validate bots/my_bot.py", file=sys.stderr)
 
 
 def _auto_generate(prompt: str, args: argparse.Namespace) -> None:

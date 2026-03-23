@@ -50,6 +50,7 @@ class TestBuildPrompt:
         import agentgrounds.wars.cli.cmd_generate as mod
 
         monkeypatch.setattr(mod, "_PROJECT_ROOT", tmp_path)  # type: ignore[attr-defined]
+        monkeypatch.setattr(mod, "_PACKAGE_DATA", tmp_path)  # type: ignore[attr-defined]
 
         with pytest.raises(SystemExit):
             mod._build_prompt(strategy="", name="", emoji="")
@@ -72,21 +73,41 @@ def _run_cli(*args: str, timeout: float = 30) -> subprocess.CompletedProcess[str
 
 
 class TestGenerateManual:
-    """Non-auto mode prints the prompt for manual copy-paste."""
+    """Non-auto mode prints AI-ready prompt to stdout."""
 
     def test_help_exits_zero(self) -> None:
         result = _run_cli("--help")
         assert result.returncode == 0
         assert "generate" in result.stdout.lower()
 
-    def test_prints_prompt_md_content(self) -> None:
+    def test_starts_with_code_request(self) -> None:
         result = _run_cli()
         assert result.returncode == 0
+        assert result.stdout.startswith("Write me a Python bot file")
+
+    def test_contains_game_rules(self) -> None:
+        result = _run_cli()
         assert "# NPC Wars" in result.stdout
 
-    def test_prints_copy_paste_instructions(self) -> None:
+    def test_ends_with_output_only_instruction(self) -> None:
         result = _run_cli()
-        assert "Copy the above prompt" in result.stdout
+        stdout = result.stdout.strip()
+        assert "Output ONLY the Python file" in stdout
+        # The last line should be the output-only instruction
+        last_lines = stdout.split("\n")[-3:]
+        joined = "\n".join(last_lines)
+        assert "Output ONLY" in joined
+
+    def test_no_meta_text_in_stdout(self) -> None:
+        """Stdout should be pure prompt -- no 'Copy' instructions."""
+        result = _run_cli()
+        assert "Copy the above" not in result.stdout
+        assert "Agent Grounds" not in result.stdout
+
+    def test_copy_instructions_on_stderr(self) -> None:
+        """Usage hints go to stderr, not stdout."""
+        result = _run_cli()
+        assert "paste" in result.stderr.lower() or "save" in result.stderr.lower()
 
     def test_strategy_appended(self) -> None:
         result = _run_cli("--strategy", "rush center")

@@ -1,0 +1,13 @@
+id: plan-2026-03-s40-pypi
+title: 'Sprint 40: PyPI Release + Install Flow'
+type: chore
+status: planned
+created_at: '2026-03-23T06:00:00.000000'
+goals:
+- pip install agent-grounds works from clean venv
+- agentgrounds wars init → play in 3 commands
+- PROMPT.md bundled in package data (generate command works post-install)
+- CI publish pipeline (GitHub Actions → PyPI on tagged release)
+- README rewrite for external users
+- External user test gate (watch a stranger use it)
+- Fix generate command framing for paste-into-Claude flow

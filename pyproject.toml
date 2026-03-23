@@ -1,7 +1,8 @@
 [project]
 name = "agent-grounds"
-version = "0.1.0"
+version = "0.2.0"
 description = "Competitive bot arena platform"
+authors = [{name = "Five Dollar Fridays"}]
 requires-python = ">=3.13"
 license = "MIT"
 readme = "README.md"
@@ -14,13 +15,10 @@ classifiers = [
     "Programming Language :: Python :: 3.13",
     "Topic :: Games/Entertainment",
 ]
-dependencies = [
-    "fastapi>=0.115",
-    "uvicorn>=0.34",
-    "redis>=5.0",
-]
+dependencies = []
 
 [project.optional-dependencies]
+server = ["fastapi>=0.115", "uvicorn>=0.34", "redis>=5.0"]
 dev = [
     "pytest>=9.0",
     "pytest-cov>=7.0",
@@ -34,6 +32,9 @@ dev = [
     "google-api-python-client>=2.0",
     "google-auth-oauthlib>=1.0",
     "websockets>=13.0",
+    "fastapi>=0.115",
+    "uvicorn>=0.34",
+    "redis>=5.0",
 ]
 realtime = ["websockets>=13.0"]
 discord = ["discord.py>=2.3"]
@@ -55,6 +56,10 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["agentgrounds*", "engine*", "data*", "scripts*", "discord_bot*", "video*", "youtube*", "realtime*", "server*"]
+
+[tool.setuptools.package-data]
+"agentgrounds.wars.data" = ["*.md"]
+"agentgrounds.wars.builtin_bots" = ["*.py"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

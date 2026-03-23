@@ -50,9 +50,11 @@ def run(args: argparse.Namespace) -> None:
     if not config_path.exists() or args.force:
         write_default_config(config_path)
 
-    print(f"Initialized Agent Grounds arena at {target}")
+    print(f"\nInitialized Agent Grounds arena at {target}")
     print(f"  bots/        — {len(bot_names)} starter bots")
     print("  replays/     — match recordings")
     print(f"  {CONFIG_FILENAME} — configuration")
-    print("\nNext: agentgrounds wars wizard   (create your own bot)")
-    print("      agentgrounds wars battle   (run a match)")
+    print("\nNext steps:")
+    print("  agentgrounds wars play          # Watch your first match!")
+    print("  agentgrounds wars generate      # Create a bot with AI")
+    print("  bots/starter.py                 # Edit the starter bot")
