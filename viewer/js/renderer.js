@@ -114,6 +114,16 @@ function renderCanvas(round) {
     ctx.stroke();
   }
 
+  // Build character descriptor lookup from matchData.players
+  var characterLookup = {};
+  if (matchData && matchData.players) {
+    matchData.players.forEach(function(p) {
+      if (p.character) {
+        characterLookup[p.emoji] = p.character;
+      }
+    });
+  }
+
   // Draw bots
   var BASE_RADIUS = 14;
 
@@ -121,7 +131,8 @@ function renderCanvas(round) {
     var px = pos.x * TILE_SIZE + TILE_SIZE / 2;
     var py = pos.y * TILE_SIZE + TILE_SIZE / 2;
     var archetype = botArchetypes[pos.emoji] || null;
-    var hasArchetype = archetype !== null;
+    var character = characterLookup[pos.emoji] || null;
+    var hasArchetype = archetype !== null || character !== null;
     var radius = BASE_RADIUS;
 
     if (!pos.alive) {
@@ -148,7 +159,7 @@ function renderCanvas(round) {
       // Draw geometric shape
       var maxHp = pos.max_hp || 100;
       var hpPct = Math.max(0, pos.hp / maxHp);
-      drawBotShape(ctx, px, py, archetype, hpPct, radius);
+      drawBotShape(ctx, px, py, archetype, hpPct, radius, character);
     } else {
       // Fallback: emoji for old matches without archetype data
       ctx.font = EMOJI_SIZE + 'px serif';

@@ -88,29 +88,108 @@ function drawDiamond(ctx, cx, cy, r) {
   ctx.stroke();
 }
 
-function drawBotShape(ctx, x, y, archetype, hpPct, radius) {
-  const color = ARCHETYPE_COLORS[archetype] || ARCHETYPE_COLORS.Balanced;
+function interpolateColor(hex1, hex2, t) {
+  var r1 = parseInt(hex1.slice(1, 3), 16);
+  var g1 = parseInt(hex1.slice(3, 5), 16);
+  var b1 = parseInt(hex1.slice(5, 7), 16);
+  var r2 = parseInt(hex2.slice(1, 3), 16);
+  var g2 = parseInt(hex2.slice(3, 5), 16);
+  var b2 = parseInt(hex2.slice(5, 7), 16);
+  var r = Math.round(r1 + (r2 - r1) * t);
+  var g = Math.round(g1 + (g2 - g1) * t);
+  var b = Math.round(b1 + (b2 - b1) * t);
+  return 'rgb(' + r + ',' + g + ',' + b + ')';
+}
 
-  // HP-based opacity
-  let alpha = 1.0;
-  if (hpPct <= 0.25) alpha = 0.3;
-  else if (hpPct <= 0.5) alpha = 0.5;
-  else if (hpPct <= 0.75) alpha = 0.7;
-
-  ctx.globalAlpha = alpha;
+function drawWeaponIndicator(ctx, cx, cy, radius, indicator, color) {
+  var wx = cx + radius * 0.7;
+  var wy = cy - radius * 0.7;
   ctx.fillStyle = color;
   ctx.strokeStyle = color;
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 1.5;
 
-  switch (archetype) {
-    case 'Tank': drawSquare(ctx, x, y, radius); break;
-    case 'Assassin': drawTriangle(ctx, x, y, radius); break;
-    case 'Bruiser': drawHexagon(ctx, x, y, radius); break;
-    case 'Controller': drawDiamond(ctx, x, y, radius); break;
+  switch (indicator) {
+    case 'dot':
+      ctx.beginPath();
+      ctx.arc(wx, wy, 3, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    case 'line':
+      ctx.beginPath();
+      ctx.moveTo(wx - 4, wy + 4);
+      ctx.lineTo(wx + 4, wy - 4);
+      ctx.stroke();
+      break;
+    case 'long_line':
+      ctx.beginPath();
+      ctx.moveTo(wx - 6, wy + 6);
+      ctx.lineTo(wx + 6, wy - 6);
+      ctx.stroke();
+      break;
+    case 'wedge':
+      ctx.beginPath();
+      ctx.moveTo(wx, wy - 5);
+      ctx.lineTo(wx + 4, wy + 3);
+      ctx.lineTo(wx - 4, wy + 3);
+      ctx.closePath();
+      ctx.fill();
+      break;
+    case 'arc':
+      ctx.beginPath();
+      ctx.arc(wx, wy, 4, -Math.PI * 0.6, Math.PI * 0.6);
+      ctx.stroke();
+      break;
+    case 'circle':
+      ctx.beginPath();
+      ctx.arc(wx, wy, 3, 0, Math.PI * 2);
+      ctx.stroke();
+      break;
+  }
+}
+
+function drawBotShape(ctx, x, y, archetype, hpPct, radius, character) {
+  var color = character ? character.color : (ARCHETYPE_COLORS[archetype] || ARCHETYPE_COLORS.Balanced);
+  var borderThickness = character ? character.border_thickness : 2;
+  var shape = character ? character.shape : (ARCHETYPE_SHAPES[archetype] || 'circle');
+
+  // HP-dependent color: interpolate toward gray as HP drops
+  var hpColor = interpolateColor(
+    color.charAt(0) === '#' ? color : '#e0e0f0',
+    '#333333',
+    1 - hpPct
+  );
+
+  ctx.globalAlpha = 1.0;
+  ctx.fillStyle = hpColor;
+  ctx.strokeStyle = color;
+  ctx.lineWidth = borderThickness;
+
+  switch (shape) {
+    case 'square': drawSquare(ctx, x, y, radius); break;
+    case 'triangle': drawTriangle(ctx, x, y, radius); break;
+    case 'hexagon': drawHexagon(ctx, x, y, radius); break;
+    case 'diamond': drawDiamond(ctx, x, y, radius); break;
     default: drawCircle(ctx, x, y, radius); break;
   }
 
+  // Draw weapon indicator
+  if (character && character.weapon_indicator) {
+    drawWeaponIndicator(ctx, x, y, radius, character.weapon_indicator, color);
+  }
+
   ctx.globalAlpha = 1.0;
+}
+
+function drawCharacterPreview(canvasId, descriptor) {
+  var canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  var pCtx = canvas.getContext('2d');
+  var cx = canvas.width / 2;
+  var cy = canvas.height / 2;
+  var radius = Math.min(canvas.width, canvas.height) * 0.3;
+
+  pCtx.clearRect(0, 0, canvas.width, canvas.height);
+  drawBotShape(pCtx, cx, cy, descriptor.archetype, 1.0, radius, descriptor);
 }
 
 function drawDeadBot(ctx, x, y, archetype, radius) {

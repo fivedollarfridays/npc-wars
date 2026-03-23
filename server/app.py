@@ -36,6 +36,10 @@ _static_dir = Path(__file__).resolve().parent / "static"
 if _static_dir.is_dir():
     app.mount("/static", StaticFiles(directory=str(_static_dir)), name="static")
 
+_viewer_dir = Path(__file__).resolve().parent.parent / "viewer"
+if _viewer_dir.is_dir():
+    app.mount("/static/viewer", StaticFiles(directory=str(_viewer_dir)), name="viewer")
+
 _cors_origins = os.environ.get(
     "NPCWARS_CORS_ORIGINS", "http://localhost:8000,http://localhost:3000"
 ).split(",")

@@ -1,0 +1,12 @@
+id: plan-2026-03-s44-characters
+title: 'Sprint 44: Code-Built Character System'
+type: feature
+status: planned
+created_at: '2026-03-23T20:00:00.000000'
+goals:
+- Weapon indicators on character shapes (dagger dot, sword line, spear shaft, axe wedge, bow arc, mace circle)
+- Armor border scaling (leather thin, chain medium, plate thick)
+- HP color gradient (bright → desaturated → dim → flickering)
+- Momentum aura glow (tier 3+ shadow, leader pulse)
+- Character preview in bot editor / profile page
+- Engine-side character descriptor for consistent rendering

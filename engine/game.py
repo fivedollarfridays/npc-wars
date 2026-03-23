@@ -14,7 +14,7 @@ from engine.callback_runner import (
     run_react_callbacks, run_setup_callbacks,
 )
 from engine.spectacle import SpectacleEngine
-from engine.archetype import classify_archetype
+from engine.character import build_character_descriptor, classify_archetype
 from engine.terrain import build_map
 from engine.traps import TrapManager
 from engine.momentum import calculate_carryover, get_tier_name
@@ -67,7 +67,13 @@ def _prepare_match(
     if mode is not None and mode.starting_hp != 100:
         for b in bots:
             b.hp = mode.starting_hp
-    players = [{"emoji": b.emoji, "name": b.name, "bio": b.bio, "author": b.author, "glyph": b.glyph} for b in bots]
+    players = []
+    for b in bots:
+        char = build_character_descriptor(stats=b.stats, equipment=b.equipment)
+        players.append({
+            "emoji": b.emoji, "name": b.name, "bio": b.bio,
+            "author": b.author, "glyph": b.glyph, "character": char,
+        })
     return bots, players, grid_size, rng
 
 
