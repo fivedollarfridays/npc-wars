@@ -66,16 +66,22 @@ The engine is feature-complete. What's missing is the *product*:
 
 #### S40: PyPI Release + Install Flow
 
-The first thing anyone tries is `pip install agent-grounds`. It needs to work.
+The single highest-leverage sprint on the roadmap. Everything downstream depends on people being able to install it.
 
 - Package build configuration (pyproject.toml, entry points, data files)
 - CI publish pipeline (GitHub Actions → PyPI on tagged release)
 - `agentgrounds wars init` creates working arena in any directory
 - Fix generate command framing (the "paste into Claude" flow)
 - README rewrite for real external users (not internal dev notes)
-- Test: fresh venv, `pip install agent-grounds`, `agentgrounds wars init`, `agentgrounds wars play`
+- Post-install experience polish: error messages, missing dependency handling, first-run guidance
 
-**Exit:** Someone who has never seen the repo runs 3 commands and watches a match.
+**Gate tests:**
+1. Fresh venv, `pip install agent-grounds`, `agentgrounds wars init`, `agentgrounds wars play` — works
+2. **External user test:** Have someone who has never seen the project run those three commands with zero context. Watch where they get confused. Fix what they hit. Ten minutes of observation surfaces more onboarding issues than a week of internal testing.
+
+**Exit:** A stranger installs, creates a bot with Claude, and watches their first match — without asking anyone for help.
+
+**Over-invest here.** Every minute spent on this sprint pays dividends in every sprint after it.
 
 #### S41: Browser Viewer Overhaul
 
@@ -91,18 +97,23 @@ The current viewer shows emojis on a canvas. It needs to show a real battle.
 
 **Exit:** Watching a match in the browser is visually engaging, not a spreadsheet with emojis.
 
-#### S42: Server Layer
+#### S42: Server Layer (Vertical Slice)
 
-Local play is a demo. Online play is a product.
+Local play is a demo. Online play is a product. Ship the boring version first, make it exciting later.
 
+**In scope (clean vertical slice):**
 - FastAPI server with bot upload endpoint (`agentgrounds wars upload my_bot.py`)
-- Matchmaking: time-limited lobby (60s), bots fill empty slots if < 4 players
+- Simple queue matchmaking: collect uploaded bots, run match when 4+ ready
 - Match execution: server runs matches, stores replay JSON
 - Replay storage: persist indefinitely, serve via API
-- WebSocket: live spectating (watch match as it runs on server)
 - Player accounts: API key authentication, match history
 - Sandboxed execution: Docker containers per match, network-isolated
 - Rate limiting: matches per hour per player
+
+**Deferred (improve an already-working system):**
+- WebSocket live spectating → S45 or later
+- MMR-based matchmaking → S50 (matchmaking brackets)
+- Time-limited lobby with countdown → after queue proves out
 
 **Exit:** Two players upload bots from different machines. They fight on the server. Both watch the replay.
 
@@ -131,14 +142,18 @@ Competition needs visibility. Community needs a home.
 
 This is the vision: stats + equipment → visual appearance. A tank looks tanky. An assassin looks sleek. You can tell what a bot does by looking at it.
 
-- Character generation engine: map stat allocation to body proportions (ARMOR → bulk, SPEED → lean)
-- Weapon rendering: each weapon type has a silhouette (dagger = short blade, spear = long shaft)
-- Armor rendering: visual weight class (leather = light outline, plate = thick border)
-- Color from archetype: Bruiser = red tones, Tank = blue, Assassin = purple, Controller = green
-- HP-dependent rendering: full HP = bright, wounded = desaturated, critical = flickering
-- Canvas integration: replace emoji rendering with generated character sprites
+**Approach: Geometry Wars aesthetic.** Styled geometric shapes scaled by stats, not procedural character sprites. Abstract shapes with good color and animation read better at small canvas sizes than detailed sprites. This may be the permanent solution, not a fallback.
 
-**Exit:** Two bots with different stats and equipment look visually distinct on screen. You know who's the tank without reading the roster.
+- Shape from archetype: circles (balanced), squares (tank), triangles (assassin), diamonds (controller), hexagons (bruiser)
+- Size from ARMOR stat: high armor = larger shape, more visual mass
+- Border thickness from equipment armor: leather = thin, plate = thick
+- Color from archetype: Bruiser = red, Tank = blue, Assassin = purple, Controller = green, Balanced = white
+- Weapon indicator: small attached shape (dagger = dot, sword = line, spear = long line, axe = wedge, bow = arc, mace = circle)
+- HP-dependent rendering: full HP = bright/saturated, wounded = desaturated, critical = flickering/pulsing
+- Momentum aura: tier 3+ gets glow ring, leader gets crown particle effect
+- Canvas integration: replace emoji text rendering with drawn shapes
+
+**Exit:** Two bots with different stats and equipment are visually distinct geometric shapes. You know who's the tank without reading the roster. It looks clean, not like a placeholder.
 
 #### S45: Kill Cam + Animations + Sound
 
@@ -185,53 +200,34 @@ The AI spectator sport thesis gets tested.
 
 **Goal:** Multiple games, advanced features, growth. Agent Grounds is a platform.
 
-#### S48: NPC-SDK Extraction
+#### S48-S49: NPC Racing → SDK Extraction
 
-Wars is the template. Extract what's shared.
+**Ship Racing with duplication first, then extract the shared layer.** Abstracting from one example is guessing. Abstracting from two is pattern recognition.
 
-- Compare Wars codebase to identify shared vs game-specific code (~70%/30% split)
-- Extract into `npc-sdk` package: CLI skeleton, bot scanner, sandbox, renderer framework, replay format, XP system, equipment validation, generate command
-- Wars depends on `npc-sdk` going forward
-- SDK documentation and starter template for new games
-
-#### S49: NPC Racing
-
-Second game validates the SDK.
-
-- F1-inspired: tire compounds, weather, pit strategy, DRS, fuel management
-- Built on `npc-sdk` — copy Wars pattern, replace domain content
+**S48: NPC Racing (with duplication)**
+- Fork Wars experience layer, replace domain content with F1 racing
+- Tire compounds, weather, pit strategy, DRS, fuel management
 - Racing PROMPT.md with real F1 domain knowledge
 - Ship to PyPI as `npc-race`
-- If the SDK works, any future game is 30% new code
+- Accept code duplication with Wars — deliberately do not abstract yet
+
+**S49: SDK Extraction (from two working games)**
+- Compare Wars and Racing implementations side by side
+- Extract shared infrastructure into `npc-sdk`: CLI skeleton, bot scanner, sandbox, renderer framework, replay format, XP system, generate command
+- Both games depend on `npc-sdk` going forward
+- SDK documentation and starter template for new games
+- Budget as a double sprint if coupling surprises emerge
 
 #### S50: Matchmaking Brackets
 
 Fair fights create engagement.
 
 - Skill tiers: Rookie/Veteran/Elite/Champion/Open
-- Bracket enforcement: can't smurf lower tiers
+- MMR-based matchmaking (deferred from S42 vertical slice)
+- Bracket enforcement
 - Seasonal resets with rewards
-- Promotion/demotion matches
 
-#### S51: Advanced Analytics
-
-Help players improve.
-
-- Per-match heatmaps: where you fought, where you died
-- Coaching tips: "You die to tanks 60% — try shifting 5 pts POWER → SPEED"
-- Replay analysis: round-by-round decision review
-- Build comparison tool: see how your loadout performs vs alternatives
-
-#### S52: Mobile Viewer
-
-Watch everywhere.
-
-- Responsive canvas viewer (already started in S41)
-- Lightweight native wrapper or PWA
-- Push notifications for match results
-- Watch tournaments on mobile
-
-#### S53: Launch Polish + Event
+#### S51: Launch Polish
 
 Ship it.
 
@@ -239,7 +235,11 @@ Ship it.
 - Onboarding flow: archetype quiz → starter bot → first match in 2 minutes
 - Template picker by playstyle (aggressive, defensive, balanced, trapper, mage)
 - Press kit with screenshots, GIFs, one-pager
-- Launch event: 100-player open tournament, streamed, with commentary
+
+**Deprioritized (nice-to-have, not critical path):**
+- **Advanced analytics / coaching tips** — the diff view and replay system already provide feedback. Ship when player base proves demand.
+- **Mobile native wrapper** — responsive canvas from S41 covers mobile browsers. Native wrapper is scope creep for a developer audience already at their computers.
+- **100-player launch event** — a marketing milestone, not an engineering one. If tournaments work at 32 players (S47), they work. The event happens when it's ready, not on a sprint schedule.
 
 ---
 
@@ -250,18 +250,20 @@ Ship it.
             ▼
 S40-S43     Phase 3A: Playable Product (pip install, viewer, server, Discord)
             ▼
-            Milestone: First external players
+            Milestone: First external players, first online matches
             ▼
 S44-S47     Phase 3B: Spectacle (characters, sound, cosmetics, tournaments)
             ▼
             Milestone: First tournament, first revenue
             ▼
-S48-S53     Phase 4: Scale (SDK, Racing, matchmaking, analytics, mobile, launch)
+S48-S51     Phase 4: Scale (Racing, SDK, matchmaking, launch)
             ▼
-            Milestone: Multi-game platform, 100-player event
+            Milestone: Multi-game platform live
             ▼
-2027-03     v1.0 — Agent Grounds is a product, a platform, and a spectator sport
+2027        v1.0 — Agent Grounds is a product, a platform, and a spectator sport
 ```
+
+**Total remaining: 12 sprints** (S40-S51). Trimmed from 14 by cutting mobile native wrapper and advanced analytics from critical path.
 
 ## Milestone Markers
 
@@ -272,8 +274,8 @@ S48-S53     Phase 4: Scale (SDK, Racing, matchmaking, analytics, mobile, launch)
 | First Discord match | S43 | Community loop works |
 | First paid cosmetic | S46 | Monetization works |
 | First tournament | S47 | Spectator sport validated |
-| Second game ships | S49 | Platform validated |
-| 100-player event | S53 | Scale validated |
+| Racing ships | S48 | Second game works (with duplication) |
+| SDK extracted | S49 | Platform architecture validated |
 
 ## Revenue Model
 
