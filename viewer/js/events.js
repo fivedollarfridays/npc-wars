@@ -68,6 +68,17 @@ function renderEventFX(round) {
         var py = victim.y * TILE_SIZE + TILE_SIZE / 2;
         shatterEffect(px, py, '#ff3e3e');
         deathExplosion(px, py);
+
+        // Kill cam for high-drama kills
+        var spectacleTier = round.spectacle ? round.spectacle.tier : 'calm';
+        if (spectacleTier === 'intense' || spectacleTier === 'hype' || spectacleTier === 'chaos') {
+          triggerKillCam(document.getElementById('arena-canvas'), px, py, 1500);
+        }
+
+        // Death animation
+        var victimColor = (typeof ARCHETYPE_COLORS !== 'undefined' && botArchetypes[evt.victim])
+          ? ARCHETYPE_COLORS[botArchetypes[evt.victim]] : '#ff4444';
+        playDeathAnimation(ctx, px, py, victimColor);
       }
     } else if (evt.type === 'trap_placed') {
       // Small red diamond marker at tile position
@@ -97,6 +108,7 @@ function renderEventFX(round) {
       ctx.font = 'bold 12px monospace';
       ctx.textAlign = 'center';
       ctx.fillText('-' + Math.round(evt.damage || 0), tx, ty - TILE_SIZE * 0.4);
+      if (window.audioEngine) window.audioEngine.playSynth('trap_trigger');
     } else if (evt.type === 'tactical_activate') {
       // Yellow lightning bolt flash on bot tile
       var bot = round.positions.find(function(p) { return p.emoji === evt.emoji; });
@@ -110,6 +122,7 @@ function renderEventFX(round) {
         ctx.textBaseline = 'middle';
         ctx.fillText('\u26A1', bx, by - TILE_SIZE * 0.3);
         ctx.globalAlpha = 1.0;
+        if (window.audioEngine) window.audioEngine.playSynth('tactical_activate');
       }
     } else if (evt.type === 'ability_damage') {
       // Purple line from caster toward target
@@ -136,6 +149,7 @@ function renderEventFX(round) {
         ctx.font = 'bold 12px monospace';
         ctx.textAlign = 'center';
         ctx.fillText('-' + Math.round(evt.damage || 0), tx, ty - TILE_SIZE * 0.4);
+        if (window.audioEngine) window.audioEngine.playSynth('ability_damage');
       }
     } else if (evt.type === 'ability_heal') {
       // Green expanding rings on bot
@@ -154,6 +168,7 @@ function renderEventFX(round) {
         ctx.arc(bx, by, TILE_SIZE * 0.5, 0, Math.PI * 2);
         ctx.stroke();
         ctx.globalAlpha = 1.0;
+        if (window.audioEngine) window.audioEngine.playSynth('ability_heal');
       }
     } else if (evt.type === 'ability_shield') {
       // Blue circle outline around bot
@@ -168,6 +183,7 @@ function renderEventFX(round) {
         ctx.arc(bx, by, TILE_SIZE * 0.45, 0, Math.PI * 2);
         ctx.stroke();
         ctx.globalAlpha = 1.0;
+        if (window.audioEngine) window.audioEngine.playSynth('ability_shield');
       }
     } else if (evt.type === 'ability_slow') {
       // Purple dots trailing from target
@@ -185,6 +201,7 @@ function renderEventFX(round) {
           ctx.fill();
         }
         ctx.globalAlpha = 1.0;
+        if (window.audioEngine) window.audioEngine.playSynth('ability_slow');
       }
     } else if (evt.type === 'evolve') {
       // Golden starburst expanding from bot
@@ -204,6 +221,7 @@ function renderEventFX(round) {
           ctx.stroke();
         }
         ctx.globalAlpha = 1.0;
+        if (window.audioEngine) window.audioEngine.playSynth('evolve');
       }
     } else if (evt.type === 'crystal_pickup') {
       // Magenta sparkle particles at position
@@ -219,6 +237,7 @@ function renderEventFX(round) {
         ctx.fill();
       }
       ctx.globalAlpha = 1.0;
+      if (window.audioEngine) window.audioEngine.playSynth('crystal_pickup');
     } else if (evt.type === 'wall_blocked') {
       // Red flash on wall tile
       ctx.fillStyle = 'rgba(255, 60, 60, 0.4)';

@@ -1,0 +1,12 @@
+id: plan-2026-03-s45-spectacle
+title: 'Sprint 45: Kill Cam + Animations + Sound'
+type: feature
+status: planned
+created_at: '2026-03-23T22:00:00.000000'
+goals:
+- Kill cam effect on eliminations (slow-mo zoom, 1.5s hold)
+- Death animation (character dims → particles → empty tile)
+- Screen shake on critical hits (canvas transform)
+- New audio stingers for abilities, traps, terrain events
+- Terrain-specific ambient audio (water, storm)
+- Round transition effects
