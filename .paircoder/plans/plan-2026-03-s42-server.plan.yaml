@@ -1,0 +1,12 @@
+id: plan-2026-03-s42-server
+title: 'Sprint 42: Server Layer (Vertical Slice)'
+type: feature
+status: planned
+created_at: '2026-03-23T14:00:00.000000'
+goals:
+- Wire bot submission → lobby → queue → match → replay pipeline end-to-end
+- Player auth via API keys (generate on first upload)
+- Bot persistence with player ownership
+- Lobby HTTP endpoints (join, status)
+- CLI upload command (agentgrounds killswitch upload my_bot.py)
+- E2E test: two players upload → fight → both watch replay

@@ -17,6 +17,7 @@ def _register_subcommands(subs: argparse._SubParsersAction) -> None:
         cmd_play,
         cmd_profile,
         cmd_sim,
+        cmd_upload,
         cmd_validate,
         cmd_watch,
         cmd_wizard,
@@ -25,6 +26,7 @@ def _register_subcommands(subs: argparse._SubParsersAction) -> None:
     for cmd in (
         cmd_init, cmd_wizard, cmd_validate, cmd_battle, cmd_watch,
         cmd_generate, cmd_play, cmd_sim, cmd_analyze, cmd_profile,
+        cmd_upload,
     ):
         cmd.register(subs)
 
