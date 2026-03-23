@@ -9,6 +9,7 @@ from engine.tactical import apply_overdrive
 from engine.callbacks import discover_callbacks
 from engine.grid import calculate_grid_size, spawn_positions
 from engine.match_modes import MatchMode
+from engine.character import build_character_descriptor
 
 __all__ = ["create_bots", "prepare_match"]
 
@@ -66,5 +67,11 @@ def prepare_match(
     if mode is not None and mode.starting_hp != 100:
         for b in bots:
             b.hp = mode.starting_hp
-    players = [{"emoji": b.emoji, "name": b.name, "bio": b.bio, "author": b.author, "glyph": b.glyph} for b in bots]
+    players = []
+    for b in bots:
+        char = build_character_descriptor(stats=b.stats, equipment=b.equipment)
+        players.append({
+            "emoji": b.emoji, "name": b.name, "bio": b.bio,
+            "author": b.author, "glyph": b.glyph, "character": char,
+        })
     return bots, players, grid_size, rng

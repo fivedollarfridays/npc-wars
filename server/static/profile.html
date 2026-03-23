@@ -120,6 +120,9 @@
   <h1>PROFILE</h1>
 </div>
 <div id="player-id" class="player-id"></div>
+<div style="text-align:center;margin:20px 0">
+  <canvas id="character-preview" width="80" height="80" style="border:1px solid var(--border);border-radius:8px;background:var(--surface)"></canvas>
+</div>
 <div id="stats-section">
   <div id="loading" class="loading">Loading stats...</div>
   <div id="stats-grid" class="stats-grid" style="display:none"></div>
@@ -194,6 +197,21 @@
 
   loadStats();
   loadHistory();
+
+  // Load character preview if shapes.js available
+  async function loadCharacterPreview() {
+    try {
+      var resp = await fetch('/api/stats/' + encodeURIComponent(playerId));
+      if (!resp.ok) return;
+      var data = await resp.json();
+      var character = data.character;
+      if (character && typeof drawCharacterPreview === 'function') {
+        drawCharacterPreview('character-preview', character);
+      }
+    } catch (e) { /* silent */ }
+  }
 </script>
+<script src="/static/viewer/js/shapes.js" onerror=""></script>
+<script>if (typeof drawCharacterPreview === 'function') loadCharacterPreview();</script>
 </body>
 </html>
