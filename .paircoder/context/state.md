@@ -1,46 +1,42 @@
 # Current State
 
-> Last updated: 2026-03-23 S42 planned
+> Last updated: 2026-03-23 S43 planned
 
 ## Active Plans
 
-**Plan:** Sprint 42: Server Layer (Vertical Slice)
-- **Sprint:** S42 | **Type:** feature | **Status:** Planned (4 tasks, T42.1-T42.4)
-- **Part of:** Phase 3A — Playable Product (S40-S43)
-- **Plan ID:** plan-2026-03-s42-server
+**Plan:** Sprint 43: Leaderboard + Discord (Phase 3A Final)
+- **Sprint:** S43 | **Type:** feature | **Status:** Planned (4 tasks, T43.1-T43.4)
+- **Part of:** Phase 3A — Playable Product (S40-S43) — FINAL SPRINT
+- **Plan ID:** plan-2026-03-s43-leaderboard
 
-### S42 Tasks
+### S43 Tasks
 
 | Task | Title | Cx | Depends On | Status |
 |------|-------|----|------------|--------|
-| T42.1 | Player auth + bot persistence | 25 | — | done |
-| T42.2 | Lobby HTTP endpoints + matchmaking pipeline | 30 | T42.1 | done |
-| T42.3 | CLI upload command | 20 | T42.1 | done |
-| T42.4 | GATE: Server E2E — two players fight online | 20 | all | pending |
+| T43.1 | Web leaderboard + player profile pages | 30 | — | done |
+| T43.2 | Discord match announcements + challenge | 25 | — | done |
+| T43.3 | CLI leaderboard command | 15 | T43.1 | pending |
+| T43.4 | GATE: Phase 3A completion — full product loop | 15 | all | pending |
 
-### S42 Wave Plan
+### S43 Wave Plan
 
 ```
-Wave 1:             T42.1 — player auth + bot storage              (25 Cx)
-Wave 2 (parallel):  T42.2 (lobby/matchmaking) + T42.3 (CLI upload) (50 Cx)
-Wave 3:             T42.4 — SERVER E2E GATE                        (20 Cx)
+Wave 1 (parallel):  T43.1 (web pages) + T43.2 (Discord)           (55 Cx)
+Wave 2:             T43.3 — CLI leaderboard                        (15 Cx)
+Wave 3:             T43.4 — PHASE 3A GATE                          (15 Cx)
 ```
 
 ## Current Focus
 
-Wave 2 complete (T42.2 + T42.3). T42.4 (Server E2E gate) unblocked.
+T43.1 done. T43.3 (CLI leaderboard) unblocked.
 
 ## What Was Just Done
 
-**T42.3: CLI upload command** — `agentgrounds wars upload my_bot.py` with local bot_scanner validation, POST /api/submit-bot, auto lobby join + match polling, --no-join/--server/--api-key flags, ~/.agentgrounds/config.json for API key persistence. 15 new tests (all mocked, no server needed).
-
-**T42.2: Lobby HTTP endpoints + matchmaking pipeline** — POST /api/lobby/join, GET /api/lobby/status, GET /api/lobby/history endpoints. match_players table for tracking. Lobby fills trigger enqueue_match pipeline. 11 new tests (3 DB + 8 HTTP).
-
-**T42.1: Player auth + bot persistence** — API key auth, bot storage in SQLite, submit-bot now persists bots, GET /api/bots routes added. 20 new tests (12 DB + 8 HTTP).
+**T43.1 done** — Web leaderboard + player profile pages. Created `server/routes/pages.py` (GET /leaderboard, GET /profile/{id}), `server/static/leaderboard.html` (sortable table), `server/static/profile.html` (stats + match history). Added GET /api/matches/{player_id} to stats.py. 5 tests, all passing.
 
 ## What's Next
 
-T42.4 (GATE: Server E2E -- two players fight online). All dependencies met.
+T43.3 (CLI leaderboard command, depends on T43.1 which is now done).
 
 ## Completed Sprints
 
@@ -52,3 +48,4 @@ T42.4 (GATE: Server E2E -- two players fight online). All dependencies met.
 | S32-S39 | Phase 2: Depth | #27-#34 | Done |
 | S40 | PyPI Release + Install Flow | #35 | Done |
 | S41 | Browser Viewer Overhaul | #36 | Done |
+| S42 | Server Layer (Multiplayer) | #38 | Done |

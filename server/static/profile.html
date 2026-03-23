@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kill Switch -- PROFILE</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Silkscreen:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131f;
+    --border: #1e1e33;
+    --text: #e0e0f0;
+    --muted: #6a6a8a;
+    --accent: #ff3e6c;
+    --accent2: #00e5ff;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .header {
+    text-align: center;
+    padding: 20px 0 30px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 30px;
+  }
+  .header h1 {
+    font-family: 'Silkscreen', cursive;
+    font-size: 28px;
+    letter-spacing: 4px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .back-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    color: var(--accent2);
+    text-decoration: none;
+    font-size: 13px;
+  }
+  .back-link:hover { color: var(--accent); }
+  .player-id {
+    font-size: 48px;
+    text-align: center;
+    margin: 10px 0 20px;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    max-width: 700px;
+    margin: 0 auto 30px;
+  }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px;
+    text-align: center;
+  }
+  .stat-card .label {
+    font-size: 10px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .stat-card .value {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent2);
+  }
+  h2 {
+    font-family: 'Silkscreen', cursive;
+    font-size: 16px;
+    color: var(--accent);
+    margin: 20px 0 12px;
+    text-align: center;
+    letter-spacing: 2px;
+  }
+  table {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    border-collapse: collapse;
+  }
+  th, td {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+    font-size: 13px;
+  }
+  th {
+    color: var(--accent2);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  a { color: var(--accent2); text-decoration: none; }
+  a:hover { color: var(--accent); }
+  .win-badge { color: #ffd700; }
+  .loss-badge { color: var(--muted); }
+  .loading {
+    text-align: center;
+    color: var(--muted);
+    padding: 40px;
+  }
+</style>
+</head>
+<body>
+<a href="/leaderboard" class="back-link">&lt; Back to Leaderboard</a>
+<div class="header">
+  <h1>PROFILE</h1>
+</div>
+<div id="player-id" class="player-id"></div>
+<div id="stats-section">
+  <div id="loading" class="loading">Loading stats...</div>
+  <div id="stats-grid" class="stats-grid" style="display:none"></div>
+</div>
+<h2 id="history-title" style="display:none">Match History</h2>
+<table id="history" style="display:none">
+  <thead><tr>
+    <th>Match</th><th>Winner</th><th>Players</th><th>Rounds</th><th></th>
+  </tr></thead>
+  <tbody id="history-rows"></tbody>
+</table>
+<script>
+  var playerId = decodeURIComponent(window.location.pathname.split('/profile/')[1] || '');
+  document.getElementById('player-id').textContent = playerId;
+  document.title = 'Kill Switch -- ' + playerId;
+
+  async function loadStats() {
+    try {
+      var resp = await fetch('/api/stats/' + encodeURIComponent(playerId));
+      if (!resp.ok) {
+        document.getElementById('loading').textContent = 'No stats found.';
+        return;
+      }
+      var data = await resp.json();
+      document.getElementById('loading').style.display = 'none';
+      var grid = document.getElementById('stats-grid');
+      grid.style.display = 'grid';
+
+      var cards = [
+        {label: 'Win Rate', value: ((data.win_rate || 0) * 100).toFixed(1) + '%'},
+        {label: 'Avg Kills', value: (data.kills || 0).toFixed(1)},
+        {label: 'Avg Damage', value: (data.damage_dealt || 0).toFixed(0)},
+        {label: 'Avg Taken', value: (data.damage_taken || 0).toFixed(0)},
+        {label: 'Avg Place', value: (data.avg_placement || 0).toFixed(1)},
+      ];
+      grid.innerHTML = cards.map(function(c) {
+        return '<div class="stat-card"><div class="label">' + c.label
+          + '</div><div class="value">' + c.value + '</div></div>';
+      }).join('');
+    } catch (err) {
+      document.getElementById('loading').textContent = 'Failed to load stats.';
+    }
+  }
+
+  async function loadHistory() {
+    try {
+      var resp = await fetch('/api/matches/' + encodeURIComponent(playerId));
+      if (!resp.ok) return;
+      var data = await resp.json();
+      if (data.length === 0) return;
+
+      document.getElementById('history-title').style.display = 'block';
+      var table = document.getElementById('history');
+      table.style.display = 'table';
+      var tbody = document.getElementById('history-rows');
+
+      tbody.innerHTML = data.map(function(m) {
+        var isWin = m.winner === playerId;
+        var badge = isWin ? '<span class="win-badge">W</span>'
+                         : '<span class="loss-badge">L</span>';
+        var mid = String(m.match_id).padStart(3, '0');
+        return '<tr>'
+          + '<td>' + badge + ' #' + mid + '</td>'
+          + '<td>' + m.winner + '</td>'
+          + '<td>' + m.player_count + '</td>'
+          + '<td>' + m.duration_rounds + '</td>'
+          + '<td><a href="/static/viewer/index.html?match=' + mid + '">Watch</a></td>'
+          + '</tr>';
+      }).join('');
+    } catch (err) { /* silent */ }
+  }
+
+  loadStats();
+  loadHistory();
+</script>
+</body>
+</html>
