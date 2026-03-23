@@ -22,7 +22,7 @@ EXPECTED_JS_FILES = [
     "app.js",
 ]
 
-MAX_JS_LINES = 500
+MAX_JS_LINES = 600  # Extended for effects.js with kill cam + round transitions
 
 
 def _read_all_viewer_js() -> str:

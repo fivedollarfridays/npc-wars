@@ -1,10 +1,89 @@
 /**
- * effects.js — Particle effects, spectacle effects, screen shake.
+ * effects.js — Particle effects, spectacle effects, screen shake, kill cam.
  *
  * Contains shatterEffect, deathExplosion, attackSwoosh, applySpectacleEffects,
  * glitchEffect, darkEntranceEffect, skullFlashEffect, pulseWaveEffect,
- * multiballEffect, splitScreenEffect, showBanner.
+ * multiballEffect, splitScreenEffect, showBanner, triggerKillCam,
+ * updateKillCam, playDeathAnimation.
  */
+
+// Kill cam state
+var killCamActive = false;
+var killCamTimer = 0;
+var killCamX = 0;
+var killCamY = 0;
+var savedSpeed = 1;
+var _deathParticles = [];
+
+function triggerKillCam(canvasEl, x, y, duration) {
+  if (killCamActive) return;  // don't stack
+  killCamActive = true;
+  killCamX = x;
+  killCamY = y;
+  killCamTimer = duration || 1500;
+  savedSpeed = speed || 1;
+  speed = 0.25;  // slow-mo
+
+  // Zoom canvas via CSS transform
+  canvasEl.style.transition = 'transform 0.3s ease';
+  canvasEl.style.transformOrigin = (x / canvasEl.width * 100) + '% ' + (y / canvasEl.height * 100) + '%';
+  canvasEl.style.transform = 'scale(1.8)';
+}
+
+function updateKillCam(canvasEl, dt) {
+  if (!killCamActive) return;
+  killCamTimer -= dt;
+  if (killCamTimer <= 0) {
+    killCamActive = false;
+    speed = savedSpeed;
+    canvasEl.style.transition = 'transform 0.3s ease';
+    canvasEl.style.transform = 'scale(1)';
+  }
+}
+
+function playDeathAnimation(octx, x, y, color, callback) {
+  var frames = [
+    { opacity: 0.5, scale: 1.0, delay: 0 },
+    { opacity: 0.2, scale: 0.8, delay: 200 },
+    { opacity: 0.0, scale: 0.5, delay: 400 },
+  ];
+  var fillColor = color || '#ff4444';
+  var startTime = Date.now();
+
+  function animate() {
+    var elapsed = Date.now() - startTime;
+    var frame = frames[0];
+    for (var i = frames.length - 1; i >= 0; i--) {
+      if (elapsed >= frames[i].delay) { frame = frames[i]; break; }
+    }
+
+    octx.save();
+    octx.globalAlpha = frame.opacity;
+    octx.fillStyle = fillColor;
+    octx.beginPath();
+    octx.arc(x, y, 14 * frame.scale, 0, Math.PI * 2);
+    octx.fill();
+    octx.restore();
+
+    if (elapsed < 600) {
+      requestAnimationFrame(animate);
+    } else {
+      // particle burst at end
+      for (var i = 0; i < 8; i++) {
+        var angle = (i / 8) * Math.PI * 2;
+        _deathParticles.push({
+          x: x, y: y,
+          vx: Math.cos(angle) * 2,
+          vy: Math.sin(angle) * 2,
+          life: 30,
+          color: fillColor,
+        });
+      }
+      if (callback) callback();
+    }
+  }
+  animate();
+}
 
 function applySpectacleEffects(tier, triggers, effects) {
   var grid = document.getElementById('arena-canvas');
@@ -379,4 +458,54 @@ function deathExplosion(x, y) {
         else overlay.remove();
     }
     requestAnimationFrame(animate);
+}
+
+// --- Round transition + winner celebration ---
+
+function showRoundNumber(ctx, canvas, roundNum) {
+    ctx.save();
+    ctx.globalAlpha = 0.6;
+    ctx.fillStyle = '#00e5ff';
+    ctx.font = 'bold 32px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('R' + roundNum, canvas.width / 2, canvas.height / 2);
+    ctx.restore();
+}
+
+function showWinnerCelebration(ctx, canvas, winnerX, winnerY, color) {
+    var particles = [];
+    for (var i = 0; i < 16; i++) {
+        particles.push({
+            x: winnerX, y: winnerY,
+            vx: (Math.random() - 0.5) * 4,
+            vy: -Math.random() * 5 - 2,
+            life: 60 + Math.random() * 40,
+            color: i % 2 === 0 ? '#ffd700' : (color || '#ffffff'),
+        });
+    }
+    window._winnerParticles = particles;
+    ctx.save();
+    ctx.fillStyle = '#ffd700';
+    ctx.font = 'bold 28px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = '#ffd700';
+    ctx.shadowBlur = 20;
+    ctx.fillText('WINNER', canvas.width / 2, canvas.height / 2 - 30);
+    ctx.shadowBlur = 0;
+    ctx.restore();
+}
+
+function showMatchIntro(ctx, canvas) {
+    ctx.save();
+    ctx.fillStyle = '#ff3e6c';
+    ctx.font = 'bold 40px monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.shadowColor = '#ff3e6c';
+    ctx.shadowBlur = 30;
+    ctx.fillText('FIGHT!', canvas.width / 2, canvas.height / 2);
+    ctx.shadowBlur = 0;
+    ctx.restore();
 }
