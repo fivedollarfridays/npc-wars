@@ -1,12 +1,10 @@
 """Tests for T15.5: skull_flash, pulse_wave, multiball, split_screen effects."""
 
-from pathlib import Path
-
-MATCH_HTML = Path(__file__).resolve().parent.parent / "viewer" / "match.html"
+from conftest import read_viewer_content
 
 
 def _html() -> str:
-    return MATCH_HTML.read_text()
+    return read_viewer_content()
 
 
 # --- skull_flash ---

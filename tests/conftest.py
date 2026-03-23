@@ -1,10 +1,34 @@
 """Shared test helpers for NPC Wars tests."""
 
+from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock
 
 import discord
 
 from engine.combat import Bot
+
+
+# --- Viewer helpers ---
+
+VIEWER_DIR = Path(__file__).parent.parent / "viewer"
+
+
+def read_viewer_content() -> str:
+    """Read all viewer files (index.html + js/*.js) as combined content.
+
+    After the T41.3b modular split, viewer code lives in viewer/index.html
+    plus viewer/js/*.js. This helper reads all of them concatenated so that
+    existing structural tests continue to find function names, CSS classes, etc.
+    """
+    parts = []
+    index = VIEWER_DIR / "index.html"
+    if index.exists():
+        parts.append(index.read_text(encoding="utf-8"))
+    js_dir = VIEWER_DIR / "js"
+    if js_dir.is_dir():
+        for js_file in sorted(js_dir.glob("*.js")):
+            parts.append(js_file.read_text(encoding="utf-8"))
+    return "\n".join(parts)
 
 
 def make_bot(name="TestBot", emoji="🤖", hp=None, energy=None, x=5, y=5,

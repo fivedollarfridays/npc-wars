@@ -1,8 +1,12 @@
-# NPC Series — God Doc
+# Agent Grounds — God Doc
 
 > "You don't play. You code."
 
-The definitive reference for the NPC Series: a collection of coding games where players write Python bots that compete in simulated domains. Every game follows the same architecture but tests different real-world expertise.
+The definitive reference for Agent Grounds: a platform of coding games where players write Python bots that compete in simulated domains. Every game has its own unique name and identity but shares the same core architecture.
+
+**Platform:** Agent Grounds (agentgrounds.ai)
+**Games:** Kill Switch (battle royale), Code Circuit (F1 racing), and future titles
+**Naming:** Each game is unique — no shared naming pattern. The platform ties them together.
 
 ---
 
@@ -29,15 +33,15 @@ The player skill is **two-dimensional**:
 
 | Game | Domain | State | Actions | The Skill |
 |------|--------|-------|---------|-----------|
-| **NPC Wars** | Battle royale | position, HP, energy, enemies, storm | move, attack, defend, rest | Game theory: energy management, defend-counter, storm prediction, pattern denial |
+| **Kill Switch** | Battle royale | position, HP, energy, enemies, storm | move, attack, defend, rest | Game theory: energy management, defend-counter, storm prediction, pattern denial |
 
 ### Announced
 
 | Game | Domain | Key State Fields | Key Actions | The Real-World Knowledge |
 |------|--------|-----------------|-------------|-------------------------|
-| **NPC Race** | F1 racing | speed, tire_wear, fuel, weather, track_position, drs_zone | accelerate, brake, steer, pit_stop, use_drs | Tire compound strategy, weather gambles, undercut timing, fuel saving, slipstream physics |
-| **NPC Fighter** | 1v1 fighting | hp, stamina, stance, distance, combo_meter | punch, kick, block, dodge, special | Frame data, hitbox priority, stamina economy, read-and-react patterns |
-| **NPC Kitchen** | Fine dining | stations, orders, ingredients, timers, temperature | chop, sear, bake, plate, rest, prep | Maillard reactions, flavor chemistry, parallel cooking coordination, plating timing |
+| **Code Circuit** | F1 racing | speed, tire_wear, fuel, weather, track_position, drs_zone | accelerate, brake, steer, pit_stop, use_drs | Tire compound strategy, weather gambles, undercut timing, fuel saving, slipstream physics |
+| **future title** | 1v1 fighting | hp, stamina, stance, distance, combo_meter | punch, kick, block, dodge, special | Frame data, hitbox priority, stamina economy, read-and-react patterns |
+| **future title** | Fine dining | stations, orders, ingredients, timers, temperature | chop, sear, bake, plate, rest, prep | Maillard reactions, flavor chemistry, parallel cooking coordination, plating timing |
 | **NPC Colony** | Ant colony | workers, resources, threats, territory, pheromones | forage, build, defend, scout, breed | Swarm intelligence, resource allocation, expansion vs defense tradeoffs |
 | **NPC Heist** | Crew heist | roles, alarms, guards, loot, escape_routes | move, hack, lockpick, distract, grab | Stealth mechanics, role specialization, timing windows, escape optimization |
 | **NPC Fleet** | Naval combat | ships, wind, ammunition, formation, morale | sail, fire, board, retreat, signal | Wind advantage, formation tactics, ammunition conservation, morale management |
@@ -140,22 +144,22 @@ One command. ANSI grid renders in the terminal. Watch your bot fight/race/cook i
 
 ## Build Order
 
-### NPC Wars — Phase 1: Foundation (✅ COMPLETE, S25-S31)
+### Kill Switch — Phase 1: Foundation (✅ COMPLETE, S25-S31)
 - ✅ Stat budget, d20 combat, dodge/initiative, visual identity, balance tuning
 - 3200+ tests, 6 viable archetypes, mypy --strict
 
-### NPC Wars — Phase 2: Depth (✅ COMPLETE, S32-S39)
+### Kill Switch — Phase 2: Depth (✅ COMPLETE, S32-S39)
 - ✅ XP/leveling, callbacks, traps, equipment (23 items), abilities, terrain (5 maps)
 - ✅ Post-match diff view, archetype classification, 1000-match balance
 - 3600+ tests, 13 builtin bots
 
-### NPC Wars — Phase 3A: Playable Product (NEXT, S40-S43)
+### Kill Switch — Phase 3A: Playable Product (NEXT, S40-S43)
 - 📋 S40: PyPI release (`pip install agent-grounds`)
 - 📋 S41: Browser viewer overhaul (canvas, terrain, animation)
 - 📋 S42: Server layer (upload, matchmaking, replay storage)
 - 📋 S43: Leaderboard + Discord integration
 
-### NPC Wars — Phase 3B: Spectacle (S44-S47)
+### Kill Switch — Phase 3B: Spectacle (S44-S47)
 - 📋 S44: Code-built character system (stats → visuals)
 - 📋 S45: Kill cam + animations + generative sound
 - 📋 S46: Character customization (paid cosmetics)
@@ -163,7 +167,7 @@ One command. ANSI grid renders in the terminal. Watch your bot fight/race/cook i
 
 ### Phase 4: Scale (S48-S53)
 - 📋 S48: NPC-SDK extraction from Wars
-- 📋 S49: NPC Racing (second game on SDK)
+- 📋 S49: Code Circuit (second game on SDK)
 - 📋 S50-S53: Matchmaking brackets, analytics, mobile, launch
 
 ---

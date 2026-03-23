@@ -1,12 +1,10 @@
-"""Tests for dark_entrance spectacle effect (watcher_spawn) in viewer/match.html."""
+"""Tests for dark_entrance spectacle effect (watcher_spawn) in viewer."""
 
-from pathlib import Path
-
-MATCH_HTML = Path(__file__).resolve().parent.parent / "viewer" / "match.html"
+from conftest import read_viewer_content
 
 
 def _read_html() -> str:
-    return MATCH_HTML.read_text()
+    return read_viewer_content()
 
 
 def test_dark_entrance_overlay_css_class_exists():

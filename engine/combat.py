@@ -171,21 +171,16 @@ class Bot:
             return "fast"
         return "blazing"
 
-    def _get_trap_info(self) -> list[dict[str, Any]]:
-        """Own trap positions and expiry for state dict."""
+    def _trap_state(self) -> tuple[list[dict[str, Any]], int]:
+        """Own trap info and cooldown for state dict. Returns (traps, cooldown)."""
         if self._trap_manager is None:
-            return []
-        traps = self._trap_manager.get_traps_for(self.emoji)
-        return [
+            return [], 0
+        traps = [
             {"x": t.x, "y": t.y, "expires_in": t.expires_round - self._current_round}
-            for t in traps
+            for t in self._trap_manager.get_traps_for(self.emoji)
         ]
-
-    def _get_trap_cooldown(self) -> int:
-        """Rounds until next trap placement allowed."""
-        if self._trap_manager is None:
-            return 0
-        return int(self._trap_manager.get_cooldown_at(self.emoji, self._current_round))
+        cooldown = int(self._trap_manager.get_cooldown_at(self.emoji, self._current_round))
+        return traps, cooldown
 
     def _get_active_callbacks(self) -> list[str]:
         """List of active callback names."""
@@ -280,6 +275,7 @@ class Bot:
         """Full bot info visible to self."""
         from engine.momentum import get_tier_name
         eq, bonuses = self._equipment_dicts()
+        trap_info, trap_cd = self._trap_state()
         return {
             "x": self.x, "y": self.y, "glyph": self.glyph,
             "hp": self.hp, "energy": self.energy,
@@ -297,8 +293,8 @@ class Bot:
             "dodge_chance": self.derived.dodge_chance,
             "damage_reduction": self.derived.damage_reduction,
             "passive_rounds": self.passive_rounds,
-            "traps": self._get_trap_info(),
-            "trap_cooldown": self._get_trap_cooldown(),
+            "traps": trap_info,
+            "trap_cooldown": trap_cd,
             "tactical_cooldown": self.tactical_cooldown,
             "callbacks": self._get_active_callbacks(),
             "equipment": eq,

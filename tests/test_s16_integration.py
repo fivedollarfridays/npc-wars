@@ -14,14 +14,13 @@ from engine.loader import load_bots
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BOTS_DIR = os.path.join(PROJECT_ROOT, "bots")
-VIEWER_HTML = os.path.join(PROJECT_ROOT, "viewer", "match.html")
 
 
 @pytest.fixture()
 def viewer_html_content():
-    """Read viewer/match.html once for HTML-based tests."""
-    with open(VIEWER_HTML, encoding="utf-8") as f:
-        return f.read()
+    """Read all viewer files (index.html + js/*.js)."""
+    from conftest import read_viewer_content
+    return read_viewer_content()
 
 
 # ---- 1. Module wiring: stat_diff exports ----

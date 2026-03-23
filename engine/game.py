@@ -100,7 +100,8 @@ def _finalize_match(
                         "score": b.score,
                         "momentum_tier": b.momentum_tier,
                         "momentum_name": get_tier_name(b.score),
-                        "archetype": classify_archetype(b.stats)}
+                        "archetype": classify_archetype(b.stats),
+                        "equipment": getattr(b, "equipment", {})}
              for b in bots}
 
     # Carryover: winner gets 50% of score, capped at 50

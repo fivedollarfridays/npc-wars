@@ -4,12 +4,12 @@ import re
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-MATCH_HTML = PROJECT_ROOT / "viewer" / "match.html"
 PLAY_PY = PROJECT_ROOT / "play.py"
 
 
 def _html() -> str:
-    return MATCH_HTML.read_text(encoding="utf-8")
+    from conftest import read_viewer_content
+    return read_viewer_content()
 
 
 def _play() -> str:

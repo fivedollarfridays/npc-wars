@@ -1,12 +1,10 @@
-"""Tests for attack swoosh and death explosion effects in viewer/match.html."""
+"""Tests for attack swoosh and death explosion effects in viewer."""
 
-from pathlib import Path
-
-VIEWER_HTML = Path(__file__).resolve().parent.parent / "viewer" / "match.html"
+from conftest import read_viewer_content
 
 
 def _read_html() -> str:
-    return VIEWER_HTML.read_text()
+    return read_viewer_content()
 
 
 def _function_chunk(html: str, func_name: str, size: int = 2500) -> str:
@@ -76,19 +74,19 @@ class TestEventsWiring:
 
     def test_hit_events_trigger_swoosh(self) -> None:
         html = _read_html()
-        events_start = html.index("// Draw hit and bump effects")
-        events_chunk = html[events_start : events_start + 3000]
+        events_start = html.index("function renderEventFX(")
+        events_chunk = html[events_start : events_start + 5000]
         assert "attackSwoosh" in events_chunk
 
     def test_kill_events_trigger_explosion(self) -> None:
         html = _read_html()
-        events_start = html.index("// Draw hit and bump effects")
-        events_chunk = html[events_start : events_start + 3000]
+        events_start = html.index("function renderEventFX(")
+        events_chunk = html[events_start : events_start + 5000]
         assert "deathExplosion" in events_chunk
 
     def test_swoosh_uses_attacker_and_target_positions(self) -> None:
         html = _read_html()
-        events_start = html.index("// Draw hit and bump effects")
-        events_chunk = html[events_start : events_start + 3000]
+        events_start = html.index("function renderEventFX(")
+        events_chunk = html[events_start : events_start + 5000]
         # Hit handling should look up attacker position for swoosh origin
         assert "evt.attacker" in events_chunk

@@ -3,19 +3,21 @@
 from __future__ import annotations
 
 import re
-from pathlib import Path
 
-MATCH_HTML = Path(__file__).resolve().parent.parent / "viewer" / "match.html"
+from conftest import read_viewer_content
 
 
 def _read_html() -> str:
-    return MATCH_HTML.read_text()
+    return read_viewer_content()
 
 
 def _extract_js(html: str) -> str:
-    """Return the contents of all <script> blocks concatenated."""
-    blocks = re.findall(r"<script[^>]*>(.*?)</script>", html, re.DOTALL)
-    return "\n".join(blocks)
+    """Return the JS content from the combined viewer files.
+
+    After the modular split, JS is in separate files already included
+    in the combined content, so just return the full content.
+    """
+    return html
 
 
 # --- Cycle 1: lerp and interpolation state variables ---
