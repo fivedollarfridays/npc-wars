@@ -1,13 +1,16 @@
 """POST /api/submit-bot route for bot source submission."""
 
+import ast
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Depends, Request
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from engine.bot_scanner import scan_bot_source
+from server.auth import get_current_player
+from server.db import store_bot
 from server.middleware.rate_limit import (
     check_rate_limit,
     clear_rate_limit_state,
@@ -32,8 +35,35 @@ def clear_rate_limits() -> None:
     clear_rate_limit_state()
 
 
+def _extract_bot_meta(source: str) -> tuple[str, str]:
+    """Extract BOT_NAME and BOT_EMOJI from source via AST.
+
+    Returns (name, emoji) with defaults if not found.
+    """
+    name, emoji = "Unnamed", "?"
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return name, emoji
+    for node in ast.walk(tree):
+        if isinstance(node, ast.Assign):
+            for target in node.targets:
+                if isinstance(target, ast.Name) and isinstance(
+                    node.value, ast.Constant
+                ):
+                    if target.id == "BOT_NAME":
+                        name = str(node.value.value)
+                    elif target.id == "BOT_EMOJI":
+                        emoji = str(node.value.value)
+    return name, emoji
+
+
 @router.post("/api/submit-bot", status_code=202)
-async def submit_bot(body: BotSubmission, request: Request) -> dict[str, Any]:
+async def submit_bot(
+    body: BotSubmission,
+    request: Request,
+    player: dict = Depends(get_current_player),
+) -> dict[str, Any]:
     """Submit bot source code for validation and queuing."""
     # Rate limit check via middleware dependency
     rate_response = await check_rate_limit(request)
@@ -58,12 +88,21 @@ async def submit_bot(body: BotSubmission, request: Request) -> dict[str, Any]:
     # Record submission for rate limiting
     record_submission(request)
 
+    # Persist bot
+    conn = request.app.state.db
+    bot_name, bot_emoji = _extract_bot_meta(body.source)
+    bot_id = store_bot(conn, player["id"], bot_name, bot_emoji, body.source)
+
     job_id = str(uuid.uuid4())
 
-    # Attach rate limit headers to response
+    # Build response
+    content: dict[str, Any] = {"job_id": job_id, "bot_id": bot_id}
+    if player.get("is_new"):
+        content["api_key"] = player["api_key"]
+
     headers = getattr(request.state, "rate_limit_headers", {})
     return JSONResponse(  # type: ignore[return-value]
         status_code=202,
-        content={"job_id": job_id},
+        content=content,
         headers=headers,
     )

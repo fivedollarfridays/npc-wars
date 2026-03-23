@@ -3,12 +3,13 @@
 from __future__ import annotations
 
 import sqlite3
+import uuid
 from datetime import datetime, timezone
 
 
 def init_db(db_path: str) -> sqlite3.Connection:
     """Create tables idempotently and return an open connection."""
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute(
         """
@@ -25,6 +26,38 @@ def init_db(db_path: str) -> sqlite3.Connection:
             token     TEXT PRIMARY KEY,
             player_id TEXT NOT NULL REFERENCES players(id),
             expires   TEXT NOT NULL
+        )
+        """
+    )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS api_keys (
+            key       TEXT PRIMARY KEY,
+            player_id TEXT NOT NULL REFERENCES players(id),
+            created_at TEXT NOT NULL
+        )
+        """
+    )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS bots (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            player_id  TEXT NOT NULL REFERENCES players(id),
+            name       TEXT NOT NULL,
+            emoji      TEXT NOT NULL,
+            source     TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )
+        """
+    )
+    conn.execute(
+        """
+        CREATE TABLE IF NOT EXISTS match_players (
+            match_id   INTEGER NOT NULL,
+            player_id  TEXT NOT NULL,
+            bot_id     INTEGER NOT NULL,
+            PRIMARY KEY (match_id, player_id)
         )
         """
     )
@@ -88,3 +121,95 @@ def expire_session(conn: sqlite3.Connection, token: str) -> bool:
     cursor = conn.execute("DELETE FROM sessions WHERE token = ?", (token,))
     conn.commit()
     return cursor.rowcount > 0
+
+
+# ── API Key operations ───────────────────────────────────────────────
+
+
+def create_api_key(conn: sqlite3.Connection, player_id: str) -> str:
+    """Generate a new API key for a player and return it."""
+    key = uuid.uuid4().hex
+    created_at = datetime.now(timezone.utc).isoformat()
+    conn.execute(
+        "INSERT INTO api_keys (key, player_id, created_at) VALUES (?, ?, ?)",
+        (key, player_id, created_at),
+    )
+    conn.commit()
+    return key
+
+
+def get_player_by_api_key(conn: sqlite3.Connection, key: str) -> dict | None:
+    """Look up a player by API key. Return player dict or None."""
+    row = conn.execute(
+        """
+        SELECT p.* FROM players p
+        JOIN api_keys ak ON ak.player_id = p.id
+        WHERE ak.key = ?
+        """,
+        (key,),
+    ).fetchone()
+    return dict(row) if row else None
+
+
+# ── Bot operations ───────────────────────────────────────────────────
+
+
+def store_bot(
+    conn: sqlite3.Connection,
+    player_id: str,
+    name: str,
+    emoji: str,
+    source: str,
+) -> int:
+    """Insert a bot and return its id."""
+    now = datetime.now(timezone.utc).isoformat()
+    cursor = conn.execute(
+        """
+        INSERT INTO bots (player_id, name, emoji, source, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        (player_id, name, emoji, source, now, now),
+    )
+    conn.commit()
+    return cursor.lastrowid  # type: ignore[return-value]
+
+
+def get_bot(conn: sqlite3.Connection, bot_id: int) -> dict | None:
+    """Return a bot dict or None if not found."""
+    row = conn.execute("SELECT * FROM bots WHERE id = ?", (bot_id,)).fetchone()
+    return dict(row) if row else None
+
+
+def get_player_bots(conn: sqlite3.Connection, player_id: str) -> list[dict]:
+    """Return all bots for a player ordered by creation time."""
+    rows = conn.execute(
+        "SELECT * FROM bots WHERE player_id = ? ORDER BY created_at",
+        (player_id,),
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
+# ── Match tracking ──────────────────────────────────────────────────
+
+
+def record_match_player(
+    conn: sqlite3.Connection, match_id: int, player_id: str, bot_id: int
+) -> None:
+    """Record that a player participated in a match with a specific bot."""
+    conn.execute(
+        "INSERT INTO match_players (match_id, player_id, bot_id) VALUES (?, ?, ?)",
+        (match_id, player_id, bot_id),
+    )
+    conn.commit()
+
+
+def get_player_matches(
+    conn: sqlite3.Connection, player_id: str, limit: int = 20
+) -> list[int]:
+    """Return recent match IDs for a player, newest first."""
+    rows = conn.execute(
+        "SELECT match_id FROM match_players WHERE player_id = ? "
+        "ORDER BY match_id DESC LIMIT ?",
+        (player_id, limit),
+    ).fetchall()
+    return [row["match_id"] for row in rows]
