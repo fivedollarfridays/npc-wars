@@ -102,6 +102,15 @@ function initViewer() {
   ctx = canvas.getContext('2d');
 
   var gridSize = matchData.grid_size;
+
+  // Responsive canvas: fit grid to available viewport space
+  var arenaWrap = canvas.parentElement;
+  if (arenaWrap) {
+    var maxW = arenaWrap.clientWidth || 600;
+    var maxH = window.innerHeight - 140;
+    var fitSize = Math.min(maxW, maxH);
+    TILE_SIZE = Math.max(24, Math.min(64, Math.floor(fitSize / gridSize)));
+  }
   canvas.width = gridSize * TILE_SIZE;
   canvas.height = gridSize * TILE_SIZE;
 
@@ -146,6 +155,17 @@ function initViewer() {
   // Render first frame
   currentRound = 0;
   renderRound(0);
+
+  // Resize handler — use CSS scaling to preserve rendering quality
+  window.addEventListener('resize', function() {
+    if (!matchData) return;
+    var wrap = canvas.parentElement;
+    if (wrap) {
+      canvas.style.maxWidth = wrap.clientWidth + 'px';
+    }
+  });
+  canvas.style.maxWidth = (arenaWrap ? arenaWrap.clientWidth : 600) + 'px';
+  canvas.style.height = 'auto';
 }
 
 // --- Audio controls wiring ---

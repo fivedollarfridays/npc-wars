@@ -99,22 +99,16 @@ function applySpectacleEffects(tier, triggers, effects) {
 
   if (tier === 'calm') return;
 
-  if (tier === 'heating') {
-    grid.style.animation = 'subtle-pulse 2s ease-in-out';
-  }
-
-  if (tier === 'intense' || tier === 'hype' || tier === 'chaos') {
-    if (triggers.includes('kill') || triggers.includes('kill_streak')) {
-      grid.style.animation = 'screen-shake 0.3s ease-in-out';
-    }
-  }
-
+  // Subtle effects only — no flashing, no strobing, no infinite animations
   if (tier === 'hype' || tier === 'chaos') {
-    grid.style.animation = (grid.style.animation ? grid.style.animation + ', ' : '') + 'fire-border 1s ease-in-out infinite';
+    // Soft glow instead of fire-border strobe
+    grid.style.boxShadow = 'inset 0 0 30px rgba(255,62,108,0.15)';
   }
+
+  // fire-border disabled — was infinite strobe animation
 
   if (effects.includes('slow_mo')) {
-    grid.style.filter = 'brightness(1.2) saturate(0.5)';
+    grid.style.filter = 'saturate(0.7)';
   }
 
   if (triggers.includes('storm_kill')) {
@@ -164,12 +158,8 @@ function showBanner(text, color) {
 }
 
 function glitchEffect() {
-    var arena = document.querySelector('.arena');
-    if (!arena) return;
-    arena.classList.add('glitch-effect', 'glitch-scanlines');
-    setTimeout(function() {
-        arena.classList.remove('glitch-effect', 'glitch-scanlines');
-    }, 400);
+    // Disabled — strobe/flash effect violates accessibility guidelines
+    return;
 }
 
 // Shatter effect - particle explosion on kill
@@ -259,17 +249,8 @@ function darkEntranceEffect() {
 }
 
 function skullFlashEffect() {
-    var arena = document.querySelector('.arena');
-    if (!arena) return;
-    arena.style.position = 'relative';
-    var flash = document.createElement('div');
-    flash.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(255,255,255,0.8);pointer-events:none;z-index:55;animation:skull-flash-fade 0.3s forwards;';
-    var skull = document.createElement('div');
-    skull.style.cssText = 'position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:64px;z-index:56;pointer-events:none;animation:skull-flash-fade 0.3s forwards;';
-    skull.textContent = '\u{1F480}';
-    arena.appendChild(flash);
-    arena.appendChild(skull);
-    setTimeout(function() { flash.remove(); skull.remove(); }, 300);
+    // Disabled — white flash overlay violates accessibility guidelines
+    return;
 }
 
 function pulseWaveEffect(x, y) {
