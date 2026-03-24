@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kill Switch — TOURNAMENTS</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --bg: #0a0a0f; --surface: #13131f; --border: #1e1e33; --text: #e0e0f0; --muted: #6a6a8a; --accent: #ff3e6c; --accent2: #00e5ff; --gold: #ffd700; }
+  body { background: var(--bg); color: var(--text); font-family: 'JetBrains Mono', monospace; min-height: 100vh; padding: 20px; }
+  .header { text-align: center; padding: 20px 0; border-bottom: 1px solid var(--border); margin-bottom: 30px; }
+  .header h1 { font-size: 24px; letter-spacing: 3px; color: var(--accent); }
+  .list { max-width: 700px; margin: 0 auto; }
+  .tournament { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 16px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+  .tournament .name { font-size: 14px; font-weight: 700; }
+  .tournament .meta { font-size: 11px; color: var(--muted); }
+  .tournament .status { font-size: 11px; padding: 3px 8px; border-radius: 3px; }
+  .status-open { background: rgba(0,229,255,0.15); color: var(--accent2); }
+  .status-running { background: rgba(255,62,108,0.15); color: var(--accent); }
+  .status-complete { background: rgba(255,215,0,0.15); color: var(--gold); }
+  a { color: var(--accent2); text-decoration: none; }
+  .empty { text-align: center; color: var(--muted); padding: 40px; }
+</style>
+</head>
+<body>
+<div class="header"><h1>TOURNAMENTS</h1></div>
+<div id="list" class="list"><div class="empty">Loading...</div></div>
+<script>
+async function load() {
+  try {
+    var resp = await fetch('/api/tournaments');
+    var data = await resp.json();
+    if (!data.length) { document.getElementById('list').innerHTML = '<div class="empty">No tournaments yet.</div>'; return; }
+    document.getElementById('list').innerHTML = data.map(function(t) {
+      return '<a href="/tournament/' + t.id + '"><div class="tournament">'
+        + '<div><div class="name">' + t.name + '</div>'
+        + '<div class="meta">' + t.size + ' players' + (t.winner ? ' \u2014 Winner: ' + t.winner : '') + '</div></div>'
+        + '<span class="status status-' + t.status + '">' + t.status.toUpperCase() + '</span>'
+        + '</div></a>';
+    }).join('');
+  } catch (e) { document.getElementById('list').innerHTML = '<div class="empty">Error loading tournaments.</div>'; }
+}
+load();
+</script>
+</body>
+</html>

@@ -65,6 +65,11 @@ def init_db(db_path: str) -> sqlite3.Connection:
     from server.cosmetic_db import init_cosmetic_tables
 
     init_cosmetic_tables(conn)
+
+    # Tournament tables
+    from server.tournament_db import init_tournament_table
+
+    init_tournament_table(conn)
     conn.commit()
     return conn
 

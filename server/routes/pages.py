@@ -21,11 +21,26 @@ async def leaderboard_page() -> FileResponse:
 
 @router.get("/profile/{player_id}")
 async def profile_page(player_id: str) -> FileResponse:
-    """Serve the player profile HTML page.
-
-    The player_id is extracted from the URL by client-side JS.
-    """
+    """Serve the player profile HTML page."""
     return FileResponse(
         _STATIC_DIR / "profile.html",
+        media_type="text/html",
+    )
+
+
+@router.get("/tournament/{tournament_id}")
+async def tournament_page(tournament_id: int) -> FileResponse:
+    """Serve the tournament bracket page."""
+    return FileResponse(
+        _STATIC_DIR / "tournament.html",
+        media_type="text/html",
+    )
+
+
+@router.get("/tournaments")
+async def tournaments_page() -> FileResponse:
+    """Serve the tournaments list page."""
+    return FileResponse(
+        _STATIC_DIR / "tournaments.html",
         media_type="text/html",
     )

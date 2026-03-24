@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kill Switch — TOURNAMENT</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root { --bg: #0a0a0f; --surface: #13131f; --border: #1e1e33; --text: #e0e0f0; --muted: #6a6a8a; --accent: #ff3e6c; --accent2: #00e5ff; --gold: #ffd700; }
+  body { background: var(--bg); color: var(--text); font-family: 'JetBrains Mono', monospace; min-height: 100vh; padding: 20px; }
+  .header { text-align: center; padding: 20px 0; border-bottom: 1px solid var(--border); margin-bottom: 30px; }
+  .header h1 { font-size: 24px; letter-spacing: 3px; color: var(--accent); }
+  .info { text-align: center; color: var(--muted); font-size: 12px; margin-bottom: 20px; }
+  .bracket { max-width: 900px; margin: 0 auto; }
+  .round { margin-bottom: 30px; }
+  .round-title { font-size: 14px; color: var(--accent2); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; }
+  .match { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .match.completed { border-color: var(--accent2); }
+  .match .players { display: flex; gap: 8px; flex-wrap: wrap; }
+  .match .player { padding: 4px 10px; border-radius: 4px; font-size: 12px; background: rgba(255,255,255,0.05); }
+  .match .player.winner { background: rgba(255,215,0,0.15); color: var(--gold); border: 1px solid var(--gold); }
+  .match .player.advanced { background: rgba(0,229,255,0.1); color: var(--accent2); }
+  .match .replay-link { font-size: 11px; color: var(--accent2); text-decoration: none; }
+  .match .pending { color: var(--muted); font-size: 11px; }
+  .winner-banner { text-align: center; padding: 20px; font-size: 20px; color: var(--gold); margin: 20px 0; }
+  .status { text-align: center; padding: 10px; font-size: 13px; margin-bottom: 20px; }
+  .status.open { color: var(--accent2); }
+  .status.running { color: var(--accent); }
+  .status.complete { color: var(--gold); }
+  a { color: var(--accent2); text-decoration: none; }
+  .back { display: inline-block; margin-bottom: 20px; font-size: 12px; }
+</style>
+</head>
+<body>
+<a href="/tournaments" class="back">&lt; All Tournaments</a>
+<div class="header"><h1>TOURNAMENT</h1></div>
+<div id="info" class="info">Loading...</div>
+<div id="status" class="status"></div>
+<div id="winner-banner" class="winner-banner" style="display:none"></div>
+<div id="bracket" class="bracket"></div>
+
+<script>
+var tournamentId = window.location.pathname.split('/tournament/')[1] || window.location.search.split('id=')[1] || '';
+tournamentId = tournamentId.split('?')[0].split('/')[0];
+
+async function load() {
+  try {
+    var resp = await fetch('/api/tournament/' + tournamentId);
+    if (!resp.ok) { document.getElementById('info').textContent = 'Tournament not found.'; return; }
+    var data = await resp.json();
+    render(data);
+  } catch (e) { document.getElementById('info').textContent = 'Error loading tournament.'; }
+}
+
+function render(data) {
+  document.getElementById('info').textContent = data.name + ' \u2014 ' + data.size + ' players';
+  var statusEl = document.getElementById('status');
+  statusEl.textContent = data.status.toUpperCase();
+  statusEl.className = 'status ' + data.status;
+
+  if (data.winner) {
+    document.getElementById('winner-banner').style.display = 'block';
+    document.getElementById('winner-banner').textContent = '\u{1F3C6} Winner: ' + data.winner;
+  }
+
+  var bracket = data.rounds || [];
+  var html = '';
+  bracket.forEach(function(round, ri) {
+    var roundName = (ri === bracket.length - 1 && data.status === 'complete') ? 'FINAL' : 'Round ' + (ri + 1);
+    html += '<div class="round"><div class="round-title">' + roundName + '</div>';
+    round.forEach(function(match) {
+      var completed = match.results !== null;
+      html += '<div class="match' + (completed ? ' completed' : '') + '">';
+      html += '<div class="players">';
+      (match.group || []).forEach(function(p) {
+        var cls = 'player';
+        if (match.results && match.results.winner === p) cls += ' winner';
+        else if ((match.advancing || []).includes(p)) cls += ' advanced';
+        html += '<span class="' + cls + '">' + p + '</span>';
+      });
+      html += '</div>';
+      if (completed && match.match_id) {
+        html += '<a class="replay-link" href="/static/viewer/index.html?match=results/match_' + String(match.match_id).padStart(3, '0') + '.json">Watch</a>';
+      } else if (!completed) {
+        html += '<span class="pending">Pending</span>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+  });
+  document.getElementById('bracket').innerHTML = html;
+}
+
+load();
+if (tournamentId) setInterval(load, 5000);
+</script>
+</body>
+</html>

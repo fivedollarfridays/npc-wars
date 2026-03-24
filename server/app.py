@@ -19,6 +19,7 @@ from server.routes.share import router as share_router
 from server.routes.stats import router as stats_router
 from server.routes.stream import router as stream_router
 from server.routes.submit import router as submit_router
+from server.routes.tournament import router as tournament_router
 
 app = FastAPI(title="NPC Wars Server")
 app.state.results_dir = "results"
@@ -33,6 +34,7 @@ app.include_router(share_router)
 app.include_router(stats_router)
 app.include_router(stream_router)
 app.include_router(submit_router)
+app.include_router(tournament_router)
 
 _static_dir = Path(__file__).resolve().parent / "static"
 if _static_dir.is_dir():
