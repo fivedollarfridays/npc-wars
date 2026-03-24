@@ -1,6 +1,6 @@
-# NPC Wars — Bot Builder Prompt
+# Kill Switch — Bot Builder Prompt
 
-You are writing a competitive bot for NPC Wars, a battle royale where bots fight on a grid. All bots act simultaneously each round. Last bot standing wins. Your bot is a single Python file.
+You are writing a competitive bot for Kill Switch, a battle royale where bots fight on a grid. All bots act simultaneously each round. Last bot standing wins. Your bot is a single Python file.
 
 ## Bot File Format
 
