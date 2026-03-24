@@ -75,9 +75,14 @@ function renderEventFX(round) {
           triggerKillCam(document.getElementById('arena-canvas'), px, py, 1500);
         }
 
-        // Death animation
+        // Death animation — use cosmetic death_effect color if equipped
         var victimColor = (typeof ARCHETYPE_COLORS !== 'undefined' && botArchetypes[evt.victim])
           ? ARCHETYPE_COLORS[botArchetypes[evt.victim]] : '#ff4444';
+        var victimChar = (typeof characterLookup !== 'undefined') ? characterLookup[evt.victim] : null;
+        var victimCosmetics = victimChar ? victimChar.cosmetics : null;
+        if (victimCosmetics && victimCosmetics.death_effect) {
+          victimColor = victimCosmetics.death_effect.color;
+        }
         playDeathAnimation(ctx, px, py, victimColor);
       }
     } else if (evt.type === 'trap_placed') {

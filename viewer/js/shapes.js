@@ -152,6 +152,12 @@ function drawBotShape(ctx, x, y, archetype, hpPct, radius, character) {
   var borderThickness = character ? character.border_thickness : 2;
   var shape = character ? character.shape : (ARCHETYPE_SHAPES[archetype] || 'circle');
 
+  // Cosmetic overrides (optional — absent for old matches)
+  var cosmetics = character ? character.cosmetics : null;
+  if (cosmetics && cosmetics.color_palette) {
+    color = cosmetics.color_palette.color;
+  }
+
   // HP-dependent color: interpolate toward gray as HP drops
   var hpColor = interpolateColor(
     color.charAt(0) === '#' ? color : '#e0e0f0',
@@ -172,9 +178,13 @@ function drawBotShape(ctx, x, y, archetype, hpPct, radius, character) {
     default: drawCircle(ctx, x, y, radius); break;
   }
 
-  // Draw weapon indicator
+  // Draw weapon indicator with optional cosmetic skin
+  var weaponColor = color;
+  if (cosmetics && cosmetics.weapon_skin) {
+    weaponColor = cosmetics.weapon_skin.color;
+  }
   if (character && character.weapon_indicator) {
-    drawWeaponIndicator(ctx, x, y, radius, character.weapon_indicator, color);
+    drawWeaponIndicator(ctx, x, y, radius, character.weapon_indicator, weaponColor);
   }
 
   ctx.globalAlpha = 1.0;
@@ -221,15 +231,22 @@ function drawDeadBot(ctx, x, y, archetype, radius) {
   ctx.globalAlpha = 1.0;
 }
 
-function drawMomentumAura(ctx, x, y, radius, momentumTier, isLeader) {
+function drawMomentumAura(ctx, x, y, radius, momentumTier, isLeader, cosmetics) {
   if (momentumTier < 3) return;
   const glowSize = isLeader ? 18 : 12;
   const glowAlpha = isLeader ? 0.6 : 0.35;
   ctx.save();
   ctx.shadowBlur = glowSize;
-  ctx.shadowColor = isLeader
-    ? 'rgba(255, 200, 50, ' + glowAlpha + ')'
-    : 'rgba(255, 255, 255, ' + glowAlpha + ')';
+
+  // Cosmetic glow_effect overrides aura color
+  if (cosmetics && cosmetics.glow_effect) {
+    ctx.shadowColor = cosmetics.glow_effect.color;
+  } else {
+    ctx.shadowColor = isLeader
+      ? 'rgba(255, 200, 50, ' + glowAlpha + ')'
+      : 'rgba(255, 255, 255, ' + glowAlpha + ')';
+  }
+
   ctx.beginPath();
   ctx.arc(x, y, radius + 2, 0, Math.PI * 2);
   ctx.fillStyle = 'rgba(255, 255, 255, 0.01)';

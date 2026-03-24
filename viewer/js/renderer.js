@@ -5,6 +5,9 @@
  * and renderRound which orchestrates canvas + sidebar + controls updates.
  */
 
+// Character descriptor lookup (populated in renderCanvas, used by events.js)
+var characterLookup = {};
+
 // Terrain tile colors (muted, so bots/effects stand out)
 var TERRAIN_COLORS = {
   open: null,           // transparent - use default background
@@ -115,11 +118,16 @@ function renderCanvas(round) {
   }
 
   // Build character descriptor lookup from matchData.players
-  var characterLookup = {};
+  characterLookup = {};
   if (matchData && matchData.players) {
     matchData.players.forEach(function(p) {
       if (p.character) {
-        characterLookup[p.emoji] = p.character;
+        var charDesc = Object.assign({}, p.character);
+        // Merge cosmetics into character descriptor (graceful when absent)
+        if (p.cosmetics) {
+          charDesc.cosmetics = p.cosmetics;
+        }
+        characterLookup[p.emoji] = charDesc;
       }
     });
   }
@@ -153,7 +161,8 @@ function renderCanvas(round) {
     // Momentum aura glow (tier 3+)
     var mTier = pos.momentum_tier || 0;
     var isLeader = pos.is_leader || false;
-    drawMomentumAura(ctx, px, py, radius, mTier, isLeader);
+    var charCosmetics = character ? character.cosmetics : null;
+    drawMomentumAura(ctx, px, py, radius, mTier, isLeader, charCosmetics);
 
     if (hasArchetype) {
       // Draw geometric shape

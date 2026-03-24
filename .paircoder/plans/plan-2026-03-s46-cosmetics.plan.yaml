@@ -1,0 +1,12 @@
+id: plan-2026-03-s46-cosmetics
+title: 'Sprint 46: Character Customization (Paid Cosmetics)'
+type: feature
+status: planned
+created_at: '2026-03-24T00:00:00.000000'
+goals:
+- Cosmetic item catalog (color palettes, glow effects, weapon skins, death effects)
+- Player cosmetic inventory (stored in SQLite, per-player)
+- Cosmetic store API (browse, purchase with in-game currency)
+- Viewer renders cosmetic overrides on character shapes
+- In-game currency earned from matches (alternative to real money for MVP)
+- Character preview with cosmetics applied

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kill Switch -- STORE</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Silkscreen:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131f;
+    --border: #1e1e33;
+    --text: #e0e0f0;
+    --muted: #6a6a8a;
+    --accent: #ff3e6c;
+    --accent2: #00e5ff;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .header {
+    text-align: center;
+    padding: 20px 0 30px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 30px;
+  }
+  .header h1 {
+    font-family: 'Silkscreen', cursive;
+    font-size: 28px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header .subtitle {
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 6px;
+    letter-spacing: 2px;
+  }
+  .coin-balance {
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 24px;
+    color: #ffd700;
+  }
+  .type-section {
+    max-width: 900px;
+    margin: 0 auto 30px;
+  }
+  .type-section h2 {
+    font-size: 16px;
+    color: var(--accent2);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+  }
+  .items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .item-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+  }
+  .item-card .swatch {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    margin: 0 auto 10px;
+    border: 2px solid var(--border);
+  }
+  .item-card .name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .item-card .rarity { font-size: 11px; color: var(--muted); text-transform: uppercase; }
+  .item-card .price { font-size: 13px; color: #ffd700; margin: 8px 0; }
+  .item-card .buy-btn {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 6px 16px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .item-card .buy-btn:hover { opacity: 0.85; }
+  .item-card .buy-btn:disabled { opacity: 0.4; cursor: default; }
+  .item-card canvas { display: block; margin: 0 auto 8px; }
+  .msg { text-align: center; color: var(--accent); margin-top: 10px; font-size: 13px; }
+</style>
+</head>
+<body>
+<div class="header">
+  <h1>Cosmetic Store</h1>
+  <div class="subtitle">Customize your fighter</div>
+</div>
+
+<div class="coin-balance" id="coin-display">Coins: --</div>
+<div id="store-container"></div>
+<div class="msg" id="msg"></div>
+
+<script>
+var currentCoins = 0;
+
+function fetchStore() {
+  fetch('/api/store')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      currentCoins = data.coins || 0;
+      document.getElementById('coin-display').textContent = 'Coins: ' + currentCoins;
+      renderCatalog(data.catalog || {});
+    })
+    .catch(function() {
+      document.getElementById('msg').textContent = 'Failed to load store.';
+    });
+}
+
+function renderCatalog(catalog) {
+  var container = document.getElementById('store-container');
+  container.innerHTML = '';
+
+  var byType = {};
+  Object.keys(catalog).forEach(function(id) {
+    var item = catalog[id];
+    var t = item.type || 'other';
+    if (!byType[t]) byType[t] = [];
+    byType[t].push({ id: id, item: item });
+  });
+
+  var typeLabels = {
+    color_palette: 'Color Palettes',
+    glow_effect: 'Glow Effects',
+    weapon_skin: 'Weapon Skins',
+    death_effect: 'Death Effects',
+    trail_effect: 'Trail Effects'
+  };
+
+  Object.keys(typeLabels).forEach(function(type) {
+    var items = byType[type];
+    if (!items || items.length === 0) return;
+
+    var section = document.createElement('div');
+    section.className = 'type-section';
+    var h2 = document.createElement('h2');
+    h2.textContent = typeLabels[type];
+    section.appendChild(h2);
+
+    var grid = document.createElement('div');
+    grid.className = 'items-grid';
+
+    items.forEach(function(entry) {
+      var card = document.createElement('div');
+      card.className = 'item-card';
+
+      var swatch = document.createElement('div');
+      swatch.className = 'swatch';
+      swatch.style.background = entry.item.color;
+      card.appendChild(swatch);
+
+      var name = document.createElement('div');
+      name.className = 'name';
+      name.textContent = entry.item.name;
+      card.appendChild(name);
+
+      var rarity = document.createElement('div');
+      rarity.className = 'rarity';
+      rarity.textContent = entry.item.rarity;
+      card.appendChild(rarity);
+
+      var price = document.createElement('div');
+      price.className = 'price';
+      price.textContent = entry.item.price + ' coins';
+      card.appendChild(price);
+
+      var btn = document.createElement('button');
+      btn.className = 'buy-btn';
+      btn.textContent = 'Buy';
+      btn.onclick = function() { buyItem(entry.id, entry.item.price); };
+      card.appendChild(btn);
+
+      grid.appendChild(card);
+    });
+
+    section.appendChild(grid);
+    container.appendChild(section);
+  });
+}
+
+function buyItem(itemId, price) {
+  if (currentCoins < price) {
+    document.getElementById('msg').textContent = 'Not enough coins!';
+    return;
+  }
+  fetch('/api/store/buy', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ item_id: itemId })
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.ok) {
+        document.getElementById('msg').textContent = 'Purchased ' + itemId + '!';
+        fetchStore();
+      } else {
+        document.getElementById('msg').textContent = data.error || 'Purchase failed.';
+      }
+    })
+    .catch(function() {
+      document.getElementById('msg').textContent = 'Network error.';
+    });
+}
+
+fetchStore();
+</script>
+</body>
+</html>
