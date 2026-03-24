@@ -2,8 +2,8 @@
 from __future__ import annotations
 
 import argparse
+import functools
 import http.server
-import os
 import shutil
 import sys
 import threading
@@ -64,24 +64,23 @@ def run(args: argparse.Namespace) -> None:
     dest = viewer_results / match_path.name
     shutil.copy2(str(match_path), str(dest))
 
-    port = args.port
-    url = f"http://localhost:{port}/index.html?match=results/{match_path.name}"
+    # Start HTTP server in background (serve from viewer_dir without chdir)
+    handler = functools.partial(
+        http.server.SimpleHTTPRequestHandler, directory=str(viewer_dir),
+    )
 
-    # Start HTTP server in background
-    handler = http.server.SimpleHTTPRequestHandler
-    os.chdir(str(viewer_dir))
-
-    try:
-        httpd = http.server.HTTPServer(("", port), handler)
-    except OSError:
-        # Port in use, try next
-        port += 1
+    httpd = None
+    for port in (args.port, args.port + 1):
         try:
-            httpd = http.server.HTTPServer(("", port), handler)
-            url = f"http://localhost:{port}/index.html?match=results/{match_path.name}"
+            httpd = http.server.HTTPServer(("127.0.0.1", port), handler)
+            break
         except OSError:
-            print(f"Ports {args.port} and {port} in use. Try --port <number>.", file=sys.stderr)
-            sys.exit(1)
+            continue
+    if httpd is None:
+        print(f"Ports {args.port} and {args.port + 1} in use. Try --port <number>.", file=sys.stderr)
+        sys.exit(1)
+
+    url = f"http://localhost:{port}/index.html?match=results/{match_path.name}"
 
     thread = threading.Thread(target=httpd.serve_forever, daemon=True)
     thread.start()
