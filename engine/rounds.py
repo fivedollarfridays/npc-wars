@@ -93,6 +93,12 @@ def resolve_decisions(
             if bot.consecutive_failures >= MAX_CONSECUTIVE_FAILURES:
                 bot.hp = 0
                 actions[bot.emoji] = ("disconnected",)
+                override_events.append({
+                    "type": "malfunction",
+                    "emoji": bot.emoji,
+                    "reason": "Bot crashed 3 consecutive times",
+                    "round": round_num,
+                })
             else:
                 actions[bot.emoji] = ("nothing",)
         else:

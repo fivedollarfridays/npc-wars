@@ -127,6 +127,7 @@ def decide(state):
     border = state.get("storm_border", 0)
     hit_vs = me.get("hit_chance_vs", {})
     trap_cd = me.get("trap_cooldown", 99)
+    unlocked = me.get("unlocked_actions", [])
 
     if not enemies:
         return ("rest",)
@@ -215,7 +216,7 @@ def decide(state):
         away_dir = _direction_away(mx, my, e["x"], e["y"])
         # place trap behind us (toward enemy) as we retreat
         toward_dir = _direction_toward(mx, my, e["x"], e["y"])
-        if trap_cd == 0 and energy >= 35:
+        if "trap" in unlocked and trap_cd == 0 and energy >= 35:
             _trap_tiles.add(_next_pos(mx, my, toward_dir))
             return ("trap", toward_dir)
         nx, ny = _next_pos(mx, my, away_dir)
@@ -238,7 +239,7 @@ def decide(state):
             return ("attack", d)
 
     # ---------- PRIORITY 7: trap placement (predictive) ----------
-    if trap_cd == 0 and energy >= 25:
+    if "trap" in unlocked and trap_cd == 0 and energy >= 25:
         # place trap toward closest enemy predicted position
         closest = min(enemies, key=lambda e: _manhattan(mx, my, e["x"], e["y"]))
         dist = _manhattan(mx, my, closest["x"], closest["y"])

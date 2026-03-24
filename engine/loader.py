@@ -6,6 +6,7 @@ from typing import Any
 
 from engine.bot_scanner import load_bot_module
 from engine.equipment import EQUIPMENT_DEFAULTS, validate_equipment
+from engine.preflight import run_preflight
 from engine.glyphs import validate_glyph
 from engine.stats import DEFAULT_ALLOCATION, validate_allocation
 
@@ -23,6 +24,31 @@ def _read_equipment(module: Any, filename: str) -> dict[str, Any]:
     return dict(EQUIPMENT_DEFAULTS)
 
 
+def _read_stat_allocation(module: Any, filename: str) -> Any:
+    """Read and validate stat allocation from a module."""
+    power = getattr(module, "BOT_POWER", 25)
+    speed = getattr(module, "BOT_SPEED", 25)
+    armor = getattr(module, "BOT_ARMOR", 25)
+    mind = getattr(module, "BOT_MIND", 25)
+    try:
+        return validate_allocation(power, speed, armor, mind)
+    except ValueError as e:
+        log.warning("%s: invalid stat allocation (%s), using defaults", filename, e)
+        return DEFAULT_ALLOCATION
+
+
+def _run_preflight_check(filepath: str, filename: str) -> bool:
+    """Run preflight execution check on a bot file. Returns True if ok."""
+    try:
+        source = open(filepath, encoding="utf-8").read()
+    except OSError:
+        return True  # Can't read source, skip preflight
+    ok, msg = run_preflight(source)
+    if not ok:
+        log.warning("Skipping %s — preflight failed: %s", filename, msg)
+    return ok
+
+
 def _load_single_bot(filepath: str, filename: str) -> dict[str, Any] | None:
     """Load and validate a single bot module. Returns dict or None."""
     try:
@@ -36,6 +62,9 @@ def _load_single_bot(filepath: str, filename: str) -> dict[str, Any] | None:
         log.warning("Failed to load %s: %s", filename, e)
         return None
 
+    if not _run_preflight_check(filepath, filename):
+        return None
+
     name = getattr(module, "BOT_NAME", None)
     emoji = getattr(module, "BOT_EMOJI", None)
     decide = getattr(module, "decide", None)
@@ -44,21 +73,9 @@ def _load_single_bot(filepath: str, filename: str) -> dict[str, Any] | None:
         log.warning("Skipping %s — missing required attributes", filename)
         return None
 
-    # Read stat allocation constants (default 25 each if absent)
-    power = getattr(module, "BOT_POWER", 25)
-    speed = getattr(module, "BOT_SPEED", 25)
-    armor = getattr(module, "BOT_ARMOR", 25)
-    mind = getattr(module, "BOT_MIND", 25)
-    try:
-        allocation = validate_allocation(power, speed, armor, mind)
-    except ValueError as e:
-        log.warning("%s: invalid stat allocation (%s), using defaults", filename, e)
-        allocation = DEFAULT_ALLOCATION
-
-    # Glyph: prefer BOT_GLYPH, fall back to BOT_EMOJI
+    allocation = _read_stat_allocation(module, filename)
     raw_glyph = getattr(module, "BOT_GLYPH", None) or emoji
     glyph = validate_glyph(raw_glyph)
-
     equipment = _read_equipment(module, filename)
 
     return {"name": name, "emoji": emoji, "bio": getattr(module, "BOT_BIO", ""),

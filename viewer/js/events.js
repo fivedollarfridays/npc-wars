@@ -242,6 +242,15 @@ function renderEventFX(round) {
       // Red flash on wall tile
       ctx.fillStyle = 'rgba(255, 60, 60, 0.4)';
       ctx.fillRect(evt.x * TILE_SIZE, evt.y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+    } else if (evt.type === 'malfunction') {
+      // Red warning text on bot's tile
+      var bot = round.positions.find(function(p) { return p.emoji === evt.emoji; });
+      if (bot) {
+        ctx.fillStyle = '#ff3333';
+        ctx.font = 'bold 14px monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('\u26A0 CRASH', bot.x * TILE_SIZE + TILE_SIZE / 2, bot.y * TILE_SIZE + TILE_SIZE / 2 - 20);
+      }
     }
   });
 }
@@ -405,6 +414,19 @@ function updateKillFeed(round) {
       span.textContent = 'R' + rn;
       entry.appendChild(span);
       entry.appendChild(document.createTextNode(' ' + evt.emoji + ' picked up crystal (+' + (evt.energy || 0) + ' energy)'));
+      container.appendChild(entry);
+      container.scrollTop = container.scrollHeight;
+    } else if (evt.type === 'malfunction') {
+      var key = 'malfunction-' + rn + '-' + evt.emoji;
+      if (shownKills.has(key)) return;
+      shownKills.add(key);
+      var entry = document.createElement('div');
+      entry.className = 'kill-entry';
+      var span = document.createElement('span');
+      span.className = 'round-num';
+      span.textContent = 'R' + rn;
+      entry.appendChild(span);
+      entry.appendChild(document.createTextNode(' \u26A0 ' + evt.emoji + ' malfunctioned!'));
       container.appendChild(entry);
       container.scrollTop = container.scrollHeight;
     }

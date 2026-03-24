@@ -10,10 +10,11 @@ from server.routes.submit import clear_rate_limits
 client = TestClient(app)
 
 CLEAN_SOURCE = """\
-def decide(me, enemies, storm):
-    if enemies:
-        return {"move": "north", "action": "shoot north"}
-    return {"move": "south", "action": "none"}
+BOT_NAME = "TestBot"
+BOT_EMOJI = "T"
+
+def decide(state):
+    return ("rest",)
 """
 
 

@@ -23,7 +23,7 @@ VALID_SOURCE = (
     'BOT_NAME = "TestAuth"\n'
     'BOT_EMOJI = "T"\n'
     "def decide(state):\n"
-    '    return "north"\n'
+    '    return ("rest",)\n'
 )
 
 

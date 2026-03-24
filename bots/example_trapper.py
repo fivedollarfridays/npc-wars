@@ -78,8 +78,9 @@ def decide(state: dict) -> tuple:
     if dist == 1 and energy >= 10:
         return ("attack", _direction_toward(mx, my, nearest["x"], nearest["y"]))
 
-    # 2. Place trap toward nearest enemy if ready
-    if trap_cooldown == 0 and energy >= TRAP_ENERGY_COST and dist >= 2:
+    # 2. Place trap toward nearest enemy if ready (only if unlocked)
+    unlocked = me.get("unlocked_actions", [])
+    if "trap" in unlocked and trap_cooldown == 0 and energy >= TRAP_ENERGY_COST and dist >= 2:
         direction = _direction_toward(mx, my, nearest["x"], nearest["y"])
         return ("trap", direction)
 

@@ -107,7 +107,7 @@ class TestBotSubmission:
         'BOT_NAME = "TestBot"\n'
         'BOT_EMOJI = "T"\n'
         "def decide(state):\n"
-        '    return "north"\n'
+        '    return ("rest",)\n'
     )
 
     def test_valid_source_returns_202(self, client: TestClient):

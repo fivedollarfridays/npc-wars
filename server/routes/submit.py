@@ -9,6 +9,7 @@ from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from engine.bot_scanner import scan_bot_source
+from engine.preflight import run_preflight
 from server.auth import get_current_player
 from server.db import store_bot
 from server.middleware.rate_limit import (
@@ -83,6 +84,14 @@ async def submit_bot(
         return JSONResponse(  # type: ignore[return-value]
             status_code=400,
             content={"errors": errors},
+        )
+
+    # Preflight execution check
+    ok, preflight_msg = run_preflight(body.source)
+    if not ok:
+        return JSONResponse(  # type: ignore[return-value]
+            status_code=400,
+            content={"errors": [f"Preflight failed: {preflight_msg}"]},
         )
 
     # Record submission for rate limiting

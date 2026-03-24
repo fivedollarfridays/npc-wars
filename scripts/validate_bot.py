@@ -19,6 +19,7 @@ if _PROJECT_ROOT not in sys.path:
     sys.path.insert(0, _PROJECT_ROOT)
 
 from engine.bot_scanner import load_bot_module  # noqa: E402
+from engine.preflight import run_preflight  # noqa: E402
 from engine.sandbox import execute_decide, validate_action  # noqa: E402
 
 _MOCK_STATE = {
@@ -86,7 +87,20 @@ def validate_bot(path: str) -> tuple[bool, list[str]]:
         return False, errors
 
     errors = _check_sandbox(module.decide)
-    return (not errors), errors
+    if errors:
+        return False, errors
+
+    # Preflight execution check with full sample state
+    try:
+        source = open(path, encoding="utf-8").read()
+    except OSError:
+        source = ""
+    if source:
+        ok, msg = run_preflight(source)
+        if not ok:
+            return False, [f"Preflight: {msg}"]
+
+    return True, []
 
 
 def _main():
