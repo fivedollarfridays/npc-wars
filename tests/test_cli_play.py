@@ -204,8 +204,8 @@ class TestPlayNoWatch:
         )
         winner1 = [ln for ln in out1.splitlines() if "WINNER:" in ln][0]
         winner2 = [ln for ln in out2.splitlines() if "WINNER:" in ln][0]
-        # Same seed -> same winner emoji
-        assert winner1.split("|")[0] == winner2.split("|")[0]
+        # Same seed -> same winner line
+        assert winner1.strip() == winner2.strip()
 
 
 # -- Cycle 4: --no-fx flag ---------------------------------------------------

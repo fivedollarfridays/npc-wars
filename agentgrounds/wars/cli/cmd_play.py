@@ -121,7 +121,7 @@ def _print_summary(match_data: dict, filepath: str) -> None:
     if elims:
         print("  Kill Feed:")
         for e in elims[-8:]:
-            print(f"    R{e['round']}: {e.get('killed_by', '?')} → {e['emoji']} ({e['cause']})")
+            print(f"    R{e.get('round', '?')}: {e.get('killed_by', '?')} → {e.get('emoji', '?')} ({e.get('cause', '?')})")
         print()
 
     # Top stats
