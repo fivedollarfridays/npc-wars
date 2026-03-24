@@ -1,46 +1,41 @@
 # Current State
 
-> Last updated: 2026-03-23 S45 planned
+> Last updated: 2026-03-24 S46 planned
 
 ## Active Plans
 
-**Plan:** Sprint 45: Kill Cam + Animations + Sound
-- **Sprint:** S45 | **Type:** feature | **Status:** Planned (4 tasks, T45.1-T45.4)
+**Plan:** Sprint 46: Character Customization (Paid Cosmetics)
+- **Sprint:** S46 | **Type:** feature | **Status:** Planned (4 tasks, T46.1-T46.4)
 - **Part of:** Phase 3B — Spectacle (S44-S47)
-- **Plan ID:** plan-2026-03-s45-spectacle
 
-### S45 Tasks
+### S46 Tasks
 
 | Task | Title | Cx | Depends On | Status |
 |------|-------|----|------------|--------|
-| T45.1 | Kill cam + death animation | 25 | — | done |
-| T45.2 | Audio upgrade — synth stingers | 20 | — | done |
-| T45.3 | Round transitions + match flow | 15 | T45.1 | pending |
-| T45.4 | GATE: Spectacle validation | 10 | all | pending |
+| T46.1 | Cosmetic catalog + inventory system | 25 | — | done |
+| T46.2 | Cosmetic store API + match coin rewards | 20 | T46.1 | done |
+| T46.3 | Viewer cosmetic rendering | 20 | T46.1 | pending |
+| T46.4 | GATE: Cosmetic system validation | 10 | all | pending |
 
-### S45 Wave Plan
+### S46 Wave Plan
 
 ```
-Wave 1 (parallel):  T45.1 (kill cam) + T45.2 (audio)              (45 Cx)
-Wave 2:             T45.3 — round transitions                      (15 Cx)
-Wave 3:             T45.4 — SPECTACLE GATE                         (10 Cx)
+Wave 1:             T46.1 — catalog + inventory                    (25 Cx)
+Wave 2 (parallel):  T46.2 (store API) + T46.3 (viewer rendering)  (40 Cx)
+Wave 3:             T46.4 — COSMETIC GATE                          (10 Cx)
 ```
 
 ## Current Focus
 
-S45 planned. Second sprint of Phase 3B.
+T46.2 complete. T46.3 (viewer cosmetic rendering) next.
 
 ## What Was Just Done
 
-**T45.2 done** — Audio upgrade: synthesized stingers for 8 event types (trap_trigger, tactical_activate, ability_damage/heal/shield/slow, crystal_pickup, evolve). Added playSynth(), _synthTone(), _synthSweep(), _synthNoise() to AudioEngine in audio.js. Wired playSynth calls into events.js for each event type. No external audio files needed.
-
-**T45.1 done** — Kill cam + death animation added to viewer. triggerKillCam (CSS zoom + slow-mo), updateKillCam (timer restore), playDeathAnimation (fade + particle burst) in effects.js. Wired to kill events in events.js with tier-gated kill cam (intense/hype/chaos only).
-
-**PR #40 merged** — S44 Code-built character system
+**T46.2: Cosmetic store API + match coin rewards** -- Created `server/routes/cosmetics.py` (6 endpoints: browse store, coin balance, buy, inventory, equip, unequip), `server/coin_rewards.py` (award_match_coins helper), wired into `server/worker.py` for post-match coin distribution. Registered cosmetics router in `server/app.py`. 15 API tests in `tests/test_cosmetic_api.py`, 5 coin reward tests in `tests/test_coin_rewards.py`. All 51 related tests passing, ruff clean.
 
 ## What's Next
 
-T45.3 (round transitions) is next — depends on T45.1 (done).
+T46.3 (viewer cosmetic rendering) is unblocked. After that, T46.4 (GATE).
 
 ## Completed Sprints
 
@@ -50,3 +45,4 @@ T45.3 (round transitions) is next — depends on T45.1 (done).
 | S32-S39 | Phase 2: Depth | #27-#34 | Done |
 | S40-S43 | Phase 3A: Playable Product | #35-#39 | Done |
 | S44 | Character System | #40 | Done |
+| S45 | Kill Cam + Sound + Preflight | #41 | Done |

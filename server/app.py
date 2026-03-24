@@ -10,6 +10,7 @@ from fastapi.staticfiles import StaticFiles
 from server.db import init_db
 from server.middleware.session import SessionMiddleware
 from server.routes.bots import router as bots_router
+from server.routes.cosmetics import router as cosmetics_router
 from server.routes.health import router as health_router
 from server.routes.lobby import router as lobby_router
 from server.routes.pages import router as pages_router
@@ -23,6 +24,7 @@ app = FastAPI(title="NPC Wars Server")
 app.state.results_dir = "results"
 app.state.db = init_db(os.environ.get("DB_PATH", ":memory:"))
 app.include_router(bots_router)
+app.include_router(cosmetics_router)
 app.include_router(health_router)
 app.include_router(lobby_router)
 app.include_router(match_router)

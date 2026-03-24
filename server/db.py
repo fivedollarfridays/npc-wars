@@ -61,6 +61,10 @@ def init_db(db_path: str) -> sqlite3.Connection:
         )
         """
     )
+    # Cosmetic tables (catalog + inventory)
+    from server.cosmetic_db import init_cosmetic_tables
+
+    init_cosmetic_tables(conn)
     conn.commit()
     return conn
 
