@@ -148,7 +148,7 @@ class TestPlayNoWatch:
             ["play", "--bots-dir", str(bots_dir), "--no-watch", "--seed", "42"],
             capsys,
         )
-        assert "Winner:" in out
+        assert "WINNER:" in out
 
     def test_play_no_watch_prints_rounds(
         self, tmp_path: Path, capsys: pytest.CaptureFixture[str],
@@ -160,7 +160,7 @@ class TestPlayNoWatch:
             ["play", "--bots-dir", str(bots_dir), "--no-watch", "--seed", "42"],
             capsys,
         )
-        assert "Rounds:" in out
+        assert "Duration:" in out
 
     def test_play_no_watch_prints_saved_path(
         self, tmp_path: Path, capsys: pytest.CaptureFixture[str],
@@ -202,8 +202,8 @@ class TestPlayNoWatch:
             ["play", "--bots-dir", str(bots_dir), "--no-watch", "--seed", "99"],
             capsys,
         )
-        winner1 = [ln for ln in out1.splitlines() if "Winner:" in ln][0]
-        winner2 = [ln for ln in out2.splitlines() if "Winner:" in ln][0]
+        winner1 = [ln for ln in out1.splitlines() if "WINNER:" in ln][0]
+        winner2 = [ln for ln in out2.splitlines() if "WINNER:" in ln][0]
         # Same seed -> same winner emoji
         assert winner1.split("|")[0] == winner2.split("|")[0]
 

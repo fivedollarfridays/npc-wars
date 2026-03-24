@@ -243,7 +243,7 @@ class TestGenerateE2E:
             f"generate exited {result.returncode}\nstderr: {result.stderr}"
         )
         assert "decide(state)" in result.stdout
-        assert "NPC Wars" in result.stdout
+        assert "Kill Switch" in result.stdout
 
 
 # ── 8. README updated ─────────────────────────────────────────

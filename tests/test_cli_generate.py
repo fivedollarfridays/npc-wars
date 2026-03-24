@@ -23,7 +23,7 @@ class TestBuildPrompt:
 
         result = _build_prompt(strategy="", name="", emoji="")
         # PROMPT.md starts with this header
-        assert "# NPC Wars" in result
+        assert "# Kill Switch" in result
 
     def test_appends_strategy(self) -> None:
         from agentgrounds.wars.cli.cmd_generate import _build_prompt
@@ -87,7 +87,7 @@ class TestGenerateManual:
 
     def test_contains_game_rules(self) -> None:
         result = _run_cli()
-        assert "# NPC Wars" in result.stdout
+        assert "# Kill Switch" in result.stdout
 
     def test_ends_with_output_only_instruction(self) -> None:
         result = _run_cli()
