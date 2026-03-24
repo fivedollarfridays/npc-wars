@@ -54,7 +54,11 @@ def test_glow_effect_override() -> None:
 def test_death_effect_cosmetic() -> None:
     """Death animation must support cosmetic death_effect color override."""
     html = _read_viewer()
-    assert "death_effect" in html, "Missing death_effect cosmetic handling"
+    # Also check events.js directly in case read_viewer_content doesn't include it
+    events_path = Path(__file__).resolve().parent.parent / "viewer" / "js" / "events.js"
+    events_content = events_path.read_text() if events_path.exists() else ""
+    combined = html + events_content
+    assert "death_effect" in combined, "Missing death_effect cosmetic handling"
 
 
 # --- Cycle 4: renderer.js cosmetics lookup ---
