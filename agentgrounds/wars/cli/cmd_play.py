@@ -104,10 +104,52 @@ def _run_match(bots_dir: Path, seed: int | None) -> tuple[dict, str]:
 
 
 def _print_summary(match_data: dict, filepath: str) -> None:
-    """Print a one-line match summary."""
+    """Print rich match summary with kill feed, stats, and diff."""
     winner = match_data.get("winner", "?")
     duration = match_data.get("duration_rounds", 0)
-    print(f"Winner: {winner} | Rounds: {duration} | Saved: {filepath}")
+    stats = match_data.get("stats", {})
+    elims = match_data.get("eliminations", [])
+
+    # Find winner name
+    players = match_data.get("players", [])
+    winner_name = next((p["name"] for p in players if p["emoji"] == winner), winner)
+
+    print(f"\n  WINNER: {winner} {winner_name}")
+    print(f"  Duration: {duration} rounds\n")
+
+    # Kill feed (last 8)
+    if elims:
+        print("  Kill Feed:")
+        for e in elims[-8:]:
+            print(f"    R{e['round']}: {e.get('killed_by', '?')} → {e['emoji']} ({e['cause']})")
+        print()
+
+    # Top stats
+    if stats:
+        print("  Stats:")
+        for emoji, s in sorted(stats.items(), key=lambda x: x[1].get("kills", 0), reverse=True)[:5]:
+            print(f"    {emoji}  K:{s.get('kills',0)}  DMG:{s.get('damage_dealt',0)}  Survived:{s.get('rounds_survived',0)}r")
+        print()
+
+    # Diff summary for winner
+    diff = match_data.get("diff", {})
+    if diff and winner in diff:
+        wd = diff[winner]
+        if wd.get("first_match"):
+            print("  First match! Play again to see your improvement.\n")
+        else:
+            print("  Stats vs Lifetime Average:")
+            for key in ("win_rate", "avg_kills", "avg_rounds_survived", "avg_damage_dealt"):
+                if key in wd:
+                    d = wd[key]
+                    cls = d.get("classification", "")
+                    arrow = "▲" if cls == "improved" else "▼" if cls == "regressed" else "─"
+                    print(f"    {key}: {arrow} {d.get('current', '?')}")
+            print()
+
+    print(f"  Saved: {filepath}")
+    print(f"  Watch: agentgrounds wars watch {filepath}")
+    print("\n  Edit your bot and play again! →  agentgrounds wars play\n")
 
 
 def _play_back(
