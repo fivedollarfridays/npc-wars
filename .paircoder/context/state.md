@@ -1,41 +1,42 @@
 # Current State
 
-> Last updated: 2026-03-24 S46 planned
+> Last updated: 2026-03-24 T47.2 done
 
 ## Active Plans
 
-**Plan:** Sprint 46: Character Customization (Paid Cosmetics)
-- **Sprint:** S46 | **Type:** feature | **Status:** Planned (4 tasks, T46.1-T46.4)
-- **Part of:** Phase 3B — Spectacle (S44-S47)
+**Plan:** Sprint 47: Tournament System (Phase 3B Final)
+- **Sprint:** S47 | **Type:** feature | **Status:** Planned (4 tasks, T47.1-T47.4)
+- **Part of:** Phase 3B — Spectacle (S44-S47) — FINAL SPRINT
 
-### S46 Tasks
+### S47 Tasks
 
 | Task | Title | Cx | Depends On | Status |
 |------|-------|----|------------|--------|
-| T46.1 | Cosmetic catalog + inventory system | 25 | — | done |
-| T46.2 | Cosmetic store API + match coin rewards | 20 | T46.1 | done |
-| T46.3 | Viewer cosmetic rendering | 20 | T46.1 | pending |
-| T46.4 | GATE: Cosmetic system validation | 10 | all | pending |
+| T47.1 | Tournament bracket engine | 25 | — | done |
+| T47.2 | Tournament API + automated runner | 25 | T47.1 | done |
+| T47.3 | Tournament bracket page + spectator view | 20 | T47.2 | pending |
+| T47.4 | GATE: Phase 3B completion | 15 | all | pending |
 
-### S46 Wave Plan
+### S47 Wave Plan
 
 ```
-Wave 1:             T46.1 — catalog + inventory                    (25 Cx)
-Wave 2 (parallel):  T46.2 (store API) + T46.3 (viewer rendering)  (40 Cx)
-Wave 3:             T46.4 — COSMETIC GATE                          (10 Cx)
+Wave 1:  T47.1 — bracket engine                       (25 Cx)
+Wave 2:  T47.2 — API + runner                          (25 Cx)
+Wave 3:  T47.3 — bracket page + spectator              (20 Cx)
+Wave 4:  T47.4 — PHASE 3B GATE                         (15 Cx)
 ```
 
 ## Current Focus
 
-T46.2 complete. T46.3 (viewer cosmetic rendering) next.
+T47.2 complete. Moving to T47.3 (Tournament bracket page + spectator view).
 
 ## What Was Just Done
 
-**T46.2: Cosmetic store API + match coin rewards** -- Created `server/routes/cosmetics.py` (6 endpoints: browse store, coin balance, buy, inventory, equip, unequip), `server/coin_rewards.py` (award_match_coins helper), wired into `server/worker.py` for post-match coin distribution. Registered cosmetics router in `server/app.py`. 15 API tests in `tests/test_cosmetic_api.py`, 5 coin reward tests in `tests/test_coin_rewards.py`. All 51 related tests passing, ruff clean.
+**T47.2: Tournament API + automated runner** — Created tournament DB storage (`server/tournament_db.py`), automated match runner (`server/tournament_runner.py`), and API routes (`server/routes/tournament.py`). Six endpoints: create, join, get, list, run-round, results. Runner maps bot names back to player IDs for bracket advancement. 23 new tests across 3 test files (8 DB, 5 runner, 10 API), all pass. Ruff clean, all files under size limits.
 
 ## What's Next
 
-T46.3 (viewer cosmetic rendering) is unblocked. After that, T46.4 (GATE).
+T47.3 — Tournament bracket page + spectator view (depends on T47.2, now unblocked).
 
 ## Completed Sprints
 
@@ -46,3 +47,4 @@ T46.3 (viewer cosmetic rendering) is unblocked. After that, T46.4 (GATE).
 | S40-S43 | Phase 3A: Playable Product | #35-#39 | Done |
 | S44 | Character System | #40 | Done |
 | S45 | Kill Cam + Sound + Preflight | #41 | Done |
+| S46 | Cosmetics | #42 | Done |
