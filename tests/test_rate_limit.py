@@ -22,6 +22,9 @@ def _make_client() -> TestClient:
 
 def setup_function():
     """Reset state before each test."""
+    import os
+
+    os.environ["NPCWARS_SECURE_COOKIES"] = "0"  # TestClient uses HTTP
     clear_rate_limit_state()
     clear_rate_limits()
 
