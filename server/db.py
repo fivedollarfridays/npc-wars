@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import sqlite3
 import uuid
 from datetime import datetime, timezone
@@ -135,29 +136,57 @@ def expire_session(conn: sqlite3.Connection, token: str) -> bool:
 # ── API Key operations ───────────────────────────────────────────────
 
 
+def _hash_key(raw_key: str) -> str:
+    """Return the SHA-256 hex digest of *raw_key*."""
+    return hashlib.sha256(raw_key.encode()).hexdigest()
+
+
 def create_api_key(conn: sqlite3.Connection, player_id: str) -> str:
-    """Generate a new API key for a player and return it."""
+    """Generate a new API key, store its hash, and return the raw key."""
     key = uuid.uuid4().hex
+    key_hash = _hash_key(key)
     created_at = datetime.now(timezone.utc).isoformat()
     conn.execute(
         "INSERT INTO api_keys (key, player_id, created_at) VALUES (?, ?, ?)",
-        (key, player_id, created_at),
+        (key_hash, player_id, created_at),
     )
     conn.commit()
     return key
 
 
 def get_player_by_api_key(conn: sqlite3.Connection, key: str) -> dict | None:
-    """Look up a player by API key. Return player dict or None."""
+    """Look up a player by API key (dual-mode: hash first, plaintext fallback).
+
+    New keys are stored as SHA-256 hashes. For migration from old plaintext
+    keys, we fall back to a plaintext match and auto-upgrade to hashed.
+    """
+    key_hash = _hash_key(key)
+
+    # Primary path: match by hash
     row = conn.execute(
-        """
-        SELECT p.* FROM players p
-        JOIN api_keys ak ON ak.player_id = p.id
-        WHERE ak.key = ?
-        """,
+        "SELECT p.* FROM players p "
+        "JOIN api_keys ak ON ak.player_id = p.id "
+        "WHERE ak.key = ?",
+        (key_hash,),
+    ).fetchone()
+    if row:
+        return dict(row)
+
+    # Fallback: plaintext match (old keys) — auto-upgrade
+    row = conn.execute(
+        "SELECT p.* FROM players p "
+        "JOIN api_keys ak ON ak.player_id = p.id "
+        "WHERE ak.key = ?",
         (key,),
     ).fetchone()
-    return dict(row) if row else None
+    if row:
+        conn.execute(
+            "UPDATE api_keys SET key = ? WHERE key = ?", (key_hash, key)
+        )
+        conn.commit()
+        return dict(row)
+
+    return None
 
 
 # ── Bot operations ───────────────────────────────────────────────────

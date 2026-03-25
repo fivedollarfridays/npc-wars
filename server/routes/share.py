@@ -26,9 +26,10 @@ async def share_match(match_id: str, request: Request) -> HTMLResponse:
         results_dir / f"{match_id}.json",
     ]
 
+    resolved_results = results_dir.resolve()
     match_data = None
     for p in candidates:
-        if p.is_file():
+        if p.resolve().is_relative_to(resolved_results) and p.is_file():
             try:
                 match_data = json.loads(p.read_text(encoding="utf-8"))
             except (json.JSONDecodeError, OSError):

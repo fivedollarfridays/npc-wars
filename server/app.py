@@ -1,5 +1,6 @@
 """FastAPI application skeleton for NPC Wars server."""
 
+import logging
 import os
 from pathlib import Path
 
@@ -21,9 +22,19 @@ from server.routes.stream import router as stream_router
 from server.routes.submit import router as submit_router
 from server.routes.tournament import router as tournament_router
 
+_logger = logging.getLogger(__name__)
+
 app = FastAPI(title="NPC Wars Server")
 app.state.results_dir = "results"
-app.state.db = init_db(os.environ.get("DB_PATH", ":memory:"))
+
+_db_path = os.environ.get("DB_PATH", ":memory:")
+if _db_path == ":memory:" and not os.environ.get("TESTING"):
+    _logger.warning(
+        "DB_PATH not set — using :memory: database. "
+        "Data will not persist across restarts. "
+        "Set DB_PATH for production or TESTING=1 for test context."
+    )
+app.state.db = init_db(_db_path)
 app.include_router(bots_router)
 app.include_router(cosmetics_router)
 app.include_router(health_router)
@@ -51,8 +62,8 @@ _cors_origins = os.environ.get(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type", "X-API-Key", "Authorization"],
 )
 app.add_middleware(SessionMiddleware)
 

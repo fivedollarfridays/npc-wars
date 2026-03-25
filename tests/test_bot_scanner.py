@@ -265,9 +265,15 @@ class TestDunderAttrBlocking:
         assert "__closure__" in violations[0]
 
     def test_safe_dunder_not_blocked(self):
-        source = "x.__init__()\nx.__str__()\nx.__len__()\n"
+        source = "x.__str__()\nx.__len__()\n"
         violations = scan_bot_source(source)
         assert violations == []
+
+    def test_init_call_blocked(self):
+        """__init__() is now blocked as an attr call (S49 hardening)."""
+        source = "x.__init__()\n"
+        violations = scan_bot_source(source)
+        assert any("__init__" in v for v in violations)
 
     def test_chained_dunder_access(self):
         source = "().__class__.__bases__[0].__subclasses__()\n"

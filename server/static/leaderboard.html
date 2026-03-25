@@ -103,6 +103,12 @@
 <script>
   let currentSort = 'wins';
 
+  function sanitize(str) {
+    var div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
   async function load() {
     try {
       const resp = await fetch('/api/leaderboard?sort_by=' + currentSort);
@@ -119,7 +125,7 @@
         const href = '/profile/' + encodeURIComponent(p.emoji);
         return '<tr' + cls + '>'
           + '<td>' + rank + '</td>'
-          + '<td class="emoji-cell"><a href="' + href + '">' + p.emoji + '</a></td>'
+          + '<td class="emoji-cell"><a href="' + href + '">' + sanitize(p.emoji) + '</a></td>'
           + '<td>' + p.wins + '</td>'
           + '<td>' + wr + '%</td>'
           + '<td>' + p.kills + '</td>'

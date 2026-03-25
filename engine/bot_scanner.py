@@ -26,6 +26,8 @@ BLOCKED_MODULES: frozenset[str] = frozenset({
 
 BLOCKED_CALLS: frozenset[str] = frozenset({
     "eval", "exec", "compile", "__import__", "open",
+    "getattr", "setattr", "delattr", "vars", "locals", "globals",
+    "dir", "__build_class__",
 })
 
 
@@ -51,7 +53,9 @@ def _check_imports(tree: ast.AST) -> list[str]:
 
 
 # Calls that are dangerous even as method calls (obj.__import__())
-_BLOCKED_ATTR_CALLS: frozenset[str] = frozenset({"__import__"})
+_BLOCKED_ATTR_CALLS: frozenset[str] = frozenset({
+    "__import__", "__init__", "__call__", "__getattr__", "__setattr__",
+})
 
 _BLOCKED_DUNDER_ATTRS: frozenset[str] = frozenset({
     "__globals__", "__builtins__", "__subclasses__", "__mro__",

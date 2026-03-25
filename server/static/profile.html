@@ -135,6 +135,12 @@
   <tbody id="history-rows"></tbody>
 </table>
 <script>
+  function sanitize(str) {
+    var div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
   var playerId = decodeURIComponent(window.location.pathname.split('/profile/')[1] || '');
   document.getElementById('player-id').textContent = playerId;
   document.title = 'Kill Switch -- ' + playerId;
@@ -186,7 +192,7 @@
         var mid = String(m.match_id).padStart(3, '0');
         return '<tr>'
           + '<td>' + badge + ' #' + mid + '</td>'
-          + '<td>' + m.winner + '</td>'
+          + '<td>' + sanitize(m.winner) + '</td>'
           + '<td>' + m.player_count + '</td>'
           + '<td>' + m.duration_rounds + '</td>'
           + '<td><a href="/static/viewer/index.html?match=' + mid + '">Watch</a></td>'
