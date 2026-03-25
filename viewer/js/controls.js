@@ -83,7 +83,7 @@ function showWinner() {
   document.getElementById('winner-emoji').textContent = winner;
   document.getElementById('winner-name').textContent = player ? player.name : 'Unknown';
   document.getElementById('winner-banner').style.display = 'flex';
-  setTimeout(function() { showDiffOverlay(); }, 1000);
+  setTimeout(function() { showDiffOverlay(); showResultsOverlay(); }, 1000);
 }
 
 function dismissWinner() {
