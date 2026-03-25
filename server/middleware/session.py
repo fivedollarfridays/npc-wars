@@ -1,11 +1,14 @@
 """Session middleware — assigns a session cookie to every request."""
 
+import logging
 import os
 import uuid
 
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
 from starlette.requests import Request
 from starlette.responses import Response
+
+_logger = logging.getLogger(__name__)
 
 COOKIE_NAME = "npcwars_session"
 COOKIE_MAX_AGE = 86400 * 30  # 30 days
@@ -26,7 +29,12 @@ class SessionMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
 
         if is_new:
-            _secure = os.environ.get("NPCWARS_SECURE_COOKIES", "0") == "1"
+            _secure = os.environ.get("NPCWARS_SECURE_COOKIES", "1") != "0"
+            if not _secure:
+                _logger.warning(
+                    "Secure cookies disabled via NPCWARS_SECURE_COOKIES=0. "
+                    "Only use this for local development."
+                )
             response.set_cookie(
                 key=COOKIE_NAME,
                 value=token,

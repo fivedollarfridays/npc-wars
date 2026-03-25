@@ -42,19 +42,32 @@ def load_bot_from_source(source: str, label: str) -> dict[str, Any]:
         raise ValueError(f"Bot '{label}' failed scan: {'; '.join(errors[:3])}")
 
     import builtins as _builtins
+    from engine.bot_scanner import BLOCKED_MODULES
 
     _safe_builtins = {
         k: getattr(_builtins, k)
         for k in (
-            "__import__", "abs", "all", "any", "bool", "dict", "enumerate",
-            "float", "int", "len", "list", "max", "min", "print", "range",
-            "round", "set", "sorted", "str", "sum", "tuple", "zip",
-            "True", "False", "None", "isinstance", "callable", "hasattr",
-            "getattr", "setattr", "type", "object", "property", "staticmethod",
-            "classmethod", "super", "map", "filter", "reversed", "iter", "next",
+            "abs", "all", "any", "bool", "dict", "enumerate",
+            "float", "frozenset", "int", "len", "list", "max", "min",
+            "print", "range", "round", "set", "sorted", "str", "sum",
+            "tuple", "zip", "True", "False", "None",
+            "isinstance", "issubclass", "hasattr", "hash", "id", "repr",
+            "map", "filter", "reversed",
+            "ValueError", "TypeError", "KeyError", "IndexError",
+            "AttributeError", "StopIteration", "Exception",
         )
         if hasattr(_builtins, k)
     }
+
+    _real_import = _builtins.__import__
+
+    def _restricted_import(name: str, *args: Any, **kwargs: Any) -> Any:
+        root = name.split(".")[0]
+        if root in BLOCKED_MODULES:
+            raise ImportError(f"Import blocked: '{name}'")
+        return _real_import(name, *args, **kwargs)
+
+    _safe_builtins["__import__"] = _restricted_import
     namespace: dict[str, Any] = {"__builtins__": _safe_builtins}
     exec(compile(source, f"<{label}>", "exec"), namespace)  # noqa: S102
 

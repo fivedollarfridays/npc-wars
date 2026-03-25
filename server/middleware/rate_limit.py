@@ -7,8 +7,9 @@ from fastapi.responses import JSONResponse
 
 RATE_LIMIT_SECONDS = 30
 MAX_SUBMISSIONS = 1
+MAX_SUBMISSIONS_ENTRIES = 10_000
 
-# In-memory store: session_token -> last submission timestamp
+# In-memory store: client_key -> last submission timestamp
 _submissions: dict[str, float] = {}
 
 
@@ -25,6 +26,15 @@ def _cleanup_stale() -> None:
         del _submissions[k]
 
 
+def _get_client_key(request: Request) -> str:
+    """Derive rate-limit key: prefer X-API-Key, fall back to client IP."""
+    api_key = request.headers.get("x-api-key")
+    if api_key:
+        return api_key
+    host = getattr(request.client, "host", None) if request.client else None
+    return host or "unknown"
+
+
 async def check_rate_limit(request: Request) -> JSONResponse | None:
     """Check and enforce rate limits for the current session.
 
@@ -32,13 +42,17 @@ async def check_rate_limit(request: Request) -> JSONResponse | None:
     Records the submission timestamp on success.
     Attaches rate limit headers to the request state for the route to use.
     """
-    token = getattr(request.state, "session_token", "unknown")
+    client_key = _get_client_key(request)
 
-    if len(_submissions) > 1000:
+    # Aggressive cleanup: always clean when over half capacity, or at cap
+    if len(_submissions) > MAX_SUBMISSIONS_ENTRIES // 2:
         _cleanup_stale()
+    # Hard cap: if still over limit after cleanup, evict oldest entries
+    if len(_submissions) >= MAX_SUBMISSIONS_ENTRIES:
+        _evict_oldest(len(_submissions) - MAX_SUBMISSIONS_ENTRIES + 1)
 
     now = time.monotonic()
-    last_time = _submissions.get(token)
+    last_time = _submissions.get(client_key)
 
     if last_time is not None:
         elapsed = now - last_time
@@ -65,7 +79,16 @@ async def check_rate_limit(request: Request) -> JSONResponse | None:
     return None
 
 
+def _evict_oldest(count: int) -> None:
+    """Remove the N oldest entries from _submissions."""
+    if count <= 0:
+        return
+    sorted_keys = sorted(_submissions, key=_submissions.get)  # type: ignore[arg-type]
+    for k in sorted_keys[:count]:
+        del _submissions[k]
+
+
 def record_submission(request: Request) -> None:
-    """Record that a submission was made for this session."""
-    token = getattr(request.state, "session_token", "unknown")
-    _submissions[token] = time.monotonic()
+    """Record that a submission was made for this client."""
+    client_key = _get_client_key(request)
+    _submissions[client_key] = time.monotonic()

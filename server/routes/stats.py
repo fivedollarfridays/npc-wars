@@ -4,7 +4,7 @@ from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
 
-from data.leaderboard import aggregate_stats, get_rankings
+from data.leaderboard import VALID_SORT_FIELDS, aggregate_stats, get_rankings
 from data.lifetime_stats import get_lifetime_stats
 from data.match_history import get_all_matches, list_matches
 
@@ -29,6 +29,11 @@ async def leaderboard(
     request: Request, sort_by: str = "wins"
 ) -> list[dict[str, Any]]:
     """Return ranked list of all players sorted by the given stat."""
+    if sort_by not in VALID_SORT_FIELDS:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid sort_by value. Must be one of: {sorted(VALID_SORT_FIELDS)}",
+        )
     results_dir: str = request.app.state.results_dir
     matches = get_all_matches(results_dir)
     if not matches:

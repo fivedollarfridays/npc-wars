@@ -12,9 +12,16 @@ from server.app import app
 
 @pytest.fixture()
 def client(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> TestClient:
-    """TestClient with fresh temp database."""
+    """TestClient with fresh temp database and cleared rate limits."""
+    from server.db import init_db
+    from server.middleware.rate_limit import clear_rate_limit_state
+    from server.routes.submit import clear_rate_limits
+
     db_path = str(tmp_path / "test.db")
     monkeypatch.setenv("NPCWARS_DB_PATH", db_path)
+    app.state.db = init_db(db_path)
+    clear_rate_limit_state()
+    clear_rate_limits()
     return TestClient(app)
 
 

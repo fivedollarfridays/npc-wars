@@ -27,6 +27,11 @@
 <div class="header"><h1>TOURNAMENTS</h1></div>
 <div id="list" class="list"><div class="empty">Loading...</div></div>
 <script>
+function sanitize(str) {
+  var div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
 async function load() {
   try {
     var resp = await fetch('/api/tournaments');
@@ -34,8 +39,8 @@ async function load() {
     if (!data.length) { document.getElementById('list').innerHTML = '<div class="empty">No tournaments yet.</div>'; return; }
     document.getElementById('list').innerHTML = data.map(function(t) {
       return '<a href="/tournament/' + t.id + '"><div class="tournament">'
-        + '<div><div class="name">' + t.name + '</div>'
-        + '<div class="meta">' + t.size + ' players' + (t.winner ? ' \u2014 Winner: ' + t.winner : '') + '</div></div>'
+        + '<div><div class="name">' + sanitize(t.name) + '</div>'
+        + '<div class="meta">' + t.size + ' players' + (t.winner ? ' \u2014 Winner: ' + sanitize(t.winner) : '') + '</div></div>'
         + '<span class="status status-' + t.status + '">' + t.status.toUpperCase() + '</span>'
         + '</div></a>';
     }).join('');
