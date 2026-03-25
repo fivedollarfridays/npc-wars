@@ -52,8 +52,10 @@ async def join_lobby(
 
 @router.get("/status")
 async def lobby_status() -> dict:
-    """Return current lobby state."""
-    return get_lobby().status()
+    """Return current lobby state. Polls check_timer for time-based triggers."""
+    lobby = get_lobby()
+    lobby.check_timer()
+    return lobby.status()
 
 
 @router.get("/history")

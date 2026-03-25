@@ -196,10 +196,14 @@
                 }
             });
 
+            // Pre-fill from localStorage if available
+            var savedSource = localStorage.getItem('lastBotSource');
+            var initialValue = savedSource || BOT_TEMPLATE;
+
             editor = monaco.editor.create(
                 document.getElementById('editor-container'),
                 {
-                    value: BOT_TEMPLATE,
+                    value: initialValue,
                     language: 'python',
                     theme: 'npcwars',
                     fontSize: 14,
@@ -261,11 +265,12 @@
         function submitBot() {
             if (!editor) return;
 
-            const btn = document.getElementById('submit-btn');
+            var btn = document.getElementById('submit-btn');
             btn.disabled = true;
             clearErrors();
 
-            const source = editor.getValue();
+            var source = editor.getValue();
+            localStorage.setItem('lastBotSource', source);
 
             fetch('/api/submit-bot', {
                 method: 'POST',
@@ -278,17 +283,17 @@
                 });
             })
             .then(function (result) {
-                btn.disabled = false;
-
                 if (result.status === 400 && result.data.errors) {
+                    btn.disabled = false;
                     showErrors(result.data.errors);
                 } else if (result.status === 429) {
+                    btn.disabled = false;
                     showErrors([result.data.detail || 'Rate limited. Try again later.']);
                 } else if (result.status === 202) {
                     var lobbyEl = document.getElementById('lobby-status');
-                    lobbyEl.textContent = 'Submitted! Job: ' + result.data.job_id;
+                    lobbyEl.textContent = 'Submitted! Waiting for match...';
                     lobbyEl.classList.add('active');
-                    pollForMatch(result.data.job_id);
+                    startLobbyPolling();
                 }
             })
             .catch(function (err) {
@@ -297,27 +302,50 @@
             });
         }
 
-        // Poll for match completion (placeholder — uses job_id)
-        function pollForMatch(jobId) {
+        // Poll /api/lobby/status every 2s for real lobby state
+        var _pollInterval = null;
+
+        function startLobbyPolling() {
             var lobbyEl = document.getElementById('lobby-status');
-            var countdown = 30;
+            var btn = document.getElementById('submit-btn');
+            btn.disabled = true;
 
-            var interval = setInterval(function () {
-                countdown--;
-                lobbyEl.textContent = 'Lobby countdown: ' + countdown + 's';
+            _pollInterval = setInterval(function () {
+                fetch('/api/lobby/status')
+                .then(function (resp) { return resp.json(); })
+                .then(function (data) {
+                    updateLobbyUI(data);
+                    if (data.match_id) {
+                        clearInterval(_pollInterval);
+                        _pollInterval = null;
+                        lobbyEl.textContent = 'Match starting...';
+                        setTimeout(function () {
+                            window.location.href = '/viewer?match=' + data.match_id;
+                        }, 1000);
+                    }
+                })
+                .catch(function () {
+                    lobbyEl.textContent = 'Lobby: connection lost, retrying...';
+                });
+            }, 2000);
+        }
 
-                if (countdown <= 0) {
-                    clearInterval(interval);
-                    lobbyEl.textContent = 'Match starting...';
+        function updateLobbyUI(data) {
+            var lobbyEl = document.getElementById('lobby-status');
+            var parts = [];
+            parts.push(data.players + '/' + data.max + ' players');
+            if (data.time_remaining !== null) {
+                parts.push(Math.ceil(data.time_remaining) + 's remaining');
+            }
+            lobbyEl.textContent = parts.join(' | ');
 
-                    // Show match link (when server provides match result)
-                    var matchLinkDiv = document.getElementById('match-link');
-                    var matchAnchor = document.getElementById('match-link-anchor');
-                    matchLinkDiv.style.display = 'block';
-                    matchAnchor.href = '/static/viewer.html?match=' + jobId;
-                    matchAnchor.textContent = 'View Match Result';
-                }
-            }, 1000);
+            // Show player_list
+            var names = (data.player_list || []).map(function (p) {
+                return p.emoji + ' ' + p.name;
+            });
+            if (names.length > 0) {
+                lobbyEl.textContent += ' | ' + names.join(', ');
+            }
         }
 
         // Wire up submit button

@@ -25,8 +25,9 @@ async def get_match(match_id: str, request: Request) -> dict:
         results_dir / f"{match_id}.json",
     ]
 
+    resolved_results = results_dir.resolve()
     for path in candidates:
-        if path.is_file():
+        if path.resolve().is_relative_to(resolved_results) and path.is_file():
             try:
                 data = json.loads(path.read_text(encoding="utf-8"))
             except (json.JSONDecodeError, OSError):

@@ -41,6 +41,21 @@ function validateMatchPath(path) {
   return /^results\/match_\d{3,}\.json$/.test(path);
 }
 
+function isMatchId(value) {
+  // Match IDs: numeric (e.g. "42") or alphanumeric/UUID (e.g. "abc-def-123")
+  return /^[A-Za-z0-9_-]+$/.test(value) && !validateMatchPath(value);
+}
+
+function loadMatchById(matchId) {
+  fetch('/api/match/' + matchId)
+    .then(function(r) {
+      if (!r.ok) throw new Error('Match not found');
+      return r.json();
+    })
+    .then(function(data) { matchData = data; initViewer(); })
+    .catch(function(err) { alert('Could not load match: ' + err.message); });
+}
+
 function directionArrow(dirStr) {
   var arrows = {
     '(1,0)': '→', '(-1,0)': '←', '(0,-1)': '↑', '(0,1)': '↓',
@@ -86,6 +101,9 @@ function loadDemo() {
       .then(function(r) { return r.json(); })
       .then(function(data) { matchData = data; initViewer(); })
       .catch(function() { alert('Could not load match file'); });
+    return;
+  } else if (matchFile && isMatchId(matchFile)) {
+    loadMatchById(matchFile);
     return;
   } else if (matchFile) {
     alert('Invalid match file path');
@@ -169,6 +187,10 @@ window.addEventListener('load', function() {
       .then(function(r) { return r.json(); })
       .then(function(data) { matchData = data; initViewer(); })
       .catch(function(err) { console.error('Failed to load match:', err); });
+    return;
+  }
+  if (matchFile && isMatchId(matchFile)) {
+    loadMatchById(matchFile);
     return;
   }
   // Auto-start live mode from URL param

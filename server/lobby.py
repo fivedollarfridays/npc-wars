@@ -23,6 +23,7 @@ class Lobby:
         self._players: list[dict[str, Any]] = []
         self._start_time: float | None = None
         self._triggered = False
+        self._match_id: str | None = None
 
     def join(self, bot_config: dict[str, Any]) -> bool:
         """Add a player to the lobby. Returns True if accepted. Thread-safe."""
@@ -37,22 +38,33 @@ class Lobby:
             return True
 
     def status(self) -> dict[str, Any]:
-        """Return lobby status for UI."""
-        if self._start_time is None:
+        """Return lobby status for UI. Thread-safe."""
+        with self._lock:
+            player_list = [
+                {"emoji": p.get("emoji", "?"), "name": p.get("name", "Unknown")}
+                for p in self._players
+            ]
+            if self._start_time is None:
+                return {
+                    "players": 0,
+                    "max": MAX_PLAYERS,
+                    "time_remaining": None,
+                    "triggered": False,
+                    "player_list": player_list,
+                    "match_id": self._match_id,
+                    "status": self._lobby_status(),
+                }
+            elapsed = time.monotonic() - self._start_time
+            remaining = max(0.0, LOBBY_TIMEOUT - elapsed)
             return {
-                "players": 0,
+                "players": len(self._players),
                 "max": MAX_PLAYERS,
-                "time_remaining": None,
-                "triggered": False,
+                "time_remaining": round(remaining, 1),
+                "triggered": self._triggered,
+                "player_list": player_list,
+                "match_id": self._match_id,
+                "status": self._lobby_status(),
             }
-        elapsed = time.monotonic() - self._start_time
-        remaining = max(0.0, LOBBY_TIMEOUT - elapsed)
-        return {
-            "players": len(self._players),
-            "max": MAX_PLAYERS,
-            "time_remaining": round(remaining, 1),
-            "triggered": self._triggered,
-        }
 
     def check_timer(self) -> bool:
         """Check if timer expired. Call periodically. Returns True if match triggered."""
@@ -64,15 +76,27 @@ class Lobby:
                 return True
             return False
 
+    def _lobby_status(self) -> str:
+        """Derive lobby status string from internal state."""
+        if self._triggered:
+            if self._match_id:
+                return "running"
+            return "complete"
+        if not self._players:
+            return "waiting"
+        return "filling"
+
     def reset(self) -> None:
         """Reset lobby for next match."""
         self._players = []
         self._start_time = None
         self._triggered = False
+        self._match_id = None
 
     def _trigger_match(self) -> None:
         if self._triggered:
             return
+        self._match_id = str(uuid.uuid4())
         self._triggered = True
         bot_configs = list(self._players)
         # Fill to MIN_HUMANS_FOR_NO_FILL (not MAX) to keep matches small for few humans
@@ -84,7 +108,7 @@ class Lobby:
         job = {
             "job_id": str(uuid.uuid4()),
             "bot_configs": bot_configs,
-            "match_id": None,
+            "match_id": self._match_id,
             "results_dir": "results",
             "match_mode": match_mode,
         }
