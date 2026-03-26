@@ -16,19 +16,59 @@ class AudioEngine {
   }
 
   init() {
+    // Don't create AudioContext yet — browsers require a user gesture
+    this.pendingInit = true;
+    this._pendingStingers = [];
+
+    // Register one-time user gesture handler
+    var self = this;
+    var unlock = function() {
+      self._createContext();
+      document.removeEventListener('click', unlock);
+      document.removeEventListener('keydown', unlock);
+      document.removeEventListener('touchstart', unlock);
+    };
+    document.addEventListener('click', unlock, { once: true });
+    document.addEventListener('keydown', unlock, { once: true });
+    document.addEventListener('touchstart', unlock, { once: true });
+  }
+
+  _createContext() {
+    if (this.ctx) return; // already created
     try {
       this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (this.ctx.state === 'suspended') {
+        this.ctx.resume();
+      }
       this.masterGain = this.ctx.createGain();
       this.masterGain.connect(this.ctx.destination);
-      this.masterGain.gain.value = this.volume;
+      this.masterGain.gain.value = this.muted ? 0 : this.volume;
       this.ready = true;
+      this.pendingInit = false;
+      // Load any stingers that were requested before context existed
+      this._loadPendingStingers();
+      // Hide the "click for sound" indicator
+      var indicator = document.getElementById('audio-gesture-hint');
+      if (indicator) indicator.style.display = 'none';
     } catch (e) {
-      console.warn('Web Audio not available:', e);
+      console.warn('Audio not available:', e);
     }
   }
 
+  _loadPendingStingers() {
+    var self = this;
+    (this._pendingStingers || []).forEach(function(s) {
+      self.loadStinger(s.name, s.url);
+    });
+    this._pendingStingers = [];
+  }
+
   async loadStinger(name, url) {
-    if (!this.ctx) return;
+    if (!this.ctx) {
+      // Queue for loading after user gesture unlocks AudioContext
+      if (this._pendingStingers) this._pendingStingers.push({ name: name, url: url });
+      return;
+    }
     try {
       const response = await fetch(url);
       const arrayBuffer = await response.arrayBuffer();
@@ -39,7 +79,7 @@ class AudioEngine {
   }
 
   play(eventType, tier) {
-    if (!this.ready || this.muted) return;
+    if (!this.ctx || !this.ready || this.muted) return;
     const buffer = this.buffers[eventType];
     if (!buffer) return;
 
@@ -65,7 +105,7 @@ class AudioEngine {
   }
 
   playSynth(type) {
-    if (!this.ready || this.muted) return;
+    if (!this.ctx || !this.ready || this.muted) return;
     var ctx = this.ctx;
     var gain = ctx.createGain();
     gain.connect(this.masterGain);

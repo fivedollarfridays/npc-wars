@@ -68,9 +68,11 @@ class TestBrowserFlowNavigation:
         assert resp.status_code == 200
 
     def test_editor_references_correct_lobby_api_url(self):
-        """Editor HTML references /api/lobby/status which is a real endpoint."""
-        html = STATIC_DIR / "editor.html"
-        editor_text = html.read_text()
+        """Editor or its lobby JS references /api/lobby/status which is a real endpoint."""
+        editor_text = (STATIC_DIR / "editor.html").read_text()
+        lobby_js = STATIC_DIR / "js" / "lobby.js"
+        if lobby_js.exists():
+            editor_text += "\n" + lobby_js.read_text()
         assert "/api/lobby/status" in editor_text
         # Verify the endpoint itself responds
         resp = client.get("/api/lobby/status")
@@ -79,6 +81,9 @@ class TestBrowserFlowNavigation:
     def test_editor_redirect_matches_viewer_route(self):
         """Editor redirect URL format (/viewer?match=) matches the viewer route."""
         editor_text = (STATIC_DIR / "editor.html").read_text()
+        lobby_js = STATIC_DIR / "js" / "lobby.js"
+        if lobby_js.exists():
+            editor_text += "\n" + lobby_js.read_text()
         assert "/viewer?match=" in editor_text
         # The base path /viewer must be a real route
         resp = client.get("/viewer?match=test123")

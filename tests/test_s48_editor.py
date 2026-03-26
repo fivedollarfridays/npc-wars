@@ -3,10 +3,15 @@
 from pathlib import Path
 
 EDITOR_PATH = Path(__file__).resolve().parent.parent / "server" / "static" / "editor.html"
+LOBBY_JS_PATH = Path(__file__).resolve().parent.parent / "server" / "static" / "js" / "lobby.js"
 
 
 def _read_editor() -> str:
-    return EDITOR_PATH.read_text()
+    """Read editor HTML + extracted lobby JS as combined source."""
+    html = EDITOR_PATH.read_text()
+    if LOBBY_JS_PATH.exists():
+        html += "\n" + LOBBY_JS_PATH.read_text()
+    return html
 
 
 # --- localStorage save/load ---

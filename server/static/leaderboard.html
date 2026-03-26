@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kill Switch -- LEADERBOARD</title>
+<link rel="stylesheet" href="/static/css/responsive.css">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Silkscreen:wght@400;700&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -83,11 +84,17 @@
 </style>
 </head>
 <body>
+<div class="mobile-banner">
+    Best experienced on desktop
+    <button class="close-btn" aria-label="Dismiss">&times;</button>
+</div>
+<script src="/static/js/mobile-banner.js"></script>
 <div class="header">
   <h1>LEADERBOARD</h1>
   <div class="subtitle">KILL SWITCH -- ALL TIME RANKINGS</div>
 </div>
 <div id="loading" class="loading">Loading rankings...</div>
+<div class="table-wrap">
 <table id="board" style="display:none">
   <thead><tr>
     <th>#</th>
@@ -100,6 +107,7 @@
   </tr></thead>
   <tbody id="rows"></tbody>
 </table>
+</div>
 <script>
   let currentSort = 'wins';
 

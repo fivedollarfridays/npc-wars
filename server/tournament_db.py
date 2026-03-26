@@ -5,6 +5,8 @@ from __future__ import annotations
 import sqlite3
 from datetime import datetime, timezone
 
+from server.db import _write_lock
+
 
 def init_tournament_table(conn: sqlite3.Connection) -> None:
     """Create the tournaments table idempotently."""
@@ -29,11 +31,12 @@ def create_tournament(
 ) -> int:
     """Insert a tournament and return its id."""
     created_at = datetime.now(timezone.utc).isoformat()
-    cursor = conn.execute(
-        "INSERT INTO tournaments (name, size, map_name, created_at) VALUES (?, ?, ?, ?)",
-        (name, size, map_name, created_at),
-    )
-    conn.commit()
+    with _write_lock:
+        cursor = conn.execute(
+            "INSERT INTO tournaments (name, size, map_name, created_at) VALUES (?, ?, ?, ?)",
+            (name, size, map_name, created_at),
+        )
+        conn.commit()
     return cursor.lastrowid  # type: ignore[return-value]
 
 
@@ -53,11 +56,12 @@ def update_tournament(
     winner: str | None,
 ) -> None:
     """Update bracket JSON, status, and winner for a tournament."""
-    conn.execute(
-        "UPDATE tournaments SET bracket_json = ?, status = ?, winner = ? WHERE id = ?",
-        (bracket_json, status, winner, tournament_id),
-    )
-    conn.commit()
+    with _write_lock:
+        conn.execute(
+            "UPDATE tournaments SET bracket_json = ?, status = ?, winner = ? WHERE id = ?",
+            (bracket_json, status, winner, tournament_id),
+        )
+        conn.commit()
 
 
 def list_tournaments(

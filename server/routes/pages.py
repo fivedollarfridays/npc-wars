@@ -56,6 +56,15 @@ async def tournaments_page() -> FileResponse:
     )
 
 
+@router.get("/guide")
+async def guide_page() -> FileResponse:
+    """Serve the player guide page."""
+    return FileResponse(
+        _STATIC_DIR / "guide.html",
+        media_type="text/html",
+    )
+
+
 @router.get("/viewer")
 async def viewer_page() -> FileResponse:
     """Serve the match viewer page."""

@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kill Switch</title>
+<link rel="stylesheet" href="/static/css/responsive.css">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Silkscreen:wght@400;700&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -104,6 +105,11 @@
 </style>
 </head>
 <body>
+<div class="mobile-banner">
+    Best experienced on desktop
+    <button class="close-btn" aria-label="Dismiss">&times;</button>
+</div>
+<script src="/static/js/mobile-banner.js"></script>
 <div class="hero">
   <h1>Kill Switch</h1>
   <div class="tagline">You don't play. You code.</div>
@@ -123,6 +129,11 @@
     <div class="card-icon">&#9733;</div>
     <div class="card-title">Leaderboard</div>
     <div class="card-desc">See who ranks highest across all matches.</div>
+  </a>
+  <a href="/guide" class="nav-card">
+    <div class="card-icon">&#9776;</div>
+    <div class="card-title">Guide</div>
+    <div class="card-desc">Learn the rules, actions, and strategies.</div>
   </a>
 </div>
 <div class="profile-link" id="profile-link">
