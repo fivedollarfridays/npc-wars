@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from engine.game import run_match
 from engine.loader import load_bots
 from engine.stats import validate_allocation
@@ -70,6 +72,7 @@ def _collect_all_attack_events(matches: list[dict]) -> list[dict]:
 # ===========================================================================
 
 
+@pytest.mark.timeout(120)
 class TestDamageDistribution:
     """Verify hit damage is within expected range."""
 
@@ -85,6 +88,7 @@ class TestDamageDistribution:
         )
 
 
+@pytest.mark.timeout(120)
 class TestMissRate:
     """Verify miss rate is within expected bounds."""
 
@@ -101,6 +105,7 @@ class TestMissRate:
         )
 
 
+@pytest.mark.timeout(120)
 class TestCritRate:
     """Verify crit rate is within expected bounds."""
 
@@ -118,6 +123,7 @@ class TestCritRate:
         )
 
 
+@pytest.mark.timeout(120)
 class TestMatchLength:
     """Verify match length is within expected bounds."""
 
@@ -161,6 +167,7 @@ class TestRollDataInEvents:
 # ===========================================================================
 
 
+@pytest.mark.timeout(120)
 class TestStatEffects:
     """Verify stat allocations affect combat outcomes."""
 
@@ -241,6 +248,7 @@ class TestFeedRendering:
 # ===========================================================================
 
 
+@pytest.mark.timeout(120)
 class TestRegression:
     """Verify builtin bots still work and matches are deterministic."""
 

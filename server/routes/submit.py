@@ -1,12 +1,13 @@
 """POST /api/submit-bot route for bot source submission."""
 
 import ast
+import logging
 import uuid
 from typing import Any
 
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from engine.bot_scanner import scan_bot_source
 from server.auth import get_current_player
@@ -17,6 +18,8 @@ from server.middleware.rate_limit import (
     record_submission,
 )
 
+_logger = logging.getLogger(__name__)
+
 router = APIRouter()
 
 # Legacy alias kept for existing test imports
@@ -26,7 +29,7 @@ _rate_limits: dict[str, float] = {}
 class BotSubmission(BaseModel):
     """Request body for bot submission."""
 
-    source: str
+    source: str = Field(max_length=50_000)
 
 
 def clear_rate_limits() -> None:
@@ -72,18 +75,17 @@ async def submit_bot(
 
     # Validate source is non-empty
     if not body.source.strip():
-        return JSONResponse(  # type: ignore[return-value]
-            status_code=400,
-            content={"errors": ["Source code is empty"]},
-        )
+        raise HTTPException(status_code=400, detail="Source code is empty")
 
     # Scan for security violations
     errors = scan_bot_source(body.source)
     if errors:
-        return JSONResponse(  # type: ignore[return-value]
-            status_code=400,
-            content={"errors": errors},
+        _logger.warning(
+            "Bot scan violations from player %s: %s",
+            player.get("id", "unknown"),
+            errors,
         )
+        raise HTTPException(status_code=400, detail=errors)
 
     # Record submission for rate limiting
     record_submission(request)

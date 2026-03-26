@@ -1,0 +1,30 @@
+name: Landing Page & Navigation
+description: Verify the landing page loads and all navigation links work
+tags: [smoke, navigation]
+preconditions:
+  - "Server running at ${QC_BASE_URL}"
+
+scenarios:
+  - name: "Landing page loads"
+    steps:
+      - navigate: "${QC_BASE_URL}/"
+      - verify: "Page shows 'Kill Switch' title and 'You don't play. You code.' tagline"
+      - check_console: "No errors in console"
+
+  - name: "Quick Play link works"
+    steps:
+      - navigate: "${QC_BASE_URL}/"
+      - click: "Quick Play card/link"
+      - verify: "Navigates to editor page with Monaco code editor visible"
+
+  - name: "Tournaments link works"
+    steps:
+      - navigate: "${QC_BASE_URL}/"
+      - click: "Tournaments card/link"
+      - verify: "Navigates to tournaments list page"
+
+  - name: "Leaderboard link works"
+    steps:
+      - navigate: "${QC_BASE_URL}/"
+      - click: "Leaderboard card/link"
+      - verify: "Navigates to leaderboard page with rankings table"

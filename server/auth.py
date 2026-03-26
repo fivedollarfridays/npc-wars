@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import logging
 import uuid
 
 from fastapi import Header, HTTPException, Request
 
 from server.db import create_api_key, create_player, get_player_by_api_key
+
+_logger = logging.getLogger(__name__)
 
 
 async def get_current_player(
@@ -24,6 +27,10 @@ async def get_current_player(
     if x_api_key:
         player = get_player_by_api_key(conn, x_api_key)
         if not player:
+            client_host = request.client.host if request.client else "unknown"
+            _logger.warning(
+                "Auth failure: %s from %s", "invalid API key", client_host
+            )
             raise HTTPException(status_code=401, detail="Invalid API key")
         return dict(player)
 
@@ -39,11 +46,14 @@ async def require_api_key(
     x_api_key: str | None = Header(None, alias="X-API-Key"),
 ) -> dict:
     """Strict auth — requires a valid API key (no auto-create)."""
+    client_host = request.client.host if request.client else "unknown"
     if not x_api_key:
+        _logger.warning("Auth failure: %s from %s", "missing API key", client_host)
         raise HTTPException(status_code=401, detail="API key required")
 
     conn = request.app.state.db
     player = get_player_by_api_key(conn, x_api_key)
     if not player:
+        _logger.warning("Auth failure: %s from %s", "invalid API key", client_host)
         raise HTTPException(status_code=401, detail="Invalid API key")
     return dict(player)

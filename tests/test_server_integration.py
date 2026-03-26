@@ -120,13 +120,13 @@ class TestBotSubmission:
         resp = client.post("/api/submit-bot", json={"source": bad_source})
         assert resp.status_code == 400
         body = resp.json()
-        assert "errors" in body
-        assert len(body["errors"]) > 0
+        assert "detail" in body
+        assert len(body["detail"]) > 0
 
     def test_empty_source_returns_400(self, client: TestClient):
         resp = client.post("/api/submit-bot", json={"source": "  "})
         assert resp.status_code == 400
-        assert "errors" in resp.json()
+        assert "detail" in resp.json()
 
     def test_rate_limit_returns_429(self, client: TestClient):
         # First submission succeeds

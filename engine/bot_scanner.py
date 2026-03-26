@@ -22,6 +22,8 @@ BLOCKED_MODULES: frozenset[str] = frozenset({
     "os", "subprocess", "socket", "sys", "ctypes",
     "importlib", "shutil", "signal", "multiprocessing", "threading",
     "builtins", "io", "pathlib", "pickle", "http", "urllib", "asyncio",
+    "ftplib", "smtplib", "telnetlib", "pty", "tty",
+    "tempfile", "zipfile", "xmlrpc", "code", "marshal",
 })
 
 BLOCKED_CALLS: frozenset[str] = frozenset({

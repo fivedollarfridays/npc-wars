@@ -1,0 +1,36 @@
+name: API Health & Security
+description: Verify API endpoints respond correctly and security controls are active
+tags: [smoke, api, security]
+preconditions:
+  - "Server running at ${QC_BASE_URL}"
+
+scenarios:
+  - name: "Health endpoint responds"
+    steps:
+      - navigate: "${QC_BASE_URL}/api/health"
+      - verify: "Page shows JSON response with status ok"
+
+  - name: "Lobby status endpoint responds"
+    steps:
+      - navigate: "${QC_BASE_URL}/api/lobby/status"
+      - verify: "JSON response contains players, max, time_remaining, player_list, status fields"
+
+  - name: "Leaderboard API responds"
+    steps:
+      - navigate: "${QC_BASE_URL}/api/leaderboard"
+      - verify: "JSON response is an array (possibly empty)"
+
+  - name: "Invalid match ID returns error"
+    steps:
+      - navigate: "${QC_BASE_URL}/api/match/../../../etc/passwd"
+      - verify: "Returns 400 or 404 error, NOT file contents"
+
+  - name: "Invalid sort_by returns 400"
+    steps:
+      - navigate: "${QC_BASE_URL}/api/leaderboard?sort_by=malicious_field"
+      - verify: "Returns 400 Bad Request with detail message about valid fields"
+
+  - name: "Bots endpoint requires auth"
+    steps:
+      - navigate: "${QC_BASE_URL}/api/bots"
+      - verify: "Returns 401 Unauthorized (no API key provided)"

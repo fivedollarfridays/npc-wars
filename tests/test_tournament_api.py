@@ -32,9 +32,17 @@ def _make_player_with_bot(conn, pid: str = "p1") -> tuple[str, int]:
 # ── Create tournament ────────────────────────────────────────────────
 
 
+def _auth_header(conn) -> dict[str, str]:
+    """Create a player and return auth headers."""
+    key, _ = _make_player_with_bot(conn, "admin")
+    return {"X-API-Key": key}
+
+
 def test_create_tournament() -> None:
     client = _client()
-    resp = client.post("/api/tournament/create", params={"name": "Cup", "size": 8})
+    conn = app.state.db
+    headers = _auth_header(conn)
+    resp = client.post("/api/tournament/create", params={"name": "Cup", "size": 8}, headers=headers)
     assert resp.status_code == 200
     data = resp.json()
     assert "tournament_id" in data
@@ -44,7 +52,9 @@ def test_create_tournament() -> None:
 
 def test_create_tournament_invalid_size() -> None:
     client = _client()
-    resp = client.post("/api/tournament/create", params={"name": "Cup", "size": 5})
+    conn = app.state.db
+    headers = _auth_header(conn)
+    resp = client.post("/api/tournament/create", params={"name": "Cup", "size": 5}, headers=headers)
     assert resp.status_code == 400
 
 
@@ -53,7 +63,9 @@ def test_create_tournament_invalid_size() -> None:
 
 def test_get_tournament() -> None:
     client = _client()
-    resp = client.post("/api/tournament/create", params={"name": "Cup", "size": 8})
+    conn = app.state.db
+    headers = _auth_header(conn)
+    resp = client.post("/api/tournament/create", params={"name": "Cup", "size": 8}, headers=headers)
     tid = resp.json()["tournament_id"]
     resp = client.get(f"/api/tournament/{tid}")
     assert resp.status_code == 200
@@ -73,8 +85,10 @@ def test_get_tournament_not_found() -> None:
 
 def test_list_tournaments() -> None:
     client = _client()
-    client.post("/api/tournament/create", params={"name": "A", "size": 8})
-    client.post("/api/tournament/create", params={"name": "B", "size": 8})
+    conn = app.state.db
+    headers = _auth_header(conn)
+    client.post("/api/tournament/create", params={"name": "A", "size": 8}, headers=headers)
+    client.post("/api/tournament/create", params={"name": "B", "size": 8}, headers=headers)
     resp = client.get("/api/tournaments")
     assert resp.status_code == 200
     data = resp.json()
@@ -88,7 +102,11 @@ def test_join_tournament() -> None:
     client = _client()
     conn = app.state.db
     key, bot_id = _make_player_with_bot(conn, "p1")
-    resp = client.post("/api/tournament/create", params={"name": "Cup", "size": 8})
+    resp = client.post(
+        "/api/tournament/create",
+        params={"name": "Cup", "size": 8},
+        headers={"X-API-Key": key},
+    )
     tid = resp.json()["tournament_id"]
     resp = client.post(
         f"/api/tournament/{tid}/join",
@@ -102,7 +120,12 @@ def test_join_tournament() -> None:
 def test_join_tournament_auto_seeds_when_full() -> None:
     client = _client()
     conn = app.state.db
-    resp = client.post("/api/tournament/create", params={"name": "Cup", "size": 8})
+    admin_key, _ = _make_player_with_bot(conn, "admin_seed")
+    resp = client.post(
+        "/api/tournament/create",
+        params={"name": "Cup", "size": 8},
+        headers={"X-API-Key": admin_key},
+    )
     tid = resp.json()["tournament_id"]
     for i in range(8):
         key, bot_id = _make_player_with_bot(conn, f"p{i}")
@@ -147,9 +170,14 @@ def _fake_run_match(bot_configs, match_id=1, seed=None, map_name="arena"):
     }
 
 
-def _setup_full_tournament(client: TestClient, conn) -> int:
-    """Create and fill a tournament. Returns tournament_id."""
-    resp = client.post("/api/tournament/create", params={"name": "Cup", "size": 8})
+def _setup_full_tournament(client: TestClient, conn) -> tuple[int, str]:
+    """Create and fill a tournament. Returns (tournament_id, admin_api_key)."""
+    admin_key, _ = _make_player_with_bot(conn, "admin_rr")
+    resp = client.post(
+        "/api/tournament/create",
+        params={"name": "Cup", "size": 8},
+        headers={"X-API-Key": admin_key},
+    )
     tid = resp.json()["tournament_id"]
     for i in range(8):
         key, bot_id = _make_player_with_bot(conn, f"r{i}")
@@ -158,15 +186,18 @@ def _setup_full_tournament(client: TestClient, conn) -> int:
             params={"bot_id": bot_id},
             headers={"X-API-Key": key},
         )
-    return tid
+    return tid, admin_key
 
 
 @patch("server.tournament_runner.run_match", side_effect=_fake_run_match)
 def test_run_round(mock_run: object) -> None:
     client = _client()
     conn = app.state.db
-    tid = _setup_full_tournament(client, conn)
-    resp = client.post(f"/api/tournament/{tid}/run-round")
+    tid, admin_key = _setup_full_tournament(client, conn)
+    resp = client.post(
+        f"/api/tournament/{tid}/run-round",
+        headers={"X-API-Key": admin_key},
+    )
     assert resp.status_code == 200
     data = resp.json()
     assert len(data["results"]) == 2
@@ -179,9 +210,10 @@ def test_run_round(mock_run: object) -> None:
 def test_get_results(mock_run: object) -> None:
     client = _client()
     conn = app.state.db
-    tid = _setup_full_tournament(client, conn)
-    client.post(f"/api/tournament/{tid}/run-round")
-    client.post(f"/api/tournament/{tid}/run-round")
+    tid, admin_key = _setup_full_tournament(client, conn)
+    headers = {"X-API-Key": admin_key}
+    client.post(f"/api/tournament/{tid}/run-round", headers=headers)
+    client.post(f"/api/tournament/{tid}/run-round", headers=headers)
     resp = client.get(f"/api/tournament/{tid}/results")
     assert resp.status_code == 200
     data = resp.json()
