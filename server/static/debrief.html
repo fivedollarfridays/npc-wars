@@ -138,6 +138,35 @@
     font-size: 14px;
     padding: 60px 0;
   }
+  #pattern-section {
+    margin-top: 20px;
+  }
+  #pattern-section h3 {
+    font-family: 'Silkscreen', cursive;
+    font-size: 14px;
+    color: var(--accent2);
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+  #pattern-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  #pattern-table th {
+    text-align: left;
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  #pattern-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
 </style>
 </head>
 <body>
@@ -148,6 +177,21 @@
   <div id="content">
     <div class="loading" id="loading">Loading debrief...</div>
     <div class="error" id="error" style="display:none"></div>
+  </div>
+
+  <div id="pattern-section" class="section" style="display:none">
+    <h3>YOUR PATTERNS</h3>
+    <table id="pattern-table">
+      <thead>
+        <tr>
+          <th>Context</th>
+          <th>Your Top Action</th>
+          <th>Frequency</th>
+          <th>Counter Used</th>
+        </tr>
+      </thead>
+      <tbody id="pattern-body"></tbody>
+    </table>
   </div>
 
   <div class="actions" id="actions" style="display:none">
@@ -188,6 +232,26 @@
     document.getElementById('actions').style.display = 'flex';
     document.getElementById('replay-btn').href =
       '/viewer?match=' + matchId;
+
+    if (d.patterns) {
+      var counterMap = {attack:'defend',rest:'attack',defend:'attack',
+                        move:'attack',ranged_attack:'move',dash:'defend'};
+      document.getElementById('pattern-section').style.display = 'block';
+      var tbody = document.getElementById('pattern-body');
+      for (var ctx in d.patterns) {
+        var actions = d.patterns[ctx];
+        var entries = Object.entries(actions).sort(function(a,b){return b[1]-a[1];});
+        if (entries.length > 0) {
+          var topAction = entries[0][0];
+          var topProb = entries[0][1];
+          var counter = counterMap[topAction] || 'move';
+          var row = document.createElement('tr');
+          row.innerHTML = '<td>'+esc(ctx)+'</td><td>'+esc(topAction)+
+            '</td><td>'+(topProb*100).toFixed(0)+'%</td><td>'+esc(counter)+'</td>';
+          tbody.appendChild(row);
+        }
+      }
+    }
   })
   .catch(function(e) {
     document.getElementById('loading').style.display = 'none';
