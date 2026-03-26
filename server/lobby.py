@@ -151,8 +151,26 @@ def _maybe_inject_rival(
         # Skip if player has cleared the final tier
         if tier >= MAX_TIER and progress["wins"] >= WINS_TO_ADVANCE:
             continue
+        # Tier 4 loads player patterns for counter-play
+        if tier == 4:
+            return _generate_counter_rival(player_id)
         return generate_rival(tier)
     return None
+
+
+def _generate_counter_rival(player_id: str) -> dict[str, Any]:
+    """Generate a Tier 4 Counter rival with embedded pattern data."""
+    from server.rival_factory import generate_rival
+    from server.rival_patterns import (
+        compact_for_embed,
+        get_pattern_summary,
+        load_player_patterns,
+    )
+
+    table = load_player_patterns(player_id)
+    summary = get_pattern_summary(table, player_id)
+    embed_data = compact_for_embed(summary)
+    return generate_rival(4, pattern_data=embed_data)
 
 
 def _get_fill_bots(count: int) -> list[dict[str, Any]]:

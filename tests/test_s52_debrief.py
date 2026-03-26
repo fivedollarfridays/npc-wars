@@ -193,7 +193,7 @@ class TestDefaultDebrief:
         match = _mock_match()
         result = analyze_rival_match(match, "\U0001f916", 3)
         assert result["tier"] == 3
-        assert "Executioner" in result["lesson"]
+        assert "energy" in result["lesson"].lower()
 
     def test_tier_5_returns_lesson(self):
         from server.rival_debrief import analyze_rival_match

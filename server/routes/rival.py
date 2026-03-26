@@ -11,6 +11,7 @@ from server.auth import require_api_key
 from server.rival_db import ensure_rival_progress, get_rival_progress
 from server.rival_debrief import analyze_rival_match
 from server.rival_factory import RIVAL_EMOJI
+from server.rival_patterns import get_pattern_summary, record_match_patterns
 
 router = APIRouter(prefix="/api/rival", tags=["rival"])
 
@@ -52,12 +53,21 @@ async def rival_debrief(
     # Determine player emoji from match data
     player_emoji = _find_player_emoji(match_data, player["id"])
 
+    # Record player action patterns for cross-match learning
+    if player_emoji:
+        table = record_match_patterns(player["id"], match_data, player_emoji)
+        pattern_summary = get_pattern_summary(table, player["id"])
+    else:
+        pattern_summary = None
+
     # Get rival tier from progress
     conn = request.app.state.db
     progress = get_rival_progress(conn, player["id"])
     rival_tier = progress["current_tier"] if progress else 1
 
-    return analyze_rival_match(match_data, player_emoji, rival_tier)
+    return analyze_rival_match(
+        match_data, player_emoji, rival_tier, pattern_data=pattern_summary,
+    )
 
 
 def _find_player_emoji(match_data: dict, player_id: str) -> str:

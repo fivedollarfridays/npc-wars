@@ -50,34 +50,42 @@ RIVAL_TIERS: dict[int, dict[str, Any]] = {
         ],
     },
     3: {
-        "name": "The Executioner",
-        "bio": "Rival Tier 3: Finishes wounded targets ruthlessly",
+        "name": "The Economist",
+        "bio": "Rival Tier 3: Punishes energy waste",
         "base_style": "opportunist",
-        "aggression": 8,
-        "risk_tolerance": 6,
+        "aggression": 7,
+        "risk_tolerance": 5,
         "override_lines": [
-            "# RIVAL: Chase and finish any wounded enemy",
-            "wounded = enemies.wounded(50)",
-            "if wounded:",
-            "    target = min(wounded, key=lambda e: e['hp'])",
-            "    if me.dist_to(target) == 1:",
+            "# RIVAL: Energy-efficient — rest to build reserves, strike when flush",
+            "if me.energy < 30:",
+            "    adj = enemies.adjacent()",
+            "    if adj:",
+            "        return me.defend()",
+            "    return me.rest()",
+            "if me.energy >= 60:",
+            "    adj = enemies.adjacent()",
+            "    if adj:",
+            "        target = min(adj, key=lambda e: e['hp'])",
             "        return me.attack(target)",
-            "    return me.move_toward(target)",
+            "nearest = enemies.closest()",
+            "if nearest and me.dist_to(nearest) > 2 and me.energy < 60:",
+            "    return me.rest()",
         ],
     },
     4: {
-        "name": "The Fortress",
-        "bio": "Rival Tier 4: Impenetrable defense with counter-attacks",
+        "name": "The Counter",
+        "bio": "Rival Tier 4: Learns your patterns, counters them",
         "base_style": "tank",
         "aggression": 7,
         "risk_tolerance": 4,
         "override_lines": [
-            "# RIVAL: Defend when outnumbered, counter weak adjacent",
+            "# RIVAL: Defensive counter-play (fallback when no pattern data)",
             "adj = enemies.adjacent()",
-            "if len(adj) > 1:",
+            "if adj and me.hp > 50:",
             "    return me.defend()",
-            "if adj and adj[0]['hp'] < me.hp:",
-            "    return me.attack(adj[0])",
+            "if adj and me.hp <= 50:",
+            "    target = min(adj, key=lambda e: e['hp'])",
+            "    return me.attack(target)",
         ],
     },
     5: {
@@ -105,8 +113,15 @@ RIVAL_TIERS: dict[int, dict[str, Any]] = {
 }
 
 
-def generate_rival(tier: int) -> dict[str, Any]:
+def generate_rival(
+    tier: int, *, pattern_data: dict[str, dict[str, float]] | None = None,
+) -> dict[str, Any]:
     """Generate a rival bot config for the given tier.
+
+    Args:
+        tier: Rival tier (1-5).
+        pattern_data: Optional {context: {action: probability}} for Tier 4.
+            Embedded as a dict literal in generated source.
 
     Returns a dict compatible with run_match() bot configs:
     name, emoji, bio, decide_func, source, is_rival, rival_tier.
@@ -120,7 +135,11 @@ def generate_rival(tier: int) -> dict[str, Any]:
     preset_body = generate_preset(
         cfg["base_style"], cfg["aggression"], cfg["risk_tolerance"],
     )
-    source = _build_rival_source(tier, cfg, preset_body)
+
+    if tier == 4 and pattern_data:
+        source = _build_counter_source(tier, cfg, preset_body, pattern_data)
+    else:
+        source = _build_rival_source(tier, cfg, preset_body)
 
     namespace: dict[str, Any] = {}
     exec(compile(source, f"<rival_tier_{tier}>", "exec"), namespace)  # noqa: S102
@@ -134,6 +153,77 @@ def generate_rival(tier: int) -> dict[str, Any]:
         "is_rival": True,
         "rival_tier": tier,
     }
+
+
+_COUNTER_MAP: dict[str, str] = {
+    "attack": "defend",
+    "rest": "attack",
+    "defend": "attack",
+    "move": "attack",
+    "ranged_attack": "move",
+    "dash": "defend",
+}
+
+
+def _counter_override_lines(
+    pattern_data: dict[str, dict[str, float]],
+) -> list[str]:
+    """Generate inline counter logic lines for embedding in decide() body."""
+    return [
+        "",
+        f"_pd = {repr(pattern_data)}",
+        f"_cm = {repr(_COUNTER_MAP)}",
+        "# RIVAL: Pattern-based counter (learned from your matches)",
+        "_ctxs = []",
+        "if enemies.adjacent():",
+        "    _ctxs.append('at_range_1')",
+        "if me.hp < 30:",
+        "    _ctxs.append('below_30_hp')",
+        "for _ctx in _ctxs:",
+        "    if _ctx in _pd and _pd[_ctx]:",
+        "        _predicted = max(_pd[_ctx], key=_pd[_ctx].get)",
+        "        _counter = _cm.get(_predicted, 'defend')",
+        "        if _counter == 'defend':",
+        "            return me.defend()",
+        "        if _counter == 'attack':",
+        "            _adj = enemies.adjacent()",
+        "            if _adj:",
+        "                return me.attack(min(_adj, key=lambda e: e['hp']))",
+        "        if _counter == 'move':",
+        "            _near = enemies.closest()",
+        "            if _near:",
+        "                return me.move_toward(_near)",
+        "        break",
+        "",
+    ]
+
+
+def _build_counter_source(
+    tier: int,
+    cfg: dict[str, Any],
+    preset_body: str,
+    pattern_data: dict[str, dict[str, float]],
+) -> str:
+    """Build source with embedded pattern data for The Counter."""
+    lines = preset_body.split("\n")
+    inject_idx = _find_injection_point(lines)
+
+    counter_lines = _counter_override_lines(pattern_data)
+    fallback = cfg["override_lines"]
+    combined = (
+        lines[:inject_idx] + counter_lines + [""] + fallback + [""]
+        + lines[inject_idx:]
+    )
+    body = "\n".join(combined)
+
+    return (
+        f'BOT_NAME = "Rival T{tier}: {cfg["name"]}"\n'
+        f'BOT_EMOJI = "{RIVAL_EMOJI}"\n'
+        f'BOT_BIO = "{cfg["bio"]}"\n'
+        f"\n"
+        f"def decide(state):\n"
+        f"{textwrap.indent(body, '    ')}\n"
+    )
 
 
 def _build_rival_source(
