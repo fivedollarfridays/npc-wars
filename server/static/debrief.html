@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kill Switch — Rival Debrief</title>
+<link rel="stylesheet" href="/static/css/responsive.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Silkscreen:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131f;
+    --border: #1e1e33;
+    --text: #e0e0f0;
+    --muted: #6a6a8a;
+    --accent: #ff3e6c;
+    --accent2: #00e5ff;
+    --win: #00ff88;
+    --loss: #ff3e6c;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .container { max-width: 760px; width: 100%; }
+  h1 {
+    font-family: 'Silkscreen', cursive;
+    font-size: 36px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+  }
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .outcome {
+    font-family: 'Silkscreen', cursive;
+    font-size: 28px;
+    text-align: center;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+  }
+  .outcome.win { color: var(--win); }
+  .outcome.loss { color: var(--loss); }
+  .rival-name {
+    font-family: 'Silkscreen', cursive;
+    font-size: 18px;
+    color: var(--accent2);
+    text-align: center;
+    margin-bottom: 4px;
+  }
+  .tier-badge {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    letter-spacing: 2px;
+    margin-bottom: 24px;
+  }
+  .label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+  .lesson {
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.6;
+    margin-bottom: 16px;
+  }
+  .detail, .tip {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+    margin-bottom: 12px;
+  }
+  .tip { color: var(--accent2); }
+  .actions {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    margin-top: 32px;
+  }
+  .btn {
+    font-family: 'Silkscreen', cursive;
+    font-size: 14px;
+    padding: 12px 28px;
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    text-decoration: none;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .btn:hover { border-color: var(--accent2); color: var(--accent2); }
+  .btn-primary {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .btn-primary:hover {
+    background: var(--accent);
+    color: var(--bg);
+  }
+  .loading {
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    padding: 60px 0;
+  }
+  .error {
+    text-align: center;
+    color: var(--loss);
+    font-size: 14px;
+    padding: 60px 0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Rival Debrief</h1>
+  <p class="subtitle">POST-MATCH ANALYSIS</p>
+
+  <div id="content">
+    <div class="loading" id="loading">Loading debrief...</div>
+    <div class="error" id="error" style="display:none"></div>
+  </div>
+
+  <div class="actions" id="actions" style="display:none">
+    <a class="btn btn-primary" href="/static/editor.html">Try Again</a>
+    <a class="btn" id="replay-btn" href="/viewer">Watch Replay</a>
+  </div>
+</div>
+
+<script>
+(function() {
+  var matchId = window.location.pathname.split('/').pop();
+  var apiKey = localStorage.getItem('api_key') || '';
+
+  fetch('/api/rival/debrief/' + matchId, {
+    headers: { 'X-API-Key': apiKey }
+  })
+  .then(function(r) {
+    if (!r.ok) throw new Error('Could not load debrief');
+    return r.json();
+  })
+  .then(function(d) {
+    document.getElementById('loading').style.display = 'none';
+    var html = '<div class="rival-name">' + esc(d.rival_name) + '</div>';
+    html += '<div class="tier-badge">TIER ' + d.tier + '</div>';
+    html += '<div class="outcome ' + d.outcome + '">' +
+            d.outcome.toUpperCase() + '</div>';
+    html += '<div class="section">';
+    html += '<div class="label">Lesson</div>';
+    html += '<div class="lesson">' + esc(d.lesson) + '</div>';
+    if (d.what_happened) {
+      html += '<div class="label">What Happened</div>';
+      html += '<div class="detail">' + esc(d.what_happened) + '</div>';
+    }
+    html += '<div class="label">Tip</div>';
+    html += '<div class="tip">' + esc(d.tip) + '</div>';
+    html += '</div>';
+    document.getElementById('content').innerHTML = html;
+    document.getElementById('actions').style.display = 'flex';
+    document.getElementById('replay-btn').href =
+      '/viewer?match=' + matchId;
+  })
+  .catch(function(e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = 'block';
+    document.getElementById('error').textContent = e.message;
+  });
+
+  function esc(s) {
+    var d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+  }
+})();
+</script>
+</body>
+</html>

@@ -45,7 +45,7 @@ async def join_lobby(
         "player_id": player["id"],
         "bot_id": bot_id,
     }
-    accepted = lobby.join(bot_config)
+    accepted = lobby.join(bot_config, conn=conn)
     if not accepted:
         raise HTTPException(status_code=409, detail="Lobby full or match in progress")
 
@@ -53,10 +53,10 @@ async def join_lobby(
 
 
 @router.get("/status")
-async def lobby_status() -> dict:
+async def lobby_status(request: Request) -> dict:
     """Return current lobby state. Polls check_timer for time-based triggers."""
     lobby = get_lobby()
-    lobby.check_timer()
+    lobby.check_timer(conn=request.app.state.db)
     return lobby.status()
 
 
