@@ -283,9 +283,10 @@
                 });
             })
             .then(function (result) {
-                if (result.status === 400 && result.data.errors) {
+                if (result.status === 400 && result.data.detail) {
                     btn.disabled = false;
-                    showErrors(result.data.errors);
+                    var detail = result.data.detail;
+                    showErrors(Array.isArray(detail) ? detail : [detail]);
                 } else if (result.status === 429) {
                     btn.disabled = false;
                     showErrors([result.data.detail || 'Rate limited. Try again later.']);

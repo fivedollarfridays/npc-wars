@@ -1,0 +1,8 @@
+environments:
+  dev:
+    variables:
+      QC_BASE_URL: "http://localhost:8000"
+    chrome:
+      require_login: false
+
+default_environment: dev

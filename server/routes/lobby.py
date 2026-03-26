@@ -5,6 +5,7 @@ from __future__ import annotations
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from server.auth import get_current_player
+from server.middleware.rate_limit import check_lobby_rate_limit
 from server.db import get_bot, get_player_matches
 from server.lobby import Lobby
 
@@ -30,6 +31,7 @@ async def join_lobby(
     player: dict = Depends(get_current_player),
 ) -> dict:
     """Add a player's bot to the lobby."""
+    check_lobby_rate_limit(request)
     conn = request.app.state.db
     bot = get_bot(conn, bot_id)
     if not bot or bot["player_id"] != player["id"]:

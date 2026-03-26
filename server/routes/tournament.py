@@ -7,6 +7,7 @@ import json
 from fastapi import APIRouter, Depends, HTTPException, Request
 
 from server.auth import require_api_key
+from server.middleware.rate_limit import check_tournament_rate_limit
 from server.db import get_bot
 from server.tournament import Tournament, VALID_SIZES
 from server.tournament_db import (
@@ -26,8 +27,10 @@ async def create_tournament(
     name: str,
     size: int = 8,
     map_name: str = "arena",
+    _player: dict = Depends(require_api_key),
 ) -> dict:
     """Create a new tournament."""
+    check_tournament_rate_limit(request)
     if size not in VALID_SIZES:
         raise HTTPException(status_code=400, detail=f"Size must be one of {VALID_SIZES}")
     conn = request.app.state.db
@@ -84,7 +87,11 @@ async def get_tournament(tournament_id: int, request: Request) -> dict:
 
 
 @router.post("/{tournament_id}/run-round")
-async def run_round(tournament_id: int, request: Request) -> dict:
+async def run_round(
+    tournament_id: int,
+    request: Request,
+    _player: dict = Depends(require_api_key),
+) -> dict:
     """Execute all pending matches in the current round."""
     conn = request.app.state.db
     row = db_get(conn, tournament_id)

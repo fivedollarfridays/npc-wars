@@ -39,22 +39,22 @@ def test_response_has_job_id_uuid():
 
 
 def test_submit_invalid_bot():
-    """Source with blocked import returns 400 with errors list."""
+    """Source with blocked import returns 400 with detail list."""
     bad_source = "import os\ndef decide(me, enemies, storm): pass\n"
     response = client.post("/api/submit-bot", json={"source": bad_source})
     assert response.status_code == 400
     data = response.json()
-    assert "errors" in data
-    assert len(data["errors"]) >= 1
-    assert any("os" in err for err in data["errors"])
+    assert "detail" in data
+    assert len(data["detail"]) >= 1
+    assert any("os" in err for err in data["detail"])
 
 
 def test_submit_empty_source():
-    """Empty string source returns 400."""
+    """Empty string source returns 400 with detail."""
     response = client.post("/api/submit-bot", json={"source": ""})
     assert response.status_code == 400
     data = response.json()
-    assert "errors" in data
+    assert "detail" in data
 
 
 def test_submit_missing_source():

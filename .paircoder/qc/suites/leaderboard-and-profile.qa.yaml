@@ -1,0 +1,33 @@
+name: Leaderboard & Profile Pages
+description: Verify leaderboard rankings and player profile pages display correctly
+tags: [smoke, pages]
+preconditions:
+  - "Server running at ${QC_BASE_URL}"
+
+scenarios:
+  - name: "Leaderboard page loads"
+    steps:
+      - navigate: "${QC_BASE_URL}/leaderboard"
+      - verify: "Leaderboard page loads with 'Kill Switch' header and rankings table"
+      - verify: "Table has columns: Rank, Bot (emoji), Wins, Win %, Kills"
+      - check_console: "No errors in console"
+
+  - name: "Leaderboard is sortable"
+    steps:
+      - navigate: "${QC_BASE_URL}/leaderboard"
+      - wait: "2"
+      - click: "Kills column header"
+      - verify: "Table re-sorts by kills (highest first)"
+
+  - name: "Tournament list page loads"
+    steps:
+      - navigate: "${QC_BASE_URL}/tournaments"
+      - verify: "Tournaments page loads with list or empty state message"
+      - check_console: "No errors in console"
+
+  - name: "Cosmetic store page loads"
+    steps:
+      - navigate: "${QC_BASE_URL}/static/store.html"
+      - verify: "Store page loads showing cosmetic items grouped by category"
+      - verify: "Each item shows name, price in coins, and buy button"
+      - check_console: "No errors in console"

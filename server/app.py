@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from server.db import init_db
+from server.middleware.security_headers import SecurityHeadersMiddleware
 from server.middleware.session import SessionMiddleware
 from server.routes.bots import router as bots_router
 from server.routes.cosmetics import router as cosmetics_router
@@ -66,6 +67,7 @@ app.add_middleware(
     allow_headers=["Content-Type", "X-API-Key", "Authorization"],
 )
 app.add_middleware(SessionMiddleware)
+app.add_middleware(SecurityHeadersMiddleware)
 
 
 if __name__ == "__main__":

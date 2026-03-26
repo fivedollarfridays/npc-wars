@@ -1,0 +1,52 @@
+name: Match Viewer & Results
+description: Verify the match viewer loads replays, shows controls, and displays results overlay
+tags: [core, viewer, results]
+preconditions:
+  - "Server running at ${QC_BASE_URL}"
+  - "At least one match JSON exists in results/"
+
+scenarios:
+  - name: "Viewer page loads"
+    steps:
+      - navigate: "${QC_BASE_URL}/viewer"
+      - verify: "Viewer page loads with canvas element and control bar (play, speed, scrubber)"
+      - check_console: "No errors in console"
+
+  - name: "Viewer loads match by file path"
+    steps:
+      - navigate: "${QC_BASE_URL}/viewer?match=results/match_001.json"
+      - wait: "2"
+      - verify: "Match data loaded — canvas shows grid with bot positions, sidebar shows player list"
+
+  - name: "Viewer loads match by ID"
+    steps:
+      - navigate: "${QC_BASE_URL}/viewer?match=1"
+      - wait: "2"
+      - verify: "Match data loaded from API — canvas shows grid, sidebar shows players"
+
+  - name: "Playback controls work"
+    steps:
+      - navigate: "${QC_BASE_URL}/viewer?match=results/match_001.json"
+      - wait: "2"
+      - click: "Play button"
+      - wait: "3"
+      - verify: "Round counter is advancing (not stuck at round 1)"
+      - click: "Pause button or Play button again"
+      - verify: "Playback pauses, round counter stops"
+
+  - name: "Speed controls work"
+    steps:
+      - navigate: "${QC_BASE_URL}/viewer?match=results/match_001.json"
+      - wait: "1"
+      - click: "4x speed button"
+      - verify: "Speed indicator shows 4x"
+
+  - name: "Results overlay appears at match end"
+    steps:
+      - navigate: "${QC_BASE_URL}/viewer?match=results/match_001.json"
+      - wait: "1"
+      - verify: "Skip to end by clicking near the end of the scrubber/timeline"
+      - wait: "3"
+      - verify: "Results overlay appears with WINNER text, kill feed, top stats, and action buttons"
+      - verify: "Play Again button links to editor page"
+      - verify: "Leaderboard button links to leaderboard page"

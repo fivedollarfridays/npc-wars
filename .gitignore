@@ -1,6 +1,11 @@
 __pycache__/
 *.pyc
 *.pyo
+
+# Environment files
+.env
+.env.*
+
 .venv/
 venv/
 .pytest_cache/
