@@ -6,6 +6,7 @@ import sqlite3
 from datetime import datetime, timezone
 
 from server.cosmetics import COSMETIC_CATALOG
+from server.db import _write_lock
 
 
 def init_cosmetic_tables(conn: sqlite3.Connection) -> None:
@@ -46,14 +47,15 @@ def get_coin_balance(conn: sqlite3.Connection, player_id: str) -> int:
 
 def award_coins(conn: sqlite3.Connection, player_id: str, amount: int) -> None:
     """Add coins to a player's balance (upsert)."""
-    conn.execute(
-        """
-        INSERT INTO player_coins (player_id, balance) VALUES (?, ?)
-        ON CONFLICT(player_id) DO UPDATE SET balance = balance + excluded.balance
-        """,
-        (player_id, amount),
-    )
-    conn.commit()
+    with _write_lock:
+        conn.execute(
+            """
+            INSERT INTO player_coins (player_id, balance) VALUES (?, ?)
+            ON CONFLICT(player_id) DO UPDATE SET balance = balance + excluded.balance
+            """,
+            (player_id, amount),
+        )
+        conn.commit()
 
 
 # ── Purchase ────────────────────────────────────────────────────────
@@ -81,15 +83,16 @@ def purchase_cosmetic(
         return False, "Insufficient coins"
 
     now = datetime.now(timezone.utc).isoformat()
-    conn.execute(
-        "UPDATE player_coins SET balance = balance - ? WHERE player_id = ?",
-        (item["price"], player_id),
-    )
-    conn.execute(
-        "INSERT INTO cosmetic_inventory (player_id, cosmetic_id, purchased_at) VALUES (?, ?, ?)",
-        (player_id, cosmetic_id, now),
-    )
-    conn.commit()
+    with _write_lock:
+        conn.execute(
+            "UPDATE player_coins SET balance = balance - ? WHERE player_id = ?",
+            (item["price"], player_id),
+        )
+        conn.execute(
+            "INSERT INTO cosmetic_inventory (player_id, cosmetic_id, purchased_at) VALUES (?, ?, ?)",
+            (player_id, cosmetic_id, now),
+        )
+        conn.commit()
     return True, "Purchased"
 
 
@@ -137,28 +140,29 @@ def equip_cosmetic(conn: sqlite3.Connection, player_id: str, cosmetic_id: str) -
         cid for cid, item in COSMETIC_CATALOG.items() if item["type"] == cosmetic_type
     ]
     placeholders = ",".join("?" for _ in same_type_ids)
-    conn.execute(
-        f"UPDATE cosmetic_inventory SET equipped = 0 "  # noqa: S608
-        f"WHERE player_id = ? AND cosmetic_id IN ({placeholders})",
-        [player_id, *same_type_ids],
-    )
-
-    conn.execute(
-        "UPDATE cosmetic_inventory SET equipped = 1 WHERE player_id = ? AND cosmetic_id = ?",
-        (player_id, cosmetic_id),
-    )
-    conn.commit()
+    with _write_lock:
+        conn.execute(
+            f"UPDATE cosmetic_inventory SET equipped = 0 "  # noqa: S608
+            f"WHERE player_id = ? AND cosmetic_id IN ({placeholders})",
+            [player_id, *same_type_ids],
+        )
+        conn.execute(
+            "UPDATE cosmetic_inventory SET equipped = 1 WHERE player_id = ? AND cosmetic_id = ?",
+            (player_id, cosmetic_id),
+        )
+        conn.commit()
     return True
 
 
 def unequip_cosmetic(conn: sqlite3.Connection, player_id: str, cosmetic_id: str) -> bool:
     """Unequip a cosmetic. Returns True if it was equipped."""
-    cursor = conn.execute(
-        "UPDATE cosmetic_inventory SET equipped = 0 "
-        "WHERE player_id = ? AND cosmetic_id = ? AND equipped = 1",
-        (player_id, cosmetic_id),
-    )
-    conn.commit()
+    with _write_lock:
+        cursor = conn.execute(
+            "UPDATE cosmetic_inventory SET equipped = 0 "
+            "WHERE player_id = ? AND cosmetic_id = ? AND equipped = 1",
+            (player_id, cosmetic_id),
+        )
+        conn.commit()
     return cursor.rowcount > 0
 
 

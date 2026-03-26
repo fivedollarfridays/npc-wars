@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kill Switch — Player Guide</title>
+<link rel="stylesheet" href="/static/css/responsive.css">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=Silkscreen:wght@400;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131f;
+    --border: #1e1e33;
+    --text: #e0e0f0;
+    --muted: #6a6a8a;
+    --accent: #ff3e6c;
+    --accent2: #00e5ff;
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+    min-height: 100vh;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .container { max-width: 760px; width: 100%; }
+  h1 {
+    font-family: 'Silkscreen', cursive;
+    font-size: 36px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+    letter-spacing: 2px;
+    margin-bottom: 40px;
+  }
+  h2 {
+    font-family: 'Silkscreen', cursive;
+    font-size: 18px;
+    color: var(--accent2);
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+  }
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  p, li { font-size: 13px; line-height: 1.8; color: var(--text); }
+  ol, ul { padding-left: 20px; margin-top: 8px; }
+  li { margin-bottom: 4px; }
+  code {
+    background: var(--bg);
+    color: var(--accent2);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 12px;
+  }
+  pre {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    overflow-x: auto;
+    font-size: 12px;
+    line-height: 1.6;
+    margin: 12px 0;
+    color: var(--accent2);
+  }
+  details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 20px;
+  }
+  summary {
+    font-family: 'Silkscreen', cursive;
+    font-size: 16px;
+    color: var(--accent2);
+    letter-spacing: 2px;
+    cursor: pointer;
+    padding: 20px 24px;
+    list-style: none;
+  }
+  summary::before { content: '+ '; color: var(--accent); }
+  details[open] summary::before { content: '- '; }
+  summary::-webkit-details-marker { display: none; }
+  .details-body { padding: 0 24px 20px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin: 12px 0;
+  }
+  th, td {
+    text-align: left;
+    padding: 8px 10px;
+    border-bottom: 1px solid var(--border);
+  }
+  th { color: var(--accent); font-weight: 700; }
+  td { color: var(--text); }
+  .back-link {
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 40px;
+  }
+  .back-link a {
+    color: var(--accent2);
+    text-decoration: none;
+    font-size: 13px;
+    letter-spacing: 1px;
+  }
+  .back-link a:hover { color: var(--accent); text-decoration: underline; }
+  .tip { color: var(--accent); font-weight: 700; }
+</style>
+</head>
+<body>
+<div class="mobile-banner">
+    Best experienced on desktop
+    <button class="close-btn" aria-label="Dismiss">&times;</button>
+</div>
+<script src="/static/js/mobile-banner.js"></script>
+<div class="container">
+
+<h1>Player Guide</h1>
+<p class="subtitle">Everything you need to write a winning bot</p>
+
+<!-- Quick Start — always visible -->
+<div class="section">
+  <h2>Quick Start</h2>
+  <ol>
+    <li>Write your <code>decide(state)</code> function &mdash; it receives the game state each round and returns an action tuple</li>
+    <li>Submit your bot &mdash; click "Submit Bot" in the editor or use the CLI</li>
+    <li>Watch it fight &mdash; your bot joins a lobby and battles other bots automatically</li>
+  </ol>
+  <pre>def decide(state):
+    me = state["me"]
+    enemies = state["enemies"]
+    if me["hp"] &lt; 30:
+        return ("rest",)
+    if enemies:
+        closest = min(enemies, key=lambda e: abs(e["x"] - me["x"]) + abs(e["y"] - me["y"]))
+        if abs(closest["x"] - me["x"]) + abs(closest["y"] - me["y"]) == 1:
+            return ("attack", closest["emoji"])
+        dx = closest["x"] - me["x"]
+        return ("move", "east" if dx &gt; 0 else "west")
+    return ("rest",)</pre>
+  <p>That's a complete, playable bot. It rests when low on HP, attacks adjacent enemies, and chases the closest one.</p>
+</div>
+
+<!-- State Dictionary -->
+<details>
+  <summary>State Dictionary</summary>
+  <div class="details-body">
+    <p>Your <code>decide(state)</code> function receives a dict every round:</p>
+    <table>
+      <tr><th>Key</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>state["me"]</code></td><td>dict</td><td>Your bot's full status</td></tr>
+      <tr><td><code>state["enemies"]</code></td><td>list</td><td>Visible enemies (position, HP, emoji, score)</td></tr>
+      <tr><td><code>state["grid_size"]</code></td><td>int</td><td>Arena size (e.g. 10 for a 10x10 grid)</td></tr>
+      <tr><td><code>state["storm_border"]</code></td><td>int</td><td>Tiles from each edge that are storm</td></tr>
+      <tr><td><code>state["round"]</code></td><td>int</td><td>Current round number</td></tr>
+    </table>
+    <p style="margin-top:12px"><strong>Your bot (<code>state["me"]</code>):</strong></p>
+    <table>
+      <tr><th>Field</th><th>Description</th></tr>
+      <tr><td><code>x</code>, <code>y</code></td><td>Grid position (0-indexed)</td></tr>
+      <tr><td><code>hp</code>, <code>energy</code></td><td>Current health and energy</td></tr>
+      <tr><td><code>attack_power</code></td><td>Base damage (scales with rounds)</td></tr>
+      <tr><td><code>score</code></td><td>Cumulative match score</td></tr>
+      <tr><td><code>momentum_tier</code></td><td>0-4, grants combat bonuses</td></tr>
+      <tr><td><code>is_leader</code></td><td>True if you have the highest score</td></tr>
+      <tr><td><code>equipment</code></td><td>Your weapon, armor, accessories</td></tr>
+      <tr><td><code>hit_chance_vs</code></td><td>Hit probability against each enemy</td></tr>
+    </table>
+    <p style="margin-top:12px"><strong>Enemies (<code>state["enemies"]</code>):</strong> Each has <code>x</code>, <code>y</code>, <code>hp</code>, <code>emoji</code>, <code>name</code>, <code>score</code>, <code>weapon</code>, <code>armor</code>. Enemy energy is NOT visible.</p>
+  </div>
+</details>
+
+<!-- Actions Reference -->
+<details>
+  <summary>Actions Reference</summary>
+  <div class="details-body">
+    <p>Return one of these tuples from <code>decide(state)</code>:</p>
+    <table>
+      <tr><th>Action</th><th>Return Value</th><th>Energy</th><th>Effect</th></tr>
+      <tr><td>Rest</td><td><code>("rest",)</code></td><td>0</td><td>+5 HP, +20 energy</td></tr>
+      <tr><td>Move</td><td><code>("move", "north")</code></td><td>5</td><td>Move 1 tile (north/south/east/west)</td></tr>
+      <tr><td>Attack</td><td><code>("attack", emoji)</code></td><td>10</td><td>Melee hit on adjacent enemy</td></tr>
+      <tr><td>Defend</td><td><code>("defend",)</code></td><td>10</td><td>Halve incoming damage this round</td></tr>
+      <tr><td>Ranged</td><td><code>("ranged_attack", dir)</code></td><td>10</td><td>Shoot at distance (-2 hit, 60% dmg)</td></tr>
+      <tr><td>Dash</td><td><code>("dash", "north")</code></td><td>15</td><td>Move 2 tiles at once</td></tr>
+      <tr><td>Taunt</td><td><code>("taunt", emoji)</code></td><td>5</td><td>Force enemy to attack you</td></tr>
+      <tr><td>Trap</td><td><code>("trap", "north")</code></td><td>15</td><td>Place invisible trap (level 12+)</td></tr>
+    </table>
+    <p style="margin-top:12px">If your bot returns an invalid action or crashes, it defaults to rest.</p>
+  </div>
+</details>
+
+<!-- Equipment Overview -->
+<details>
+  <summary>Equipment Overview</summary>
+  <div class="details-body">
+    <p>Budget: <strong>40 credits</strong>. Set <code>BOT_EQUIPMENT</code> in your bot file.</p>
+    <p style="margin-top:12px"><strong>Weapons (pick 1):</strong></p>
+    <table>
+      <tr><th>Weapon</th><th>Cost</th><th>To-Hit</th><th>Damage</th><th>Special</th></tr>
+      <tr><td>Dagger</td><td>5</td><td>+2</td><td>+2/+2</td><td>Finesse (SPEED scaling)</td></tr>
+      <tr><td>Sword</td><td>8</td><td>+1</td><td>+3/+5</td><td>Versatile</td></tr>
+      <tr><td>Axe</td><td>9</td><td>-1</td><td>+1/+10</td><td>+0.2x crit</td></tr>
+      <tr><td>Mace</td><td>7</td><td>0</td><td>+4/+4</td><td>Armor-piercing (4 DR)</td></tr>
+      <tr><td>Bow</td><td>6</td><td>+1</td><td>+1/+3</td><td>Ranged-preferred</td></tr>
+      <tr><td>Spear</td><td>8</td><td>0</td><td>+2/+6</td><td>Reach (2 tiles)</td></tr>
+    </table>
+    <p style="margin-top:12px"><strong>Armor (pick 1):</strong></p>
+    <table>
+      <tr><th>Armor</th><th>Cost</th><th>DR</th><th>Penalty</th><th>Special</th></tr>
+      <tr><td>Leather</td><td>6</td><td>+2</td><td>None</td><td>Light</td></tr>
+      <tr><td>Chain Mail</td><td>8</td><td>+4</td><td>-2 all</td><td>Balanced</td></tr>
+      <tr><td>Plate</td><td>11</td><td>+6</td><td>-4 move</td><td>Heavy tank</td></tr>
+      <tr><td>Reinforced</td><td>10</td><td>+3</td><td>-1 all</td><td>Efficient</td></tr>
+      <tr><td>Crystal</td><td>14</td><td>+1</td><td>None</td><td>+1 energy/rest</td></tr>
+    </table>
+    <p style="margin-top:12px"><strong>Accessories (pick 0-2):</strong></p>
+    <table>
+      <tr><th>Accessory</th><th>Cost</th><th>Effect</th></tr>
+      <tr><td>Ring of Health</td><td>4</td><td>+10 max HP</td></tr>
+      <tr><td>Ring of Haste</td><td>5</td><td>+2 initiative, -1 energy</td></tr>
+      <tr><td>Amulet of Crit</td><td>6</td><td>+0.3x crit, +5% crit chance</td></tr>
+      <tr><td>Charm of Evasion</td><td>5</td><td>+3% dodge</td></tr>
+      <tr><td>Pendant of Mind</td><td>4</td><td>+10 max energy, +2 regen</td></tr>
+      <tr><td>Cloak of Shadows</td><td>7</td><td>+3 DR</td></tr>
+      <tr><td>Boots of Speed</td><td>6</td><td>+5 initiative</td></tr>
+      <tr><td>Compass</td><td>3</td><td>+1 to-hit</td></tr>
+    </table>
+  </div>
+</details>
+
+<!-- Stats -->
+<details>
+  <summary>Stats &amp; Builds</summary>
+  <div class="details-body">
+    <p>Four stats must sum to <strong>100</strong> (min 5, max 80 each):</p>
+    <table>
+      <tr><th>Stat</th><th>Governs</th></tr>
+      <tr><td>POWER</td><td>Damage range, crit multiplier</td></tr>
+      <tr><td>SPEED</td><td>Dodge chance, initiative, to-hit bonus</td></tr>
+      <tr><td>ARMOR</td><td>Max HP (50 + 0.8x), damage reduction</td></tr>
+      <tr><td>MIND</td><td>Max energy (80 + 0.8x), energy regen</td></tr>
+    </table>
+    <p style="margin-top:12px">Balanced builds (25/25/25/25) get a <strong>+75 HP versatility bonus</strong>.</p>
+  </div>
+</details>
+
+<!-- Strategy Tips -->
+<details>
+  <summary>Strategy Tips</summary>
+  <div class="details-body">
+    <ol>
+      <li><span class="tip">Escape the storm first</span> &mdash; 10 damage/round is guaranteed and unavoidable</li>
+      <li><span class="tip">Rest when energy is low</span> &mdash; below 15 energy you can't attack; rest gives +20 energy</li>
+      <li><span class="tip">Finish kills</span> &mdash; adjacent enemy with HP &le; your attack power? Kill them NOW</li>
+      <li><span class="tip">Punish resting enemies</span> &mdash; they heal +5 HP but you deal ~25 damage. Net -20 HP for them</li>
+      <li><span class="tip">Defend when threatened</span> &mdash; halves incoming damage (take 15 instead of 25)</li>
+      <li><span class="tip">Pre-position for the storm</span> &mdash; storm starts round 10. Move center early, don't react late</li>
+      <li><span class="tip">Target the leader</span> &mdash; killing them gives +20 bonus points. Leaders bleed 5-8 energy/round</li>
+      <li><span class="tip">Read hit_chance_vs</span> &mdash; check your probability before attacking. Low chance? Defend or reposition</li>
+      <li><span class="tip">Randomize idle behavior</span> &mdash; predictable patterns get exploited</li>
+    </ol>
+  </div>
+</details>
+
+<!-- Resolution Order -->
+<details>
+  <summary>Resolution Order</summary>
+  <div class="details-body">
+    <p>Every round resolves in this exact sequence:</p>
+    <ol>
+      <li><strong>Defend</strong> &mdash; defense bonuses applied</li>
+      <li><strong>Move</strong> &mdash; positions update</li>
+      <li><strong>Attack</strong> &mdash; melee damage resolves against post-move positions</li>
+      <li><strong>Storm</strong> &mdash; storm damage applied to bots outside safe zone</li>
+      <li><strong>Energy</strong> &mdash; costs deducted, rest healing applied</li>
+      <li><strong>Deaths</strong> &mdash; bots at 0 HP eliminated</li>
+    </ol>
+    <p style="margin-top:12px">Simultaneous attacks: if two bots attack each other, both take damage. Both can die in the same round.</p>
+  </div>
+</details>
+
+<div class="back-link">
+  <a href="/">&larr; Back to Kill Switch</a>
+</div>
+
+</div>
+</body>
+</html>

@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import hashlib
 import sqlite3
+import threading
 import uuid
 from datetime import datetime, timezone
+
+_write_lock = threading.Lock()
 
 
 def init_db(db_path: str) -> sqlite3.Connection:
@@ -82,11 +85,12 @@ def init_db(db_path: str) -> sqlite3.Connection:
 def create_player(conn: sqlite3.Connection, player_id: str, name: str) -> dict:
     """Insert a new player and return its data as a dict."""
     created = datetime.now(timezone.utc).isoformat()
-    conn.execute(
-        "INSERT INTO players (id, name, created) VALUES (?, ?, ?)",
-        (player_id, name, created),
-    )
-    conn.commit()
+    with _write_lock:
+        conn.execute(
+            "INSERT INTO players (id, name, created) VALUES (?, ?, ?)",
+            (player_id, name, created),
+        )
+        conn.commit()
     return {"id": player_id, "name": name, "created": created}
 
 
@@ -111,11 +115,12 @@ def create_session(
     conn: sqlite3.Connection, token: str, player_id: str, expires: str
 ) -> dict:
     """Insert a new session and return its data as a dict."""
-    conn.execute(
-        "INSERT INTO sessions (token, player_id, expires) VALUES (?, ?, ?)",
-        (token, player_id, expires),
-    )
-    conn.commit()
+    with _write_lock:
+        conn.execute(
+            "INSERT INTO sessions (token, player_id, expires) VALUES (?, ?, ?)",
+            (token, player_id, expires),
+        )
+        conn.commit()
     return {"token": token, "player_id": player_id, "expires": expires}
 
 
@@ -129,8 +134,9 @@ def get_session(conn: sqlite3.Connection, token: str) -> dict | None:
 
 def expire_session(conn: sqlite3.Connection, token: str) -> bool:
     """Delete a session. Return True if a row was removed."""
-    cursor = conn.execute("DELETE FROM sessions WHERE token = ?", (token,))
-    conn.commit()
+    with _write_lock:
+        cursor = conn.execute("DELETE FROM sessions WHERE token = ?", (token,))
+        conn.commit()
     return cursor.rowcount > 0
 
 
@@ -147,11 +153,12 @@ def create_api_key(conn: sqlite3.Connection, player_id: str) -> str:
     key = uuid.uuid4().hex
     key_hash = _hash_key(key)
     created_at = datetime.now(timezone.utc).isoformat()
-    conn.execute(
-        "INSERT INTO api_keys (key, player_id, created_at) VALUES (?, ?, ?)",
-        (key_hash, player_id, created_at),
-    )
-    conn.commit()
+    with _write_lock:
+        conn.execute(
+            "INSERT INTO api_keys (key, player_id, created_at) VALUES (?, ?, ?)",
+            (key_hash, player_id, created_at),
+        )
+        conn.commit()
     return key
 
 
@@ -181,10 +188,11 @@ def get_player_by_api_key(conn: sqlite3.Connection, key: str) -> dict | None:
         (key,),
     ).fetchone()
     if row:
-        conn.execute(
-            "UPDATE api_keys SET key = ? WHERE key = ?", (key_hash, key)
-        )
-        conn.commit()
+        with _write_lock:
+            conn.execute(
+                "UPDATE api_keys SET key = ? WHERE key = ?", (key_hash, key)
+            )
+            conn.commit()
         return dict(row)
 
     return None
@@ -202,14 +210,15 @@ def store_bot(
 ) -> int:
     """Insert a bot and return its id."""
     now = datetime.now(timezone.utc).isoformat()
-    cursor = conn.execute(
-        """
-        INSERT INTO bots (player_id, name, emoji, source, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?)
-        """,
-        (player_id, name, emoji, source, now, now),
-    )
-    conn.commit()
+    with _write_lock:
+        cursor = conn.execute(
+            """
+            INSERT INTO bots (player_id, name, emoji, source, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (player_id, name, emoji, source, now, now),
+        )
+        conn.commit()
     return cursor.lastrowid  # type: ignore[return-value]
 
 
@@ -235,11 +244,12 @@ def record_match_player(
     conn: sqlite3.Connection, match_id: int, player_id: str, bot_id: int
 ) -> None:
     """Record that a player participated in a match with a specific bot."""
-    conn.execute(
-        "INSERT INTO match_players (match_id, player_id, bot_id) VALUES (?, ?, ?)",
-        (match_id, player_id, bot_id),
-    )
-    conn.commit()
+    with _write_lock:
+        conn.execute(
+            "INSERT INTO match_players (match_id, player_id, bot_id) VALUES (?, ?, ?)",
+            (match_id, player_id, bot_id),
+        )
+        conn.commit()
 
 
 def get_player_matches(

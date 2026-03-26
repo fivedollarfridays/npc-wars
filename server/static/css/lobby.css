@@ -1,0 +1,80 @@
+/* Lobby waiting UX styles */
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+@keyframes matchGlow {
+    0% { box-shadow: 0 0 8px var(--success); }
+    50% { box-shadow: 0 0 24px var(--success); }
+    100% { box-shadow: 0 0 8px var(--success); }
+}
+
+#lobby-panel {
+    background: var(--bg-tertiary);
+    border-top: 1px solid var(--border);
+    padding: 12px 24px;
+    flex-shrink: 0;
+    display: none;
+}
+
+.lobby-header {
+    font-size: 0.95rem;
+    color: var(--warning);
+    margin-bottom: 8px;
+}
+
+.pulse-dots {
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+.lobby-player-grid {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 8px;
+}
+
+.lobby-player-badge {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.lobby-countdown { margin-top: 4px; }
+
+.progress-bar {
+    background: var(--bg-secondary);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.progress-fill {
+    background: var(--warning);
+    height: 100%;
+    width: 0%;
+    border-radius: 4px;
+    transition: width 0.5s linear;
+}
+
+#countdown-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.match-starting #lobby-panel {
+    animation: matchGlow 0.6s ease-in-out 3;
+    border-color: var(--success);
+}
+
+.match-starting .lobby-header {
+    color: var(--success);
+}

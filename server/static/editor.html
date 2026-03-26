@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NPC Wars — Bot Editor</title>
+    <link rel="stylesheet" href="/static/css/lobby.css">
+    <link rel="stylesheet" href="/static/css/responsive.css">
     <style>
         :root {
             --bg-primary: #0a0a0f;
@@ -141,6 +143,11 @@
     </style>
 </head>
 <body>
+    <div class="mobile-banner">
+        Code editing works best on desktop
+        <button class="close-btn" aria-label="Dismiss">&times;</button>
+    </div>
+    <script src="/static/js/mobile-banner.js"></script>
     <header>
         <h1>NPC <span>WARS</span> — Bot Editor</h1>
         <div id="lobby-status">Lobby: waiting for players...</div>
@@ -152,12 +159,27 @@
         <button id="submit-btn" type="button">Submit Bot</button>
     </div>
 
+    <div id="lobby-panel" style="display:none;">
+        <div class="lobby-header">
+            <span id="lobby-title">Waiting for players</span>
+            <span class="pulse-dots">...</span>
+        </div>
+        <div id="lobby-players" class="lobby-player-grid"></div>
+        <div class="lobby-countdown">
+            <div class="progress-bar">
+                <div id="countdown-fill" class="progress-fill"></div>
+            </div>
+            <span id="countdown-text"></span>
+        </div>
+    </div>
+
     <div id="errors"></div>
     <div id="match-link" style="display:none">
         <a id="match-link-anchor" href="#">View Match Result</a>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.47.0/min/vs/loader.min.js"></script>
+    <script src="/static/js/lobby.js"></script>
     <script>
         const BOT_TEMPLATE = [
             'BOT_NAME = "MyBot"',
@@ -301,52 +323,6 @@
                 btn.disabled = false;
                 showErrors(['Network error: ' + err.message]);
             });
-        }
-
-        // Poll /api/lobby/status every 2s for real lobby state
-        var _pollInterval = null;
-
-        function startLobbyPolling() {
-            var lobbyEl = document.getElementById('lobby-status');
-            var btn = document.getElementById('submit-btn');
-            btn.disabled = true;
-
-            _pollInterval = setInterval(function () {
-                fetch('/api/lobby/status')
-                .then(function (resp) { return resp.json(); })
-                .then(function (data) {
-                    updateLobbyUI(data);
-                    if (data.match_id) {
-                        clearInterval(_pollInterval);
-                        _pollInterval = null;
-                        lobbyEl.textContent = 'Match starting...';
-                        setTimeout(function () {
-                            window.location.href = '/viewer?match=' + data.match_id;
-                        }, 1000);
-                    }
-                })
-                .catch(function () {
-                    lobbyEl.textContent = 'Lobby: connection lost, retrying...';
-                });
-            }, 2000);
-        }
-
-        function updateLobbyUI(data) {
-            var lobbyEl = document.getElementById('lobby-status');
-            var parts = [];
-            parts.push(data.players + '/' + data.max + ' players');
-            if (data.time_remaining !== null) {
-                parts.push(Math.ceil(data.time_remaining) + 's remaining');
-            }
-            lobbyEl.textContent = parts.join(' | ');
-
-            // Show player_list
-            var names = (data.player_list || []).map(function (p) {
-                return p.emoji + ' ' + p.name;
-            });
-            if (names.length > 0) {
-                lobbyEl.textContent += ' | ' + names.join(', ');
-            }
         }
 
         // Wire up submit button

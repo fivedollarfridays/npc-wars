@@ -31,7 +31,8 @@ def _draw_bot_row(
 ) -> int:
     """Draw a single bot row with mini HP bar. Return next y."""
     hp = bot.get("hp", 0)
-    label = f"{bot.get('emoji', '?')} {bot['name'][:8]}"
+    name = bot.get("name", bot.get("emoji", "?"))
+    label = f"{bot.get('emoji', '?')} {name[:8]}"
     color = DEAD_COLOR if hp <= 0 else TEXT_COLOR
     draw.text((x + 4, y), label, fill=color, font=_FONT)
     # Mini HP bar
