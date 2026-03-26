@@ -21,6 +21,7 @@ from server.routes.share import router as share_router
 from server.routes.stats import router as stats_router
 from server.routes.stream import router as stream_router
 from server.routes.submit import router as submit_router
+from server.routes.rival import router as rival_router
 from server.routes.tournament import router as tournament_router
 
 _logger = logging.getLogger(__name__)
@@ -42,6 +43,7 @@ app.include_router(health_router)
 app.include_router(lobby_router)
 app.include_router(match_router)
 app.include_router(pages_router)
+app.include_router(rival_router)
 app.include_router(share_router)
 app.include_router(stats_router)
 app.include_router(stream_router)

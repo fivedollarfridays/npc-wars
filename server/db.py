@@ -75,6 +75,11 @@ def init_db(db_path: str) -> sqlite3.Connection:
     from server.tournament_db import init_tournament_table
 
     init_tournament_table(conn)
+
+    # Rival progress table
+    from server.rival_db import init_rival_table
+
+    init_rival_table(conn)
     conn.commit()
     return conn
 

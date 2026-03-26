@@ -65,6 +65,15 @@ async def guide_page() -> FileResponse:
     )
 
 
+@router.get("/debrief/{match_id}")
+async def debrief_page(match_id: int) -> FileResponse:
+    """Serve the rival debrief HTML page."""
+    return FileResponse(
+        _STATIC_DIR / "debrief.html",
+        media_type="text/html",
+    )
+
+
 @router.get("/viewer")
 async def viewer_page() -> FileResponse:
     """Serve the match viewer page."""
