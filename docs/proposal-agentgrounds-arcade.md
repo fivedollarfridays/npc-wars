@@ -378,13 +378,24 @@ The `game_links` table bridges Agent IDs to per-game player IDs. Kill Switch's e
 
 ---
 
-## Open Questions
+## Decisions (Resolved)
 
-1. **Room illustration:** AI-generated (fast, cheap, may need iteration) vs. commissioned artist (expensive, unique, one-time)?
-2. **CRT text color default:** Amber (warm, Atari feel) or green (classic hacker)? Player toggle regardless.
-3. **Mobile experience:** Simplified room (just the monitor + cartridge selector) or skip the room entirely on phone?
-4. **Domain routing:** agentgrounds.ai/kill-switch or play.agentgrounds.ai/kill-switch?
-5. **When to build:** Before or after Kill Switch has real users?
+1. **Room illustration:** AI-generated. Ship 3-4 variations, pick the one that reads best at desktop and mobile viewport sizes. Commission an artist later if the product proves out. Good enough now beats perfect later.
+2. **CRT text color default:** Amber. Warmer, more distinctive, photographs better than green. Avoids "generic hacker aesthetic." Toggle for green still available.
+3. **Mobile experience:** Skip the room entirely on phone. Show cartridge selector directly, load games full screen. The room is a desktop experience. Don't force the metaphor where it doesn't fit.
+4. **Domain routing:** Path-based — `agentgrounds.ai/kill-switch`. No subdomains. Single domain, single cert, single deploy. Better SEO.
+5. **When to build:** The room and cartridge system are marketing material even before the server is live. Build during game development, wire to live backend when ready. The arcade should be ready to go live the moment the server is.
+6. **Interactive terminal:** Ship with visual DOS prompt and blinking cursor as decoration only. Interactive commands (HELP, PLAY, etc.) are a future polish pass — charming but non-converting scope.
+
+## Replays in the Room
+
+Match replays need a home in the room. Every match is a shareable moment — replays are content.
+
+**The VHS tape stack** — a small pile of VHS tapes next to the monitor. Click to see recent match replays. Each tape has a handwritten label: "Match #392 — Shadow Dancer wins!" Click a tape → it loads in the CRT viewer.
+
+Alternative: a **dot-matrix printer** on the desk edge, slowly printing match results. The paper curl shows the last 3-5 matches. Click a result → loads the replay.
+
+Either object becomes the "recent matches" feed, giving replays a physical presence in the room rather than hiding them behind a menu.
 
 ---
 
