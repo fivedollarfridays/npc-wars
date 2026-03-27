@@ -151,6 +151,9 @@ def _maybe_inject_rival(
         # Skip if player has cleared the final tier
         if tier >= MAX_TIER and progress["wins"] >= WINS_TO_ADVANCE:
             continue
+        # Tier 5 loads full patterns + accuracy cap
+        if tier == 5:
+            return _generate_mirror_rival(player_id, conn)
         # Tier 4 loads player patterns for counter-play
         if tier == 4:
             return _generate_counter_rival(player_id)
@@ -171,6 +174,30 @@ def _generate_counter_rival(player_id: str) -> dict[str, Any]:
     summary = get_pattern_summary(table, player_id)
     embed_data = compact_for_embed(summary)
     return generate_rival(4, pattern_data=embed_data)
+
+
+def _generate_mirror_rival(
+    player_id: str, conn: sqlite3.Connection | None,
+) -> dict[str, Any]:
+    """Generate Mirror rival with full pattern data + accuracy cap."""
+    from engine.watcher_brain import HumanPerformance, get_accuracy_cap
+    from server.rival_factory import generate_rival
+    from server.rival_patterns import (
+        compact_for_embed,
+        get_pattern_summary,
+        load_player_patterns,
+    )
+
+    table = load_player_patterns(player_id)
+    summary = get_pattern_summary(table, player_id)
+    embed_data = compact_for_embed(summary)
+
+    performance = HumanPerformance(hp_ratio=0.5, kills=1, rounds_survived=20)
+    cap = get_accuracy_cap(performance)
+
+    if not embed_data:
+        return generate_rival(5)
+    return generate_rival(5, pattern_data=embed_data, accuracy_cap=cap)
 
 
 def _get_fill_bots(count: int) -> list[dict[str, Any]]:

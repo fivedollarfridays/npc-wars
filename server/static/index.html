@@ -135,6 +135,11 @@
     <div class="card-title">Guide</div>
     <div class="card-desc">Learn the rules, actions, and strategies.</div>
   </a>
+  <a href="/guide" class="nav-card" id="training-complete-card" style="display:none; border-color: #ffd700;">
+    <div class="card-icon">&#127942;</div>
+    <div class="card-title">Training Complete</div>
+    <div class="card-desc">All 5 rival tiers mastered.</div>
+  </a>
 </div>
 <div class="profile-link" id="profile-link">
   <a id="profile-href" href="/profile/">My Profile</a>
@@ -149,6 +154,21 @@
       a.href = '/profile/' + encodeURIComponent(botId);
       el.style.display = 'block';
     }
+  })();
+</script>
+<script>
+  (function() {
+    var key = localStorage.getItem('api_key');
+    if (!key) return;
+    fetch('/api/rival/graduated', {headers: {'X-API-Key': key}})
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d.graduated) {
+          var card = document.getElementById('training-complete-card');
+          if (card) card.style.display = '';
+        }
+      })
+      .catch(function() {});
   })();
 </script>
 </body>

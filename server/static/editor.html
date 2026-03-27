@@ -151,12 +151,24 @@
     <header>
         <h1>NPC <span>WARS</span> — Bot Editor</h1>
         <div id="lobby-status">Lobby: waiting for players...</div>
+        <span id="graduated-badge" style="display:none; color: #ffd700; font-size: 0.9em; margin-left: 12px;">&#127942; Graduated</span>
     </header>
 
     <div id="editor-container"></div>
 
     <div id="controls">
         <button id="submit-btn" type="button">Submit Bot</button>
+        <div id="tier-select-wrapper" style="display:none; margin-left: 16px;">
+            <label for="tier-select" style="color: #888; font-size: 0.85em;">Challenge Tier:</label>
+            <select id="tier-select" style="background: #1a1a2e; color: #ccc; border: 1px solid #333; padding: 4px 8px; border-radius: 4px;">
+                <option value="">Auto (current tier)</option>
+                <option value="1">Tier 1: The Bully</option>
+                <option value="2">Tier 2: The Storm Chaser</option>
+                <option value="3">Tier 3: The Economist</option>
+                <option value="4">Tier 4: The Counter</option>
+                <option value="5">Tier 5: The Mirror</option>
+            </select>
+        </div>
     </div>
 
     <div id="lobby-panel" style="display:none;">
@@ -327,6 +339,23 @@
 
         // Wire up submit button
         document.getElementById('submit-btn').addEventListener('click', submitBot);
+
+        // Check graduation status for badge + tier select
+        (function() {
+            var key = localStorage.getItem('api_key');
+            if (!key) return;
+            fetch('/api/rival/graduated', {headers: {'X-API-Key': key}})
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    if (d.graduated) {
+                        var badge = document.getElementById('graduated-badge');
+                        if (badge) badge.style.display = '';
+                        var sel = document.getElementById('tier-select-wrapper');
+                        if (sel) sel.style.display = '';
+                    }
+                })
+                .catch(function() {});
+        })();
     </script>
 </body>
 </html>

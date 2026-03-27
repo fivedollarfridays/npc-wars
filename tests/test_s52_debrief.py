@@ -201,7 +201,7 @@ class TestDefaultDebrief:
         match = _mock_match()
         result = analyze_rival_match(match, "\U0001f916", 5)
         assert result["tier"] == 5
-        assert "Grandmaster" in result["lesson"]
+        assert "Mirror" in result["lesson"]
 
 
 # ---------------------------------------------------------------------------
