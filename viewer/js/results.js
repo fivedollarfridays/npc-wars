@@ -83,6 +83,23 @@ function showResultsOverlay() {
       '</tr></thead><tbody>' + rows + '</tbody></table>';
   }
 
+  // --- Share button injection ---
+  var shareBtn = document.getElementById('share-match-btn');
+  if (shareBtn) {
+    shareBtn.onclick = function(e) {
+      e.preventDefault();
+      var mid = new URLSearchParams(window.location.search).get('match') || '';
+      var url = window.location.origin + '/m/' + mid;
+      navigator.clipboard.writeText(url).then(function() {
+        shareBtn.textContent = 'Copied!';
+        setTimeout(function() { shareBtn.textContent = 'Share'; }, 2000);
+      }).catch(function() {
+        shareBtn.textContent = 'Copy failed';
+        setTimeout(function() { shareBtn.textContent = 'Share'; }, 2000);
+      });
+    };
+  }
+
   overlay.style.display = 'flex';
 }
 

@@ -1,0 +1,32 @@
+name: Security Headers & Auth
+description: Verify security response headers and authentication controls
+tags: [security, headers, auth]
+preconditions:
+  - "Server running at ${QC_BASE_URL}"
+
+scenarios:
+  - name: "Security headers on health endpoint"
+    steps:
+      - navigate: "${QC_BASE_URL}/health"
+      - verify: "Response includes X-Frame-Options: DENY header"
+      - verify: "Response includes X-Content-Type-Options: nosniff header"
+      - verify: "Response includes Content-Security-Policy header"
+      - verify: "Response includes Referrer-Policy header"
+
+  - name: "Security headers on error responses"
+    steps:
+      - navigate: "${QC_BASE_URL}/nonexistent-path"
+      - verify: "404 response still includes security headers"
+
+  - name: "Tournament create requires auth"
+    steps:
+      - navigate: "${QC_BASE_URL}/api/tournament/create"
+      - verify: "POST without X-API-Key returns 401 or 405 (method not allowed on GET)"
+
+  - name: "Bot source size capped"
+    steps:
+      - verify: "POST /api/submit-bot with source > 50000 chars returns 422 validation error"
+
+  - name: "Rate limiting active on submit"
+    steps:
+      - verify: "Rapid POST /api/submit-bot requests eventually return 429 Too Many Requests"

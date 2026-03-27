@@ -205,10 +205,24 @@
   <div class="actions" id="actions" style="display:none">
     <a class="btn btn-primary" href="/static/editor.html">Try Again</a>
     <a class="btn" id="replay-btn" href="/viewer">Watch Replay</a>
+    <button class="btn" id="share-btn" onclick="shareReplay()">Share Replay</button>
+    <span id="share-confirm" style="display:none; color: #4caf50; font-size: 12px; align-self: center;">Copied!</span>
   </div>
 </div>
 
 <script>
+function shareReplay() {
+  var matchId = window.location.pathname.split('/').pop();
+  var url = window.location.origin + '/m/' + matchId;
+  navigator.clipboard.writeText(url).then(function() {
+    document.getElementById('share-confirm').style.display = 'inline';
+    setTimeout(function() {
+      document.getElementById('share-confirm').style.display = 'none';
+    }, 2000);
+  }).catch(function() {
+    window.prompt('Copy this link:', url);
+  });
+}
 (function() {
   var matchId = window.location.pathname.split('/').pop();
   var apiKey = localStorage.getItem('api_key') || '';

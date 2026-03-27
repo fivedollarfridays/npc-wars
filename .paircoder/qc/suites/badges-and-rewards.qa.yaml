@@ -1,0 +1,37 @@
+name: Badges & Rewards
+description: Verify badge system, XP/coin rewards, and badge display across pages
+tags: [core, badges, rewards]
+preconditions:
+  - "Server running at ${QC_BASE_URL}"
+
+scenarios:
+  - name: "Badge API returns badge list"
+    steps:
+      - navigate: "${QC_BASE_URL}/api/badges/test_player"
+      - verify: "JSON response is an array of 6 badge objects (5 tiers + graduation)"
+      - verify: "Each badge has name, emoji, description, tier, earned fields"
+
+  - name: "Leaderboard shows tier badges"
+    steps:
+      - navigate: "${QC_BASE_URL}/leaderboard"
+      - verify: "Leaderboard page loads with rankings table"
+      - verify: "Table rendering code includes badge/tier indicator logic"
+      - check_console: "No errors in console"
+
+  - name: "Profile page shows badge grid"
+    steps:
+      - navigate: "${QC_BASE_URL}/profile/test_player"
+      - verify: "Profile page loads with badge section"
+      - verify: "Badge grid container exists for displaying earned/unearned badges"
+      - check_console: "No errors in console"
+
+  - name: "Landing page has graduation card"
+    steps:
+      - navigate: "${QC_BASE_URL}/"
+      - verify: "Landing page contains Training Complete card element (hidden by default)"
+
+  - name: "Editor has graduated badge and tier dropdown"
+    steps:
+      - navigate: "${QC_BASE_URL}/static/editor.html"
+      - verify: "Editor contains graduated badge element (hidden by default)"
+      - verify: "Editor contains tier select dropdown with 5 tier options"
