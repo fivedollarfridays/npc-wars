@@ -147,9 +147,15 @@ def generate_rival(
     else:
         source = _build_rival_source(tier, cfg, preset_body)
 
+    return _compile_rival_source(source, cfg, tier)
+
+
+def _compile_rival_source(
+    source: str, cfg: dict[str, Any], tier: int,
+) -> dict[str, Any]:
+    """Compile rival source and return a bot config dict."""
     namespace: dict[str, Any] = {}
     exec(compile(source, f"<rival_tier_{tier}>", "exec"), namespace)  # noqa: S102
-
     return {
         "name": cfg["name"],
         "emoji": RIVAL_EMOJI,

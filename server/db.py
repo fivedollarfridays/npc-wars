@@ -11,61 +11,34 @@ from datetime import datetime, timezone
 _write_lock = threading.Lock()
 
 
+_CORE_TABLE_DDL: tuple[str, ...] = (
+    """CREATE TABLE IF NOT EXISTS players (
+        id TEXT PRIMARY KEY, name TEXT NOT NULL, created TEXT NOT NULL)""",
+    """CREATE TABLE IF NOT EXISTS sessions (
+        token TEXT PRIMARY KEY, player_id TEXT NOT NULL REFERENCES players(id),
+        expires TEXT NOT NULL)""",
+    """CREATE TABLE IF NOT EXISTS api_keys (
+        key TEXT PRIMARY KEY, player_id TEXT NOT NULL REFERENCES players(id),
+        created_at TEXT NOT NULL)""",
+    """CREATE TABLE IF NOT EXISTS bots (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        player_id TEXT NOT NULL REFERENCES players(id),
+        name TEXT NOT NULL, emoji TEXT NOT NULL, source TEXT NOT NULL,
+        created_at TEXT NOT NULL, updated_at TEXT NOT NULL)""",
+    """CREATE TABLE IF NOT EXISTS match_players (
+        match_id INTEGER NOT NULL, player_id TEXT NOT NULL,
+        bot_id INTEGER NOT NULL, PRIMARY KEY (match_id, player_id))""",
+)
+
+
 def init_db(db_path: str) -> sqlite3.Connection:
     """Create tables idempotently and return an open connection."""
     conn = sqlite3.connect(db_path, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS players (
-            id      TEXT PRIMARY KEY,
-            name    TEXT NOT NULL,
-            created TEXT NOT NULL
-        )
-        """
-    )
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS sessions (
-            token     TEXT PRIMARY KEY,
-            player_id TEXT NOT NULL REFERENCES players(id),
-            expires   TEXT NOT NULL
-        )
-        """
-    )
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS api_keys (
-            key       TEXT PRIMARY KEY,
-            player_id TEXT NOT NULL REFERENCES players(id),
-            created_at TEXT NOT NULL
-        )
-        """
-    )
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS bots (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            player_id  TEXT NOT NULL REFERENCES players(id),
-            name       TEXT NOT NULL,
-            emoji      TEXT NOT NULL,
-            source     TEXT NOT NULL,
-            created_at TEXT NOT NULL,
-            updated_at TEXT NOT NULL
-        )
-        """
-    )
-    conn.execute(
-        """
-        CREATE TABLE IF NOT EXISTS match_players (
-            match_id   INTEGER NOT NULL,
-            player_id  TEXT NOT NULL,
-            bot_id     INTEGER NOT NULL,
-            PRIMARY KEY (match_id, player_id)
-        )
-        """
-    )
+    for ddl in _CORE_TABLE_DDL:
+        conn.execute(ddl)
+
     # Cosmetic tables (catalog + inventory)
     from server.cosmetic_db import init_cosmetic_tables
 

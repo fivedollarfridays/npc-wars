@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import os
 import signal
 
@@ -10,6 +11,8 @@ from engine.match_writer import write_match
 from server.coin_rewards import award_match_coins
 from server.db import init_db
 from server.queue import dequeue_match
+
+_logger = logging.getLogger(__name__)
 
 _running = True
 
@@ -25,7 +28,7 @@ def main() -> None:
     signal.signal(signal.SIGTERM, _shutdown)
     signal.signal(signal.SIGINT, _shutdown)
     conn = init_db(os.environ.get("DB_PATH", "data/npcwars.db"))
-    print("Worker started, polling queue...")
+    _logger.info("Worker started, polling queue...")
 
     while _running:
         job = dequeue_match(timeout=1)
@@ -41,9 +44,9 @@ def main() -> None:
             match_data = run_match(bot_configs, match_id=match_id, seed=seed)
             write_match(match_data, results_dir)
             award_match_coins(conn, match_data, bot_configs)
-            print(f"Match {match_id} completed")
+            _logger.info("Match %s completed", match_id)
         except Exception as exc:
-            print(f"Match {match_id} failed: {exc}")
+            _logger.error("Match %s failed: %s", match_id, exc)
 
 
 if __name__ == "__main__":
