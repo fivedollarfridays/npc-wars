@@ -1,0 +1,38 @@
+name: Guide & Mobile Readiness
+description: Verify player guide content and mobile responsive design
+tags: [smoke, guide, mobile]
+preconditions:
+  - "Server running at ${QC_BASE_URL}"
+
+scenarios:
+  - name: "Guide page loads"
+    steps:
+      - navigate: "${QC_BASE_URL}/guide"
+      - verify: "Page loads with 'Kill Switch' branding and guide content"
+      - verify: "Contains 'Quick Start' section"
+      - check_console: "No errors in console"
+
+  - name: "Guide has state dict reference"
+    steps:
+      - navigate: "${QC_BASE_URL}/guide"
+      - verify: "Page contains state dictionary reference with 'me', 'enemies', 'grid_size'"
+
+  - name: "Guide has actions reference"
+    steps:
+      - navigate: "${QC_BASE_URL}/guide"
+      - verify: "Page contains actions reference: rest, move, attack, defend"
+
+  - name: "Guide linked from landing page"
+    steps:
+      - navigate: "${QC_BASE_URL}/"
+      - verify: "Landing page has a 'Guide' navigation card linking to /guide"
+
+  - name: "Mobile banner present on all pages"
+    steps:
+      - navigate: "${QC_BASE_URL}/"
+      - verify: "Page contains mobile banner element with 'best on desktop' message (hidden on desktop)"
+
+  - name: "Responsive CSS loaded"
+    steps:
+      - navigate: "${QC_BASE_URL}/"
+      - verify: "Page links to responsive.css stylesheet"

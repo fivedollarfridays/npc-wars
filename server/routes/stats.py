@@ -1,5 +1,6 @@
 """Player stats and leaderboard endpoints."""
 
+import sqlite3
 from typing import Any
 
 from fastapi import APIRouter, HTTPException, Request
@@ -7,8 +8,34 @@ from fastapi import APIRouter, HTTPException, Request
 from data.leaderboard import VALID_SORT_FIELDS, aggregate_stats, get_rankings
 from data.lifetime_stats import get_lifetime_stats
 from data.match_history import get_all_matches, list_matches
+from server.rival_db import get_rival_progress
 
 router = APIRouter(prefix="/api", tags=["stats"])
+
+
+def _emoji_rival_map(
+    conn: sqlite3.Connection, emojis: list[str]
+) -> dict[str, dict[str, Any]]:
+    """Map bot emojis to rival tier info via the bots table."""
+    default = {"rival_tier": 0, "graduated": False}
+    result: dict[str, dict[str, Any]] = {e: dict(default) for e in emojis}
+
+    # Build emoji -> player_id mapping from bots table
+    for emoji in emojis:
+        row = conn.execute(
+            "SELECT player_id FROM bots WHERE emoji = ? ORDER BY created_at DESC LIMIT 1",
+            (emoji,),
+        ).fetchone()
+        if not row:
+            continue
+        progress = get_rival_progress(conn, row["player_id"])
+        if progress:
+            result[emoji] = {
+                "rival_tier": progress["current_tier"],
+                "graduated": progress.get("graduated_at") is not None,
+            }
+
+    return result
 
 
 @router.get("/stats/{player_id}")
@@ -39,7 +66,19 @@ async def leaderboard(
     if not matches:
         return []
     stats = aggregate_stats(matches)
-    return get_rankings(stats, sort_by)
+    rankings = get_rankings(stats, sort_by)
+
+    # Enrich with rival tier badges
+    db = getattr(request.app.state, "db", None)
+    if db is not None:
+        emojis = [r["emoji"] for r in rankings]
+        rival_map = _emoji_rival_map(db, emojis)
+        for entry in rankings:
+            info = rival_map.get(entry["emoji"], {})
+            entry["rival_tier"] = info.get("rival_tier", 0)
+            entry["graduated"] = info.get("graduated", False)
+
+    return rankings
 
 
 @router.get("/matches/{player_id}")

@@ -1,0 +1,37 @@
+name: Rival Training Flow
+description: Verify the rival training ladder works end-to-end — tier display, lobby injection, debrief
+tags: [core, rival, training]
+preconditions:
+  - "Server running at ${QC_BASE_URL}"
+
+scenarios:
+  - name: "Rival status API returns tier info"
+    steps:
+      - navigate: "${QC_BASE_URL}/api/rival/status"
+      - verify: "JSON response contains current_tier, attempts, wins fields (requires X-API-Key header)"
+
+  - name: "Rival graduated API returns graduation status"
+    steps:
+      - navigate: "${QC_BASE_URL}/api/rival/graduated"
+      - verify: "JSON response contains graduated (boolean), graduated_at, tiers_beaten fields (requires auth)"
+
+  - name: "Debrief page loads"
+    steps:
+      - navigate: "${QC_BASE_URL}/debrief/1"
+      - verify: "Page loads with dark theme, shows 'RIVAL DEBRIEF' heading or placeholder"
+      - check_console: "No errors in console"
+
+  - name: "Debrief page has share button"
+    steps:
+      - navigate: "${QC_BASE_URL}/debrief/1"
+      - verify: "Page contains a 'Share Replay' button"
+
+  - name: "Debrief page has pattern table section"
+    steps:
+      - navigate: "${QC_BASE_URL}/debrief/1"
+      - verify: "Page contains a pattern table section (may be hidden if no pattern data)"
+
+  - name: "Debrief page has graduation ceremony section"
+    steps:
+      - navigate: "${QC_BASE_URL}/debrief/1"
+      - verify: "Page contains a graduation ceremony section (hidden by default, shown when graduated)"

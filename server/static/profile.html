@@ -133,6 +133,10 @@
   <div id="loading" class="loading">Loading stats...</div>
   <div id="stats-grid" class="stats-grid" style="display:none"></div>
 </div>
+<div id="badge-section" style="max-width:700px;margin:16px auto;">
+  <h3 style="color:#a0a0c0;font-size:0.9em;margin-bottom:8px;text-align:center;letter-spacing:1px;">RIVAL BADGES</h3>
+  <div id="badge-grid" style="display:flex;flex-wrap:wrap;gap:8px;justify-content:center;"></div>
+</div>
 <h2 id="history-title" style="display:none">Match History</h2>
 <table id="history" style="display:none">
   <thead><tr>
@@ -207,8 +211,32 @@
     } catch (err) { /* silent */ }
   }
 
+  async function loadBadges() {
+    try {
+      var resp = await fetch('/api/badges/' + encodeURIComponent(playerId));
+      if (!resp.ok) return;
+      var badges = await resp.json();
+      var grid = document.getElementById('badge-grid');
+      badges.forEach(function(b) {
+        var pill = document.createElement('div');
+        var earned = b.earned;
+        pill.style.cssText = earned
+          ? 'background:#1a2a3a;border:1px solid #4a6a8a;padding:4px 10px;border-radius:12px;font-size:0.85em;color:#ccc;'
+          : 'background:#111;border:1px solid #222;padding:4px 10px;border-radius:12px;font-size:0.85em;color:#444;';
+        if (b.name === 'Training Complete' && earned) {
+          pill.style.borderColor = '#ffd700';
+          pill.style.color = '#ffd700';
+        }
+        pill.textContent = b.emoji + ' ' + b.name;
+        pill.title = b.description + (earned ? ' \u2713' : ' (locked)');
+        grid.appendChild(pill);
+      });
+    } catch (e) { /* silent */ }
+  }
+
   loadStats();
   loadHistory();
+  loadBadges();
 
   // Load character preview if shapes.js available
   async function loadCharacterPreview() {

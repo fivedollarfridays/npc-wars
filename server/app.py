@@ -11,6 +11,7 @@ from fastapi.staticfiles import StaticFiles
 from server.db import init_db
 from server.middleware.security_headers import SecurityHeadersMiddleware
 from server.middleware.session import SessionMiddleware
+from server.routes.badges import router as badges_router
 from server.routes.bots import router as bots_router
 from server.routes.cosmetics import router as cosmetics_router
 from server.routes.health import router as health_router
@@ -37,6 +38,7 @@ if _db_path == ":memory:" and not os.environ.get("TESTING"):
         "Set DB_PATH for production or TESTING=1 for test context."
     )
 app.state.db = init_db(_db_path)
+app.include_router(badges_router)
 app.include_router(bots_router)
 app.include_router(cosmetics_router)
 app.include_router(health_router)
