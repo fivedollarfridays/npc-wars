@@ -89,13 +89,13 @@ RIVAL_TIERS: dict[int, dict[str, Any]] = {
         ],
     },
     5: {
-        "name": "The Grandmaster",
-        "bio": "Rival Tier 5: Adapts to any situation",
+        "name": "The Mirror",
+        "bio": "Rival Tier 5: Adapts to your exact strategy",
         "base_style": "aggro",
         "aggression": 10,
         "risk_tolerance": 5,
         "override_lines": [
-            "# RIVAL: Adaptive — low HP flee, else crush weakest",
+            "# RIVAL: Fallback — low HP flee, else crush weakest",
             "if me.hp < 30:",
             "    nearest = enemies.closest()",
             "    if nearest:",
@@ -114,14 +114,18 @@ RIVAL_TIERS: dict[int, dict[str, Any]] = {
 
 
 def generate_rival(
-    tier: int, *, pattern_data: dict[str, dict[str, float]] | None = None,
+    tier: int,
+    *,
+    pattern_data: dict[str, dict[str, float]] | None = None,
+    accuracy_cap: float | None = None,
 ) -> dict[str, Any]:
     """Generate a rival bot config for the given tier.
 
     Args:
         tier: Rival tier (1-5).
-        pattern_data: Optional {context: {action: probability}} for Tier 4.
+        pattern_data: Optional {context: {action: probability}} for Tier 4/5.
             Embedded as a dict literal in generated source.
+        accuracy_cap: Optional accuracy cap for Tier 5 Mirror (0.0-1.0).
 
     Returns a dict compatible with run_match() bot configs:
     name, emoji, bio, decide_func, source, is_rival, rival_tier.
@@ -136,7 +140,9 @@ def generate_rival(
         cfg["base_style"], cfg["aggression"], cfg["risk_tolerance"],
     )
 
-    if tier == 4 and pattern_data:
+    if tier == 5 and pattern_data and accuracy_cap is not None:
+        source = _build_mirror_source(tier, cfg, preset_body, pattern_data, accuracy_cap)
+    elif tier == 4 and pattern_data:
         source = _build_counter_source(tier, cfg, preset_body, pattern_data)
     else:
         source = _build_rival_source(tier, cfg, preset_body)
@@ -212,6 +218,81 @@ def _build_counter_source(
     fallback = cfg["override_lines"]
     combined = (
         lines[:inject_idx] + counter_lines + [""] + fallback + [""]
+        + lines[inject_idx:]
+    )
+    body = "\n".join(combined)
+
+    return (
+        f'BOT_NAME = "Rival T{tier}: {cfg["name"]}"\n'
+        f'BOT_EMOJI = "{RIVAL_EMOJI}"\n'
+        f'BOT_BIO = "{cfg["bio"]}"\n'
+        f"\n"
+        f"def decide(state):\n"
+        f"{textwrap.indent(body, '    ')}\n"
+    )
+
+
+def _mirror_override_lines(
+    pattern_data: dict[str, dict[str, float]],
+    accuracy_cap: float,
+) -> list[str]:
+    """Generate inline mirror logic: multi-context prediction + accuracy gate."""
+    return [
+        "",
+        "import random as _rng",
+        f"_pd = {repr(pattern_data)}",
+        f"_cm = {repr(_COUNTER_MAP)}",
+        f"_accuracy_cap = {accuracy_cap!r}",
+        "# RIVAL: Mirror — adaptive pattern counter with accuracy cap",
+        "_best_pred = None",
+        "_best_conf = 0.0",
+        "_ctxs = []",
+        "if enemies.adjacent():",
+        "    _ctxs.append('at_range_1')",
+        "if me.hp < 30:",
+        "    _ctxs.append('below_30_hp')",
+        "for _ctx in _ctxs:",
+        "    if _ctx in _pd and _pd[_ctx]:",
+        "        _top = max(_pd[_ctx], key=_pd[_ctx].get)",
+        "        if _pd[_ctx][_top] > _best_conf:",
+        "            _best_conf = _pd[_ctx][_top]",
+        "            _best_pred = _top",
+        "if _best_pred is not None:",
+        "    if _rng.random() > _accuracy_cap:",
+        "        _pick = _rng.choice(['attack', 'defend', 'rest', 'move'])",
+        "    else:",
+        "        _pick = _cm.get(_best_pred, 'defend')",
+        "    if _pick == 'defend':",
+        "        return me.defend()",
+        "    if _pick == 'attack':",
+        "        _adj = enemies.adjacent()",
+        "        if _adj:",
+        "            return me.attack(min(_adj, key=lambda e: e['hp']))",
+        "    if _pick == 'rest':",
+        "        return me.rest()",
+        "    if _pick == 'move':",
+        "        _near = enemies.closest()",
+        "        if _near:",
+        "            return me.move_toward(_near)",
+        "",
+    ]
+
+
+def _build_mirror_source(
+    tier: int,
+    cfg: dict[str, Any],
+    preset_body: str,
+    pattern_data: dict[str, dict[str, float]],
+    accuracy_cap: float,
+) -> str:
+    """Build source with embedded pattern data + accuracy cap for The Mirror."""
+    lines = preset_body.split("\n")
+    inject_idx = _find_injection_point(lines)
+
+    mirror_lines = _mirror_override_lines(pattern_data, accuracy_cap)
+    fallback = cfg["override_lines"]
+    combined = (
+        lines[:inject_idx] + mirror_lines + [""] + fallback + [""]
         + lines[inject_idx:]
     )
     body = "\n".join(combined)

@@ -194,6 +194,14 @@
     </table>
   </div>
 
+  <div id="ceremony-section" style="display:none;">
+    <div style="background: linear-gradient(135deg, #332200, #443300); border: 2px solid #ffd700; border-radius: 12px; padding: 24px; text-align: center; margin-top: 20px;">
+      <div style="font-size: 3em;">&#127942;</div>
+      <h2 style="color: #ffd700; font-family: 'Silkscreen', cursive; margin: 12px 0;">TRAINING COMPLETE</h2>
+      <p id="ceremony-text" style="color: #ddd; font-size: 14px; line-height: 1.6;"></p>
+    </div>
+  </div>
+
   <div class="actions" id="actions" style="display:none">
     <a class="btn btn-primary" href="/static/editor.html">Try Again</a>
     <a class="btn" id="replay-btn" href="/viewer">Watch Replay</a>
@@ -232,6 +240,11 @@
     document.getElementById('actions').style.display = 'flex';
     document.getElementById('replay-btn').href =
       '/viewer?match=' + matchId;
+
+    if (d.ceremony_message) {
+      document.getElementById('ceremony-section').style.display = 'block';
+      document.getElementById('ceremony-text').textContent = d.ceremony_message;
+    }
 
     if (d.patterns) {
       var counterMap = {attack:'defend',rest:'attack',defend:'attack',

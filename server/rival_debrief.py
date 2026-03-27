@@ -15,6 +15,7 @@ def analyze_rival_match(
     rival_tier: int,
     *,
     pattern_data: dict[str, dict[str, float]] | None = None,
+    graduated: bool = False,
 ) -> dict[str, Any]:
     """Analyze a rival match and produce a pedagogical debrief."""
     tier_config = RIVAL_TIERS.get(rival_tier, {})
@@ -31,6 +32,8 @@ def analyze_rival_match(
         analysis = _analyze_economist_lesson(match_data, player_emoji)
     elif rival_tier == 4:
         analysis = _analyze_counter_lesson(match_data, player_emoji, pattern_data)
+    elif rival_tier == 5:
+        analysis = _analyze_mirror_lesson(match_data, player_emoji, pattern_data)
     else:
         analysis = _default_analysis(match_data, player_emoji, rival_tier)
 
@@ -42,6 +45,10 @@ def analyze_rival_match(
     }
     if pattern_data:
         result["patterns"] = pattern_data
+    if graduated:
+        result["ceremony_message"] = (
+            "TRAINING COMPLETE -- You've mastered all 5 rival tiers!"
+        )
     return result
 
 
@@ -253,6 +260,55 @@ def _format_context(ctx: str) -> str:
         "storm_closing": "near the storm",
         "after_damage": "after taking damage",
     }.get(ctx, ctx)
+
+
+def _analyze_mirror_lesson(
+    match_data: dict[str, Any],
+    player_emoji: str,
+    pattern_data: dict[str, dict[str, float]] | None = None,
+) -> dict[str, Any]:
+    """Tier 5 debrief: show full adaptation analysis for The Mirror."""
+    if not pattern_data:
+        return {
+            "lesson": "The Mirror adapts to your strategy. "
+                      "Play more matches to see how it reads you.",
+            "what_happened": "Not enough data yet for Mirror analysis.",
+            "tip": "The Mirror learns from every match. "
+                   "Be unpredictable to stay ahead.",
+            "key_round": None,
+        }
+
+    top_patterns = _rank_patterns(pattern_data)
+
+    if top_patterns:
+        top = top_patterns[0]
+        lesson = (
+            f"The Mirror adapted to your strategy: when "
+            f"{_format_context(top['context'])}, you "
+            f"{top['your_action']} {top['probability']:.0%} of the time "
+            f"-- it countered with {top['counter_used']}"
+        )
+        what = (
+            f"Across all contexts, The Mirror predicted your most likely "
+            f"action and chose the counter. Your most readable pattern: "
+            f"{top['your_action']} when {_format_context(top['context'])}"
+        )
+        tip = (
+            "You've reached the final rival. To beat The Mirror, "
+            "be unpredictable -- vary your actions in every context."
+        )
+    else:
+        lesson = "The Mirror couldn't find strong patterns in your play."
+        what = "Your actions were varied enough to confuse the adaptation."
+        tip = "Keep varying your strategy to stay ahead of The Mirror."
+
+    return {
+        "lesson": lesson,
+        "what_happened": what,
+        "tip": tip,
+        "key_round": None,
+        "top_patterns": top_patterns[:3],
+    }
 
 
 def _default_analysis(

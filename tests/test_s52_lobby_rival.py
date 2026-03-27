@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 
 from server.app import app
 from server.db import create_api_key, create_player, init_db, store_bot
+from server.rival_db import WINS_TO_ADVANCE, ensure_rival_progress, record_rival_attempt
 from server.routes.lobby import reset_lobby
 from server.routes.submit import clear_rate_limits
 
@@ -78,23 +79,35 @@ class TestRivalStatusEndpoint:
 class TestRivalChallengeEndpoint:
     """POST /api/rival/challenge tests."""
 
-    def test_returns_200(self) -> None:
+    def test_returns_200_for_graduated(self) -> None:
         key, _ = _create_player_with_bot()
+        conn = app.state.db
+        ensure_rival_progress(conn, "p1")
+        for _ in range(WINS_TO_ADVANCE * 5):
+            record_rival_attempt(conn, "p1", won=True)
         resp = client.post(
-            "/api/rival/challenge", headers={"X-API-Key": key}
+            "/api/rival/challenge",
+            json={"tier": 1},
+            headers={"X-API-Key": key},
         )
         assert resp.status_code == 200
 
     def test_returns_queued_status(self) -> None:
         key, _ = _create_player_with_bot()
+        conn = app.state.db
+        ensure_rival_progress(conn, "p1")
+        for _ in range(WINS_TO_ADVANCE * 5):
+            record_rival_attempt(conn, "p1", won=True)
         resp = client.post(
-            "/api/rival/challenge", headers={"X-API-Key": key}
+            "/api/rival/challenge",
+            json={"tier": 1},
+            headers={"X-API-Key": key},
         )
         data = resp.json()
         assert data["status"] == "queued"
 
     def test_requires_auth(self) -> None:
-        resp = client.post("/api/rival/challenge")
+        resp = client.post("/api/rival/challenge", json={"tier": 1})
         assert resp.status_code == 401
 
 

@@ -6,9 +6,10 @@ import json
 from pathlib import Path
 
 from fastapi import APIRouter, Depends, HTTPException, Request
+from pydantic import BaseModel, Field
 
 from server.auth import require_api_key
-from server.rival_db import ensure_rival_progress, get_rival_progress
+from server.rival_db import ensure_rival_progress, get_rival_progress, is_graduated
 from server.rival_debrief import analyze_rival_match
 from server.rival_factory import RIVAL_EMOJI
 from server.rival_patterns import get_pattern_summary, record_match_patterns
@@ -27,13 +28,38 @@ async def rival_status(
     return progress
 
 
+@router.get("/graduated")
+async def rival_graduated(
+    request: Request,
+    player: dict = Depends(require_api_key),
+) -> dict:
+    """Check whether the player has graduated from rival training."""
+    conn = request.app.state.db
+    progress = ensure_rival_progress(conn, player["id"])
+    graduated = is_graduated(conn, player["id"])
+    tiers_beaten = progress["current_tier"] if graduated else progress["current_tier"] - 1
+    return {
+        "graduated": graduated,
+        "graduated_at": progress.get("graduated_at"),
+        "tiers_beaten": tiers_beaten,
+    }
+
+
+class RivalChallenge(BaseModel):
+    tier: int = Field(ge=1, le=5)
+
+
 @router.post("/challenge")
 async def rival_challenge(
+    body: RivalChallenge,
     request: Request,
-    _player: dict = Depends(require_api_key),
+    player: dict = Depends(require_api_key),
 ) -> dict:
-    """Queue a rival challenge match (stub for future use)."""
-    return {"status": "queued", "message": "Rival challenge coming soon"}
+    """Challenge a specific rival tier (requires graduation)."""
+    conn = request.app.state.db
+    if not is_graduated(conn, player["id"]):
+        raise HTTPException(status_code=403, detail="Must graduate to choose tier")
+    return {"status": "queued", "tier": body.tier}
 
 
 @router.get("/debrief/{match_id}")

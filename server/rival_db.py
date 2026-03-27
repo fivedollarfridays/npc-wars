@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sqlite3
+from datetime import datetime, timezone
 
 from server.db import _write_lock
 
@@ -18,10 +19,16 @@ def init_rival_table(conn: sqlite3.Connection) -> None:
             player_id    TEXT PRIMARY KEY,
             current_tier INTEGER NOT NULL DEFAULT 1,
             attempts     INTEGER NOT NULL DEFAULT 0,
-            wins         INTEGER NOT NULL DEFAULT 0
+            wins         INTEGER NOT NULL DEFAULT 0,
+            graduated_at TEXT
         )
         """
     )
+    # Idempotent migration for existing tables missing graduated_at
+    try:
+        conn.execute("ALTER TABLE rival_progress ADD COLUMN graduated_at TEXT")
+    except Exception:
+        pass  # Column already exists
 
 
 def get_rival_progress(conn: sqlite3.Connection, player_id: str) -> dict | None:
@@ -72,6 +79,15 @@ def record_rival_attempt(
             conn.commit()
         progress = get_rival_progress(conn, player_id)  # type: ignore[arg-type]
 
+    # Graduate when tier 5 cleared (tier stays at 5, wins hit threshold)
+    if (
+        progress["current_tier"] == MAX_RIVAL_TIER
+        and progress["wins"] >= WINS_TO_ADVANCE
+        and not progress.get("graduated_at")
+    ):
+        record_graduation(conn, player_id)
+        progress = get_rival_progress(conn, player_id)  # type: ignore[arg-type]
+
     return progress  # type: ignore[return-value]
 
 
@@ -81,3 +97,24 @@ def get_rival_tier(conn: sqlite3.Connection, player_id: str) -> int:
     if progress is None:
         return 1
     return progress["current_tier"]
+
+
+def is_graduated(conn: sqlite3.Connection, player_id: str) -> bool:
+    """Return True if the player has cleared all rival tiers."""
+    row = conn.execute(
+        "SELECT graduated_at FROM rival_progress WHERE player_id = ?",
+        (player_id,),
+    ).fetchone()
+    if not row:
+        return False
+    return row["graduated_at"] is not None
+
+
+def record_graduation(conn: sqlite3.Connection, player_id: str) -> None:
+    """Set the graduated_at timestamp for a player."""
+    with _write_lock:
+        conn.execute(
+            "UPDATE rival_progress SET graduated_at = ? WHERE player_id = ?",
+            (datetime.now(timezone.utc).isoformat(), player_id),
+        )
+        conn.commit()
