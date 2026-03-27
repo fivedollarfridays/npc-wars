@@ -58,6 +58,37 @@ def _bonus_xp(
     return total
 
 
+def _rank_by_elimination(
+    elims_sorted: list[dict[str, Any]],
+    placements: dict[str, int],
+    next_rank: int,
+) -> int:
+    """Assign ranks based on elimination order with tie handling.
+
+    Uses competition ranking: ties share a rank, next rank skips.
+    e.g. two tied 2nd -> next is 4th, not 3rd.
+    Returns the next available rank.
+    """
+    prev_round: int | None = None
+    current_rank = next_rank
+    tie_count = 0
+    for elim in elims_sorted:
+        emoji = elim["emoji"]
+        if emoji in placements:
+            continue
+        rnd = elim["round"]
+        if prev_round is not None and rnd == prev_round:
+            placements[emoji] = current_rank
+            tie_count += 1
+        else:
+            current_rank = next_rank
+            placements[emoji] = current_rank
+            tie_count = 0
+        prev_round = rnd
+        next_rank = current_rank + 1 + tie_count
+    return next_rank
+
+
 def _determine_placements(
     match_result: dict[str, Any],
 ) -> dict[str, int]:
@@ -71,38 +102,15 @@ def _determine_placements(
     player_emojis = {p["emoji"] for p in match_result["players"]}
 
     placements: dict[str, int] = {}
-
-    # Eliminated bots: sort by round descending (last eliminated = best rank)
     elims_sorted = sorted(eliminations, key=lambda e: e["round"], reverse=True)
 
-    # Winner gets 1st place
     if winner != "none" and winner in player_emojis:
         placements[winner] = 1
         next_rank = 2
     else:
         next_rank = 1
 
-    # Assign ranks from elimination order (latest elimination first)
-    # Uses competition ranking: ties share a rank, next rank skips
-    # e.g. two tied 2nd → next is 4th, not 3rd
-    prev_round: int | None = None
-    current_rank = next_rank
-    tie_count = 0
-    for elim in elims_sorted:
-        emoji = elim["emoji"]
-        if emoji in placements:
-            continue
-        rnd = elim["round"]
-        if prev_round is not None and rnd == prev_round:
-            # Same round = same rank (tie)
-            placements[emoji] = current_rank
-            tie_count += 1
-        else:
-            current_rank = next_rank
-            placements[emoji] = current_rank
-            tie_count = 0
-        prev_round = rnd
-        next_rank = current_rank + 1 + tie_count
+    next_rank = _rank_by_elimination(elims_sorted, placements, next_rank)
 
     # Any remaining bots not eliminated and not winner (edge case)
     for emoji in player_emojis:

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from engine.game import run_match
 from engine.loader import load_bots
 from engine.state import build_state
@@ -72,6 +74,7 @@ def _collect_hit_events(matches: list[dict]) -> list[dict]:
 # ===========================================================================
 
 
+@pytest.mark.timeout(120)
 class TestDodgeEvents:
     """Verify dodge system produces dodged=True events in matches."""
 
@@ -114,6 +117,7 @@ class TestDodgeEvents:
 # ===========================================================================
 
 
+@pytest.mark.timeout(120)
 class TestInitiative:
     """Verify faster bots resolve attacks before slower ones."""
 
@@ -146,6 +150,7 @@ class TestInitiative:
 # ===========================================================================
 
 
+@pytest.mark.timeout(120)
 class TestRestingModifier:
     """Verify resting bots get hit more often (REST_HIT_BONUS)."""
 
@@ -316,6 +321,7 @@ class TestArchCompliance:
 # ===========================================================================
 
 
+@pytest.mark.timeout(120)
 class TestRegression:
     """Verify all builtin bots complete a match without errors."""
 

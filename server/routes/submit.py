@@ -7,6 +7,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import JSONResponse
+from starlette.responses import Response
 from pydantic import BaseModel, Field
 
 from engine.bot_scanner import scan_bot_source
@@ -61,17 +62,17 @@ def _extract_bot_meta(source: str) -> tuple[str, str]:
     return name, emoji
 
 
-@router.post("/api/submit-bot", status_code=202)
+@router.post("/api/submit-bot", status_code=202, response_model=None)
 async def submit_bot(
     body: BotSubmission,
     request: Request,
     player: dict = Depends(get_current_player),
-) -> dict[str, Any]:
+) -> dict[str, Any] | Response:
     """Submit bot source code for validation and queuing."""
     # Rate limit check via middleware dependency
     rate_response = await check_rate_limit(request)
     if rate_response is not None:
-        return rate_response  # type: ignore[return-value]
+        return rate_response
 
     # Validate source is non-empty
     if not body.source.strip():
@@ -103,7 +104,7 @@ async def submit_bot(
         content["api_key"] = player["api_key"]
 
     headers = getattr(request.state, "rate_limit_headers", {})
-    return JSONResponse(  # type: ignore[return-value]
+    return JSONResponse(
         status_code=202,
         content=content,
         headers=headers,

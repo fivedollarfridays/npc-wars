@@ -30,13 +30,7 @@ _logger = logging.getLogger(__name__)
 app = FastAPI(title="NPC Wars Server")
 app.state.results_dir = "results"
 
-_db_path = os.environ.get("DB_PATH", ":memory:")
-if _db_path == ":memory:" and not os.environ.get("TESTING"):
-    _logger.warning(
-        "DB_PATH not set — using :memory: database. "
-        "Data will not persist across restarts. "
-        "Set DB_PATH for production or TESTING=1 for test context."
-    )
+_db_path = os.environ.get("DB_PATH", "data/npcwars.db")
 app.state.db = init_db(_db_path)
 app.include_router(badges_router)
 app.include_router(bots_router)

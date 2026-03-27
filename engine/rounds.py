@@ -130,17 +130,11 @@ def resolve_defense(alive_bots: list[Bot], actions: _ActionsMap) -> list[_Event]
     return events
 
 
-def resolve_movement(
+def _collect_movers(
     alive_bots: list[Bot], actions: _ActionsMap, grid_size: int,
-    all_bots: list[Bot] | None = None, storm_border: int = 0,
-    terrain: Any | None = None,
-    collected_crystals: set[tuple[int, int]] | None = None,
-) -> list[_Event]:
-    """Phase 3: Apply move/dash actions and resolve bump collisions.
-
-    When *terrain* is provided, walls block movement, water costs extra
-    energy, and crystal tiles grant a one-time energy bonus.
-    """
+    terrain: Any | None,
+) -> tuple[list[tuple[Bot, int, int]], list[_Event], list[_Event]]:
+    """Iterate bots, validate move/dash actions, check terrain, build movers list."""
     movers: list[tuple[Bot, int, int]] = []
     dash_events: list[_Event] = []
     wall_events: list[_Event] = []
@@ -172,7 +166,6 @@ def resolve_movement(
             end_x, end_y = apply_direction(mid_x, mid_y, action[1])
             if is_valid_position(end_x, end_y, grid_size):
                 if terrain is not None and not terrain.is_walkable(end_x, end_y):
-                    # Destination blocked, land on intermediate tile
                     dest_x, dest_y = mid_x, mid_y
                 else:
                     dest_x, dest_y = end_x, end_y
@@ -184,11 +177,16 @@ def resolve_movement(
                 "from_x": bot.x, "from_y": bot.y,
                 "to_x": dest_x, "to_y": dest_y,
             })
+    return movers, dash_events, wall_events
 
-    bump_events, blocked = resolve_bumps(movers, all_bots or alive_bots, grid_size, storm_border)
 
+def _apply_terrain_effects(
+    movers: list[tuple[Bot, int, int]], blocked: set[str],
+    terrain: Any | None,
+    collected_crystals: set[tuple[int, int]],
+) -> tuple[list[_Event], list[_Event]]:
+    """Apply position updates, handle crystal pickup and water penalties."""
     crystal_events: list[_Event] = []
-    crystals = collected_crystals if collected_crystals is not None else set()
     water_events: list[_Event] = []
     for bot, new_x, new_y in movers:
         if bot.emoji not in blocked:
@@ -196,9 +194,9 @@ def resolve_movement(
             bot.y = new_y
             if terrain is not None:
                 tile = terrain.get_tile(new_x, new_y)
-                if tile == _CRYSTAL and (new_x, new_y) not in crystals:
+                if tile == _CRYSTAL and (new_x, new_y) not in collected_crystals:
                     bot.energy = min(bot.energy + _CRYSTAL_ENERGY, bot.derived.max_energy)
-                    crystals.add((new_x, new_y))
+                    collected_crystals.add((new_x, new_y))
                     crystal_events.append({
                         "type": "crystal_pickup", "emoji": bot.emoji,
                         "x": new_x, "y": new_y, "energy": _CRYSTAL_ENERGY,
@@ -209,7 +207,28 @@ def resolve_movement(
                         "type": "water_penalty", "emoji": bot.emoji,
                         "x": new_x, "y": new_y, "cost": _WATER_EXTRA_COST,
                     })
+    return crystal_events, water_events
 
+
+def resolve_movement(
+    alive_bots: list[Bot], actions: _ActionsMap, grid_size: int,
+    all_bots: list[Bot] | None = None, storm_border: int = 0,
+    terrain: Any | None = None,
+    collected_crystals: set[tuple[int, int]] | None = None,
+) -> list[_Event]:
+    """Phase 3: Apply move/dash actions and resolve bump collisions.
+
+    When *terrain* is provided, walls block movement, water costs extra
+    energy, and crystal tiles grant a one-time energy bonus.
+    """
+    movers, dash_events, wall_events = _collect_movers(
+        alive_bots, actions, grid_size, terrain,
+    )
+    bump_events, blocked = resolve_bumps(movers, all_bots or alive_bots, grid_size, storm_border)
+    crystals = collected_crystals if collected_crystals is not None else set()
+    crystal_events, water_events = _apply_terrain_effects(
+        movers, blocked, terrain, crystals,
+    )
     return wall_events + dash_events + bump_events + crystal_events + water_events
 
 

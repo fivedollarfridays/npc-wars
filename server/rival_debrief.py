@@ -138,19 +138,17 @@ def _analyze_storm_lesson(
     }
 
 
-def _analyze_economist_lesson(
-    match_data: dict[str, Any],
+def _collect_energy_data(
+    rounds: list[dict[str, Any]],
     player_emoji: str,
-) -> dict[str, Any]:
-    """Tier 3: find rounds where player was energy-starved."""
-    from server.rival_factory import RIVAL_EMOJI
-
+    rival_emoji: str,
+) -> tuple[list[int], list[float]]:
+    """Collect starved_rounds and energy_diffs from match rounds."""
     starved_rounds: list[int] = []
     energy_diffs: list[float] = []
-
-    for rnd in match_data.get("rounds", []):
+    for rnd in rounds:
         player_pos = _find_pos(rnd, player_emoji)
-        rival_pos = _find_pos(rnd, RIVAL_EMOJI)
+        rival_pos = _find_pos(rnd, rival_emoji)
         if not player_pos or not rival_pos:
             continue
         p_energy = player_pos.get("energy", 100)
@@ -158,7 +156,19 @@ def _analyze_economist_lesson(
         energy_diffs.append(r_energy - p_energy)
         if p_energy < 20:
             starved_rounds.append(rnd["round"])
+    return starved_rounds, energy_diffs
 
+
+def _analyze_economist_lesson(
+    match_data: dict[str, Any],
+    player_emoji: str,
+) -> dict[str, Any]:
+    """Tier 3: find rounds where player was energy-starved."""
+    from server.rival_factory import RIVAL_EMOJI
+
+    starved_rounds, energy_diffs = _collect_energy_data(
+        match_data.get("rounds", []), player_emoji, RIVAL_EMOJI,
+    )
     avg_diff = sum(energy_diffs) / len(energy_diffs) if energy_diffs else 0
 
     if starved_rounds:
