@@ -3,7 +3,13 @@
 from __future__ import annotations
 
 import json
+import logging
+import os
 from typing import Any, Protocol
+
+import redis
+
+_logger = logging.getLogger(__name__)
 
 
 class QueueBackend(Protocol):
@@ -39,18 +45,33 @@ MATCH_QUEUE_KEY = "npcwars:match_queue"
 _backend: QueueBackend | None = None
 
 
-def set_backend(backend: QueueBackend) -> None:
+def set_backend(backend: QueueBackend | None) -> None:
     """Set the queue backend (Redis client or InMemoryQueue)."""
     global _backend
     _backend = backend
 
 
+def is_in_memory_mode() -> bool:
+    """Return True if the current backend is the in-memory fallback."""
+    return isinstance(_backend, InMemoryQueue)
+
+
 def _get_backend() -> QueueBackend:
-    """Lazy-init: default to real Redis if no backend was injected."""
+    """Lazy-init: connect to Redis, falling back to InMemoryQueue on failure."""
     global _backend
-    if _backend is None:
-        import redis
-        _backend = redis.Redis(decode_responses=True)
+    if _backend is not None:
+        return _backend
+    url = os.environ.get("REDIS_URL", "redis://localhost:6379")
+    try:
+        client = redis.Redis.from_url(url, decode_responses=True)
+        client.ping()
+        _backend = client
+        _logger.info("Queue backend: Redis at %s", url)
+    except Exception:
+        _backend = InMemoryQueue()
+        _logger.warning(
+            "Queue backend: Redis unavailable, using in-memory fallback"
+        )
     return _backend
 
 

@@ -190,6 +190,7 @@ def test_full_lobby_triggers_enqueue(client):
     with (
         patch("server.lobby.enqueue_match") as mock_enqueue,
         patch("server.lobby.queue_depth", return_value=0),
+        patch("server.lobby.is_in_memory_mode", return_value=False),
     ):
         for i in range(MAX_PLAYERS):
             _pid, api_key, bot_id = _make_player_with_bot(conn, f"player{i}")

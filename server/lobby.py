@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
+import logging
 import sqlite3
 import threading
 import time
 import uuid
 from typing import Any
 
-from server.queue import enqueue_match, queue_depth
+from server.queue import enqueue_match, is_in_memory_mode, queue_depth
+
+_logger = logging.getLogger(__name__)
 
 MIN_PLAYERS = 2
 MAX_PLAYERS = 8
@@ -125,7 +128,32 @@ class Lobby:
             "results_dir": "results",
             "match_mode": match_mode,
         }
-        enqueue_match(job)
+        if is_in_memory_mode():
+            _run_match_inline(job)
+        else:
+            enqueue_match(job)
+
+
+def _run_match_inline(job: dict) -> None:
+    """Process a match inline when Redis is unavailable (in-memory mode)."""
+
+    def _process() -> None:
+        from engine.game import run_match
+        from engine.match_writer import write_match
+
+        try:
+            match_data = run_match(
+                job["bot_configs"],
+                match_id=job["match_id"],
+                seed=job.get("seed"),
+            )
+            write_match(match_data, job.get("results_dir", "results"))
+            _logger.info("Inline match %s completed", job.get("match_id"))
+        except Exception as exc:
+            _logger.error("Inline match %s failed: %s", job.get("match_id"), exc)
+
+    thread = threading.Thread(target=_process, daemon=True)
+    thread.start()
 
 
 def _maybe_inject_rival(

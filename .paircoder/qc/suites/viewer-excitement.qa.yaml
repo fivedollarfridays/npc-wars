@@ -1,0 +1,47 @@
+name: Viewer Excitement
+description: Test that match viewing is exciting — audio, effects, spectacle make you want to watch
+tags: [gameloop, viewer, fun]
+preconditions:
+  - "Server running at ${QC_BASE_URL}"
+
+scenarios:
+  - name: "Audio unlocks on first interaction"
+    steps:
+      - navigate: "${QC_BASE_URL}/viewer?match=1"
+      - verify: "Audio gesture hint ('click for sound') is visible before interaction"
+      - action: "Click play button or anywhere on canvas"
+      - verify: "Audio gesture hint disappears after click"
+    acceptance: "Audio is available after one click — players don't miss the sound design"
+
+  - name: "Kill cam triggers on elimination"
+    steps:
+      - action: "Play a match replay that has eliminations"
+      - verify: "When a bot is eliminated, viewer zooms in (kill cam effect)"
+      - verify: "Playback slows briefly on death (slow-mo effect)"
+    acceptance: "Deaths are dramatic moments, not silent disappearances"
+
+  - name: "Spectacle effects escalate with drama"
+    steps:
+      - action: "Play a match with high spectacle (multiple kills, streaks)"
+      - verify: "Spectacle tier name appears in round data (heating/intense/hype/chaos)"
+      - verify: "Visual effects intensity increases with drama tier"
+    acceptance: "Close matches feel more intense than steamrolls"
+
+  - name: "Speed controls let you savor or skip"
+    steps:
+      - navigate: "${QC_BASE_URL}/viewer?match=1"
+      - verify: "Speed buttons exist (0.5x, 1x, 2x, 4x)"
+      - action: "Click 4x speed"
+      - verify: "Playback visibly accelerates"
+      - action: "Click 0.5x speed"
+      - verify: "Playback visibly slows"
+    acceptance: "Players can slow down for key moments or fast-forward boring parts"
+
+  - name: "Share button works from viewer"
+    steps:
+      - navigate: "${QC_BASE_URL}/viewer?match=1"
+      - action: "Let match play to completion (or scrub to end)"
+      - verify: "Results overlay appears with Share button"
+      - action: "Click Share"
+      - verify: "Permalink copies to clipboard or prompt appears"
+    acceptance: "Exciting matches are shareable in one click"

@@ -1,0 +1,49 @@
+name: Game Loop — Core Fun Path
+description: End-to-end test of the core game loop — write, submit, wait, watch, learn, iterate
+tags: [gameloop, core, fun]
+preconditions:
+  - "Server running at ${QC_BASE_URL}"
+
+scenarios:
+  - name: "Default template bot survives"
+    steps:
+      - action: "Submit the default editor template bot (BOT_NAME='MyBot', decide returns rest)"
+      - verify: "Server accepts submission (202 response)"
+      - verify: "Bot enters lobby successfully"
+    acceptance: "A brand-new player's first submit works without errors"
+
+  - name: "Time-to-first-match under 60 seconds"
+    steps:
+      - action: "Submit a bot via POST /api/submit-bot"
+      - action: "Poll /api/lobby/status every 2 seconds"
+      - verify: "match_id appears within 60 seconds (lobby fills with AI bots)"
+    acceptance: "No player should wait more than 60 seconds for their first match"
+
+  - name: "Match produces viewable replay"
+    steps:
+      - action: "After match_id is returned, GET /api/match/{match_id}"
+      - verify: "Returns JSON with rounds array, eliminations, winner, stats"
+      - verify: "Rounds array has 10+ entries (match actually played out)"
+    acceptance: "Every match produces a complete replay, not an empty or truncated one"
+
+  - name: "Viewer plays the match"
+    steps:
+      - navigate: "${QC_BASE_URL}/viewer?match={match_id}"
+      - verify: "Canvas renders bots on the grid"
+      - verify: "Playback controls (play/pause, speed, scrubber) are functional"
+      - verify: "Match progresses through rounds when play is clicked"
+    acceptance: "The replay is watchable and interactive, not a static page"
+
+  - name: "Results show winner and stats"
+    steps:
+      - verify: "Winner banner appears at match end with emoji and name"
+      - verify: "Kill feed shows elimination order"
+      - verify: "Stats table shows kills, damage, rounds survived per bot"
+    acceptance: "Player can see who won and why — this is the 'learn' moment"
+
+  - name: "Submit → watch cycle repeatable"
+    steps:
+      - action: "Modify bot source (change a constant), resubmit"
+      - verify: "New submission accepted, new match starts"
+      - verify: "New match has different match_id from first"
+    acceptance: "The edit-submit-watch loop works repeatedly without errors or stale state"

@@ -1,0 +1,57 @@
+name: Onboarding Friction
+description: Test that new players can go from zero to fun with minimum friction
+tags: [gameloop, onboarding, fun]
+preconditions:
+  - "Server running at ${QC_BASE_URL}"
+
+scenarios:
+  - name: "Landing page communicates the value prop"
+    steps:
+      - navigate: "${QC_BASE_URL}/"
+      - verify: "Page shows 'Kill Switch' title prominently"
+      - verify: "Page shows tagline 'You don't play. You code.'"
+      - verify: "Quick Play card is visible and links to editor"
+      - verify: "Guide card is visible and links to /guide"
+    acceptance: "A new visitor understands what this is within 5 seconds"
+
+  - name: "Editor is ready to use immediately"
+    steps:
+      - navigate: "${QC_BASE_URL}/static/editor.html"
+      - verify: "Monaco editor loads with template code pre-filled"
+      - verify: "Template contains BOT_NAME, BOT_EMOJI, and decide() function"
+      - verify: "Submit button is visible and not disabled"
+    acceptance: "Zero setup required — the editor is immediately usable"
+
+  - name: "Guide explains enough to modify the template"
+    steps:
+      - navigate: "${QC_BASE_URL}/guide"
+      - verify: "Quick Start section explains the 3-step flow"
+      - verify: "State dict reference shows what 'me', 'enemies', 'storm' contain"
+      - verify: "Actions reference lists all valid return values"
+    acceptance: "A player can read the guide and make an informed edit to the template"
+
+  - name: "Error messages are helpful, not cryptic"
+    steps:
+      - action: "Submit bot with syntax error (e.g., 'def decide(state) return')"
+      - verify: "Error message mentions 'syntax' and includes a line number"
+      - action: "Submit bot with blocked import (e.g., 'import os')"
+      - verify: "Error message names the blocked module"
+      - action: "Submit empty source"
+      - verify: "Error message says source is empty"
+    acceptance: "Every error tells the player what's wrong AND how to fix it"
+
+  - name: "Lobby waiting state is engaging, not dead"
+    steps:
+      - action: "Submit a valid bot"
+      - verify: "Lobby panel appears with animated waiting indicator"
+      - verify: "Player list shows emojis/names of bots in lobby"
+      - verify: "Countdown or timer shows time until match starts"
+    acceptance: "Waiting feels social and alive, not like a loading spinner"
+
+  - name: "First match results are educational"
+    steps:
+      - action: "Complete a match as a new player"
+      - verify: "Results show winner with visual emphasis"
+      - verify: "Stats table shows per-bot performance"
+      - verify: "If rival match, debrief button or link is visible"
+    acceptance: "After their first match, a player knows what to improve"
