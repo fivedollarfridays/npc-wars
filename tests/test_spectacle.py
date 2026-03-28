@@ -39,12 +39,12 @@ class TestScoreRoundBasics:
         result = eng.score_round([], [])
         assert result.drama_score == 0
 
-    def test_kill_adds_3(self):
+    def test_kill_adds_weight(self):
         eng = SpectacleEngine()
         events = [_evt("kill", attacker="A", victim="B")]
         result = eng.score_round(events, [])
         assert result.drama_score == DRAMA_WEIGHTS["kill"]
-        assert result.drama_score == 3
+        assert result.drama_score == 4
 
     def test_chain_bump_adds_2(self):
         eng = SpectacleEngine()
@@ -55,7 +55,7 @@ class TestScoreRoundBasics:
 
     def test_near_death_detection(self):
         eng = SpectacleEngine()
-        bots = [_bot("X", hp=3), _bot("Y", hp=50)]
+        bots = [_bot("X", hp=3), _bot("Y", hp=50), _bot("Z", hp=50)]
         result = eng.score_round([], bots)
         assert result.drama_score == DRAMA_WEIGHTS["near_death"]
         assert result.drama_score == 4
@@ -86,9 +86,11 @@ class TestScoreRoundAccumulation:
             _evt("chain_bump"),
             _evt("kill_streak", attacker="A"),
         ]
-        bots = [_bot("Z", hp=2)]  # near-death
+        # 3 bots so last_two_alive doesn't fire (only 1 alive near-death)
+        bots = [_bot("Z", hp=2), _bot("W", hp=50), _bot("V", hp=50)]
         result = eng.score_round(events, bots)
-        expected = 3 + 3 + 2 + 5 + 4  # 17
+        # kill(4)*2 + chain_bump(2) + kill_streak(5) + near_death(4) + multi_kill(6) = 25
+        expected = 4 + 4 + 2 + 5 + 4 + 6
         assert result.drama_score == expected
 
     def test_near_deaths_field_has_emoji_list(self):
@@ -128,14 +130,14 @@ class TestTierClassification:
         "score, expected_tier",
         [
             (0, "calm"),
-            (3, "calm"),
-            (4, "heating"),
-            (7, "heating"),
-            (8, "intense"),
-            (12, "intense"),
-            (13, "hype"),
-            (18, "hype"),
-            (19, "chaos"),
+            (2, "calm"),
+            (3, "heating"),
+            (5, "heating"),
+            (6, "intense"),
+            (9, "intense"),
+            (10, "hype"),
+            (14, "hype"),
+            (15, "chaos"),
             (25, "chaos"),
         ],
     )
@@ -217,12 +219,12 @@ class TestSpectacleDataFields:
 
     def test_score_round_tier_matches_score(self):
         eng = SpectacleEngine()
-        # kill(3) + near_death(4) = 7 -> heating
+        # kill(4) + near_death(4) + last_two_alive(5) = 13 -> hype
         events = [_evt("kill", attacker="A", victim="B")]
         bots = [_bot("X", hp=1), _bot("Y", hp=80)]
         result = eng.score_round(events, bots)
-        assert result.drama_score == 7
-        assert result.tier == "heating"
+        assert result.drama_score == 13
+        assert result.tier == "hype"
 
     def test_kill_streak_from_3_kills_same_attacker(self):
         eng = SpectacleEngine()

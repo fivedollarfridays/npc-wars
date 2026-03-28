@@ -24,21 +24,25 @@ class SpectacleData:
 
 
 DRAMA_WEIGHTS: dict[str, int] = {
-    "kill": 3,
+    "kill": 4,
     "chain_bump": 2,
     "near_death": 4,
     "kill_streak": 5,
+    "multi_kill": 6,
+    "last_two_alive": 5,
+    "storm_kill": 3,
+    "low_hp_combat": 2,
     "watcher_spawn": 5,
     "watcher_kill": 4,
     "watcher_sync": 3,
 }
 
 TIER_RANGES: list[tuple[int, float, str]] = [
-    (0, 3, "calm"),
-    (4, 7, "heating"),
-    (8, 12, "intense"),
-    (13, 18, "hype"),
-    (19, float("inf"), "chaos"),
+    (0, 2, "calm"),
+    (3, 5, "heating"),
+    (6, 9, "intense"),
+    (10, 14, "hype"),
+    (15, float("inf"), "chaos"),
 ]
 
 TRIGGER_EFFECT_MAP: dict[str, str] = {
@@ -64,6 +68,65 @@ def _count_alive(bots: list[dict[str, Any]]) -> int:
     return sum(1 for b in bots if b.get("alive"))
 
 
+def _score_situational(
+    events: list[dict[str, Any]],
+    bots: list[dict[str, Any]],
+) -> int:
+    """Score bonus drama from situational events (multi-kill, last-2, etc.)."""
+    bonus = 0
+    kill_count = sum(1 for e in events if e.get("type") == "kill")
+    if kill_count >= 2:
+        bonus += DRAMA_WEIGHTS["multi_kill"]
+    if _count_alive(bots) == 2:
+        bonus += DRAMA_WEIGHTS["last_two_alive"]
+    if any(e.get("type") == "kill" and e.get("cause") == "storm" for e in events):
+        bonus += DRAMA_WEIGHTS["storm_kill"]
+    if _has_low_hp_combat(events):
+        bonus += DRAMA_WEIGHTS["low_hp_combat"]
+    return bonus
+
+
+def _has_low_hp_combat(events: list[dict[str, Any]]) -> bool:
+    """Check if any hit event involves both combatants below 30 HP."""
+    for evt in events:
+        if evt.get("type") != "hit":
+            continue
+        attacker_hp = evt.get("attacker_hp", 999)
+        target_hp = evt.get("target_hp", 999)
+        if attacker_hp < 30 and target_hp < 30:
+            return True
+    return False
+
+
+def _scan_events(events: list[dict[str, Any]]) -> dict[str, Any]:
+    """Scan events and return flags and counts for trigger detection."""
+    result: dict[str, Any] = {
+        "has_kill": False,
+        "has_chain_bump": False,
+        "has_kill_streak": False,
+        "has_watcher_spawn": False,
+        "has_watcher_kill": False,
+        "has_watcher_sync": False,
+        "kill_counts": {},
+        "early_triggers": [],
+    }
+    flag_types = {
+        "kill_streak", "chain_bump",
+        "watcher_spawn", "watcher_kill", "watcher_sync",
+    }
+    for evt in events:
+        evt_type = evt.get("type", "")
+        if evt_type == "kill":
+            result["has_kill"] = True
+            attacker = evt.get("attacker", "")
+            result["kill_counts"][attacker] = result["kill_counts"].get(attacker, 0) + 1
+            if evt.get("cause") == "storm" and "storm_kill" not in result["early_triggers"]:
+                result["early_triggers"].append("storm_kill")
+        elif evt_type in flag_types:
+            result[f"has_{evt_type}"] = True
+    return result
+
+
 class SpectacleEngine:
     """Scores rounds for drama value and selects visual effects."""
 
@@ -87,6 +150,9 @@ class SpectacleEngine:
             if _is_near_death(bot):
                 near_deaths.append(bot["emoji"])
                 score += DRAMA_WEIGHTS["near_death"]
+
+        # Situational bonuses (multi-kill, last-2-alive, storm kill, low HP)
+        score += _score_situational(events, bots)
 
         tier = self.classify_tier(score)
         triggers = self._detect_triggers(events, bots)
@@ -122,60 +188,20 @@ class SpectacleEngine:
         bots: list[dict[str, Any]],
     ) -> list[str]:
         """Identify which triggers are active for the given round data."""
-        triggers: list[str] = []
-        has_kill = False
-        has_chain_bump = False
-        has_kill_streak = False
-        has_watcher_spawn = False
-        has_watcher_kill = False
-        has_watcher_sync = False
-        kill_counts: dict[str, int] = {}
+        scan = _scan_events(events)
+        triggers = list(scan["early_triggers"])
 
-        for evt in events:
-            evt_type = evt.get("type", "")
-            if evt_type == "kill":
-                has_kill = True
-                attacker = evt.get("attacker", "")
-                kill_counts[attacker] = kill_counts.get(attacker, 0) + 1
-                if evt.get("cause") == "storm":
-                    if "storm_kill" not in triggers:
-                        triggers.append("storm_kill")
-            elif evt_type == "kill_streak":
-                has_kill_streak = True
-            elif evt_type == "chain_bump":
-                has_chain_bump = True
-            elif evt_type == "watcher_spawn":
-                has_watcher_spawn = True
-            elif evt_type == "watcher_kill":
-                has_watcher_kill = True
-            elif evt_type == "watcher_sync":
-                has_watcher_sync = True
-
-        if has_kill:
+        if scan["has_kill"]:
             triggers.append("kill")
-
-        # kill_streak: explicit event OR 3+ kills by same attacker
-        if has_kill_streak or any(c >= 3 for c in kill_counts.values()):
+        if scan["has_kill_streak"] or any(c >= 3 for c in scan["kill_counts"].values()):
             triggers.append("kill_streak")
-
-        # near-death
         if any(_is_near_death(b) for b in bots):
             triggers.append("near_death")
-
-        # chain bump
-        if has_chain_bump:
+        if scan["has_chain_bump"]:
             triggers.append("chain_bump")
-
-        # last 2 alive
         if _count_alive(bots) == 2:
             triggers.append("last_2")
-
-        # watcher events
-        if has_watcher_spawn:
-            triggers.append("watcher_spawn")
-        if has_watcher_kill:
-            triggers.append("watcher_kill")
-        if has_watcher_sync:
-            triggers.append("watcher_sync")
-
+        for wt in ("watcher_spawn", "watcher_kill", "watcher_sync"):
+            if scan.get(f"has_{wt}"):
+                triggers.append(wt)
         return triggers

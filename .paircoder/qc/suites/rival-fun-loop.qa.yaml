@@ -1,0 +1,44 @@
+name: Rival Training — Fun Loop
+description: Test that the rival training system teaches through fun, not frustration
+tags: [gameloop, rival, fun]
+preconditions:
+  - "Server running at ${QC_BASE_URL}"
+
+scenarios:
+  - name: "Tier 1 Bully teaches the right lesson"
+    steps:
+      - action: "Submit a passive bot (always rests regardless of context)"
+      - action: "Play against Tier 1 Bully rival"
+      - verify: "Debrief identifies 'rested adjacent to enemy' as the mistake"
+      - verify: "Debrief tip suggests moving away before resting"
+    acceptance: "Player understands WHY they lost, not just THAT they lost"
+
+  - name: "Beating the Bully feels earned"
+    steps:
+      - action: "Submit a bot that attacks adjacent enemies and retreats to rest"
+      - action: "Play against Tier 1 Bully"
+      - verify: "Bot wins or survives longer than the passive version"
+      - verify: "Debrief shows improvement vs previous attempt"
+    acceptance: "Fixing the mistake the debrief identified leads to visible improvement"
+
+  - name: "Tier advancement feels rewarding"
+    steps:
+      - action: "Win 2 matches against current rival tier"
+      - verify: "GET /api/rival/status shows tier advanced"
+      - verify: "New rival tier has a different name and behavior"
+    acceptance: "Player feels progression — new challenge unlocks after mastery"
+
+  - name: "Debrief creates urgency to iterate"
+    steps:
+      - verify: "Debrief page has 'Try Again' button linking to editor"
+      - verify: "Debrief page has 'Watch Replay' button linking to viewer"
+      - verify: "Debrief lesson text is specific (mentions rounds, actions, not generic)"
+    acceptance: "The debrief makes you want to immediately edit your bot and try again"
+
+  - name: "Graduation feels like an achievement"
+    steps:
+      - action: "Clear all 5 rival tiers (mock or actual)"
+      - verify: "GET /api/rival/graduated returns graduated=true"
+      - verify: "Debrief shows graduation ceremony message"
+      - verify: "Landing page shows Training Complete card"
+    acceptance: "Completing the training ladder is a visible, shareable milestone"
