@@ -132,3 +132,5 @@
 {"timestamp": "2026-04-09T02:24:09.915609", "command": "task_done --allow-dirty", "task_id": "T65.4", "reason": "Uncommitted changes in working tree"}
 {"timestamp": "2026-04-09T02:24:51.628355", "command": "task_done --allow-dirty", "task_id": "T65.4", "reason": "Uncommitted changes in working tree"}
 {"timestamp": "2026-04-09T02:24:56.884619", "command": "task_done --allow-dirty", "task_id": "T65.4", "reason": "Uncommitted changes in working tree"}
+{"timestamp": "2026-04-09T02:36:30.907174", "command": "task_done --allow-dirty", "task_id": "T66.1", "reason": "Uncommitted changes in working tree"}
+{"timestamp": "2026-04-09T02:36:35.787745", "command": "task_done --allow-dirty", "task_id": "T66.1", "reason": "Uncommitted changes in working tree"}

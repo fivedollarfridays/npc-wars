@@ -55,7 +55,7 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["agentgrounds*", "engine*", "data*", "scripts*", "discord_bot*", "video*", "youtube*", "realtime*", "server*"]
+include = ["agentgrounds*", "engine*", "data*", "scripts*", "discord_bot*", "video*", "youtube*", "realtime*", "server*", "tv*"]
 
 [tool.setuptools.package-data]
 "agentgrounds.wars.data" = ["*.md"]

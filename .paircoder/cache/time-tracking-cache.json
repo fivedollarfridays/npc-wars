@@ -964,5 +964,19 @@
       }
     ],
     "total_seconds": 510.233824
+  },
+  "T66.1": {
+    "entries": [
+      {
+        "id": "local-20260409022950",
+        "task_id": "T66.1",
+        "description": "T66.1: Mono-package structure",
+        "start": "2026-04-09T02:29:50.537421",
+        "end": "2026-04-09T02:36:37.467130",
+        "duration_seconds": 406.929709,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 406.929709
   }
 }

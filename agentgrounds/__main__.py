@@ -3,7 +3,11 @@ from __future__ import annotations
 
 import sys
 
-GAMES = {"wars": "agentgrounds.wars.cli"}
+GAMES = {
+    "killswitch": "agentgrounds.wars.cli",
+    "circuit": "agentgrounds.circuit.cli",
+    "wars": "agentgrounds.wars.cli",  # backward compat alias
+}
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -35,12 +39,13 @@ def _print_help() -> None:
     print()
     print("Available games:")
     for name in sorted(GAMES):
-        print(f"  {name}")
+        label = " (alias for killswitch)" if name == "wars" else ""
+        print(f"  {name}{label}")
     print()
     print("Examples:")
-    print("  agentgrounds wars play --seed 42")
-    print("  agentgrounds wars watch results/match_001.json")
-    print("  agentgrounds wars generate --strategy 'aggressive kiter'")
+    print("  agentgrounds killswitch play --seed 42")
+    print("  agentgrounds circuit race --laps 10")
+    print("  agentgrounds killswitch watch results/match_001.json")
 
 
 def _print_version() -> None:
