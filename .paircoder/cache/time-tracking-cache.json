@@ -936,5 +936,19 @@
       }
     ],
     "total_seconds": 338.264928
+  },
+  "T65.3": {
+    "entries": [
+      {
+        "id": "local-20260409021116",
+        "task_id": "T65.3",
+        "description": "T65.3: Code overlay in viewer",
+        "start": "2026-04-09T02:11:16.812743",
+        "end": "2026-04-09T02:15:53.702333",
+        "duration_seconds": 276.88959,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 276.88959
   }
 }

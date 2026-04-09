@@ -164,6 +164,9 @@ function initViewer() {
   // Initialize commentary
   if (typeof initCommentary === 'function') initCommentary();
 
+  // Initialize code overlay
+  if (typeof initCodeOverlay === 'function') initCodeOverlay();
+
   // Render first frame
   currentRound = 0;
   renderRound(0);

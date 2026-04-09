@@ -112,6 +112,18 @@
     margin-bottom: 8px;
   }
 
+  /* Code overlay panel */
+  #code-overlay.collapsed #trace-content,
+  #code-overlay.collapsed #trace-bot-toggles { display: none; }
+  .trace-toggle { font-size: 11px; padding: 2px 6px; margin: 2px; border: 1px solid var(--border); background: var(--surface); color: var(--muted); border-radius: 4px; cursor: pointer; }
+  .trace-toggle.active { color: var(--accent2); border-color: var(--accent2); }
+  .trace-bot-header { font-size: 13px; font-weight: bold; margin-top: 8px; color: var(--text); }
+  .trace-line { font-size: 11px; padding: 1px 0; font-family: 'JetBrains Mono', monospace; }
+  .trace-active { color: var(--accent2); font-weight: bold; }
+  .trace-inactive { color: var(--muted); opacity: 0.5; }
+  .trace-marker { display: inline-block; width: 14px; }
+  .trace-state { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
   .bot-row {
     display: flex;
     align-items: center;
@@ -842,6 +854,14 @@
         <div class="kill-feed" id="kill-feed"></div>
       </div>
 
+      <div class="panel" id="code-overlay">
+        <div class="panel-title" style="cursor:pointer" onclick="toggleCodeOverlay()">
+          Code <span id="code-overlay-toggle">▼</span>
+        </div>
+        <div id="trace-bot-toggles"></div>
+        <div id="trace-content"></div>
+      </div>
+
       <div class="action-panel" id="action-panel">
         <div class="panel-title">Actions</div>
         <div class="action-group">
@@ -973,6 +993,7 @@
 <script src="js/live.js"></script>
 <script src="js/results.js"></script>
 <script src="js/commentary.js"></script>
+<script src="js/code_overlay.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

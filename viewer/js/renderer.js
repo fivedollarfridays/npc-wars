@@ -260,6 +260,9 @@ function renderRound(idx) {
   // Update commentary ticker
   if (typeof updateCommentary === 'function') updateCommentary(idx);
 
+  // Update code overlay
+  if (typeof updateCodeOverlay === 'function') updateCodeOverlay(idx);
+
   // Play audio stingers for events
   var tier = spectacle ? spectacle.tier : 'calm';
   round.events.forEach(function(evt) {

@@ -132,6 +132,19 @@ def _finalize_match(
     return match_data
 
 
+def _collect_traces(
+    alive_bots: list[Bot], bots: list[Bot], round_num: int,
+    grid_size: int, storm_border: int,
+    bumps_last_round: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
+    """Lazy-import wrapper for decision trace collection."""
+    dt = __import__("engine.decision_trace", fromlist=["collect_round_traces"])
+    return dt.collect_round_traces(
+        alive_bots, bots, round_num, grid_size, storm_border,
+        bumps_last_round=bumps_last_round,
+    )
+
+
 def _execute_round(
     bots: list[Bot], round_num: int, grid_size: int, storm_border: int,
     bumps_last_round: list[dict[str, Any]] | None = None,
@@ -151,30 +164,27 @@ def _execute_round(
         alive_bots, bots, round_num, grid_size, storm_border,
         bumps_last_round=bumps_last_round,
     )
-    return resolve_combat_phases(
+    round_data, elims, bumps = resolve_combat_phases(
         alive_bots, bots, actions, forced_rest, override_events,
         round_num, grid_size, storm_border, rng=rng,
         trap_manager=trap_manager,
         terrain=terrain, collected_crystals=collected_crystals,
     )
+    # Collect decision traces for opted-in bots
+    traces = _collect_traces(
+        alive_bots, bots, round_num, grid_size, storm_border,
+        bumps_last_round=bumps_last_round,
+    )
+    if traces:
+        round_data["decision_traces"] = traces
+    return round_data, elims, bumps
 
 
-def run_match(
-    bot_configs: list[dict[str, Any]], match_id: int = 1, seed: int | None = None,
-    profiles_path: Path | None = None, match_mode: str = "standard",
-    map_name: str = "arena",
-) -> dict[str, Any]:
-    """Run a complete match. Returns match data dict."""
-    mode = get_mode(match_mode)
-    bots, players, grid_size, rng = _prepare_match(bot_configs, seed, mode=mode)
-    terrain = build_map(map_name, grid_size)
-    for b in bots:
-        b._terrain = terrain
-    notify_match_start(match_id=match_id, players=players, seed=seed)
-
-    run_setup_callbacks(bots, grid_size=grid_size, storm_border=0)
-    run_power_up_callbacks(bots, grid_size=grid_size, storm_border=0)
-
+def _run_match_loop(
+    bots: list[Bot], mode: MatchMode, grid_size: int,
+    rng: random.Random, terrain: Any,
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], int]:
+    """Execute the round loop. Returns (all_rounds, all_eliminations, last_round_num)."""
     all_rounds: list[dict[str, Any]] = []
     all_eliminations: list[dict[str, Any]] = []
     last_bump_events: list[dict[str, Any]] = []
@@ -184,11 +194,11 @@ def run_match(
         b._trap_manager = trap_manager
     prev_storm_border = 0
     collected_crystals: set[tuple[int, int]] = set()
+    round_num = mode.max_rounds
 
     for round_num in range(1, mode.max_rounds + 1):
         if sum(b.alive for b in bots) <= 1:
             break
-
         storm_border = get_storm_border_for_mode(round_num, mode)
         for b in bots:
             b._current_round = round_num
@@ -207,11 +217,30 @@ def run_match(
         all_rounds.append(round_data)
         all_eliminations.extend(round_elims)
         prev_storm_border = storm_border
-
         if sum(b.alive for b in bots) <= 1:
             break
-    else:
-        round_num = mode.max_rounds
+    return all_rounds, all_eliminations, round_num
+
+
+def run_match(
+    bot_configs: list[dict[str, Any]], match_id: int = 1, seed: int | None = None,
+    profiles_path: Path | None = None, match_mode: str = "standard",
+    map_name: str = "arena",
+) -> dict[str, Any]:
+    """Run a complete match. Returns match data dict."""
+    mode = get_mode(match_mode)
+    bots, players, grid_size, rng = _prepare_match(bot_configs, seed, mode=mode)
+    terrain = build_map(map_name, grid_size)
+    for b in bots:
+        b._terrain = terrain
+    notify_match_start(match_id=match_id, players=players, seed=seed)
+
+    run_setup_callbacks(bots, grid_size=grid_size, storm_border=0)
+    run_power_up_callbacks(bots, grid_size=grid_size, storm_border=0)
+
+    all_rounds, all_eliminations, round_num = _run_match_loop(
+        bots, mode, grid_size, rng, terrain,
+    )
 
     result = _finalize_match(
         bots, players, all_rounds, all_eliminations,
