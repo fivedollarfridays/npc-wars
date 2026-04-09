@@ -116,9 +116,50 @@ function initViewer() {
   document.getElementById('load-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
 
+  // Detect game type
+  currentGameType = detectGame(matchData);
+
   canvas = document.getElementById('arena-canvas');
   ctx = canvas.getContext('2d');
 
+  if (currentGameType === 'circuit') {
+    _initCircuitViewer();
+  } else {
+    _initKillSwitchViewer();
+  }
+
+  // Shared: scrubber
+  var scrubber = document.getElementById('scrubber');
+  scrubber.max = matchData.rounds.length - 1;
+  scrubber.value = 0;
+
+  // Shared: volume restore
+  var savedVolume = localStorage.getItem('npc-wars-volume');
+  if (savedVolume !== null) {
+    var vol = parseInt(savedVolume);
+    audioEngine.setMasterVolume(vol / 100);
+    document.getElementById('volume-slider').value = vol;
+  }
+
+  // Shared: mousewheel zoom
+  canvas.addEventListener('wheel', function(e) {
+    e.preventDefault();
+    if (e.deltaY < 0) zoomIn();
+    else zoomOut();
+  }, { passive: false });
+
+  // Shared: commentary
+  if (typeof initCommentary === 'function') initCommentary();
+
+  // Shared: code overlay (KS only but graceful for CC)
+  if (typeof initCodeOverlay === 'function') initCodeOverlay();
+
+  // Render first frame
+  currentRound = 0;
+  renderRound(0);
+}
+
+function _initKillSwitchViewer() {
   var gridSize = matchData.grid_size;
   canvas.width = gridSize * TILE_SIZE;
   canvas.height = gridSize * TILE_SIZE;
@@ -127,11 +168,6 @@ function initViewer() {
   document.getElementById('match-info').textContent =
     'Match #' + matchData.match_id + ' \u2014 ' + matchData.players.length + ' bots \u2014 ' + mapName + ' \u2014 ' + matchData.duration_rounds + ' rounds';
 
-  var scrubber = document.getElementById('scrubber');
-  scrubber.max = matchData.rounds.length - 1;
-  scrubber.value = 0;
-
-  // Initialize audio
   audioEngine.init();
   var stingerNames = [
     'bump', 'chain_bump', 'critical_hit', 'hit', 'human_enter',
@@ -142,34 +178,23 @@ function initViewer() {
     audioEngine.loadStinger(name, '../audio/assets/' + name + '.wav');
   });
 
-  // Restore volume from localStorage
-  var savedVolume = localStorage.getItem('npc-wars-volume');
-  if (savedVolume !== null) {
-    var vol = parseInt(savedVolume);
-    audioEngine.setMasterVolume(vol / 100);
-    document.getElementById('volume-slider').value = vol;
-  }
-
-  // Build bot list and archetype lookup
   buildBotList();
   buildArchetypeLookup();
+}
 
-  // Mousewheel zoom
-  canvas.addEventListener('wheel', function(e) {
-    e.preventDefault();
-    if (e.deltaY < 0) zoomIn();
-    else zoomOut();
-  }, { passive: false });
+function _initCircuitViewer() {
+  canvas.width = 576;
+  canvas.height = 432;
 
-  // Initialize commentary
-  if (typeof initCommentary === 'function') initCommentary();
+  var numCars = matchData.players ? matchData.players.length : 0;
+  var totalLaps = matchData.laps || '?';
+  document.getElementById('match-info').textContent =
+    'Code Circuit \u2014 ' + numCars + ' cars \u2014 ' + totalLaps + ' laps';
 
-  // Initialize code overlay
-  if (typeof initCodeOverlay === 'function') initCodeOverlay();
+  audioEngine.init();
 
-  // Render first frame
-  currentRound = 0;
-  renderRound(0);
+  buildCircuitCarList();
+  shownCircuitEvents = new Set();
 }
 
 // --- Audio controls wiring ---

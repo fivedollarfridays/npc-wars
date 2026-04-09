@@ -978,5 +978,19 @@
       }
     ],
     "total_seconds": 406.929709
+  },
+  "T66.2": {
+    "entries": [
+      {
+        "id": "local-20260409023706",
+        "task_id": "T66.2",
+        "description": "T66.2: Viewer unification",
+        "start": "2026-04-09T02:37:06.651423",
+        "end": "2026-04-09T02:45:20.054065",
+        "duration_seconds": 493.402642,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 493.402642
   }
 }
