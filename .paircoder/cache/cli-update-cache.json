@@ -294,5 +294,9 @@
   "T60.1": {
     "last_cli_update": "2026-04-08T23:52:11.929622",
     "last_status": "done"
+  },
+  "T60.2": {
+    "last_cli_update": "2026-04-08T23:57:42.899899",
+    "last_status": "done"
   }
 }

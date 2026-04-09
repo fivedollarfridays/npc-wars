@@ -838,5 +838,19 @@
       }
     ],
     "total_seconds": 437.423999
+  },
+  "T60.2": {
+    "entries": [
+      {
+        "id": "local-20260408235239",
+        "task_id": "T60.2",
+        "description": "T60.2: Code Circuit personality profiler",
+        "start": "2026-04-08T23:52:39.545699",
+        "end": "2026-04-08T23:57:43.062227",
+        "duration_seconds": 303.516528,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 303.516528
   }
 }
