@@ -1034,5 +1034,11 @@
       }
     ],
     "total_seconds": 751.974119
+  },
+  "_active": {
+    "task_id": "T67.3",
+    "timer_id": "local-20260409033851",
+    "description": "T67.3: Website season standings",
+    "start": "2026-04-09T03:38:51.811374"
   }
 }
