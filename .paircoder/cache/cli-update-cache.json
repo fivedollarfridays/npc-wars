@@ -366,5 +366,9 @@
   "T66.2": {
     "last_cli_update": "2026-04-09T02:46:39.015452",
     "last_status": "done"
+  },
+  "T66.3": {
+    "last_cli_update": "2026-04-09T02:47:20.407000",
+    "last_status": "in_progress"
   }
 }
