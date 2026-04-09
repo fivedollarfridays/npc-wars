@@ -993,10 +993,18 @@
     ],
     "total_seconds": 493.402642
   },
-  "_active": {
-    "task_id": "T66.3",
-    "timer_id": "local-20260409024720",
-    "description": "T66.3: Documentation + on-ramp",
-    "start": "2026-04-09T02:47:20.655873"
+  "T66.3": {
+    "entries": [
+      {
+        "id": "local-20260409024720",
+        "task_id": "T66.3",
+        "description": "T66.3: Documentation + on-ramp",
+        "start": "2026-04-09T02:47:20.655873",
+        "end": "2026-04-09T02:54:22.176788",
+        "duration_seconds": 421.520915,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 421.520915
   }
 }

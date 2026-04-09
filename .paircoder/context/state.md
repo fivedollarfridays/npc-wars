@@ -45,6 +45,8 @@ T66.3 complete. Open-source documentation ready.
 
 ## What Was Just Done
 
+- **T66.3 done** (auto-updated by hook)
+
 - **T66.3 done**
 
 **T66.3: Documentation + on-ramp** — Rewrote README.md with 3-command demo (pip install, init, play), both games (Kill Switch + Code Circuit), feature list, architecture overview with directory tree, and all CLI commands. Created docs/getting-started.md with full on-ramp: install → init → play → watch replay → build a bot (AI/tweak/scratch) → episodes → batch sim. Expanded CONTRIBUTING.md with 6 contribution paths: bot showcase, commentary templates (with examples for both games), spectacle effects (drama tier table), adding new games (platform contracts, dispatcher registration, full checklist), suggestions, and bug reports. Verified LICENSE (MIT, Cognify Labs). Reviewed PROMPT.md — already polished (466 LOC), packaged copy in sync. 29 new tests covering: README (demo, features, architecture, both games, links, no broken markdown links), Getting Started (exists, pip install, init, play, episode), PROMPT.md (exists, format, equipment, packaged), CONTRIBUTING (commentary, effects, new games, bots), LICENSE (exists, MIT, copyright), rendering (no script tags, headings). All pass. Ruff clean, arch clean.
