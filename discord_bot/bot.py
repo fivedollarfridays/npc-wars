@@ -1,16 +1,19 @@
 """NPC Wars Discord bot — main bot class."""
 
 import logging
+import sqlite3
 from dataclasses import dataclass, field
 
 import discord
 
+from data.seasons import init_seasons_tables
 from discord_bot.commands.general import register_commands as general_register
 from discord_bot.commands.claims import register_commands as claims_register
 from discord_bot.commands.results import register_commands as results_register
 from discord_bot.commands.leaderboard import register_commands as leaderboard_register
 from discord_bot.commands.match_runner import register_commands as match_runner_register
 from discord_bot.commands.challenge import register_commands as challenge_register
+from discord_bot.commands.season_commands import register_commands as season_register
 from discord_bot.commands.submissions import setup_submission_listener
 
 log = logging.getLogger(__name__)
@@ -24,6 +27,7 @@ class BotDeps:
     bots_dir: str = "bots"
     claims_state: dict[str, str] = field(default_factory=dict)
     claims_path: str | None = None
+    db_path: str = "data/npcwars.db"
 
 
 class NpcWarsBot(discord.Client):
@@ -36,6 +40,17 @@ class NpcWarsBot(discord.Client):
         self.deps = deps or BotDeps()
         self.tree = discord.app_commands.CommandTree(self)
         self.tree.on_error = self._on_tree_error  # type: ignore[method-assign]
+        self._db_conn = self._init_db()
+
+    def _init_db(self) -> sqlite3.Connection:
+        conn = sqlite3.connect(self.deps.db_path)
+        conn.row_factory = sqlite3.Row
+        init_seasons_tables(conn)
+        return conn
+
+    @property
+    def db_conn(self) -> sqlite3.Connection:
+        return self._db_conn
 
     @property
     def submissions_channel_id(self) -> int | None:
@@ -69,6 +84,7 @@ class NpcWarsBot(discord.Client):
         leaderboard_register(self.tree, guild, self.deps.results_dir)
         match_runner_register(self.tree, guild, self.deps.bots_dir, self.deps.results_dir)
         challenge_register(self.tree, guild)
+        season_register(self.tree, guild, self._db_conn)
         if self.submissions_channel_id:
             setup_submission_listener(
                 self, channel_id=self.submissions_channel_id,

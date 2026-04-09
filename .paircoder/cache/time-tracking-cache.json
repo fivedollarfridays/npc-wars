@@ -895,10 +895,32 @@
     ],
     "total_seconds": 248.365982
   },
-  "_active": {
-    "task_id": "T64.2",
-    "timer_id": "local-20260409004332",
-    "description": "T64.2: TV rendering pipeline",
-    "start": "2026-04-09T00:43:32.735905"
+  "T64.3": {
+    "entries": [
+      {
+        "id": "local-20260409005456",
+        "task_id": "T64.3",
+        "description": "T64.3: Discord channel posting",
+        "start": "2026-04-09T00:54:56.085712",
+        "end": "2026-04-09T01:15:12.687333",
+        "duration_seconds": 1216.601621,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 1216.601621
+  },
+  "T64.4": {
+    "entries": [
+      {
+        "id": "local-20260409012536",
+        "task_id": "T64.4",
+        "description": "T64.4: Season automation",
+        "start": "2026-04-09T01:25:36.267795",
+        "end": "2026-04-09T01:33:45.437105",
+        "duration_seconds": 489.16931,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 489.16931
   }
 }

@@ -334,5 +334,13 @@
   "T64.2": {
     "last_cli_update": "2026-04-09T00:43:32.296175",
     "last_status": "in_progress"
+  },
+  "T64.3": {
+    "last_cli_update": "2026-04-09T01:15:12.238902",
+    "last_status": "done"
+  },
+  "T64.4": {
+    "last_cli_update": "2026-04-09T01:33:44.973105",
+    "last_status": "done"
   }
 }
