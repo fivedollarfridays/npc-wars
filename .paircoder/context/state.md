@@ -1,6 +1,6 @@
 # Current State
 
-> Last updated: 2026-04-09 T62.3 done
+> Last updated: 2026-04-09 T63.1 done
 
 ## Active Plans
 
@@ -26,12 +26,17 @@
 | T62.1 | Episode generator | 30 | T61.1, T61.2 | done ✓ |
 | T62.2 | Commentary video overlay | 20 | T58.3 | done ✓ |
 | T62.3 | Viewer commentary ticker | 20 | T59.4 | done ✓ |
+| T63.1 | Season manager | 25 | — | done ✓ |
 
 ## Current Focus
 
-T62.3 complete. Viewer commentary ticker built and integrated.
+T63.1 complete. Season manager built and tested.
 
 ## What Was Just Done
+
+- **T63.1 done**
+
+**T63.1: Season manager** — Built `data/seasons.py` (168 code LOC) with `create_season(conn, name, config, scoring_rules)`, `record_result(season_id, match_data, conn=conn)`, `get_standings(season_id, conn=conn)`, and `promote_relegate(season_id, conn=conn)`. SQLite-backed with seasons and season_results tables. Game-agnostic scoring: Kill Switch (kills × kill_points + placement_points map) and Code Circuit (F1 position_points map). Tier system (Diamond/Gold/Silver/Bronze) via configurable thresholds with defaults (10%/30%/60%). Promotion/relegation computed per-tier with configurable top-N promote and bottom-N relegate. 14 tests covering: create, store, multiple seasons, KS scoring, CC scoring, 5-result standings, unknown placement, empty season, tier assignments, default tiers, promotion/relegation, single-participant edge case, F1 multi-race accumulation, unscored position. Ruff clean, arch clean.
 
 - **T62.3 done** (auto-updated by hook)
 
@@ -99,7 +104,7 @@ T62.3 complete. Viewer commentary ticker built and integrated.
 
 ## What's Next
 
-T62.3 complete. Ready for next sprint task.
+T63.1 complete. Ready for next sprint task.
 
 ## Completed Sprints
 
