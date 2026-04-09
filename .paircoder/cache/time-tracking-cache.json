@@ -782,5 +782,11 @@
       }
     ],
     "total_seconds": 731.031231
+  },
+  "_active": {
+    "task_id": "T59.1",
+    "timer_id": "local-20260408231129",
+    "description": "T59.1: Highlight extractor",
+    "start": "2026-04-08T23:11:29.041003"
   }
 }
