@@ -950,5 +950,19 @@
       }
     ],
     "total_seconds": 276.88959
+  },
+  "T65.4": {
+    "entries": [
+      {
+        "id": "local-20260409021627",
+        "task_id": "T65.4",
+        "description": "T65.4: Ghost replay for Kill Switch",
+        "start": "2026-04-09T02:16:27.933603",
+        "end": "2026-04-09T02:24:58.167427",
+        "duration_seconds": 510.233824,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 510.233824
   }
 }
