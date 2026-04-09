@@ -7,6 +7,7 @@ from typing import Any
 
 from PIL import Image
 
+from video.video_commentary import render_commentary_overlay
 from video.video_effects import render_effects, render_spectacle_effects
 from video.video_grid import render_grid
 from video.video_overlay import render_overlay
@@ -55,6 +56,13 @@ def render_frame(
 
     spectacle = round_data.get("spectacle")
     frame, slow_mo = render_spectacle_effects(frame, spectacle, round_num)
+
+    commentary = round_data.get("commentary")
+    if commentary:
+        frame = render_commentary_overlay(
+            frame, commentary.get("text", ""), commentary.get("tone", "calm"),
+        )
+
     return frame, slow_mo
 
 
