@@ -824,5 +824,19 @@
       }
     ],
     "total_seconds": 439.004192
+  },
+  "T60.1": {
+    "entries": [
+      {
+        "id": "local-20260408234454",
+        "task_id": "T60.1",
+        "description": "T60.1: Code Circuit commentary enhancement",
+        "start": "2026-04-08T23:44:54.733238",
+        "end": "2026-04-08T23:52:12.157237",
+        "duration_seconds": 437.423999,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 437.423999
   }
 }
