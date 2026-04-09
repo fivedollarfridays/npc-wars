@@ -754,5 +754,19 @@
       }
     ],
     "total_seconds": 246.778307
+  },
+  "T58.2": {
+    "entries": [
+      {
+        "id": "local-20260408224723",
+        "task_id": "T58.2",
+        "description": "T58.2: Kill Switch personality profiler",
+        "start": "2026-04-08T22:47:23.418067",
+        "end": "2026-04-08T22:56:53.226856",
+        "duration_seconds": 569.808789,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 569.808789
   }
 }
