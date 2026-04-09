@@ -1,6 +1,6 @@
 # Current State
 
-> Last updated: 2026-04-09 T63.1 done
+> Last updated: 2026-04-09 T66.3 done
 
 ## Active Plans
 
@@ -27,14 +27,59 @@
 | T62.2 | Commentary video overlay | 20 | T58.3 | done ✓ |
 | T62.3 | Viewer commentary ticker | 20 | T59.4 | done ✓ |
 | T63.1 | Season manager | 25 | — | done ✓ |
+| T64.1 | Discord match ingestion | 20 | — | done ✓ |
+| T64.2 | TV rendering pipeline | 25 | T62.1, T62.2, T64.1 | done ✓ |
+| T64.3 | Discord channel posting | 20 | T64.2 | done ✓ |
+| T64.4 | Season automation | 20 | T63.1, T64.3 | done ✓ |
+| T65.1 | Kill Switch meta analyzer | 20 | — | done ✓ |
+| T65.2 | Decision tracer | 25 | — | done ✓ |
+| T65.3 | Code overlay in viewer | 20 | T65.2 | done ✓ |
+| T65.4 | Ghost replay for Kill Switch | 25 | — | done ✓ |
+| T66.1 | Mono-package structure | 25 | T59.4, T60.1 | done ✓ |
+| T66.2 | Viewer unification | 20 | T62.3 | done ✓ |
+| T66.3 | Documentation + on-ramp | 15 | T66.1 | done ✓ |
 
 ## Current Focus
 
-T63.1 complete. Season manager built and tested.
+T66.3 complete. Open-source documentation ready.
 
 ## What Was Just Done
 
-- **T63.1 done**
+- **T66.3 done**
+
+**T66.3: Documentation + on-ramp** — Rewrote README.md with 3-command demo (pip install, init, play), both games (Kill Switch + Code Circuit), feature list, architecture overview with directory tree, and all CLI commands. Created docs/getting-started.md with full on-ramp: install → init → play → watch replay → build a bot (AI/tweak/scratch) → episodes → batch sim. Expanded CONTRIBUTING.md with 6 contribution paths: bot showcase, commentary templates (with examples for both games), spectacle effects (drama tier table), adding new games (platform contracts, dispatcher registration, full checklist), suggestions, and bug reports. Verified LICENSE (MIT, Cognify Labs). Reviewed PROMPT.md — already polished (466 LOC), packaged copy in sync. 29 new tests covering: README (demo, features, architecture, both games, links, no broken markdown links), Getting Started (exists, pip install, init, play, episode), PROMPT.md (exists, format, equipment, packaged), CONTRIBUTING (commentary, effects, new games, bots), LICENSE (exists, MIT, copyright), rendering (no script tags, headings). All pass. Ruff clean, arch clean.
+
+- **T66.2 done** (auto-updated by hook)
+
+- **T66.2 done**
+
+**T66.2: Viewer unification** — Created unified `viewer/viewer.html` entry point that detects game type from loaded JSON and dispatches to the correct renderer. Created `viewer/js/game_detect.js` (17 LOC) with `detectGame(data)` returning "circuit" or "killswitch" based on `data.game` field. Created `viewer/js/circuit_renderer.js` (109 LOC) with `renderCircuitCanvas(round)` drawing an oval track with car positions, lap indicators, start/finish line, and car color coding; `renderCircuitRound(idx)` orchestrates canvas + sidebar + commentary updates. Created `viewer/js/circuit_sidebar.js` (101 LOC) with `buildCircuitCarList()` for car roster, `updateCircuitSidebar(round)` showing positions and lap_time, and `updateCircuitEvents(round, idx)` for race event feed (overtakes, spins, fastest laps with icons). Updated `viewer/js/app.js` with game-aware `initViewer()` dispatching to `_initKillSwitchViewer()` or `_initCircuitViewer()`. Updated `viewer/js/renderer.js` `renderRound()` to dispatch to `renderCircuitRound()` for circuit matches. Shared controls (play/pause/speed/scrub), commentary ticker, zoom, and audio work for both games. KS-specific effects (spectacle, kill cam, terrain, storm) preserved. CC-specific telemetry (position standings, lap times, race events) in new modules. 41 new tests. All 338 viewer tests pass. Arch clean.
+
+- **T66.1 done** (auto-updated by hook)
+
+- **T66.1 done**
+
+**T66.1: Mono-package structure** — Restructured for `pip install agent-grounds` as a single PyPI package containing both Kill Switch and Code Circuit. Created `engine/circuit.py` (132 LOC) with `run_race(car_configs, laps, seed)` — lap-based race simulation with overtakes, spins, fastest laps, deterministic seeding, and platform-compatible output (results, events, rounds, players). Created `engine/circuit_tv.py` (47 LOC) with `enrich_circuit_tv(race_data)` — adds commentary and highlights to race data via `circuit_commentary.py`. Created `agentgrounds/circuit/` package with CLI: `cli/__init__.py` (parser + dispatch), `cli/cmd_race.py` (race subcommand with --laps, --seed, --no-tv flags, builtin car fallback). Updated `agentgrounds/__main__.py` dispatcher: `killswitch` → wars CLI, `circuit` → circuit CLI, `wars` kept as backward-compat alias. Updated `pyproject.toml` to include `tv*` in package discovery. Help text updated with both games + examples. Package builds cleanly (`python -m build`). Both games run: `agentgrounds killswitch play` and `agentgrounds circuit race`. 28 new tests across 3 files (test_mono_package.py, test_circuit_engine.py, test_cli_circuit.py). All arch checks clean.
+
+- **T65.4 done** (auto-updated by hook)
+
+- **T65.4 done**
+
+**T65.4: Ghost replay for Kill Switch** — Built `engine/ghost_replay.py` (143 LOC) with `ghost_replay(match_data, round_num, bot_emoji, alt_action, seed)` returning ghost match JSON. Forks match state at any round by reconstructing Bot objects from round position data, substitutes one bot's action at the divergence point, and re-simulates remainder using the engine's `resolve_combat_phases` and `apply_momentum_phase`. Post-fork rounds replay original recorded actions against diverged state. Output marks `divergence_point: True` on fork round, `ghost: True` and `divergence_round` at top level, includes `original_winner` for comparison. Original match data never modified (deep copy). Deterministic via seeded RNG. 12 tests covering: ghost JSON shape, divergence marking, original unmodified, deterministic replay, pre-fork rounds unchanged, attack→defend substitution, defend→attack substitution, early divergence (round 1), late divergence, simulation to completion, invalid round validation, file LOC limit. Ruff clean, arch clean.
+
+- **T65.3 done** (auto-updated by hook)
+
+- **T65.3 done**
+
+**T65.3: Code overlay in viewer** — Built `viewer/js/code_overlay.js` (131 LOC) with `initCodeOverlay()`, `updateCodeOverlay(roundIdx)`, `renderDecisionTrace(emoji, trace)`, `toggleCodeOverlay()`, and `toggleBotTrace(emoji)`. Collapsible panel in sidebar shows decision traces per round from `round.decision_traces`. Active branch highlighted with accent color (`trace-active`), inactive dimmed (`trace-inactive`). Per-bot toggle buttons auto-built from match data — only bots with trace data get toggles. Panel hidden when no trace data in match JSON. State snapshot (HP, energy, enemies) shown below traces. Wired into `renderRound()` via `updateCodeOverlay(idx)` call and `initViewer()` via `initCodeOverlay()`. Added HTML panel + CSS to `index.html`. 11 tests covering: file existence, LOC limit, panel element, collapsible, render function, active/inactive highlighting, per-bot toggle, no-data hiding, update function, renderRound integration. Arch clean.
+
+- **T65.2 done** (auto-updated by hook)
+
+- **T65.2 done**
+
+**T65.2: Decision tracer** — Built `engine/decision_trace.py` (111 LOC) with `trace_decision(bot_module, state)` returning (action, trace_dict). Uses `sys.settrace` to capture line execution within bot module and `ast` to extract if/elif condition strings. Trace dict contains: `conditions_checked` (readable condition strings evaluated), `branch_taken` (condition whose body was entered), `state_snapshot` (hp, energy, x, y, round, enemies_alive, storm_border). Opt-in via `BOT_TRACE = True`. Integrated into `engine/game.py:_execute_round()` via `collect_round_traces()` adding traces to round_data under `decision_traces` key. Also refactored `run_match` by extracting `_run_match_loop` to fix pre-existing arch violation. 24 tests covering: simple bot, complex bot with helpers, opt-in flag, state isolation, all 11 builtin bots. Ruff clean, arch clean.
+
+- **T65.1 done**
 
 **T63.1: Season manager** — Built `data/seasons.py` (168 code LOC) with `create_season(conn, name, config, scoring_rules)`, `record_result(season_id, match_data, conn=conn)`, `get_standings(season_id, conn=conn)`, and `promote_relegate(season_id, conn=conn)`. SQLite-backed with seasons and season_results tables. Game-agnostic scoring: Kill Switch (kills × kill_points + placement_points map) and Code Circuit (F1 position_points map). Tier system (Diamond/Gold/Silver/Bronze) via configurable thresholds with defaults (10%/30%/60%). Promotion/relegation computed per-tier with configurable top-N promote and bottom-N relegate. 14 tests covering: create, store, multiple seasons, KS scoring, CC scoring, 5-result standings, unknown placement, empty season, tier assignments, default tiers, promotion/relegation, single-participant edge case, F1 multi-race accumulation, unscored position. Ruff clean, arch clean.
 
@@ -104,7 +149,7 @@ T63.1 complete. Season manager built and tested.
 
 ## What's Next
 
-T63.1 complete. Ready for next sprint task.
+T66.3 complete. Ready for next sprint task.
 
 ## Completed Sprints
 
