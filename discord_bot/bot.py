@@ -11,6 +11,7 @@ from discord_bot.commands.results import register_commands as results_register
 from discord_bot.commands.leaderboard import register_commands as leaderboard_register
 from discord_bot.commands.match_runner import register_commands as match_runner_register
 from discord_bot.commands.challenge import register_commands as challenge_register
+from discord_bot.commands.submissions import setup_submission_listener
 
 log = logging.getLogger(__name__)
 
@@ -35,6 +36,10 @@ class NpcWarsBot(discord.Client):
         self.deps = deps or BotDeps()
         self.tree = discord.app_commands.CommandTree(self)
         self.tree.on_error = self._on_tree_error  # type: ignore[method-assign]
+
+    @property
+    def submissions_channel_id(self) -> int | None:
+        return self.config.get("submissions_channel_id")
 
     @property
     def results_dir(self) -> str:
@@ -64,6 +69,10 @@ class NpcWarsBot(discord.Client):
         leaderboard_register(self.tree, guild, self.deps.results_dir)
         match_runner_register(self.tree, guild, self.deps.bots_dir, self.deps.results_dir)
         challenge_register(self.tree, guild)
+        if self.submissions_channel_id:
+            setup_submission_listener(
+                self, channel_id=self.submissions_channel_id,
+            )
         await self.tree.sync(guild=guild)
 
     async def on_ready(self) -> None:

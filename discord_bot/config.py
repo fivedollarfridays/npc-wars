@@ -30,6 +30,7 @@ def load_config() -> dict:
 
     announcement_raw = os.environ.get("ANNOUNCEMENT_CHANNEL_ID")
     results_raw = os.environ.get("RESULTS_CHANNEL_ID")
+    submissions_raw = os.environ.get("SUBMISSIONS_CHANNEL_ID")
 
     def _parse_channel(name: str, value: str) -> int:
         try:
@@ -42,4 +43,5 @@ def load_config() -> dict:
         "guild_id": guild_id,
         "announcement_channel_id": _parse_channel("ANNOUNCEMENT_CHANNEL_ID", announcement_raw) if announcement_raw else None,
         "results_channel_id": _parse_channel("RESULTS_CHANNEL_ID", results_raw) if results_raw else None,
+        "submissions_channel_id": _parse_channel("SUBMISSIONS_CHANNEL_ID", submissions_raw) if submissions_raw else None,
     }

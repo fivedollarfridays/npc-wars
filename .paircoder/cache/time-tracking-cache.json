@@ -894,5 +894,11 @@
       }
     ],
     "total_seconds": 248.365982
+  },
+  "_active": {
+    "task_id": "T64.1",
+    "timer_id": "local-20260409003713",
+    "description": "T64.1: Discord match ingestion",
+    "start": "2026-04-09T00:37:13.683587"
   }
 }
