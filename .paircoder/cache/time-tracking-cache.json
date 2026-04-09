@@ -867,10 +867,18 @@
     ],
     "total_seconds": 580.45705
   },
-  "_active": {
-    "task_id": "T62.2",
-    "timer_id": "local-20260409002353",
-    "description": "T62.2: Commentary video overlay",
-    "start": "2026-04-09T00:23:53.550153"
+  "T62.3": {
+    "entries": [
+      {
+        "id": "local-20260409002659",
+        "task_id": "T62.3",
+        "description": "T62.3: Viewer commentary ticker",
+        "start": "2026-04-09T00:26:59.489917",
+        "end": "2026-04-09T00:31:46.515902",
+        "duration_seconds": 287.025985,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 287.025985
   }
 }

@@ -2,20 +2,20 @@
   "task_types": {
     "feature": {
       "task_type": "feature",
-      "sample_count": 85,
-      "avg_tokens": 6111.423529411764,
-      "std_dev": 11662.99771512349,
-      "p80_tokens": 9162.2,
-      "avg_duration_seconds": 764.6823529411764,
-      "success_rate": 0.788235294117647,
+      "sample_count": 88,
+      "avg_tokens": 5980.829545454545,
+      "std_dev": 11498.25713989021,
+      "p80_tokens": 15662.362057242102,
+      "avg_duration_seconds": 740.7840909090909,
+      "success_rate": 0.7840909090909091,
       "recommended_model": "haiku",
       "model": "aggregate",
       "recommended_effort": "high",
-      "_m2_tokens": 11562168834.752941,
-      "_m2_duration": 1420214270.4235296,
-      "estimation_mape": null,
-      "estimation_sample_count": 0,
-      "cx_per_minute": 3.3816407337555057
+      "_m2_tokens": 11634472718.443184,
+      "_m2_duration": 1421660380.8977273,
+      "estimation_mape": 5605.66037735849,
+      "estimation_sample_count": 1,
+      "cx_per_minute": 3.603415430379147
     },
     "chore": {
       "task_type": "chore",
@@ -68,48 +68,14 @@
       "estimation_sample_count": 0,
       "cx_per_minute": null
     },
-    "feature:claude-opus-4-6[1m]": {
-      "task_type": "feature",
-      "sample_count": 13,
-      "avg_tokens": 13844.538461538461,
-      "std_dev": 5235.25480410508,
-      "p80_tokens": 17936.20000000001,
-      "avg_duration_seconds": 464.0769230769231,
-      "success_rate": 1.0,
-      "recommended_model": "haiku",
-      "model": "claude-opus-4-6[1m]",
-      "recommended_effort": "high",
-      "_m2_tokens": 356302607.2307692,
-      "_m2_duration": 550696.9230769232,
-      "estimation_mape": null,
-      "estimation_sample_count": 0,
-      "cx_per_minute": 3.3816407337555057
-    },
-    "feature:claude-opus-4-6": {
-      "task_type": "feature",
-      "sample_count": 29,
-      "avg_tokens": 4689.689655172414,
-      "std_dev": 13712.412512161603,
-      "p80_tokens": 3533.2000000000003,
-      "avg_duration_seconds": 1621.7586206896551,
-      "success_rate": 0.7931034482758621,
-      "recommended_model": "haiku",
-      "model": "claude-opus-4-6",
-      "recommended_effort": "high",
-      "_m2_tokens": 5452877450.206897,
-      "_m2_duration": 1376895893.310345,
-      "estimation_mape": null,
-      "estimation_sample_count": 0,
-      "cx_per_minute": null
-    },
     "feature:unknown": {
       "task_type": "feature",
-      "sample_count": 20,
+      "sample_count": 21,
       "avg_tokens": 0.0,
       "std_dev": 0.0,
       "p80_tokens": 0.0,
       "avg_duration_seconds": 0.0,
-      "success_rate": 0.5,
+      "success_rate": 0.47619047619047616,
       "recommended_model": "haiku",
       "model": "unknown",
       "recommended_effort": "high",
@@ -117,6 +83,40 @@
       "_m2_duration": 0.0,
       "estimation_mape": null,
       "estimation_sample_count": 0,
+      "cx_per_minute": null
+    },
+    "feature:claude-opus-4-6[1m]": {
+      "task_type": "feature",
+      "sample_count": 14,
+      "avg_tokens": 13336.785714285714,
+      "std_dev": 5366.726498641839,
+      "p80_tokens": 16588.800000000003,
+      "avg_duration_seconds": 444.14285714285717,
+      "success_rate": 1.0,
+      "recommended_model": "haiku",
+      "model": "claude-opus-4-6[1m]",
+      "recommended_effort": "high",
+      "_m2_tokens": 403224546.3571428,
+      "_m2_duration": 623017.7142857143,
+      "estimation_mape": null,
+      "estimation_sample_count": 0,
+      "cx_per_minute": 3.603415430379147
+    },
+    "feature:claude-opus-4-6": {
+      "task_type": "feature",
+      "sample_count": 30,
+      "avg_tokens": 4536.900000000001,
+      "std_dev": 13507.019558609762,
+      "p80_tokens": 15909.81046834942,
+      "avg_duration_seconds": 1567.8999999999999,
+      "success_rate": 0.8,
+      "recommended_model": "haiku",
+      "model": "claude-opus-4-6",
+      "recommended_effort": "high",
+      "_m2_tokens": 5473187320.7,
+      "_m2_duration": 1379419546.7,
+      "estimation_mape": 5605.66037735849,
+      "estimation_sample_count": 1,
       "cx_per_minute": null
     },
     "chore:claude-opus-4-6": {
@@ -256,6 +256,6 @@
       "cx_per_minute": null
     }
   },
-  "last_calibrated": "2026-04-09T05:26:31.674338+00:00",
-  "total_records": 111
+  "last_calibrated": "2026-04-09T05:31:46.681040+00:00",
+  "total_records": 114
 }

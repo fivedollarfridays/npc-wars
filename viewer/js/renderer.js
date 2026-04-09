@@ -257,6 +257,9 @@ function renderRound(idx) {
     applySpectacleEffects(spectacle.tier, spectacle.triggers || [], spectacle.effects || []);
   }
 
+  // Update commentary ticker
+  if (typeof updateCommentary === 'function') updateCommentary(idx);
+
   // Play audio stingers for events
   var tier = spectacle ? spectacle.tier : 'calm';
   round.events.forEach(function(evt) {

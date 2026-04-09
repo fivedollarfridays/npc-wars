@@ -161,6 +161,9 @@ function initViewer() {
     else zoomOut();
   }, { passive: false });
 
+  // Initialize commentary
+  if (typeof initCommentary === 'function') initCommentary();
+
   // Render first frame
   currentRound = 0;
   renderRound(0);
