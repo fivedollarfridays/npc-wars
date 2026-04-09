@@ -769,10 +769,18 @@
     ],
     "total_seconds": 569.808789
   },
-  "_active": {
-    "task_id": "T58.3",
-    "timer_id": "local-20260408225840",
-    "description": "T58.3: Kill Switch commentary engine",
-    "start": "2026-04-08T22:58:40.268920"
+  "T58.3": {
+    "entries": [
+      {
+        "id": "local-20260408225840",
+        "task_id": "T58.3",
+        "description": "T58.3: Kill Switch commentary engine",
+        "start": "2026-04-08T22:58:40.268920",
+        "end": "2026-04-08T23:10:51.300151",
+        "duration_seconds": 731.031231,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 731.031231
   }
 }
