@@ -1,0 +1,10 @@
+id: plan-2026-03-s49-security-hardening
+title: 'Sprint 49: Security Hardening (Launch Blockers)'
+type: chore
+status: in_progress
+created_at: '2026-03-25T10:44:07.087727'
+skills:
+- planning-with-pm
+goals:
+- Fix all critical and high-severity security issues blocking public launch
+- Harden server middleware, CORS, cookies, and rate limiting

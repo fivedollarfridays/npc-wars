@@ -1,0 +1,12 @@
+id: plan-2026-03-s25-momentum
+title: 'Sprint 25: Momentum & Scoring System'
+type: feature
+status: in_progress
+created_at: '2026-03-18T01:27:34.211694'
+goals:
+- Per-round scoring engine (survival, kills, full HP, clean kills, style bonuses)
+- In-game momentum tiers with real gameplay advantages (energy, damage, defense, aura)
+- Momentum carries over between matches for winners (advantage + target)
+- Attack animation upgrade (differentiated by type)
+- Renderer integration (momentum tier display, aura effects)
+- State dict exposure (state["me"]["momentum"], state["me"]["score"])
