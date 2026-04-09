@@ -740,5 +740,19 @@
       }
     ],
     "total_seconds": 685.180046
+  },
+  "T58.1": {
+    "entries": [
+      {
+        "id": "local-20260408224254",
+        "task_id": "T58.1",
+        "description": "T58.1: Kill Switch rivalry tracker",
+        "start": "2026-04-08T22:42:54.997580",
+        "end": "2026-04-08T22:47:01.775887",
+        "duration_seconds": 246.778307,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 246.778307
   }
 }

@@ -1,0 +1,32 @@
+{
+  "c8d36e8d6a7a4b1487b6a0302c1cc56a": {
+    "at_range_1": {
+      "move": 2,
+      "attack": 7,
+      "rest": 4
+    },
+    "after_damage": {
+      "attack": 5,
+      "rest": 4
+    },
+    "below_30_hp": {
+      "attack": 4,
+      "rest": 3
+    }
+  },
+  "__global__": {
+    "at_range_1": {
+      "move": 2,
+      "attack": 7,
+      "rest": 4
+    },
+    "after_damage": {
+      "attack": 5,
+      "rest": 4
+    },
+    "below_30_hp": {
+      "attack": 4,
+      "rest": 3
+    }
+  }
+}
