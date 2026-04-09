@@ -796,5 +796,11 @@
       }
     ],
     "total_seconds": 198.584336
+  },
+  "_active": {
+    "task_id": "T59.3",
+    "timer_id": "local-20260408231938",
+    "description": "T59.3: Watcher monologues",
+    "start": "2026-04-08T23:19:38.763656"
   }
 }

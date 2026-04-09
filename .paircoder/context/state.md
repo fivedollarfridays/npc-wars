@@ -1,6 +1,6 @@
 # Current State
 
-> Last updated: 2026-04-08 T58.3 done
+> Last updated: 2026-04-08 T59.3 done
 
 ## Active Plans
 
@@ -14,16 +14,25 @@
 | T58.1 | Kill Switch rivalry tracker | 20 | — | done |
 | T58.2 | Kill Switch personality profiler | 25 | — | done |
 | T58.3 | Kill Switch commentary engine | 30 | T58.1, T58.2 | done |
+| T59.1 | Highlight extractor | 20 | T58.3 | done ✓ |
+| T59.2 | Watcher dossier | 20 | — | done ✓ |
+| T59.3 | Watcher monologues | 15 | T59.2 | done ✓ |
 
 ## Current Focus
 
-T58.3 complete. All sprint 58 tasks done.
+T59.3 complete. Watcher monologues built and tested.
 
 ## What Was Just Done
 
-- **T58.3 done** (auto-updated by hook)
+- **T59.3 done** (auto-updated by hook)
 
-**T58.3: Kill Switch commentary engine** — Built `engine/commentary.py` (286 LOC) and `engine/commentary_templates.py` (143 LOC). `generate_commentary(match_data, profiles, rivalries)` returns list of `CommentaryLine(round, text, tone, type)`. 81 unique templates (50 play-by-play + 31 color). Play-by-play covers kills, movement, defend, trap, ability use, storm damage, watcher events. Color commentary references personality traits, rivalry history, equipment. Tone scales with spectacle drama tier (calm/heating/intense/hype/chaos). 23 tests covering all drama tiers, event types, color commentary, and full-match crash test. Ruff clean, arch clean (no errors).
+**T59.3: Watcher monologues** — Built `engine/watcher_dialogue.py` (133 LOC). `generate_monologue(trigger, sync_score, pattern_summary)` returns context-aware dialogue strings. 4 trigger types (spawn, kill, sync_milestone, player_death) × 3 sync tiers (low <30%, mid 30-70%, high >70%). Templates use `{action}` and `{context}` placeholders from pattern summary, with safe fallbacks for missing data. 5+ templates per trigger type. Invalid triggers raise ValueError. 34 tests covering all trigger/tier combos, placeholder injection, template counts, empty summaries, None handling, and determinism. Ruff clean, arch clean.
+
+- **T59.2 done** (auto-updated by hook)
+
+**T59.2: Watcher dossier** — Built `engine/watcher_dossier.py` (140 LOC). `build_dossier(player_id, patterns_dir, watcher_stats_path)` reads pattern data via `server/rival_patterns.py` helpers, returns dossier dict with per-context predictions (top 3 actions + probabilities + counter), sync_score (exponential saturation on observation count), and predictability_change (average max-probability across contexts). `format_dossier_text()` generates human-readable summary with "Context: X → Predicted action: Y (Z%)" format. Returns intro dossier for players with no history. 10 tests covering: no data, empty table, single context, multiple contexts, high/low sync scores, high/low predictability, and text formatting. Ruff clean, arch clean.
+
+**T59.1: Highlight extractor** — Built `engine/highlights.py` (152 LOC). `extract_highlights(match_data, threshold="hype")` scans rounds via SpectacleEngine, extracts highlight clips (2 rounds before trigger → trigger → 1 after), tags with trigger_type (kill/near_death/chain_bump/watcher_event), participants, drama_score, and commentary snippets. Kill guarantee ensures at least 1 highlight for any match with a kill. Overlapping ranges merge automatically. 11 tests covering: calm match (no highlights), kill guarantee, single highlight, boundary clamping, required fields, merge overlapping, separate distant, and threshold levels. Ruff clean, arch clean.
 
 - **T58.2 done** (auto-updated by hook)
 
