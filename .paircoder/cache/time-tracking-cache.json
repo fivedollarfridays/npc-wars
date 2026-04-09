@@ -922,5 +922,19 @@
       }
     ],
     "total_seconds": 489.16931
+  },
+  "T65.1": {
+    "entries": [
+      {
+        "id": "local-20260409013423",
+        "task_id": "T65.1",
+        "description": "T65.1: Kill Switch meta analyzer",
+        "start": "2026-04-09T01:34:23.077286",
+        "end": "2026-04-09T01:40:01.342214",
+        "duration_seconds": 338.264928,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 338.264928
   }
 }
