@@ -14,6 +14,8 @@ from discord_bot.commands.leaderboard import register_commands as leaderboard_re
 from discord_bot.commands.match_runner import register_commands as match_runner_register
 from discord_bot.commands.challenge import register_commands as challenge_register
 from discord_bot.commands.season_commands import register_commands as season_register
+from discord_bot.commands.game_commands import register_commands as game_register
+from discord_bot.commands.tv_commands import register_commands as tv_register
 from discord_bot.commands.submissions import setup_submission_listener
 
 log = logging.getLogger(__name__)
@@ -85,6 +87,12 @@ class NpcWarsBot(discord.Client):
         match_runner_register(self.tree, guild, self.deps.bots_dir, self.deps.results_dir)
         challenge_register(self.tree, guild)
         season_register(self.tree, guild, self._db_conn)
+        game_register(
+            self.tree, guild,
+            bots_dir=self.deps.bots_dir,
+            results_dir=self.deps.results_dir,
+        )
+        tv_register(self.tree, guild, results_dir=self.deps.results_dir)
         if self.submissions_channel_id:
             setup_submission_listener(
                 self, channel_id=self.submissions_channel_id,

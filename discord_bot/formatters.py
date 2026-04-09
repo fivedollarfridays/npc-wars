@@ -13,6 +13,8 @@ __all__ = [
     "format_tv_main_message",
     "format_tv_thread_stats",
     "format_tv_thread_watcher",
+    "format_highlights",
+    "format_game_standings",
 ]
 
 # Colors as hex ints (matches discord.Color values)
@@ -248,6 +250,62 @@ def format_tv_thread_stats(episode: dict[str, Any]) -> dict[str, Any]:
         "description": "",
         "color": COLOR_BLUE,
         "fields": fields,
+    }
+
+
+def format_highlights(
+    game: str, highlights: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Format recent highlights for a game as a plain dict."""
+    label = _GAME_LABELS.get(game, game)
+    if not highlights:
+        return {
+            "title": f"\U0001f4fa {label} Highlights",
+            "description": "No highlights yet.",
+            "color": COLOR_GOLD,
+            "fields": [],
+        }
+    shown = highlights[:5]
+    lines = []
+    for h in shown:
+        rng = h.get("round_range", (0, 0))
+        trigger = h.get("trigger_type", "?")
+        participants = ", ".join(h.get("participants", []))
+        score = h.get("drama_score", 0)
+        lines.append(f"R{rng[0]}-{rng[1]}: {trigger} ({participants}) \u2014 drama {score}")
+    return {
+        "title": f"\U0001f4fa {label} Highlights",
+        "description": "",
+        "color": COLOR_GOLD,
+        "fields": [
+            {"name": "Recent Highlights", "value": "\n".join(lines), "inline": False},
+        ],
+    }
+
+
+def format_game_standings(
+    game: str, season_name: str, standings: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Format season standings for a specific game as a plain dict."""
+    label = _GAME_LABELS.get(game, game)
+    if not standings:
+        return {
+            "title": f"\U0001f4ca {label} \u2014 {season_name} Standings",
+            "description": "No results yet.",
+            "color": COLOR_BLUE,
+            "fields": [],
+        }
+    lines = [
+        f"{i + 1}. {s['participant']} \u2014 {s['points']}pts ({s['tier']})"
+        for i, s in enumerate(standings)
+    ]
+    return {
+        "title": f"\U0001f4ca {label} \u2014 {season_name} Standings",
+        "description": "",
+        "color": COLOR_BLUE,
+        "fields": [
+            {"name": "Rankings", "value": "\n".join(lines), "inline": False},
+        ],
     }
 
 

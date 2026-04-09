@@ -1006,5 +1006,33 @@
       }
     ],
     "total_seconds": 421.520915
+  },
+  "T67.1": {
+    "entries": [
+      {
+        "id": "local-20260409025500",
+        "task_id": "T67.1",
+        "description": "T67.1: Discord bot unification",
+        "start": "2026-04-09T02:55:00.436144",
+        "end": "2026-04-09T03:12:21.291500",
+        "duration_seconds": 1040.855356,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 1040.855356
+  },
+  "T67.2": {
+    "entries": [
+      {
+        "id": "local-20260409032553",
+        "task_id": "T67.2",
+        "description": "T67.2: Website episode browser",
+        "start": "2026-04-09T03:25:53.364398",
+        "end": "2026-04-09T03:38:25.338517",
+        "duration_seconds": 751.974119,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 751.974119
   }
 }
