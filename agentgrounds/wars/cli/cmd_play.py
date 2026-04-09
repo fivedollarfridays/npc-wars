@@ -37,6 +37,10 @@ def register(subparsers: argparse._SubParsersAction) -> None:
         "--no-fx", action="store_true",
         help="Disable combat animation sub-frames",
     )
+    p.add_argument(
+        "--no-tv", action="store_true",
+        help="Skip TV generation (commentary, highlights, profiles, rivalries)",
+    )
     p.set_defaults(func=run)
 
 
@@ -52,7 +56,7 @@ def run(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     # 2. Load and run match
-    match_data, filepath = _run_match(bots_dir, args.seed)
+    match_data, filepath = _run_match(bots_dir, args.seed, no_tv=args.no_tv)
 
     # 3. Display results
     if args.no_watch:
@@ -82,7 +86,9 @@ def _validate_bots(bots_dir: Path) -> bool:
     return True
 
 
-def _run_match(bots_dir: Path, seed: int | None) -> tuple[dict, str]:
+def _run_match(
+    bots_dir: Path, seed: int | None, *, no_tv: bool = False,
+) -> tuple[dict, str]:
     """Load bots, run a match, write replay. Returns (match_data, filepath)."""
     from data.match_history import next_match_id
     from data.stat_diff import inject_diff_data
@@ -99,6 +105,12 @@ def _run_match(bots_dir: Path, seed: int | None) -> tuple[dict, str]:
     match_id = next_match_id(results_dir)
     match_data = run_match(bot_configs, match_id=match_id, seed=seed)
     inject_diff_data(match_data, results_dir)
+
+    if not no_tv:
+        from engine.tv_pipeline import enrich_tv
+
+        enrich_tv(match_data, results_dir=results_dir)
+
     filepath = write_match(match_data, results_dir)
     return match_data, filepath
 

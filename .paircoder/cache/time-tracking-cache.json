@@ -810,5 +810,19 @@
       }
     ],
     "total_seconds": 701.940825
+  },
+  "T59.4": {
+    "entries": [
+      {
+        "id": "local-20260408233345",
+        "task_id": "T59.4",
+        "description": "T59.4: Wire TV into play command",
+        "start": "2026-04-08T23:33:45.893783",
+        "end": "2026-04-08T23:41:04.897975",
+        "duration_seconds": 439.004192,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 439.004192
   }
 }
