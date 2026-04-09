@@ -306,5 +306,9 @@
   "T61.1": {
     "last_cli_update": "2026-04-09T00:13:11.249204",
     "last_status": "done"
+  },
+  "T61.2": {
+    "last_cli_update": "2026-04-09T00:13:45.526950",
+    "last_status": "in_progress"
   }
 }

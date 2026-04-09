@@ -1,6 +1,7 @@
 """Tests for engine/commentary.py — Kill Switch commentary engine."""
 
-from engine.commentary import CommentaryLine, generate_commentary
+from engine.commentary import generate_commentary
+from engine.platform_commentary import CommentaryLine
 from engine.commentary_templates import COLOR_COMMENTARY, PLAY_BY_PLAY
 
 
@@ -78,10 +79,10 @@ class TestReturnType:
         rounds = [_round(1, [_pos("🤖"), _pos("👾")])]
         result = generate_commentary(_match_data(rounds), _profiles(), _rivalries())
         line = result[0]
-        assert isinstance(line.round, int)
+        assert isinstance(line.timestamp, (int, float))
         assert isinstance(line.text, str)
         assert line.tone in ("calm", "heating", "intense", "hype", "chaos")
-        assert line.type in ("play_by_play", "color")
+        assert line.line_type in ("play_by_play", "color", "analysis")
 
 
 # --- test: play-by-play event coverage ---
@@ -95,31 +96,31 @@ class TestPlayByPlay:
         result = generate_commentary(
             _match_data(rounds, eliminations=elims), _profiles(), _rivalries(),
         )
-        pbp = [c for c in result if c.type == "play_by_play"]
+        pbp = [c for c in result if c.line_type == "play_by_play"]
         assert any("🤖" in c.text or "kill" in c.text.lower() for c in pbp)
 
     def test_movement(self):
         rounds = [_round(1, [_pos("🤖", action="move north"), _pos("👾")])]
         result = generate_commentary(_match_data(rounds), _profiles(), _rivalries())
-        pbp = [c for c in result if c.type == "play_by_play"]
+        pbp = [c for c in result if c.line_type == "play_by_play"]
         assert len(pbp) > 0
 
     def test_defend_action(self):
         rounds = [_round(1, [_pos("🤖", action="defend"), _pos("👾")])]
         result = generate_commentary(_match_data(rounds), _profiles(), _rivalries())
-        pbp = [c for c in result if c.type == "play_by_play"]
+        pbp = [c for c in result if c.line_type == "play_by_play"]
         assert any("defend" in c.text.lower() or "🤖" in c.text for c in pbp)
 
     def test_trap_placement(self):
         rounds = [_round(1, [_pos("🤖", action="trap"), _pos("👾")])]
         result = generate_commentary(_match_data(rounds), _profiles(), _rivalries())
-        pbp = [c for c in result if c.type == "play_by_play"]
+        pbp = [c for c in result if c.line_type == "play_by_play"]
         assert any("trap" in c.text.lower() or "🤖" in c.text for c in pbp)
 
     def test_ability_use(self):
         rounds = [_round(1, [_pos("🤖", action="battle_cry"), _pos("👾")])]
         result = generate_commentary(_match_data(rounds), _profiles(), _rivalries())
-        pbp = [c for c in result if c.type == "play_by_play"]
+        pbp = [c for c in result if c.line_type == "play_by_play"]
         assert len(pbp) > 0
 
     def test_storm_damage(self):
@@ -129,7 +130,7 @@ class TestPlayByPlay:
         result = generate_commentary(
             _match_data(rounds, eliminations=elims), _profiles(), _rivalries(),
         )
-        pbp = [c for c in result if c.type == "play_by_play"]
+        pbp = [c for c in result if c.line_type == "play_by_play"]
         assert any("storm" in c.text.lower() for c in pbp)
 
 
@@ -147,7 +148,7 @@ class TestColorCommentary:
             _match_data(rounds, eliminations=[{"emoji": "👾", "killed_by": "🤖"}]),
             _profiles(), _rivalries(),
         )
-        color = [c for c in result if c.type == "color"]
+        color = [c for c in result if c.line_type == "color"]
         assert len(color) > 0
 
     def test_rivalry_reference(self):
@@ -160,7 +161,7 @@ class TestColorCommentary:
             _match_data(rounds, eliminations=[{"emoji": "👾", "killed_by": "🤖"}]),
             _profiles(), _rivalries(),
         )
-        color = [c for c in result if c.type == "color"]
+        color = [c for c in result if c.line_type == "color"]
         assert len(color) > 0
 
     def test_no_profiles_still_works(self):
@@ -277,7 +278,7 @@ class TestFullMatch:
         result = generate_commentary(
             _match_data(rounds, eliminations=elims), _profiles(), _rivalries(),
         )
-        covered_rounds = {c.round for c in result}
+        covered_rounds = {c.timestamp for c in result}
         assert len(covered_rounds) >= 3
 
     def test_empty_rounds(self):
@@ -290,5 +291,5 @@ class TestFullMatch:
         rounds = [_round(1, [_pos("🤖"), _pos("👾")],
                          [_evt("watcher_spawn"), _evt("watcher_kill")])]
         result = generate_commentary(_match_data(rounds), _profiles(), _rivalries())
-        pbp = [c for c in result if c.type == "play_by_play"]
+        pbp = [c for c in result if c.line_type == "play_by_play"]
         assert any("watcher" in c.text.lower() for c in pbp)

@@ -7,10 +7,10 @@ and spectacle data to produce commentary lines with timing and tone markers.
 from __future__ import annotations
 
 import random
-from dataclasses import dataclass
 from typing import Any
 
 from engine.commentary_templates import COLOR_COMMENTARY, PLAY_BY_PLAY, TONE_MODIFIERS
+from engine.platform_commentary import CommentaryLine
 from engine.spectacle import SpectacleEngine
 
 __all__ = ["CommentaryLine", "generate_commentary"]
@@ -22,16 +22,6 @@ _ACTION_CATEGORIES: dict[str, str] = {
     "defend": "defend", "trap": "trap", "dash": "dash",
     "move": "move", "rest": "rest",
 }
-
-
-@dataclass(frozen=True)
-class CommentaryLine:
-    """A single line of commentary output."""
-
-    round: int
-    text: str
-    tone: str
-    type: str  # "play_by_play" or "color"
 
 
 def generate_commentary(
@@ -260,14 +250,14 @@ def _pbp(round_num: int, category: str, tone: str, **kwargs: str) -> CommentaryL
     templates = PLAY_BY_PLAY.get(category, ["{bot} acts."])
     template = random.choice(templates)
     text = _apply_tone(template.format_map(_safe_format(kwargs)), tone)
-    return CommentaryLine(round=round_num, text=text, tone=tone, type="play_by_play")
+    return CommentaryLine(timestamp=round_num, text=text, tone=tone, line_type="play_by_play")
 
 
 def _color(round_num: int, category: str, tone: str, **kwargs: str) -> CommentaryLine:
     templates = COLOR_COMMENTARY.get(category, ["Interesting development."])
     template = random.choice(templates)
     text = _apply_tone(template.format_map(_safe_format(kwargs)), tone)
-    return CommentaryLine(round=round_num, text=text, tone=tone, type="color")
+    return CommentaryLine(timestamp=round_num, text=text, tone=tone, line_type="color")
 
 
 def _apply_tone(text: str, tone: str) -> str:
