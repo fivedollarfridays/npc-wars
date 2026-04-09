@@ -2,20 +2,20 @@
   "task_types": {
     "feature": {
       "task_type": "feature",
-      "sample_count": 63,
-      "avg_tokens": 6275.333333333333,
-      "std_dev": 12961.315778053271,
-      "p80_tokens": 5888.6,
-      "avg_duration_seconds": 962.2857142857143,
-      "success_rate": 0.8095238095238095,
+      "sample_count": 66,
+      "avg_tokens": 6165.954545454546,
+      "std_dev": 12725.341695039455,
+      "p80_tokens": 16880.692252677767,
+      "avg_duration_seconds": 922.4242424242424,
+      "success_rate": 0.803030303030303,
       "recommended_model": "haiku",
       "model": "aggregate",
       "recommended_effort": "high",
-      "_m2_tokens": 10583729521.999998,
-      "_m2_duration": 1409343996.8571424,
-      "estimation_mape": null,
-      "estimation_sample_count": 0,
-      "cx_per_minute": 3.017236943926054
+      "_m2_tokens": 10687665202.863634,
+      "_m2_duration": 1411587444.1212122,
+      "estimation_mape": 5749.532710280373,
+      "estimation_sample_count": 1,
+      "cx_per_minute": 3.458146831450516
     },
     "chore": {
       "task_type": "chore",
@@ -68,48 +68,14 @@
       "estimation_sample_count": 0,
       "cx_per_minute": null
     },
-    "feature:claude-opus-4-6[1m]": {
-      "task_type": "feature",
-      "sample_count": 3,
-      "avg_tokens": 18832.0,
-      "std_dev": 6108.633616993792,
-      "p80_tokens": 23402.4,
-      "avg_duration_seconds": 569.6666666666666,
-      "success_rate": 1.0,
-      "recommended_model": "haiku",
-      "model": "claude-opus-4-6[1m]",
-      "recommended_effort": "high",
-      "_m2_tokens": 111946213.99999997,
-      "_m2_duration": 142016.66666666666,
-      "estimation_mape": null,
-      "estimation_sample_count": 0,
-      "cx_per_minute": 3.017236943926054
-    },
-    "feature:claude-opus-4-6": {
-      "task_type": "feature",
-      "sample_count": 23,
-      "avg_tokens": 5885.173913043478,
-      "std_dev": 15171.483423650507,
-      "p80_tokens": 4103.200000000001,
-      "avg_duration_seconds": 2042.6521739130435,
-      "success_rate": 0.7391304347826086,
-      "recommended_model": "haiku",
-      "model": "claude-opus-4-6",
-      "recommended_effort": "high",
-      "_m2_tokens": 5293999913.304348,
-      "_m2_duration": 1357202389.2173915,
-      "estimation_mape": null,
-      "estimation_sample_count": 0,
-      "cx_per_minute": null
-    },
     "feature:unknown": {
       "task_type": "feature",
-      "sample_count": 14,
+      "sample_count": 15,
       "avg_tokens": 0.0,
       "std_dev": 0.0,
       "p80_tokens": 0.0,
       "avg_duration_seconds": 0.0,
-      "success_rate": 0.7142857142857143,
+      "success_rate": 0.6666666666666666,
       "recommended_model": "haiku",
       "model": "unknown",
       "recommended_effort": "high",
@@ -117,6 +83,40 @@
       "_m2_duration": 0.0,
       "estimation_mape": null,
       "estimation_sample_count": 0,
+      "cx_per_minute": null
+    },
+    "feature:claude-opus-4-6[1m]": {
+      "task_type": "feature",
+      "sample_count": 4,
+      "avg_tokens": 16999.0,
+      "std_dev": 6169.782856794881,
+      "p80_tokens": 22478.600000000002,
+      "avg_duration_seconds": 490.0,
+      "success_rate": 1.0,
+      "recommended_model": "haiku",
+      "model": "claude-opus-4-6[1m]",
+      "recommended_effort": "high",
+      "_m2_tokens": 152264882.0,
+      "_m2_duration": 218177.99999999997,
+      "estimation_mape": null,
+      "estimation_sample_count": 0,
+      "cx_per_minute": 3.458146831450516
+    },
+    "feature:claude-opus-4-6": {
+      "task_type": "feature",
+      "sample_count": 24,
+      "avg_tokens": 5644.416666666666,
+      "std_dev": 14896.862183349964,
+      "p80_tokens": 18187.574625047335,
+      "avg_duration_seconds": 1957.75,
+      "success_rate": 0.75,
+      "recommended_model": "haiku",
+      "model": "claude-opus-4-6",
+      "recommended_effort": "high",
+      "_m2_tokens": 5325996069.833334,
+      "_m2_duration": 1361181414.5000002,
+      "estimation_mape": 5749.532710280373,
+      "estimation_sample_count": 1,
       "cx_per_minute": null
     },
     "chore:claude-opus-4-6": {
@@ -256,6 +256,6 @@
       "cx_per_minute": null
     }
   },
-  "last_calibrated": "2026-04-09T04:15:17.998978+00:00",
-  "total_records": 89
+  "last_calibrated": "2026-04-09T04:19:00.358675+00:00",
+  "total_records": 92
 }
