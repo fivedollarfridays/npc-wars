@@ -853,10 +853,18 @@
     ],
     "total_seconds": 303.516528
   },
-  "_active": {
-    "task_id": "T60.3",
-    "timer_id": "local-20260408235813",
-    "description": "T60.3: Code Circuit rivalry tracker",
-    "start": "2026-04-08T23:58:13.649123"
+  "T61.1": {
+    "entries": [
+      {
+        "id": "local-20260409000331",
+        "task_id": "T61.1",
+        "description": "T61.1: Platform event contract + adapters",
+        "start": "2026-04-09T00:03:31.049030",
+        "end": "2026-04-09T00:13:11.506080",
+        "duration_seconds": 580.45705,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 580.45705
   }
 }
