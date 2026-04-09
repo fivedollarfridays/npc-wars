@@ -881,10 +881,18 @@
     ],
     "total_seconds": 287.025985
   },
-  "_active": {
-    "task_id": "T63.1",
-    "timer_id": "local-20260409003222",
-    "description": "T63.1: Season manager",
-    "start": "2026-04-09T00:32:22.672598"
+  "T63.1": {
+    "entries": [
+      {
+        "id": "local-20260409003222",
+        "task_id": "T63.1",
+        "description": "T63.1: Season manager",
+        "start": "2026-04-09T00:32:22.672598",
+        "end": "2026-04-09T00:36:31.038580",
+        "duration_seconds": 248.365982,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 248.365982
   }
 }
