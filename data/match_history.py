@@ -81,7 +81,8 @@ def get_match(results_dir: str, match_id: int) -> dict[str, Any] | None:
     path = os.path.join(results_dir, f"match_{match_id:03d}.json")
     try:
         with open(path, encoding="utf-8") as f:
-            return json.load(f)
+            result: dict[str, Any] = json.load(f)
+            return result
     except (FileNotFoundError, json.JSONDecodeError, OSError):
         return None
 

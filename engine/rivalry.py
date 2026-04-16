@@ -101,7 +101,7 @@ def compute_rivalry_score(stats: dict[str, Any]) -> int:
     total = stats["wins_a"] + stats["wins_b"]
     if total == 0:
         return 50
-    return round(stats["wins_a"] / total * 100)
+    return int(round(stats["wins_a"] / total * 100))
 
 
 def rivalry_trend(stats: dict[str, Any]) -> str:

@@ -66,7 +66,8 @@ def _load_patterns(emoji: str, patterns_dir: str) -> dict[str, dict[str, int]]:
         return {}
     try:
         with open(path) as f:
-            return json.load(f)
+            result: dict[str, dict[str, int]] = json.load(f)
+            return result
     except (json.JSONDecodeError, OSError):
         return {}
 
@@ -108,12 +109,12 @@ def _aggregate(emoji: str, matches: list[dict[str, Any]]) -> dict[str, Any]:
         "action_ratios": {a: c / total_actions for a, c in action_counts.items()},
         "early_attack_ratio": early_attacks / max(total_early, 1),
         "equipment_freq": eq_freq,
-        "top_archetype": max(archetypes, key=archetypes.get) if archetypes else "",
+        "top_archetype": max(archetypes, key=lambda k: archetypes[k]) if archetypes else "",
         "win_rate": wins / n,
     }
 
 
-def _tally_equipment(freq: dict, equipment: dict) -> None:
+def _tally_equipment(freq: dict[str, Any], equipment: dict[str, Any]) -> None:
     for slot in ("weapon", "armor", "tactical"):
         val = equipment.get(slot)
         if val:
@@ -122,7 +123,7 @@ def _tally_equipment(freq: dict, equipment: dict) -> None:
 
 def _tally_actions(
     counts: dict[str, int],
-    match: dict,
+    match: dict[str, Any],
     emoji: str,
 ) -> tuple[int, int]:
     early_attacks = 0

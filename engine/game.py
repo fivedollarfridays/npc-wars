@@ -139,10 +139,11 @@ def _collect_traces(
 ) -> dict[str, Any]:
     """Lazy-import wrapper for decision trace collection."""
     from engine.decision_trace import collect_round_traces
-    return collect_round_traces(
+    result: dict[str, Any] = collect_round_traces(
         alive_bots, bots, round_num, grid_size, storm_border,
         bumps_last_round=bumps_last_round,
     )
+    return result
 
 
 def _execute_round(

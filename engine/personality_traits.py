@@ -13,7 +13,7 @@ _HIGH_MOMENTUM = 3
 _MODERATE_ACTION_RATIO = 0.25
 
 
-def detect_traits(agg: dict[str, Any], patterns: dict) -> list[str]:
+def detect_traits(agg: dict[str, Any], patterns: dict[str, Any]) -> list[str]:
     """Detect personality traits from aggregated stats and patterns."""
     traits: list[str] = []
     ratios = agg["action_ratios"]
@@ -57,7 +57,7 @@ _TACTICAL_LABELS = {
 }
 
 
-def _check_equipment(traits: list[str], eq: dict) -> None:
+def _check_equipment(traits: list[str], eq: dict[str, Any]) -> None:
     tac = eq.get("tactical", {})
     if tac:
         name = max(tac, key=tac.get)
@@ -67,7 +67,7 @@ def _check_equipment(traits: list[str], eq: dict) -> None:
         traits.append("Heavy Armor")
 
 
-def _pattern_traits(patterns: dict) -> list[str]:
+def _pattern_traits(patterns: dict[str, Any]) -> list[str]:
     traits: list[str] = []
     for context, actions in patterns.items():
         total = sum(actions.values())
