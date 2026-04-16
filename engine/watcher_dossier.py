@@ -9,6 +9,8 @@ from __future__ import annotations
 import math
 from typing import Any
 
+__all__ = ["build_dossier", "format_dossier_text"]
+
 from server.rival_patterns import (
     compact_for_embed,
     get_pattern_summary,
@@ -135,6 +137,3 @@ def _compute_predictability(
     if not max_probs:
         return 0.0
     return sum(max_probs) / len(max_probs)
-
-
-__all__ = ["build_dossier", "format_dossier_text"]

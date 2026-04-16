@@ -138,8 +138,8 @@ def _collect_traces(
     bumps_last_round: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
     """Lazy-import wrapper for decision trace collection."""
-    dt = __import__("engine.decision_trace", fromlist=["collect_round_traces"])
-    return dt.collect_round_traces(
+    from engine.decision_trace import collect_round_traces
+    return collect_round_traces(
         alive_bots, bots, round_num, grid_size, storm_border,
         bumps_last_round=bumps_last_round,
     )

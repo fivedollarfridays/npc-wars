@@ -94,7 +94,7 @@ def _reconstruct_bots(
     for pos in positions:
         bot = Bot(
             name=pos["emoji"], emoji=pos["emoji"], bio="", author="ghost",
-            decide_func=lambda _s: ("rest",), x=pos["x"], y=pos["y"],
+            decide_func=lambda _s, _p=pos: ("rest",), x=pos["x"], y=pos["y"],
             glyph=pos.get("glyph", pos["emoji"]),
         )
         if round_num > 1:

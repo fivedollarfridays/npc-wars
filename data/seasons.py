@@ -32,6 +32,7 @@ TIER_ORDER = ("Diamond", "Gold", "Silver", "Bronze")
 
 def init_seasons_tables(conn: sqlite3.Connection) -> None:
     """Create seasons and results tables idempotently."""
+    conn.row_factory = sqlite3.Row
     conn.execute(
         """
         CREATE TABLE IF NOT EXISTS seasons (

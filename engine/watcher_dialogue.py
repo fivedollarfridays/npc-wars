@@ -9,6 +9,8 @@ from __future__ import annotations
 import random
 from typing import Any
 
+__all__ = ["SYNC_TIERS", "TRIGGERS", "generate_monologue"]
+
 TRIGGERS = ("spawn", "kill", "sync_milestone", "player_death")
 SYNC_TIERS = ("low", "mid", "high")
 
@@ -128,6 +130,3 @@ def generate_monologue(
     context = _safe_get(pattern_summary, "context")
 
     return template.format(action=action, context=context)
-
-
-__all__ = ["SYNC_TIERS", "TRIGGERS", "generate_monologue"]

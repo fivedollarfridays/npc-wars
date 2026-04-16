@@ -20,8 +20,8 @@ def enrich_circuit_tv(race_data: dict[str, Any]) -> None:
 
     commentary_lines = generate_circuit_commentary(replay, events)
     race_data["commentary"] = [
-        {"timestamp": l.timestamp, "text": l.text, "tone": l.tone, "line_type": l.line_type}
-        for l in commentary_lines
+        {"timestamp": cl.timestamp, "text": cl.text, "tone": cl.tone, "line_type": cl.line_type}
+        for cl in commentary_lines
     ]
 
     race_data["highlights"] = _extract_highlights(events)
