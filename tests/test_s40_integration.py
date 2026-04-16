@@ -76,7 +76,7 @@ class TestBuildArtifacts:
     def test_build_succeeds(self) -> None:
         """python -m build produces distribution files."""
         result = subprocess.run(
-            [sys.executable, "-m", "build", "--no-isolation"],
+            [sys.executable, "-m", "build"],
             capture_output=True, text=True,
             cwd=str(Path(__file__).resolve().parent.parent),
         )

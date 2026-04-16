@@ -141,6 +141,7 @@ class TestRivalInjection:
 
             mp.setattr("server.lobby.enqueue_match", fake_enqueue)
             mp.setattr("server.lobby.queue_depth", lambda: 0)
+            mp.setattr("server.lobby.is_in_memory_mode", lambda: False)
             lobby.check_timer(conn=app.state.db)
 
         rival_bots = [c for c in triggered_configs if c.get("is_rival")]
@@ -171,6 +172,7 @@ class TestRivalInjection:
 
             mp.setattr("server.lobby.enqueue_match", fake_enqueue)
             mp.setattr("server.lobby.queue_depth", lambda: 0)
+            mp.setattr("server.lobby.is_in_memory_mode", lambda: False)
             lobby.check_timer(conn=app.state.db)
 
         assert len(triggered_configs) == MIN_HUMANS_FOR_NO_FILL
