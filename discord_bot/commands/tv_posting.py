@@ -9,7 +9,7 @@ from typing import Any
 import discord
 
 from discord_bot.embeds import to_embed
-from discord_bot.formatters import (
+from discord_bot.tv_formatters import (
     format_tv_main_message,
     format_tv_thread_stats,
     format_tv_thread_watcher,

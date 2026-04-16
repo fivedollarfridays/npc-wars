@@ -11,7 +11,7 @@ import discord
 from discord import app_commands
 
 from discord_bot.embeds import to_embed
-from discord_bot.formatters import format_highlights
+from discord_bot.tv_formatters import format_highlights
 
 __all__ = ["register_commands"]
 

@@ -105,7 +105,7 @@ class TestSeasonStandingsByGame:
         assert callable(register_commands)
 
     def test_format_game_standings_ks(self) -> None:
-        from discord_bot.formatters import format_game_standings
+        from discord_bot.tv_formatters import format_game_standings
         standings = [
             {"participant": "A", "points": 45, "tier": "Diamond"},
             {"participant": "B", "points": 30, "tier": "Gold"},
@@ -115,7 +115,7 @@ class TestSeasonStandingsByGame:
         assert "Diamond" in str(result)
 
     def test_format_game_standings_cc(self) -> None:
-        from discord_bot.formatters import format_game_standings
+        from discord_bot.tv_formatters import format_game_standings
         standings = [
             {"participant": "FastCar", "points": 25, "tier": "Diamond"},
         ]
@@ -123,7 +123,7 @@ class TestSeasonStandingsByGame:
         assert "Code Circuit" in result["title"]
 
     def test_format_game_standings_empty(self) -> None:
-        from discord_bot.formatters import format_game_standings
+        from discord_bot.tv_formatters import format_game_standings
         result = format_game_standings("kill_switch", "Season 1", [])
         assert "No results" in result["description"]
 
@@ -136,11 +136,11 @@ class TestHighlightFormatting:
     """Verify formatters for highlight display."""
 
     def test_format_highlights_exists(self) -> None:
-        from discord_bot.formatters import format_highlights
+        from discord_bot.tv_formatters import format_highlights
         assert callable(format_highlights)
 
     def test_format_highlights_ks(self) -> None:
-        from discord_bot.formatters import format_highlights
+        from discord_bot.tv_formatters import format_highlights
         highlights = [
             {"round_range": (3, 6), "trigger_type": "kill",
              "participants": ["A", "B"], "drama_score": 8,
@@ -151,7 +151,7 @@ class TestHighlightFormatting:
         assert "kill" in str(result).lower()
 
     def test_format_highlights_cc(self) -> None:
-        from discord_bot.formatters import format_highlights
+        from discord_bot.tv_formatters import format_highlights
         highlights = [
             {"round_range": (5, 8), "trigger_type": "overtake",
              "participants": ["FastCar", "SlowCar"], "drama_score": 6,
@@ -161,12 +161,12 @@ class TestHighlightFormatting:
         assert "Code Circuit" in result["title"]
 
     def test_format_highlights_empty(self) -> None:
-        from discord_bot.formatters import format_highlights
+        from discord_bot.tv_formatters import format_highlights
         result = format_highlights("kill_switch", [])
         assert "No highlights" in result["description"]
 
     def test_format_highlights_limits_to_five(self) -> None:
-        from discord_bot.formatters import format_highlights
+        from discord_bot.tv_formatters import format_highlights
         highlights = [
             {"round_range": (i, i + 1), "trigger_type": "kill",
              "participants": ["A"], "drama_score": i, "commentary": [f"Event {i}"]}
@@ -217,7 +217,7 @@ class TestMultiGameFormatting:
     """Ensure formatters produce consistent structures across games."""
 
     def test_highlights_dict_shape(self) -> None:
-        from discord_bot.formatters import format_highlights
+        from discord_bot.tv_formatters import format_highlights
         for game in ("kill_switch", "code_circuit"):
             result = format_highlights(game, [])
             assert "title" in result
@@ -226,7 +226,7 @@ class TestMultiGameFormatting:
             assert "fields" in result
 
     def test_game_standings_dict_shape(self) -> None:
-        from discord_bot.formatters import format_game_standings
+        from discord_bot.tv_formatters import format_game_standings
         standings = [{"participant": "X", "points": 10, "tier": "Gold"}]
         for game in ("kill_switch", "code_circuit"):
             result = format_game_standings(game, "S1", standings)
@@ -236,11 +236,11 @@ class TestMultiGameFormatting:
             assert "fields" in result
 
     def test_format_highlights_returns_plain_dict(self) -> None:
-        from discord_bot.formatters import format_highlights
+        from discord_bot.tv_formatters import format_highlights
         result = format_highlights("kill_switch", [])
         assert isinstance(result, dict)
 
     def test_format_game_standings_returns_plain_dict(self) -> None:
-        from discord_bot.formatters import format_game_standings
+        from discord_bot.tv_formatters import format_game_standings
         result = format_game_standings("kill_switch", "S1", [])
         assert isinstance(result, dict)
