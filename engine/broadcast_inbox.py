@@ -1,6 +1,6 @@
 """Post-match broadcast inbox hook (T70.2).
 
-Writes a copy of the finalized match JSON to ``BROADCAST_INBOX_PATH`` for the
+Writes a copy of the finalized match JSON to ``BROADCAST_INBOX_DIR`` for the
 agentgrounds-web watcher daemon to pick up. No-op when the env var is unset,
 logs a warning and swallows errors on write failure so the match still completes.
 """
@@ -14,12 +14,12 @@ from typing import Any
 
 __all__ = ["write_to_inbox"]
 
-_ENV_VAR = "BROADCAST_INBOX_PATH"
+_ENV_VAR = "BROADCAST_INBOX_DIR"
 _log = logging.getLogger(__name__)
 
 
 def write_to_inbox(match_data: dict[str, Any], game: str) -> str | None:
-    """Copy ``match_data`` to ``{BROADCAST_INBOX_PATH}/{game}/{match_id}.json``.
+    """Copy ``match_data`` to ``{BROADCAST_INBOX_DIR}/{game}/{match_id}.json``.
 
     Returns the written path, or ``None`` if the env var is unset or the write
     failed. Never raises.

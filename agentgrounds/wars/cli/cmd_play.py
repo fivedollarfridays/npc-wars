@@ -113,7 +113,7 @@ def _run_match(
         enrich_tv(match_data, results_dir=results_dir)
 
     filepath = write_match(match_data, results_dir)
-    write_to_inbox(match_data, "killswitch")
+    write_to_inbox(match_data, "kill_switch")
     return match_data, filepath
 
 
