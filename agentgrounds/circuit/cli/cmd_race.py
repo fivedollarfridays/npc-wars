@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import time
 from pathlib import Path
 
 __all__ = ["register", "run"]
@@ -45,6 +46,12 @@ def run(args: argparse.Namespace) -> None:
         from engine.circuit_tv import enrich_circuit_tv
 
         enrich_circuit_tv(race_data)
+
+    race_data.setdefault("match_id", int(time.time()))
+
+    from engine.broadcast_inbox import write_to_inbox
+
+    write_to_inbox(race_data, "circuit")
 
     _print_results(race_data)
 

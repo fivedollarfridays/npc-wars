@@ -92,6 +92,7 @@ def _run_match(
     """Load bots, run a match, write replay. Returns (match_data, filepath)."""
     from data.match_history import next_match_id
     from data.stat_diff import inject_diff_data
+    from engine.broadcast_inbox import write_to_inbox
     from engine.game import run_match
     from engine.loader import load_bots
     from engine.match_writer import write_match
@@ -112,6 +113,7 @@ def _run_match(
         enrich_tv(match_data, results_dir=results_dir)
 
     filepath = write_match(match_data, results_dir)
+    write_to_inbox(match_data, "killswitch")
     return match_data, filepath
 
 
