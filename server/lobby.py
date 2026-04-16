@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import sqlite3
 import threading
 import time
@@ -17,6 +18,17 @@ MIN_PLAYERS = 2
 MAX_PLAYERS = 8
 MIN_HUMANS_FOR_NO_FILL = 4
 LOBBY_TIMEOUT = 30.0  # seconds
+
+
+def _inline_on_no_redis_enabled() -> bool:
+    """Opt-in flag for inline match execution when Redis is unavailable.
+
+    Default False: production and tests use the queue path regardless of backend.
+    Set LOBBY_INLINE_ON_NO_REDIS=1 (or true/yes) for local dev without Redis.
+    """
+    return os.environ.get("LOBBY_INLINE_ON_NO_REDIS", "").strip().lower() in {
+        "1", "true", "yes", "on",
+    }
 
 
 class Lobby:
@@ -128,14 +140,19 @@ class Lobby:
             "results_dir": "results",
             "match_mode": match_mode,
         }
-        if is_in_memory_mode():
+        if _inline_on_no_redis_enabled() and is_in_memory_mode():
             _run_match_inline(job)
         else:
             enqueue_match(job)
 
 
 def _run_match_inline(job: dict) -> None:
-    """Process a match inline when Redis is unavailable (in-memory mode)."""
+    """Opt-in inline match processing for local dev without Redis.
+
+    Only runs when LOBBY_INLINE_ON_NO_REDIS is truthy AND the queue backend
+    is the in-memory fallback. Errors are logged structurally; callers do not
+    receive exceptions. Production paths use enqueue_match instead.
+    """
 
     def _process() -> None:
         from engine.game import run_match

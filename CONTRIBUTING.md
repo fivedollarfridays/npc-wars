@@ -171,3 +171,21 @@ Found a bug? Open an issue with:
 | `ranged_attack` | 10 |
 | `taunt` | 5 |
 | `trap` | 15 |
+
+## Local Server Dev (No Redis)
+
+The `server/lobby.py` module enqueues matches to Redis. When Redis is
+unavailable it falls back to an in-memory queue, but matches are only
+picked up if a worker is running against that queue.
+
+For quick local dev without Redis or a worker, set:
+
+```bash
+export LOBBY_INLINE_ON_NO_REDIS=1
+```
+
+This makes the lobby run matches inline (in a daemon thread) when the
+backend is the in-memory fallback. Errors are logged but not raised to
+callers — do not enable this in production or CI.
+
+Default is off so tests and production use the queue path consistently.
