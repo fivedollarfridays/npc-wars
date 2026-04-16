@@ -165,6 +165,27 @@ class TestEncodeFrames:
 # ---------------------------------------------------------------------------
 
 
+class TestRenderFrameCommentary:
+    """Tests for commentary overlay integration in render_frame()."""
+
+    def test_commentary_overlay_applied(self) -> None:
+        from video.video_render import render_frame
+
+        round_data = {
+            **MINIMAL_MATCH["rounds"][0],
+            "commentary": {"text": "Massive hit!", "tone": "hype"},
+        }
+        frame, _ = render_frame(round_data, MINIMAL_MATCH["eliminations"])
+        assert isinstance(frame, Image.Image)
+
+    def test_no_commentary_skips_overlay(self) -> None:
+        from video.video_render import render_frame
+
+        round_data = MINIMAL_MATCH["rounds"][0]
+        frame, _ = render_frame(round_data, MINIMAL_MATCH["eliminations"])
+        assert isinstance(frame, Image.Image)
+
+
 class TestRenderMatchVideo:
     """End-to-end test for render_match_video()."""
 

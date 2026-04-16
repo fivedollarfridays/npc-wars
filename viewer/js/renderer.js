@@ -236,6 +236,13 @@ function renderInterpolatedFrame(currentRoundData, nextRoundData, t) {
 function renderRound(idx) {
   if (!matchData || idx < 0 || idx >= matchData.rounds.length) return;
 
+  // Dispatch to correct game renderer
+  var gameType = typeof currentGameType !== 'undefined' ? currentGameType : 'killswitch';
+  if (gameType === 'circuit') {
+    if (typeof renderCircuitRound === 'function') renderCircuitRound(idx);
+    return;
+  }
+
   var round = matchData.rounds[idx];
 
   // Draw the canvas (storm, grid, bots, effects)
@@ -256,6 +263,12 @@ function renderRound(idx) {
   if (spectacle) {
     applySpectacleEffects(spectacle.tier, spectacle.triggers || [], spectacle.effects || []);
   }
+
+  // Update commentary ticker
+  if (typeof updateCommentary === 'function') updateCommentary(idx);
+
+  // Update code overlay
+  if (typeof updateCodeOverlay === 'function') updateCodeOverlay(idx);
 
   // Play audio stingers for events
   var tier = spectacle ? spectacle.tier : 'calm';

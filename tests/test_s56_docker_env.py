@@ -61,5 +61,5 @@ class TestEnvExample:
 
     def test_has_comments(self):
         content = (ROOT / ".env.example").read_text()
-        comment_lines = [l for l in content.splitlines() if l.startswith("#")]
+        comment_lines = [line for line in content.splitlines() if line.startswith("#")]
         assert len(comment_lines) >= 3, "Expected at least 3 comment lines"

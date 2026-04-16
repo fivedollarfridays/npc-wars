@@ -7,22 +7,22 @@ ROOT = Path(__file__).resolve().parent.parent
 
 
 def test_init_includes_starter() -> None:
-    """After agentgrounds wars init, starter.py should exist in bots/."""
+    """After agentgrounds killswitch init, starter.py should exist in bots/."""
     from agentgrounds.wars.builtin_bots import BUILTIN_NAMES
 
     assert "starter" in BUILTIN_NAMES
 
 
 def test_readme_mentions_play() -> None:
-    """README quick start uses 'agentgrounds wars play' as primary command."""
+    """README quick start uses 'agentgrounds killswitch play' as primary command."""
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "agentgrounds wars play" in readme
+    assert "agentgrounds killswitch play" in readme
 
 
 def test_readme_mentions_generate() -> None:
     """README mentions the generate command."""
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "agentgrounds wars generate" in readme
+    assert "agentgrounds killswitch generate" in readme
 
 
 def test_readme_mentions_prompt() -> None:
@@ -40,14 +40,14 @@ def test_readme_mentions_starter() -> None:
 def test_readme_has_play_in_quickstart() -> None:
     """README should show play command prominently."""
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
-    assert "agentgrounds wars play" in readme
-    assert "agentgrounds wars init" in readme
+    assert "agentgrounds killswitch play" in readme
+    assert "agentgrounds killswitch init" in readme
 
 
 def test_contributing_mentions_generate() -> None:
     """CONTRIBUTING.md mentions the generate command."""
     contrib = (ROOT / "CONTRIBUTING.md").read_text(encoding="utf-8")
-    assert "agentgrounds wars generate" in contrib
+    assert "agentgrounds killswitch generate" in contrib
 
 
 def test_contributing_mentions_prompt_md() -> None:

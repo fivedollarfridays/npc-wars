@@ -7,8 +7,6 @@ import logging
 import os
 from typing import Any, Protocol
 
-import redis
-
 _logger = logging.getLogger(__name__)
 
 
@@ -63,6 +61,7 @@ def _get_backend() -> QueueBackend:
         return _backend
     url = os.environ.get("REDIS_URL", "redis://localhost:6379")
     try:
+        import redis
         client = redis.Redis.from_url(url, decode_responses=True)
         client.ping()
         _backend = client

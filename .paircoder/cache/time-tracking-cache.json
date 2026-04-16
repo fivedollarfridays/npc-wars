@@ -740,5 +740,305 @@
       }
     ],
     "total_seconds": 685.180046
+  },
+  "T58.1": {
+    "entries": [
+      {
+        "id": "local-20260408224254",
+        "task_id": "T58.1",
+        "description": "T58.1: Kill Switch rivalry tracker",
+        "start": "2026-04-08T22:42:54.997580",
+        "end": "2026-04-08T22:47:01.775887",
+        "duration_seconds": 246.778307,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 246.778307
+  },
+  "T58.2": {
+    "entries": [
+      {
+        "id": "local-20260408224723",
+        "task_id": "T58.2",
+        "description": "T58.2: Kill Switch personality profiler",
+        "start": "2026-04-08T22:47:23.418067",
+        "end": "2026-04-08T22:56:53.226856",
+        "duration_seconds": 569.808789,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 569.808789
+  },
+  "T58.3": {
+    "entries": [
+      {
+        "id": "local-20260408225840",
+        "task_id": "T58.3",
+        "description": "T58.3: Kill Switch commentary engine",
+        "start": "2026-04-08T22:58:40.268920",
+        "end": "2026-04-08T23:10:51.300151",
+        "duration_seconds": 731.031231,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 731.031231
+  },
+  "T59.2": {
+    "entries": [
+      {
+        "id": "local-20260408231541",
+        "task_id": "T59.2",
+        "description": "T59.2: Watcher dossier",
+        "start": "2026-04-08T23:15:41.663797",
+        "end": "2026-04-08T23:19:00.248133",
+        "duration_seconds": 198.584336,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 198.584336
+  },
+  "T59.3": {
+    "entries": [
+      {
+        "id": "local-20260408231938",
+        "task_id": "T59.3",
+        "description": "T59.3: Watcher monologues",
+        "start": "2026-04-08T23:19:38.763656",
+        "end": "2026-04-08T23:31:20.704481",
+        "duration_seconds": 701.940825,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 701.940825
+  },
+  "T59.4": {
+    "entries": [
+      {
+        "id": "local-20260408233345",
+        "task_id": "T59.4",
+        "description": "T59.4: Wire TV into play command",
+        "start": "2026-04-08T23:33:45.893783",
+        "end": "2026-04-08T23:41:04.897975",
+        "duration_seconds": 439.004192,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 439.004192
+  },
+  "T60.1": {
+    "entries": [
+      {
+        "id": "local-20260408234454",
+        "task_id": "T60.1",
+        "description": "T60.1: Code Circuit commentary enhancement",
+        "start": "2026-04-08T23:44:54.733238",
+        "end": "2026-04-08T23:52:12.157237",
+        "duration_seconds": 437.423999,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 437.423999
+  },
+  "T60.2": {
+    "entries": [
+      {
+        "id": "local-20260408235239",
+        "task_id": "T60.2",
+        "description": "T60.2: Code Circuit personality profiler",
+        "start": "2026-04-08T23:52:39.545699",
+        "end": "2026-04-08T23:57:43.062227",
+        "duration_seconds": 303.516528,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 303.516528
+  },
+  "T61.1": {
+    "entries": [
+      {
+        "id": "local-20260409000331",
+        "task_id": "T61.1",
+        "description": "T61.1: Platform event contract + adapters",
+        "start": "2026-04-09T00:03:31.049030",
+        "end": "2026-04-09T00:13:11.506080",
+        "duration_seconds": 580.45705,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 580.45705
+  },
+  "T62.3": {
+    "entries": [
+      {
+        "id": "local-20260409002659",
+        "task_id": "T62.3",
+        "description": "T62.3: Viewer commentary ticker",
+        "start": "2026-04-09T00:26:59.489917",
+        "end": "2026-04-09T00:31:46.515902",
+        "duration_seconds": 287.025985,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 287.025985
+  },
+  "T63.1": {
+    "entries": [
+      {
+        "id": "local-20260409003222",
+        "task_id": "T63.1",
+        "description": "T63.1: Season manager",
+        "start": "2026-04-09T00:32:22.672598",
+        "end": "2026-04-09T00:36:31.038580",
+        "duration_seconds": 248.365982,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 248.365982
+  },
+  "T64.3": {
+    "entries": [
+      {
+        "id": "local-20260409005456",
+        "task_id": "T64.3",
+        "description": "T64.3: Discord channel posting",
+        "start": "2026-04-09T00:54:56.085712",
+        "end": "2026-04-09T01:15:12.687333",
+        "duration_seconds": 1216.601621,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 1216.601621
+  },
+  "T64.4": {
+    "entries": [
+      {
+        "id": "local-20260409012536",
+        "task_id": "T64.4",
+        "description": "T64.4: Season automation",
+        "start": "2026-04-09T01:25:36.267795",
+        "end": "2026-04-09T01:33:45.437105",
+        "duration_seconds": 489.16931,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 489.16931
+  },
+  "T65.1": {
+    "entries": [
+      {
+        "id": "local-20260409013423",
+        "task_id": "T65.1",
+        "description": "T65.1: Kill Switch meta analyzer",
+        "start": "2026-04-09T01:34:23.077286",
+        "end": "2026-04-09T01:40:01.342214",
+        "duration_seconds": 338.264928,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 338.264928
+  },
+  "T65.3": {
+    "entries": [
+      {
+        "id": "local-20260409021116",
+        "task_id": "T65.3",
+        "description": "T65.3: Code overlay in viewer",
+        "start": "2026-04-09T02:11:16.812743",
+        "end": "2026-04-09T02:15:53.702333",
+        "duration_seconds": 276.88959,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 276.88959
+  },
+  "T65.4": {
+    "entries": [
+      {
+        "id": "local-20260409021627",
+        "task_id": "T65.4",
+        "description": "T65.4: Ghost replay for Kill Switch",
+        "start": "2026-04-09T02:16:27.933603",
+        "end": "2026-04-09T02:24:58.167427",
+        "duration_seconds": 510.233824,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 510.233824
+  },
+  "T66.1": {
+    "entries": [
+      {
+        "id": "local-20260409022950",
+        "task_id": "T66.1",
+        "description": "T66.1: Mono-package structure",
+        "start": "2026-04-09T02:29:50.537421",
+        "end": "2026-04-09T02:36:37.467130",
+        "duration_seconds": 406.929709,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 406.929709
+  },
+  "T66.2": {
+    "entries": [
+      {
+        "id": "local-20260409023706",
+        "task_id": "T66.2",
+        "description": "T66.2: Viewer unification",
+        "start": "2026-04-09T02:37:06.651423",
+        "end": "2026-04-09T02:45:20.054065",
+        "duration_seconds": 493.402642,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 493.402642
+  },
+  "T66.3": {
+    "entries": [
+      {
+        "id": "local-20260409024720",
+        "task_id": "T66.3",
+        "description": "T66.3: Documentation + on-ramp",
+        "start": "2026-04-09T02:47:20.655873",
+        "end": "2026-04-09T02:54:22.176788",
+        "duration_seconds": 421.520915,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 421.520915
+  },
+  "T67.1": {
+    "entries": [
+      {
+        "id": "local-20260409025500",
+        "task_id": "T67.1",
+        "description": "T67.1: Discord bot unification",
+        "start": "2026-04-09T02:55:00.436144",
+        "end": "2026-04-09T03:12:21.291500",
+        "duration_seconds": 1040.855356,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 1040.855356
+  },
+  "T67.2": {
+    "entries": [
+      {
+        "id": "local-20260409032553",
+        "task_id": "T67.2",
+        "description": "T67.2: Website episode browser",
+        "start": "2026-04-09T03:25:53.364398",
+        "end": "2026-04-09T03:38:25.338517",
+        "duration_seconds": 751.974119,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 751.974119
+  },
+  "_active": {
+    "task_id": "T67.3",
+    "timer_id": "local-20260409033851",
+    "description": "T67.3: Website season standings",
+    "start": "2026-04-09T03:38:51.811374"
   }
 }

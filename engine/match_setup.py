@@ -44,8 +44,9 @@ def create_bots(
         bot_obj.energy += bonuses.max_energy
         # Apply overdrive passive at match start
         apply_overdrive(bot_obj)
-        # Discover callbacks from bot module (if available)
+        # Store module reference for tracing and callbacks
         module = config.get("module")
+        bot_obj.module = module
         if module is not None:
             unlocked_cbs = set(config.get("unlocked_callbacks", []))
             # Default: all callbacks unlocked for loaded bots

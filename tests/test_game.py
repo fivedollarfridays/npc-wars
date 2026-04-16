@@ -187,9 +187,10 @@ class TestSpectacleMetadata:
         configs = [
             bot_config("A", "🅰️", always_rest),
             bot_config("B", "🅱️", always_rest),
+            bot_config("C", "🇨", always_rest),
+            bot_config("D", "🇩", always_rest),
         ]
         data = run_match(configs, seed=42)
-        # Early rounds with resting bots should be calm
         first_round = data["rounds"][0]
         assert "spectacle" in first_round
         spec = first_round["spectacle"]

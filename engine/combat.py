@@ -148,6 +148,7 @@ class Bot:
         self.ability_slow: int = 0
         self.ability_slow_rounds: int = 0
         # Evolve state (set by engine.callback_runner.run_evolve_callback)
+        self.module: Any = None
         self.has_evolved: bool = False
 
     def can_act(self) -> bool:

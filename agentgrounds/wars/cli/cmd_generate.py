@@ -1,4 +1,4 @@
-"""agentgrounds wars generate — AI-assisted bot creation."""
+"""agentgrounds killswitch generate — AI-assisted bot creation."""
 from __future__ import annotations
 
 import argparse
@@ -83,7 +83,7 @@ def _manual_generate(prompt: str) -> None:
         "Save the response as bots/my_bot.py, then run:",
         file=sys.stderr,
     )
-    print("  agentgrounds wars validate bots/my_bot.py", file=sys.stderr)
+    print("  agentgrounds killswitch validate bots/my_bot.py", file=sys.stderr)
 
 
 def _auto_generate(prompt: str, args: argparse.Namespace) -> None:
@@ -147,8 +147,8 @@ def _validate_and_save(source: str, args: argparse.Namespace) -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(source, encoding="utf-8")
     print(f"Bot saved to {out_path}", file=sys.stderr)
-    print(f"Validate: agentgrounds wars validate {out_path}", file=sys.stderr)
-    print("Play: agentgrounds wars battle --seed 42", file=sys.stderr)
+    print(f"Validate: agentgrounds killswitch validate {out_path}", file=sys.stderr)
+    print("Play: agentgrounds killswitch battle --seed 42", file=sys.stderr)
 
 
 def _resolve_output_path(args: argparse.Namespace) -> Path:

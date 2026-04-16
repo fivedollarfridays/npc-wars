@@ -1,4 +1,4 @@
-"""Tests for agentgrounds wars init command."""
+"""Tests for agentgrounds killswitch init command."""
 from __future__ import annotations
 
 import tomllib
@@ -168,11 +168,11 @@ class TestInitPostMessage:
 
     def test_message_shows_play_command(self, tmp_path: object, capsys: pytest.CaptureFixture[str]) -> None:
         out, _ = _run_main(["init", "--dir", str(tmp_path)], capsys)
-        assert "agentgrounds wars play" in out
+        assert "agentgrounds killswitch play" in out
 
     def test_message_shows_generate_command(self, tmp_path: object, capsys: pytest.CaptureFixture[str]) -> None:
         out, _ = _run_main(["init", "--dir", str(tmp_path)], capsys)
-        assert "agentgrounds wars generate" in out
+        assert "agentgrounds killswitch generate" in out
 
     def test_message_shows_starter_bot_path(self, tmp_path: object, capsys: pytest.CaptureFixture[str]) -> None:
         out, _ = _run_main(["init", "--dir", str(tmp_path)], capsys)

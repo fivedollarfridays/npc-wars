@@ -238,9 +238,10 @@ class TestLobbyFlow:
 
     def test_capacity_trigger(self):
         from server.lobby import Lobby, MAX_PLAYERS
-        from server.queue import InMemoryQueue, set_backend
+        from conftest import NotInMemoryQueue
+        from server.queue import set_backend
 
-        q = InMemoryQueue()
+        q = NotInMemoryQueue()
         set_backend(q)
         lobby = Lobby()
         for i in range(MAX_PLAYERS):

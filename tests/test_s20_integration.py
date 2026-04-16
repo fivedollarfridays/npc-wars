@@ -169,7 +169,8 @@ class TestPlayE2E:
 
     def test_play_exits_zero_with_winner(self) -> None:
         result = subprocess.run(
-            [sys.executable, "-m", "agentgrounds.wars.cli", "play", "--no-watch", "--seed", "42"],
+            [sys.executable, "-m", "agentgrounds.wars.cli", "play",
+             "--no-watch", "--no-tv", "--seed", "42"],
             capture_output=True, text=True, cwd=str(PROJECT_ROOT),
             timeout=60,
         )
@@ -255,11 +256,11 @@ class TestREADME:
     def readme_text(self) -> str:
         return (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
 
-    def test_mentions_agentgrounds_wars_play(self, readme_text) -> None:
-        assert "agentgrounds wars play" in readme_text
+    def test_mentions_agentgrounds_killswitch_play(self, readme_text) -> None:
+        assert "agentgrounds killswitch play" in readme_text
 
-    def test_mentions_agentgrounds_wars_generate(self, readme_text) -> None:
-        assert "agentgrounds wars generate" in readme_text
+    def test_mentions_agentgrounds_killswitch_generate(self, readme_text) -> None:
+        assert "agentgrounds killswitch generate" in readme_text
 
     def test_mentions_prompt_md(self, readme_text) -> None:
         assert "PROMPT.md" in readme_text
