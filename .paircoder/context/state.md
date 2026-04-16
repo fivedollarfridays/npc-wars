@@ -41,7 +41,7 @@
 
 ## Current Focus
 
-Sprint 70 broadcast-bridge. T70.1 (Laverna LLM bot) and T70.2 (broadcast inbox hook) done.
+Sprint 70 broadcast-bridge. T70.2 (broadcast inbox hook) done; T70.1 (Laverna LLM bot) still pending.
 
 ## What Was Just Done
 
