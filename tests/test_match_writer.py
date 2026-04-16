@@ -94,3 +94,62 @@ class TestWriteMatch:
             loaded = json.load(f)
         pos = loaded["rounds"][0]["positions"][0]
         assert set(pos.keys()) == {"emoji", "x", "y", "hp", "energy", "action", "alive"}
+
+
+class TestBroadcastInbox:
+    """BC2.4: optional broadcast_inbox param copies match JSON to broadcast inbox dir."""
+
+    def test_no_broadcast_inbox_writes_only_results(self, tmp_path):
+        results = tmp_path / "results"
+        data = _sample_match_data(match_id=3)
+        filepath = write_match(data, str(results))
+        assert os.path.exists(filepath)
+        # No other directories created
+        assert sorted(p.name for p in tmp_path.iterdir()) == ["results"]
+
+    def test_broadcast_inbox_none_preserves_prior_behavior(self, tmp_path):
+        results = tmp_path / "results"
+        data = _sample_match_data(match_id=5)
+        filepath = write_match(data, str(results), broadcast_inbox=None)
+        assert os.path.exists(filepath)
+        assert filepath.endswith("match_005.json")
+
+    def test_broadcast_inbox_writes_duplicate(self, tmp_path):
+        results = tmp_path / "results"
+        inbox = tmp_path / "inbox"
+        data = _sample_match_data(match_id=9)
+        filepath = write_match(data, str(results), broadcast_inbox=str(inbox))
+        inbox_file = inbox / "match_009.json"
+        assert os.path.exists(filepath)
+        assert inbox_file.exists()
+        with open(inbox_file) as f:
+            loaded = json.load(f)
+        assert loaded["match_id"] == 9
+
+    def test_broadcast_inbox_auto_creates_directory(self, tmp_path):
+        results = tmp_path / "results"
+        inbox = tmp_path / "nested" / "missing" / "inbox"
+        assert not inbox.exists()
+        data = _sample_match_data(match_id=11)
+        write_match(data, str(results), broadcast_inbox=str(inbox))
+        assert inbox.is_dir()
+        assert (inbox / "match_011.json").exists()
+
+    def test_broadcast_inbox_contents_match_results(self, tmp_path):
+        results = tmp_path / "results"
+        inbox = tmp_path / "inbox"
+        data = _sample_match_data(match_id=7)
+        filepath = write_match(data, str(results), broadcast_inbox=str(inbox))
+        with open(filepath) as f:
+            primary = json.load(f)
+        with open(inbox / "match_007.json") as f:
+            copied = json.load(f)
+        assert primary == copied
+
+    def test_return_value_is_results_path(self, tmp_path):
+        """Returned path remains the results path, not the inbox path."""
+        results = tmp_path / "results"
+        inbox = tmp_path / "inbox"
+        data = _sample_match_data(match_id=1)
+        filepath = write_match(data, str(results), broadcast_inbox=str(inbox))
+        assert filepath.startswith(str(results))
