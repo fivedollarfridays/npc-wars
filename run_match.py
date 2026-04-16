@@ -44,8 +44,11 @@ def main() -> None:
     # XP integration: calculate, persist, inject into match result
     inject_xp_into_match(match_data, db_path=args.db_path, no_xp=args.no_xp)
 
-    filepath = write_match(match_data, results_dir)
+    broadcast_inbox = os.environ.get("BROADCAST_INBOX_DIR") or None
+    filepath = write_match(match_data, results_dir, broadcast_inbox=broadcast_inbox)
     print(f"\nMatch data written to: {filepath}")
+    if broadcast_inbox:
+        print(f"Broadcast inbox copy: {broadcast_inbox}")
 
     # Print results
     winner = match_data["winner"]
