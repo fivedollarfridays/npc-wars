@@ -51,7 +51,7 @@ def run(args: argparse.Namespace) -> None:
 
     from engine.broadcast_inbox import write_to_inbox
 
-    write_to_inbox(race_data, "circuit")
+    write_to_inbox(race_data, "code_circuit")
 
     _print_results(race_data)
 
