@@ -169,7 +169,8 @@ class TestPlayE2E:
 
     def test_play_exits_zero_with_winner(self) -> None:
         result = subprocess.run(
-            [sys.executable, "-m", "agentgrounds.wars.cli", "play", "--no-watch", "--seed", "42"],
+            [sys.executable, "-m", "agentgrounds.wars.cli", "play",
+             "--no-watch", "--no-tv", "--seed", "42"],
             capture_output=True, text=True, cwd=str(PROJECT_ROOT),
             timeout=60,
         )

@@ -4,16 +4,17 @@ from __future__ import annotations
 
 from unittest.mock import patch
 
+from conftest import NotInMemoryQueue
 from server.lobby import Lobby, MAX_PLAYERS, MIN_HUMANS_FOR_NO_FILL, LOBBY_TIMEOUT
-from server.queue import InMemoryQueue, set_backend, dequeue_match
+from server.queue import set_backend, dequeue_match
 
 
 def _make_bot(name: str = "TestBot") -> dict:
     return {"name": name, "emoji": "T"}
 
 
-def _queue() -> InMemoryQueue:
-    q = InMemoryQueue()
+def _queue() -> NotInMemoryQueue:
+    q = NotInMemoryQueue()
     set_backend(q)
     return q
 

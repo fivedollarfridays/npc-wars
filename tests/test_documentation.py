@@ -20,8 +20,8 @@ class TestReadme:
         """README shows a 3-command demo (install, init, play)."""
         text = self._readme()
         assert "pip install agent-grounds" in text
-        assert "agentgrounds killswitch init" in text or "agentgrounds wars init" in text
-        assert "agentgrounds killswitch play" in text or "agentgrounds wars play" in text
+        assert "agentgrounds killswitch init" in text or "agentgrounds killswitch init" in text
+        assert "agentgrounds killswitch play" in text or "agentgrounds killswitch play" in text
 
     def test_feature_list(self):
         text = self._readme()

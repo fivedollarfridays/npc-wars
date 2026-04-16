@@ -55,6 +55,6 @@ def run(args: argparse.Namespace) -> None:
     print("  replays/     — match recordings")
     print(f"  {CONFIG_FILENAME} — configuration")
     print("\nNext steps:")
-    print("  agentgrounds wars play          # Watch your first match!")
-    print("  agentgrounds wars generate      # Create a bot with AI")
+    print("  agentgrounds killswitch play          # Watch your first match!")
+    print("  agentgrounds killswitch generate      # Create a bot with AI")
     print("  bots/starter.py                 # Edit the starter bot")

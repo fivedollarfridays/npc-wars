@@ -112,18 +112,20 @@ def test_extended_mode_uses_higher_starting_hp() -> None:
 
 def test_queue_depth_empty() -> None:
     """queue_depth returns 0 for empty queue."""
-    from server.queue import InMemoryQueue, queue_depth, set_backend
+    from conftest import NotInMemoryQueue
+    from server.queue import queue_depth, set_backend
 
-    backend = InMemoryQueue()
+    backend = NotInMemoryQueue()
     set_backend(backend)
     assert queue_depth() == 0
 
 
 def test_queue_depth_with_items() -> None:
     """queue_depth returns count of items in queue."""
-    from server.queue import InMemoryQueue, queue_depth, set_backend
+    from conftest import NotInMemoryQueue
+    from server.queue import queue_depth, set_backend
 
-    backend = InMemoryQueue()
+    backend = NotInMemoryQueue()
     set_backend(backend)
     backend.lpush("npcwars:match_queue", '{"test": 1}')
     backend.lpush("npcwars:match_queue", '{"test": 2}')
@@ -141,9 +143,10 @@ def test_lobby_standard_mode_when_queue_shallow() -> None:
     from unittest.mock import patch
 
     from server.lobby import Lobby
-    from server.queue import InMemoryQueue, set_backend
+    from conftest import NotInMemoryQueue
+    from server.queue import set_backend
 
-    backend = InMemoryQueue()
+    backend = NotInMemoryQueue()
     set_backend(backend)
 
     with patch("server.lobby._get_fill_bots", return_value=[]):
@@ -164,9 +167,10 @@ def test_lobby_auto_selects_extended_when_queue_deep() -> None:
     from unittest.mock import patch
 
     from server.lobby import Lobby
-    from server.queue import InMemoryQueue, set_backend
+    from conftest import NotInMemoryQueue
+    from server.queue import set_backend
 
-    backend = InMemoryQueue()
+    backend = NotInMemoryQueue()
     set_backend(backend)
 
     # Pre-fill queue with 4 items (depth > 3)

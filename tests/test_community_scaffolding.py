@@ -30,7 +30,7 @@ def test_showcase_readme_exists():
 
 def test_showcase_readme_has_submission_rules():
     content = (PROJECT_ROOT / "showcase" / "README.md").read_text()
-    assert "agentgrounds wars validate" in content
+    assert "agentgrounds killswitch validate" in content
     assert "Max 3 bots per author" in content
 
 
@@ -66,9 +66,9 @@ def test_readme_has_pip_install():
 
 def test_readme_has_quick_start_commands():
     content = (PROJECT_ROOT / "README.md").read_text()
-    assert "agentgrounds wars init" in content
-    assert "agentgrounds wars wizard" in content
-    assert "agentgrounds wars battle" in content
+    assert "agentgrounds killswitch init" in content
+    assert "agentgrounds killswitch wizard" in content
+    assert "agentgrounds killswitch battle" in content
 
 
 def test_prompt_has_helpers_dsl_example():

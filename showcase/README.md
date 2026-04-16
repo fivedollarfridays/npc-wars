@@ -4,10 +4,10 @@ Community-submitted bots. Submit yours via PR!
 
 ## How to Submit
 
-1. Build your bot: `agentgrounds wars wizard` or write it by hand
-2. Validate: `agentgrounds wars validate bots/your_bot.py`
+1. Build your bot: `agentgrounds killswitch wizard` or write it by hand
+2. Validate: `agentgrounds killswitch validate bots/your_bot.py`
 3. Copy to `showcase/your_bot.py`
-4. Open a PR -- must pass `agentgrounds wars validate`
+4. Open a PR -- must pass `agentgrounds killswitch validate`
 
 ## Rules
 

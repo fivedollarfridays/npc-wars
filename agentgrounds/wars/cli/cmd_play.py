@@ -1,4 +1,4 @@
-"""agentgrounds wars play -- validate, battle, and watch in one command."""
+"""agentgrounds killswitch play -- validate, battle, and watch in one command."""
 from __future__ import annotations
 
 import argparse
@@ -160,8 +160,8 @@ def _print_summary(match_data: dict, filepath: str) -> None:
             print()
 
     print(f"  Saved: {filepath}")
-    print(f"  Watch: agentgrounds wars watch {filepath}")
-    print("\n  Edit your bot and play again! →  agentgrounds wars play\n")
+    print(f"  Watch: agentgrounds killswitch watch {filepath}")
+    print("\n  Edit your bot and play again! →  agentgrounds killswitch play\n")
 
 
 def _play_back(
@@ -230,4 +230,4 @@ def _show_endgame(
     print(renderer.render_winner(winner, duration))
     print(renderer.render_standings(match_data))
     print(f"  Replay saved: {filepath}")
-    print(f"  Re-watch: agentgrounds wars watch {filepath} --speed 4")
+    print(f"  Re-watch: agentgrounds killswitch watch {filepath} --speed 4")

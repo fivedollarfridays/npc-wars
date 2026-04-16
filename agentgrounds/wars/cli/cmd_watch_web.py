@@ -1,4 +1,4 @@
-"""agentgrounds wars watch-web — open match replay in browser viewer."""
+"""agentgrounds killswitch watch-web — open match replay in browser viewer."""
 from __future__ import annotations
 
 import argparse
@@ -44,7 +44,7 @@ def _find_viewer_dir() -> Path | None:
 def run(args: argparse.Namespace) -> None:
     match_file = args.match_file or _find_latest_match()
     if not match_file:
-        print("No match file found. Run `agentgrounds wars play` first.", file=sys.stderr)
+        print("No match file found. Run `agentgrounds killswitch play` first.", file=sys.stderr)
         sys.exit(1)
 
     match_path = Path(match_file)

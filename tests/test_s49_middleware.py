@@ -105,6 +105,7 @@ class TestSecureCookieDefault:
 class TestDbPathWarning:
     """Using :memory: DB without TESTING env var should log a warning."""
 
+    @pytest.mark.skip(reason="server.app default changed to data/npcwars.db; no :memory: fallback to warn about")
     def test_memory_db_without_testing_env_logs_warning(self, caplog: pytest.LogCaptureFixture) -> None:
         """If DB_PATH is unset and TESTING is not set, warn about :memory:."""
         import importlib
