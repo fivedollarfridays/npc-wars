@@ -1,0 +1,13 @@
+id: plan-2026-04-sprint-70-broadcast-bridge
+title: 'Sprint 70: Broadcast Bridge (Laverna bot + post-match hook)'
+type: feature
+status: planned
+created_at: '2026-04-15T23:56:04.641226'
+skills:
+- planning-with-pm
+goals:
+- Wire Laverna paircoder persona as LLM-driven Kill Switch bot
+- Add post-match hook to write match JSON to broadcast inbox for agentgrounds-web
+  watcher
+metadata:
+  pm_scope: story

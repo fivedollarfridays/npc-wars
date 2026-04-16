@@ -45,6 +45,8 @@ Sprint 70 broadcast-bridge. T70.2 (broadcast inbox hook) done; T70.1 (Laverna LL
 
 ## What Was Just Done
 
+- **T70.2 done** (auto-updated by hook)
+
 - **T70.2 done**
 
 **T70.2: Post-match hook — write match JSON to broadcast inbox** — Added `engine/broadcast_inbox.py` (47 LOC) with `write_to_inbox(match_data, game) -> str | None`. Reads `BROADCAST_INBOX_PATH` env var; no-op when unset/empty. Writes to `{inbox}/{game}/{match_id}.json` (game = "killswitch" or "circuit"), auto-creating directories. Overwrites on collision (idempotent). Catches `OSError` and logs warning via `logging.getLogger(__name__)` — never raises, match still completes. Wired into `agentgrounds/wars/cli/cmd_play.py::_run_match` after `write_match()` with game="killswitch". Wired into `agentgrounds/circuit/cli/cmd_race.py::run` after TV enrichment with game="circuit"; injects `match_id = int(time.time())` since circuit races have no persistent id. 14 new tests in `tests/test_broadcast_inbox.py` covering: env unset/empty no-op, write happy path, game subdir isolation, auto-create nested dirs, idempotent rewrite, OSError logged + returns None, missing match_id warned. Ruff clean, arch clean on helper. Pre-existing cmd_play.py file-too-large warning unchanged (still under 400 error threshold).
