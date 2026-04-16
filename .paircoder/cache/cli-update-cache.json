@@ -383,8 +383,20 @@
     "last_cli_update": "2026-04-09T03:38:51.457597",
     "last_status": "in_progress"
   },
-  "T70.2": {
-    "last_cli_update": "2026-04-16T00:33:01.907043",
+  "T71.1": {
+    "last_cli_update": "2026-04-16T08:37:03.894117",
+    "last_status": "done"
+  },
+  "T71.2": {
+    "last_cli_update": "2026-04-16T08:40:38.331523",
+    "last_status": "done"
+  },
+  "T71.4": {
+    "last_cli_update": "2026-04-16T09:09:13.327098",
     "last_status": "failed"
+  },
+  "T71.3": {
+    "last_cli_update": "2026-04-16T09:18:17.437396",
+    "last_status": "in_progress"
   }
 }

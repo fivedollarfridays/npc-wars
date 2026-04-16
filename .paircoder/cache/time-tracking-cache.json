@@ -1035,10 +1035,38 @@
     ],
     "total_seconds": 751.974119
   },
+  "T71.1": {
+    "entries": [
+      {
+        "id": "local-20260416083330",
+        "task_id": "T71.1",
+        "description": "T71.1: Extract viewer.html inline CSS",
+        "start": "2026-04-16T08:33:30.107035",
+        "end": "2026-04-16T08:36:51.382887",
+        "duration_seconds": 201.275852,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 201.275852
+  },
+  "T71.2": {
+    "entries": [
+      {
+        "id": "local-20260416083728",
+        "task_id": "T71.2",
+        "description": "T71.2: Split discord_bot/formatters.py at TV boundary",
+        "start": "2026-04-16T08:37:28.197074",
+        "end": "2026-04-16T08:40:26.191319",
+        "duration_seconds": 177.994245,
+        "provider_id": null
+      }
+    ],
+    "total_seconds": 177.994245
+  },
   "_active": {
-    "task_id": "T67.3",
-    "timer_id": "local-20260409033851",
-    "description": "T67.3: Website season standings",
-    "start": "2026-04-09T03:38:51.811374"
+    "task_id": "T71.3",
+    "timer_id": "local-20260416091817",
+    "description": "T71.3: Extract engine/rounds.py helpers to reduce file size",
+    "start": "2026-04-16T09:18:17.693182"
   }
 }

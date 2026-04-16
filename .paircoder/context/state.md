@@ -1,8 +1,21 @@
 # Current State
 
-> Last updated: 2026-04-16 T70.2 done
+> Last updated: 2026-04-16 S71 tech debt sprint planned
 
 ## Active Plans
+
+**Plan:** Sprint 71: Tech Debt Cleanup
+- **Sprint:** S71 | **Type:** chore | **Status:** planned
+- 4 tasks, ~60 Cx, all independent (full parallel OK)
+
+### S71 Tasks
+
+| Task | Title | Cx | P | Status |
+|------|-------|----|---|--------|
+| T71.1 | Extract viewer.html inline CSS | 15 | P0 | done ✓ |
+| T71.2 | Split discord_bot/formatters.py at TV boundary | 15 | P0 | done ✓ |
+| T71.3 | Extract engine/rounds.py helpers (CI boundary) | 20 | P0 | pending |
+| T71.4 | Fix server/lobby.py fire-and-forget thread | 10 | P1 | pending |
 
 **Plan:** Sprint 58: Engage — Agent Grounds backlog
 - **Sprint:** S58 | **Type:** feature | **Status:** in_progress
@@ -41,15 +54,19 @@
 
 ## Current Focus
 
-Sprint 70 broadcast-bridge. T70.2 (broadcast inbox hook) done; T70.1 (Laverna LLM bot) still pending.
+S71 tech debt sprint: T71.1 + T71.2 done. Next up: T71.3 (`engine/rounds.py` at CI size boundary) and T71.4 (`server/lobby.py` fire-and-forget thread fix).
 
 ## What Was Just Done
 
-- **T70.2 done** (auto-updated by hook)
+- **T71.2 done** (auto-updated by hook)
 
-- **T70.2 done**
+- **T71.2 done** — Split `discord_bot/formatters.py` (334 lines) at the TV boundary. Moved `format_tv_main_message`, `format_tv_thread_stats`, `format_tv_thread_watcher`, `format_highlights`, `format_game_standings` + `COLOR_GOLD` / `COLOR_BLUE` / `COLOR_PURPLE` / `_GAME_LABELS` into new `discord_bot/tv_formatters.py` (166 lines). `formatters.py` now 174 lines with only match/leaderboard/claim functions. Clean split — no re-exports from `formatters`. Updated importers: `commands/tv_posting.py`, `commands/tv_commands.py`, `tests/test_tv_formatters.py`, `tests/test_bot_unified.py`. All 163 discord-related tests pass (test_formatters, test_tv_formatters, test_tv_posting, test_bot_unified, test_claims_commands, test_discord_*). Arch check passes on both files. Pure refactor, zero behavioral change.
 
-**T70.2: Post-match hook — write match JSON to broadcast inbox** — Added `engine/broadcast_inbox.py` (47 LOC) with `write_to_inbox(match_data, game) -> str | None`. Reads `BROADCAST_INBOX_PATH` env var; no-op when unset/empty. Writes to `{inbox}/{game}/{match_id}.json` (game = "killswitch" or "circuit"), auto-creating directories. Overwrites on collision (idempotent). Catches `OSError` and logs warning via `logging.getLogger(__name__)` — never raises, match still completes. Wired into `agentgrounds/wars/cli/cmd_play.py::_run_match` after `write_match()` with game="killswitch". Wired into `agentgrounds/circuit/cli/cmd_race.py::run` after TV enrichment with game="circuit"; injects `match_id = int(time.time())` since circuit races have no persistent id. 14 new tests in `tests/test_broadcast_inbox.py` covering: env unset/empty no-op, write happy path, game subdir isolation, auto-create nested dirs, idempotent rewrite, OSError logged + returns None, missing match_id warned. Ruff clean, arch clean on helper. Pre-existing cmd_play.py file-too-large warning unchanged (still under 400 error threshold).
+- **T71.1 done** (auto-updated by hook)
+
+- **T71.1 done** — Extracted all inline CSS from `viewer/viewer.html` into new `viewer/viewer.css` (810 lines). Replaced the `<style>...</style>` block (lines 7-818) with a single `<link rel="stylesheet" href="viewer.css">`. `viewer.html` is now 191 lines (down from 1002, well under the 400-line source limit). CSS is byte-for-byte identical to the original inline content. All 102 viewer-related tests pass (test_viewer_unified, test_viewer_layout, test_viewer_modular, test_viewer_cosmetics, test_viewer_code_overlay, test_viewer_commentary, test_viewer_circuit). The 4 pre-existing `test_viewer_data.py::*terrain_tiles*` failures are unrelated (missing match JSON field). `bpsai-pair arch check viewer/viewer.html` passes. Pure refactor, no behavioral change. `test_viewer_layout.py::_extract_css` still works because it reads `index.html` (which was not touched this task), and `test_viewer_modular.py:178` already accepted either `<style>` or `rel="stylesheet"`.
+
+- **S71 tech debt sprint planned** — Created `plan-2026-04-s71-tech-debt` (chore) from `plans/backlogs/backlog-tech-debt-cleanup.md`. 4 tasks, all independent: T71.1 (viewer.html CSS extraction, 15 Cx), T71.2 (discord_bot/formatters.py split, 15 Cx), T71.3 (engine/rounds.py helper extraction — at CI size limit, 20 Cx), T71.4 (server/lobby.py inline-thread env-flag fix, 10 Cx). Total 60 Cx. Verified all referenced files match backlog line counts (viewer.html 1002, formatters.py 334, rounds.py 350, lobby.py 235). T71.4 has cut-list status if budget overflows; T71.1-T71.3 are size-threshold blockers.
 
 - **T66.3 done** (auto-updated by hook)
 
