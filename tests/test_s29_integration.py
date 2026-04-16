@@ -294,10 +294,10 @@ class TestArchCompliance:
     """Verify extracted modules stay within size limits."""
 
     def test_rounds_py_arch_compliant(self) -> None:
-        """rounds.py under 15 functions and 350 LOC."""
+        """rounds.py under 15 functions and 200 LOC."""
         path = Path("engine/rounds.py")
         lines = path.read_text().splitlines()
-        assert len(lines) <= 350, f"rounds.py has {len(lines)} lines (limit 350)"
+        assert len(lines) <= 200, f"rounds.py has {len(lines)} lines (limit 200)"
 
         func_count = sum(1 for ln in lines if ln.lstrip().startswith("def "))
         assert func_count <= 15, (
@@ -313,6 +313,32 @@ class TestArchCompliance:
         func_count = sum(1 for ln in lines if ln.lstrip().startswith("def "))
         assert func_count <= 15, (
             f"rounds_combat.py has {func_count} functions (limit 15)"
+        )
+
+    def test_rounds_decisions_py_arch_compliant(self) -> None:
+        """rounds_decisions.py under 15 functions and 200 LOC."""
+        path = Path("engine/rounds_decisions.py")
+        lines = path.read_text().splitlines()
+        assert len(lines) <= 200, (
+            f"rounds_decisions.py has {len(lines)} lines (limit 200)"
+        )
+
+        func_count = sum(1 for ln in lines if ln.lstrip().startswith("def "))
+        assert func_count <= 15, (
+            f"rounds_decisions.py has {func_count} functions (limit 15)"
+        )
+
+    def test_rounds_movement_py_arch_compliant(self) -> None:
+        """rounds_movement.py under 15 functions and 200 LOC."""
+        path = Path("engine/rounds_movement.py")
+        lines = path.read_text().splitlines()
+        assert len(lines) <= 200, (
+            f"rounds_movement.py has {len(lines)} lines (limit 200)"
+        )
+
+        func_count = sum(1 for ln in lines if ln.lstrip().startswith("def "))
+        assert func_count <= 15, (
+            f"rounds_movement.py has {func_count} functions (limit 15)"
         )
 
 

@@ -90,8 +90,9 @@ def test_in_memory_queue_depth():
 # ── Cycle 3: Inline match processing in lobby ───────────────────────
 
 
-def test_trigger_match_calls_inline_when_in_memory_mode():
-    """When in-memory mode, _trigger_match calls _run_match_inline instead of enqueue."""
+def test_trigger_match_calls_inline_when_flag_and_in_memory_mode(monkeypatch):
+    """With LOBBY_INLINE_ON_NO_REDIS=1 + in-memory backend, _trigger_match runs inline."""
+    monkeypatch.setenv("LOBBY_INLINE_ON_NO_REDIS", "1")
     set_backend(InMemoryQueue())
     from server.lobby import Lobby
 
@@ -104,11 +105,32 @@ def test_trigger_match_calls_inline_when_in_memory_mode():
     ):
         for i in range(4):
             lobby.join({"name": f"bot{i}", "emoji": "B"})
-        # Timer triggers the match
         lobby._triggered = False
         lobby._trigger_match()
         mock_inline.assert_called_once()
         mock_enqueue.assert_not_called()
+    set_backend(None)
+
+
+def test_trigger_match_enqueues_when_flag_unset_even_in_memory_mode(monkeypatch):
+    """Default (flag unset): in-memory backend still uses the queue path, not inline."""
+    monkeypatch.delenv("LOBBY_INLINE_ON_NO_REDIS", raising=False)
+    set_backend(InMemoryQueue())
+    from server.lobby import Lobby
+
+    lobby = Lobby()
+    with (
+        patch("server.lobby._run_match_inline") as mock_inline,
+        patch("server.lobby.enqueue_match") as mock_enqueue,
+        patch("server.lobby.queue_depth", return_value=0),
+        patch("server.lobby._get_fill_bots", return_value=[]),
+    ):
+        for i in range(4):
+            lobby.join({"name": f"bot{i}", "emoji": "B"})
+        lobby._triggered = False
+        lobby._trigger_match()
+        mock_enqueue.assert_called_once()
+        mock_inline.assert_not_called()
     set_backend(None)
 
 

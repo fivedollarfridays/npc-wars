@@ -1,0 +1,10 @@
+id: plan-2026-04-s71-tech-debt
+title: 'Sprint 71: Tech Debt Cleanup'
+type: chore
+status: planned
+created_at: '2026-04-16T08:30:22.037284'
+skills:
+- planning-with-pm
+goals:
+- Refactor 3 files exceeding arch size limits (viewer.html, formatters.py, rounds.py)
+- Replace fire-and-forget thread in server/lobby.py with explicit env-flag opt-in

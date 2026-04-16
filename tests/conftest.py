@@ -6,30 +6,6 @@ from unittest.mock import AsyncMock, MagicMock
 import discord
 
 from engine.combat import Bot
-from server.queue import InMemoryQueue
-
-
-class NotInMemoryQueue:
-    """Test queue that mimics InMemoryQueue but is not detected by is_in_memory_mode().
-
-    Lobby runs matches inline when is_in_memory_mode() returns True (S57 change).
-    Tests that inspect the enqueue path should use this backend instead.
-    """
-
-    def __init__(self) -> None:
-        self._inner = InMemoryQueue()
-
-    def lpush(self, key: str, value: str) -> int:
-        return self._inner.lpush(key, value)
-
-    def brpop(self, key: str, timeout: int = 0) -> tuple | None:
-        return self._inner.brpop(key, timeout)
-
-    def ping(self) -> bool:
-        return True
-
-    def llen(self, key: str) -> int:
-        return len(self._inner._data.get(key, []))
 
 
 # --- Viewer helpers ---
