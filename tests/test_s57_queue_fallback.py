@@ -13,15 +13,17 @@ from server.queue import InMemoryQueue, set_backend
 def test_fallback_to_in_memory_when_redis_unavailable():
     """When Redis connection fails, _get_backend falls back to InMemoryQueue."""
     set_backend(None)
-    with patch("server.queue.redis") as mock_redis:
-        mock_redis.Redis.from_url.return_value.ping.side_effect = ConnectionError(
-            "Connection refused"
-        )
+    import sys
+    from unittest.mock import MagicMock
+    mock_redis = MagicMock()
+    mock_redis.Redis.from_url.return_value.ping.side_effect = ConnectionError(
+        "Connection refused"
+    )
+    with patch.dict(sys.modules, {"redis": mock_redis}):
         from server.queue import _get_backend
 
         backend = _get_backend()
         assert isinstance(backend, InMemoryQueue)
-    # Clean up
     set_backend(None)
 
 

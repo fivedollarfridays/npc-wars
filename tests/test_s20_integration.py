@@ -255,11 +255,11 @@ class TestREADME:
     def readme_text(self) -> str:
         return (PROJECT_ROOT / "README.md").read_text(encoding="utf-8")
 
-    def test_mentions_agentgrounds_wars_play(self, readme_text) -> None:
-        assert "agentgrounds wars play" in readme_text
+    def test_mentions_agentgrounds_killswitch_play(self, readme_text) -> None:
+        assert "agentgrounds killswitch play" in readme_text
 
-    def test_mentions_agentgrounds_wars_generate(self, readme_text) -> None:
-        assert "agentgrounds wars generate" in readme_text
+    def test_mentions_agentgrounds_killswitch_generate(self, readme_text) -> None:
+        assert "agentgrounds killswitch generate" in readme_text
 
     def test_mentions_prompt_md(self, readme_text) -> None:
         assert "PROMPT.md" in readme_text
