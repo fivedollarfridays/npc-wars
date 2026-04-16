@@ -30,8 +30,10 @@ def write_match(
     if broadcast_inbox:
         os.makedirs(broadcast_inbox, exist_ok=True)
         inbox_path = os.path.join(broadcast_inbox, filename)
-        with open(inbox_path, "w", encoding="utf-8") as f:
+        tmp_path = os.path.join(broadcast_inbox, f".{filename}.tmp")
+        with open(tmp_path, "w", encoding="utf-8") as f:
             json.dump(match_data, f, indent=2)
+        os.replace(tmp_path, inbox_path)
 
     return filepath
 
