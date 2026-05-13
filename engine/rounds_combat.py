@@ -10,6 +10,7 @@ from collections import defaultdict
 from typing import Any, TYPE_CHECKING
 
 from engine.combat import Bot, RANGED_ATTACK_DAMAGE, calculate_damage
+from engine.event_meta import TICK_MELEE, TICK_RANGED, position
 from engine.combat_rolls import (
     REST_HIT_BONUS,
     TAUNT_HIT_PENALTY,
@@ -91,9 +92,14 @@ def resolve_attacks(alive_bots: list[Bot], actions: _ActionsMap,
                 if dmg > 0:
                     events.append({"type": "hit", "attacker": bot.emoji,
                                    "target": target.emoji, "damage": dmg,
-                                   "hp_before": hp_before})
+                                   "hp_before": hp_before,
+                                   "tick_in_round": TICK_MELEE,
+                                   "position": position(bot)})
         else:
-            events.append({"type": "miss", "attacker": bot.emoji, "direction": action[1]})
+            events.append({"type": "miss", "attacker": bot.emoji,
+                           "direction": action[1],
+                           "tick_in_round": TICK_MELEE,
+                           "position": position(bot)})
     return events
 
 
@@ -149,9 +155,11 @@ def _roll_melee(bot: Bot, target: Bot, actions: _ActionsMap,
                 "damage": result.damage, "hp_before": round(hp_before, 2),
                 "roll": result.roll, "modifier": result.modifier,
                 "ac": result.target_ac, "is_crit": result.is_crit,
-                "dodged": result.dodged}
+                "dodged": result.dodged,
+                "tick_in_round": TICK_MELEE, "position": position(bot)}
     return {"type": "attack_miss", "attacker": bot.emoji, "target": target.emoji,
-            "roll": result.roll, "modifier": result.modifier, "ac": result.target_ac}
+            "roll": result.roll, "modifier": result.modifier, "ac": result.target_ac,
+            "tick_in_round": TICK_MELEE, "position": position(bot)}
 
 
 def resolve_ranged_attacks(alive_bots: list[Bot], actions: _ActionsMap,
@@ -234,6 +242,8 @@ def _roll_ranged(bot: Bot, target: Bot, actions: _ActionsMap,
                 "damage": result.damage, "hp_before": round(hp_before, 2),
                 "roll": result.roll, "modifier": result.modifier,
                 "ac": result.target_ac, "is_crit": result.is_crit,
-                "dodged": result.dodged}
+                "dodged": result.dodged,
+                "tick_in_round": TICK_RANGED, "position": position(bot)}
     return {"type": "ranged_attack_miss", "attacker": bot.emoji, "target": target.emoji,
-            "roll": result.roll, "modifier": result.modifier, "ac": result.target_ac}
+            "roll": result.roll, "modifier": result.modifier, "ac": result.target_ac,
+            "tick_in_round": TICK_RANGED, "position": position(bot)}

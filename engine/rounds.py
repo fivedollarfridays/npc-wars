@@ -31,6 +31,9 @@ from engine.rounds_decisions import (  # noqa: F401 — re-exported for backward
 from engine.rounds_movement import (  # noqa: F401 — re-exported for backward compat
     resolve_movement,
 )
+from engine.event_meta import (
+    TICK_DEFENSE, TICK_STORM, TICK_DEATHS, position,
+)
 
 __all__ = [
     "resolve_decisions", "resolve_defense", "resolve_movement",
@@ -55,7 +58,10 @@ def resolve_defense(alive_bots: list[Bot], actions: _ActionsMap) -> list[_Event]
         action = actions.get(bot.emoji)
         if action and action[0] == "defend":
             bot.defense = DEFEND_BONUS
-            events.append({"type": "defend", "emoji": bot.emoji})
+            events.append({
+                "type": "defend", "emoji": bot.emoji,
+                "tick_in_round": TICK_DEFENSE, "position": position(bot),
+            })
     return events
 
 
@@ -91,8 +97,11 @@ def apply_storm_damage(alive_bots: list[Bot], grid_size: int, storm_border: int)
             damage = STORM_DAMAGE + (depth - 1) * 3.0 + depth * 0.1
             bot.hp -= damage
             bot.damage_taken += int(damage)
-            events.append({"type": "storm_damage", "target": bot.emoji,
-                           "damage": round(damage, 1), "depth": depth})
+            events.append({
+                "type": "storm_damage", "target": bot.emoji,
+                "damage": round(damage, 1), "depth": depth,
+                "tick_in_round": TICK_STORM, "position": position(bot),
+            })
     return events
 
 
@@ -153,8 +162,16 @@ def attribute_kills(
                 if b.emoji == killer_emoji:
                     b.kills += 1
                     b.energy = min(b.energy + KILL_BOUNTY_ENERGY, b.derived.max_energy)
-        round_events.append({"type": "kill", "attacker": killer_emoji or "unknown",
-                             "victim": elim["emoji"], "round": round_num})
+        victim_pos: dict[str, int] | None = None
+        for b in bots:
+            if b.emoji == elim["emoji"]:
+                victim_pos = position(b)
+                break
+        round_events.append({
+            "type": "kill", "attacker": killer_emoji or "unknown",
+            "victim": elim["emoji"], "round": round_num,
+            "tick_in_round": TICK_DEATHS, "position": victim_pos,
+        })
 
 
 def build_round_record(

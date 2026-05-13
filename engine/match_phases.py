@@ -4,6 +4,7 @@ import random
 from typing import Any
 
 from engine.combat import Bot, resolve_deaths, tick_damage_bonus
+from engine.event_meta import TICK_MOMENTUM, position
 from engine.tactical import resolve_tactical_activation, tick_tactical_effects, tick_tactical_cooldowns
 from engine.momentum import apply_energy_drain, apply_momentum_bonuses, determine_leader
 from engine.plague import apply_plague, is_active_action, update_passivity
@@ -176,6 +177,8 @@ def apply_momentum_phase(
                     "type": "momentum_drain",
                     "emoji": b.emoji,
                     "energy_cost": drain,
+                    "tick_in_round": TICK_MOMENTUM,
+                    "position": position(b),
                 })
 
 
