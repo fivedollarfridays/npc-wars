@@ -3,6 +3,7 @@
 from typing import Any
 
 from engine.combat import Bot, WALL_SPLAT_DAMAGE, STORM_DAMAGE
+from engine.event_meta import TICK_MOVEMENT, position
 from engine.grid import is_valid_position, is_in_storm
 
 __all__ = ["resolve_bumps", "BUMP_EVENT_TYPES"]
@@ -133,6 +134,8 @@ def resolve_bumps(
                 "type": "bump", "pusher": mover.emoji,
                 "target": occupant.emoji,
                 "direction": f"({dx},{dy})",
+                "tick_in_round": TICK_MOVEMENT,
+                "position": position(mover),
             })
         events.extend(push_events)
 

@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from engine.event_meta import TICK_PLAGUE, position
+
 if TYPE_CHECKING:
     from engine.combat import Bot
 
@@ -125,6 +127,8 @@ def apply_plague(bot: Bot) -> list[dict[str, Any]]:
         "hp_damage": hp_damage,
         "energy_drain": energy_lost,
         "passive_rounds": bot.passive_rounds,
+        "tick_in_round": TICK_PLAGUE,
+        "position": position(bot),
     })
 
     return events
