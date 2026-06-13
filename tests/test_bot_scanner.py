@@ -293,3 +293,31 @@ class TestDunderAttrBlocking:
     ])
     def test_dunder_attr_in_blocklist(self, attr):
         assert attr in _BLOCKED_DUNDER_ATTRS
+
+
+# --- Cycle: semicolon chaining detection in decide() ---
+
+class TestSemicolonDetection:
+    """Flag real semicolon chaining without false-positives on comments/strings."""
+
+    def test_trailing_comment_semicolon_not_flagged(self):
+        source = "def decide(self):\n    return 0  # floors to 0; beats resting\n"
+        violations = scan_bot_source(source)
+        assert violations == []
+
+    def test_real_chaining_flagged(self):
+        source = "def decide(self):\n    a = 1; b = 2\n    return a\n"
+        violations = scan_bot_source(source)
+        semis = [v for v in violations if "Semicolon" in v]
+        assert len(semis) == 1
+
+    def test_chaining_with_trailing_comment_flagged(self):
+        source = "def decide(self):\n    a = 1; b = 2  # note\n    return a\n"
+        violations = scan_bot_source(source)
+        semis = [v for v in violations if "Semicolon" in v]
+        assert len(semis) == 1
+
+    def test_semicolon_in_string_literal_not_flagged(self):
+        source = 'def decide(self):\n    s = "a;b"\n    return 0\n'
+        violations = scan_bot_source(source)
+        assert violations == []

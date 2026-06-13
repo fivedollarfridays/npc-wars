@@ -11,7 +11,7 @@ from multiprocessing import cpu_count
 from pathlib import Path
 from typing import Any
 
-__all__ = ["register", "run_sim"]
+__all__ = ["register", "run_sim", "run_balance_report"]
 
 
 def register(subparser: argparse._SubParsersAction) -> None:
@@ -23,22 +23,41 @@ def register(subparser: argparse._SubParsersAction) -> None:
     p.add_argument("--bots-dir", type=str, default=None, help="Directory containing bots")
     p.add_argument("--parallel", action="store_true", help="Run matches in parallel")
     p.add_argument("--quiet", action="store_true", help="Suppress progress output")
+    p.add_argument(
+        "--balance-report",
+        action="store_true",
+        help="Emit a win-rate/archetype/kill-cause balance report instead of per-match files",
+    )
     p.set_defaults(func=_run_cli)
 
 
+def _builtin_bots_dir() -> str:
+    """Path to the shipped builtin bot pool (reproducible balance baseline)."""
+    return str(Path(__file__).resolve().parent.parent / "builtin_bots")
+
+
 def _run_cli(args: argparse.Namespace) -> None:
-    """CLI entry point — resolves config then delegates to run_sim."""
+    """CLI entry point — resolves config then delegates to the right runner."""
     from agentgrounds.wars.config import CONFIG_FILENAME, load_config
 
     config = load_config(Path(CONFIG_FILENAME))
-    bots_dir = args.bots_dir or config["bots_dir"]
-    output_dir = args.output or "sim_results"
     seed = args.seed if args.seed is not None else config.get("seed")
 
+    if args.balance_report:
+        run_balance_report(
+            bots_dir=args.bots_dir or _builtin_bots_dir(),
+            matches=args.matches,
+            output=args.output or "balance_report.json",
+            seed=seed if seed is not None else 1,
+            parallel=args.parallel,
+            quiet=args.quiet,
+        )
+        return
+
     run_sim(
-        bots_dir=bots_dir,
+        bots_dir=args.bots_dir or config["bots_dir"],
         matches=args.matches,
-        output_dir=output_dir,
+        output_dir=args.output or "sim_results",
         seed=seed,
         parallel=args.parallel,
         quiet=args.quiet,
@@ -218,6 +237,79 @@ def run_sim(
         _print_summary_table(summary)
 
     return summary
+
+
+def _execute_matches(
+    bots_dir: str,
+    matches: int,
+    seed: int | None,
+    parallel: bool,
+    quiet: bool,
+) -> list[dict[str, Any]]:
+    """Run N matches and return raw results (no per-match files written)."""
+    params = [
+        (bots_dir, i, (seed + i) if seed is not None else None)
+        for i in range(1, matches + 1)
+    ]
+    if parallel:
+        return _run_parallel(params, matches, quiet)
+    results: list[dict[str, Any]] = []
+    for idx, p in enumerate(params, start=1):
+        results.append(_run_single_match(p))
+        if not quiet:
+            print(f"\r{idx}/{matches} matches complete", end="", flush=True)
+    if not quiet:
+        print()
+    return results
+
+
+def _print_balance_table(report: dict[str, Any]) -> None:
+    """Print a human-readable balance summary to stdout."""
+    print(f"\n{'=' * 50}")
+    print(f"Balance Report ({report['matches']} matches, seed={report['seed']})")
+    print(f"{'=' * 50}")
+    print("Per-bot win rate:")
+    for emoji, rate in sorted(report["per_bot_win_rate"].items(), key=lambda x: -x[1]):
+        print(f"  {emoji}: {rate * 100:.1f}%")
+    print("Per-archetype win rate:")
+    for arch, rate in sorted(report["per_archetype_win_rate"].items(), key=lambda x: -x[1]):
+        print(f"  {arch}: {rate * 100:.1f}%")
+    print(f"Kill causes: {report['kill_cause_distribution']}")
+    print(f"{'=' * 50}")
+
+
+def run_balance_report(
+    bots_dir: str,
+    matches: int = 30,
+    output: str = "balance_report.json",
+    seed: int | None = 1,
+    parallel: bool = False,
+    quiet: bool = False,
+) -> dict[str, Any]:
+    """Run N seeded matches and write a balance report (win-rate matrix).
+
+    Returns the report dict. Deterministic for a fixed seed and match count.
+    """
+    from engine.loader import load_bots
+
+    from agentgrounds.wars.cli.sim_balance import build_balance_report
+
+    if not Path(bots_dir).is_dir():
+        raise FileNotFoundError(f"Bots directory not found: {bots_dir}")
+
+    bots = load_bots(bots_dir)
+    results = _execute_matches(bots_dir, matches, seed, parallel, quiet)
+    report = build_balance_report(results, bots, matches=matches, seed=seed)
+
+    out_dir = os.path.dirname(output)
+    if out_dir:
+        os.makedirs(out_dir, exist_ok=True)
+    with open(output, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
+
+    if not quiet:
+        _print_balance_table(report)
+    return report
 
 
 def _run_sequential(

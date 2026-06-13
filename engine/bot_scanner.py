@@ -110,6 +110,7 @@ def _check_semicolons(tree: ast.AST, source: str) -> list[str]:
                 if line.startswith("#"):
                     continue
                 cleaned = _STRING_RE.sub("", line)
+                cleaned = cleaned.split("#", 1)[0]
                 if ";" in cleaned:
                     violations.append(
                         f"Semicolon chaining detected (line {lineno})"

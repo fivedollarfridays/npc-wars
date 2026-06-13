@@ -47,3 +47,8 @@ tools/*_balance_results.json
 # Paircoder cache (session-specific)
 .paircoder/cache/
 .paircoder-workspace.yaml
+
+# transient sqlite WAL + ad-hoc sim output (S73)
+data/*.db-shm
+data/*.db-wal
+results/sim-verticality/
