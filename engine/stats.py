@@ -105,9 +105,15 @@ _BASELINE_DODGE = 7.5  # 25 * 0.3
 
 # Versatility bonus — rewards balanced stat distributions.
 # Max bonus at 25/25/25/25 (variance=0), linearly decays with stat spread.
-_VERSATILITY_HP_MAX = 75  # bonus HP for perfectly balanced build (buffed from 25)
-_VERSATILITY_VARIANCE_CAP = 100.0  # variance at which bonus reaches 0 (tightened from 200)
-_VERSATILITY_DMG_BONUS = 20  # flat damage bonus for balanced builds
+# Retuned in T73.6 (was 75/20): the old bonus made the 25/25/25/25 build
+# strictly dominant (145 HP vs TankBot's 90). Measured archetype duels showed
+# balanced winning 70-87% vs every specialist. New values put the three combat
+# specialists (tank/bruiser/assassin) in a 40-50% balanced-win band while
+# keeping versatility meaningful (balanced still gets +32 HP, +13 dmg).
+# See docs/balance-versatility-s73.md for the measured matrix.
+_VERSATILITY_HP_MAX = 32  # bonus HP for perfectly balanced build (retuned from 75)
+_VERSATILITY_VARIANCE_CAP = 100.0  # variance at which bonus reaches 0 (unchanged)
+_VERSATILITY_DMG_BONUS = 13  # flat damage bonus for balanced builds (retuned from 20)
 
 
 def _calc_damage(power: int) -> tuple[int, int]:

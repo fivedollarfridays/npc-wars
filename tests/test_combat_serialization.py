@@ -87,10 +87,10 @@ class TestDictSerialization:
     def test_self_dict_has_derived_fields(self):
         d = make_bot().to_self_dict()
         # Default 25/25/25/25 derived values (with versatility bonus)
-        assert d["max_hp"] == 145
+        assert d["max_hp"] == 102
         assert d["max_energy"] == 100
-        assert d["min_damage"] == 35
-        assert d["max_damage"] == 55
+        assert d["min_damage"] == 28
+        assert d["max_damage"] == 48
         assert d["dodge_chance"] == 7.5
         assert d["damage_reduction"] == 0
 

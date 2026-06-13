@@ -28,14 +28,14 @@ def test_rest_caps_energy_at_derived_max():
     assert bot.energy == 120  # capped at derived max
 
 
-def test_default_stats_hp_cap_145():
-    """Default bot (25/25/25/25) hp capped at 145 on rest."""
+def test_default_stats_hp_cap_102():
+    """Default bot (25/25/25/25) hp capped at 102 on rest."""
     bot = make_bot(emoji="🧪")
-    assert bot.derived.max_hp == 145
-    bot.hp = 143
+    assert bot.derived.max_hp == 102
+    bot.hp = 100
     actions = {"🧪": ("rest",)}
     apply_energy_and_rest([bot], actions, set())
-    assert bot.hp == 145  # capped at 145 for default stats
+    assert bot.hp == 102  # capped at 102 for default stats
 
 
 def test_default_stats_rest_unchanged():
@@ -135,9 +135,9 @@ def test_high_armor_bot_starts_with_different_hp():
     round1 = result["rounds"][0]
     tank_pos = next(p for p in round1["positions"] if p["emoji"] == "🛡️")
     normal_pos = next(p for p in round1["positions"] if p["emoji"] == "⚔️")
-    # Tank (specialist) has 90 HP; Normal (balanced 25/25/25/25) has 145 HP
+    # Tank (specialist) has 90 HP; Normal (balanced 25/25/25/25) has 102 HP
     assert tank_pos["hp"] == 90
-    assert normal_pos["hp"] == 145
+    assert normal_pos["hp"] == 102
 
 
 def test_mode_override_still_works():
