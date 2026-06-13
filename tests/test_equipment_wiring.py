@@ -38,10 +38,7 @@ NON_BONUS_KEYS = {"cost", "special"}
 
 # Fields declared in the catalog but not yet wired into the engine. T73.4
 # turns these xfails into real assertions.
-DEAD_FIELDS = {
-    "initiative_bonus", "dodge_bonus", "energy_regen_bonus",
-    "rest_energy_bonus", "crit_chance_bonus",
-}
+DEAD_FIELDS: set[str] = set()
 
 
 # ── Object builders ─────────────────────────────────────────────────

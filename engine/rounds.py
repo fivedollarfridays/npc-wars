@@ -119,7 +119,11 @@ def apply_energy_and_rest(
         if action and action[0] == "rest":
             if can_rest_heal(terrain, bot.x, bot.y):
                 bot.hp = min(float(bot.derived.max_hp), bot.hp + REST_HEAL)
-            energy_restore = REST_ENERGY_RESTORE + bot.derived.energy_regen + bot.momentum_energy_bonus
+            eq = bot.equipment_bonuses
+            energy_restore = (
+                REST_ENERGY_RESTORE + bot.derived.energy_regen + bot.momentum_energy_bonus
+                + eq.energy_regen + eq.rest_energy_bonus
+            )
             bot.energy = min(bot.derived.max_energy, bot.energy + energy_restore)
 
 
