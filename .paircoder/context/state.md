@@ -1,8 +1,35 @@
 # Current State
 
-> Last updated: 2026-04-16 S71 tech debt sprint planned
+> Last updated: 2026-06-13 S73 meta-remediation — Wave 1 done
 
 ## Active Plans
+
+**Plan:** Sprint 73: Kill Switch Meta Remediation
+- **Sprint:** S73 | **Type:** bugfix | **Status:** in_progress
+- 10 tasks, 118 Cx, 3 phases. Running hand-rolled via `running-sprint-tasks`
+  (engage's circuit breaker tripped on the state.md completion gate after
+  Phase 1; engage will not resume).
+
+### S73 Tasks
+
+| Task | Title | Cx | P | Depends on | Status |
+|------|-------|----|---|------------|--------|
+| T73.1 | Equipment wiring audit test | 12 | P0 | — | done ✓ |
+| T73.2 | Pool-bot liveness test | 8 | P0 | — | done ✓ |
+| T73.3 | Balance regression harness | 15 | P0 | — | done ✓ |
+| T73.10 | Scanner semicolon false-positive | 5 | P1 | — | done ✓ |
+| T73.4 | Wire dead equipment bonuses | 18 | P0 | T73.1, T73.3 | pending |
+| T73.5 | Locked-action graceful degrade | 12 | P0 | T73.2, T73.3 | pending |
+| T73.7 | Endgame forced-combat fix | 10 | P0 | T73.3 | pending |
+| T73.6 | Versatility bonus retune | 15 | P1 | T73.3, T73.4, T73.5 | pending |
+| T73.8 | Equipment-aware hit_chance_vs | 8 | P1 | T73.4 | pending |
+| T73.9 | killswitch doctor command | 15 | P2 | T73.5 | pending |
+
+**Wave plan (file-collision-aware):** W1 = T73.1/2/3/10 ✓ · W2a = T73.4 (solo,
+collides w/ 5 on combat.py, w/ 7 on rounds.py) · W2b = T73.5+T73.7 (parallel) ·
+W3 = T73.6+T73.8+T73.9 (parallel). Per-wave commits; scoped test gate at
+`/tmp/sprint73_tests.txt` (full suite is wall-clock-bound on docker/youtube
+integration tests — run those out-of-band).
 
 **Plan:** Sprint 71: Tech Debt Cleanup
 - **Sprint:** S71 | **Type:** chore | **Status:** planned
@@ -57,6 +84,8 @@
 S71 tech debt sprint: T71.1 + T71.2 done. Next up: T71.3 (`engine/rounds.py` at CI size boundary) and T71.4 (`server/lobby.py` fire-and-forget thread fix).
 
 ## What Was Just Done
+
+- **S73 Wave 1 done** (T73.1, T73.2, T73.3, T73.10) — commit `1dde78d`. Verification harness landed: equipment-wiring audit (6 dead-field xfails awaiting T73.4), pool-bot liveness (Trapper/Viper/Mage xfails awaiting T73.5), `killswitch sim --balance-report` + `check_balance.py` + 30-seed `data/balance_baseline.json`, and the scanner trailing-comment semicolon fix. Note: engage ran Phase 1 concurrently and committed a raced `add -A` blob (T73.3 + T73.10 + transient db-wal/sim-results); reconstructed into a clean wave commit, junk gitignored. Engage circuit-breakered on the state.md gate after Phase 1 — remainder is hand-rolled. **Next: Wave 2a = T73.4 (solo).**
 
 - **bots/fable_strategist.py added** (ad-hoc, no task ID) — Competitive Kill Switch bot derived from engine math: 25/25/25/25 versatility build (145 HP, 35-55 dmg), spear+plate+cloak+compass loadout (AC 17, reach-2 attacks). Policy: storm prediction via `get_storm_border` formula, kill-secure, HP-race engagement rule from `hit_chance_vs`/`incoming_threat`, range-2 poking, full-storm endgame rest race. Exploits found while grounding: locked actions (`trap`/`use_ability`) make Trapper/Viper/Mage self-disconnect in ~3 rounds; equipment initiative/dodge/regen bonuses are not wired into the engine (boots_of_speed, charm_of_evasion are dead items). Verified: 23/30 wins across seeds 1-30 in the full 14-bot pool.
 
