@@ -58,6 +58,8 @@ S71 tech debt sprint: T71.1 + T71.2 done. Next up: T71.3 (`engine/rounds.py` at 
 
 ## What Was Just Done
 
+- **bots/fable_strategist.py added** (ad-hoc, no task ID) — Competitive Kill Switch bot derived from engine math: 25/25/25/25 versatility build (145 HP, 35-55 dmg), spear+plate+cloak+compass loadout (AC 17, reach-2 attacks). Policy: storm prediction via `get_storm_border` formula, kill-secure, HP-race engagement rule from `hit_chance_vs`/`incoming_threat`, range-2 poking, full-storm endgame rest race. Exploits found while grounding: locked actions (`trap`/`use_ability`) make Trapper/Viper/Mage self-disconnect in ~3 rounds; equipment initiative/dodge/regen bonuses are not wired into the engine (boots_of_speed, charm_of_evasion are dead items). Verified: 23/30 wins across seeds 1-30 in the full 14-bot pool.
+
 - **T71.2 done** (auto-updated by hook)
 
 - **T71.2 done** — Split `discord_bot/formatters.py` (334 lines) at the TV boundary. Moved `format_tv_main_message`, `format_tv_thread_stats`, `format_tv_thread_watcher`, `format_highlights`, `format_game_standings` + `COLOR_GOLD` / `COLOR_BLUE` / `COLOR_PURPLE` / `_GAME_LABELS` into new `discord_bot/tv_formatters.py` (166 lines). `formatters.py` now 174 lines with only match/leaderboard/claim functions. Clean split — no re-exports from `formatters`. Updated importers: `commands/tv_posting.py`, `commands/tv_commands.py`, `tests/test_tv_formatters.py`, `tests/test_bot_unified.py`. All 163 discord-related tests pass (test_formatters, test_tv_formatters, test_tv_posting, test_bot_unified, test_claims_commands, test_discord_*). Arch check passes on both files. Pure refactor, zero behavioral change.
@@ -171,10 +173,13 @@ S71 tech debt sprint: T71.1 + T71.2 done. Next up: T71.3 (`engine/rounds.py` at 
 - **T58.2 done**
 
 **T58.2: Kill Switch personality profiler** — Built `engine/personality.py` (API + aggregation, 142 LOC) and `engine/personality_traits.py` (trait detection + variants + bios, 128 LOC). `profile_bot(emoji, results_dir, patterns_dir)` returns profile dict with traits, archetype_variant, bio. 15 distinct traits detected from behavior patterns (aggressive, defensive, trap, ranged, mobile, tactical, equipment, pattern-based). Template-based bio generation. Graceful on first match. 16 tests covering aggressive, defensive, balanced, trap-heavy, pattern-based, and equipment bots. Ruff clean, arch clean.
+- Planned Sprint 73 (Meta Remediation): created plan plan-2026-06-sprint-73-meta-remediation (bugfix, ~118 Cx) with 10 task files (T73.1–T73.10), depends_on wired
+
 
 ## What's Next
 
-T66.3 complete. Ready for next sprint task.
+1. Ready to start harness wave: T73.1, T73.2, T73.3, T73.10 (fully parallel)
+
 
 ## Completed Sprints
 

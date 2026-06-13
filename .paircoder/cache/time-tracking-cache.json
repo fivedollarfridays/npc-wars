@@ -1064,9 +1064,9 @@
     "total_seconds": 177.994245
   },
   "_active": {
-    "task_id": "T71.3",
-    "timer_id": "local-20260416091817",
-    "description": "T71.3: Extract engine/rounds.py helpers to reduce file size",
-    "start": "2026-04-16T09:18:17.693182"
+    "task_id": "T73.3",
+    "timer_id": "local-20260612223559",
+    "description": "T73.3: Balance regression harness (win-rate matrix)",
+    "start": "2026-06-12T22:35:59.373269"
   }
 }

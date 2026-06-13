@@ -398,5 +398,17 @@
   "T71.3": {
     "last_cli_update": "2026-04-16T09:18:17.437396",
     "last_status": "in_progress"
+  },
+  "T73.1": {
+    "last_cli_update": "2026-06-12T22:07:51.236412",
+    "last_status": "failed"
+  },
+  "T73.2": {
+    "last_cli_update": "2026-06-12T22:35:34.760057",
+    "last_status": "failed"
+  },
+  "T73.3": {
+    "last_cli_update": "2026-06-12T22:35:58.764969",
+    "last_status": "in_progress"
   }
 }
