@@ -1,6 +1,12 @@
 """Tests for action unlock gating in engine/sandbox.py."""
 
-from engine.sandbox import validate_action, BASE_ACTIONS, ACTION_UNLOCK_THRESHOLDS
+from engine.sandbox import (
+    ACTION_UNLOCK_THRESHOLDS,
+    BASE_ACTIONS,
+    LOCKED,
+    classify_action,
+    validate_action,
+)
 
 
 class TestConstants:
@@ -74,3 +80,73 @@ class TestBackwardCompatibility:
 
     def test_taunt_passes_without_unlock_param(self):
         assert validate_action(("taunt",)) == ("taunt",)
+
+
+class TestLockedActionDegradesInResolveDecisions:
+    """A locked-but-well-formed action degrades to rest without penalty."""
+
+    def _setup(self, locked_action):
+        from tests.conftest import make_bot
+        from engine.rounds_decisions import resolve_decisions
+
+        bot = make_bot(name="Locked", emoji="L", hp=80, energy=100, x=2, y=2,
+                       decide_func=lambda s: locked_action)
+        bot.unlocked_actions = ["move", "attack", "rest", "defend"]
+        return bot, resolve_decisions
+
+    def test_locked_trap_degrades_to_rest(self):
+        bot, resolve_decisions = self._setup(("trap", "north"))
+        actions, _forced, _events = resolve_decisions(
+            [bot], [bot], round_num=1, grid_size=12, storm_border=0,
+        )
+        assert actions[bot.emoji] == ("rest",)
+
+    def test_locked_action_does_not_increment_failures(self):
+        bot, resolve_decisions = self._setup(("trap", "north"))
+        resolve_decisions([bot], [bot], round_num=1, grid_size=12, storm_border=0)
+        assert bot.consecutive_failures == 0
+
+    def test_locked_action_emits_locked_action_event(self):
+        bot, resolve_decisions = self._setup(("use_ability",))
+        _actions, _forced, events = resolve_decisions(
+            [bot], [bot], round_num=1, grid_size=12, storm_border=0,
+        )
+        locked_events = [e for e in events if e.get("type") == "locked_action"]
+        assert len(locked_events) == 1
+        ev = locked_events[0]
+        assert ev["player"] == bot.emoji
+        assert ev["action"] == "use_ability"
+
+    def test_repeated_locked_never_disconnects(self):
+        bot, resolve_decisions = self._setup(("trap", "north"))
+        for r in range(1, 6):
+            actions, _forced, _events = resolve_decisions(
+                [bot], [bot], round_num=r, grid_size=12, storm_border=0,
+            )
+            assert actions[bot.emoji] == ("rest",)
+        assert bot.consecutive_failures == 0
+        assert bot.hp == 80
+
+    def test_malformed_still_increments_failures(self):
+        bot, resolve_decisions = self._setup(("fly", "north"))
+        resolve_decisions([bot], [bot], round_num=1, grid_size=12, storm_border=0)
+        assert bot.consecutive_failures == 1
+
+
+class TestClassifyLockedVsMalformed:
+    """classify_action separates well-formed-but-locked from malformed."""
+
+    def test_locked_trap_is_locked(self):
+        assert classify_action(("trap", "north"), set()) is LOCKED
+
+    def test_locked_use_ability_is_locked(self):
+        assert classify_action(("use_ability",), set()) is LOCKED
+
+    def test_unlocked_trap_returns_normalized(self):
+        assert classify_action(("trap", "south"), {"trap"}) == ("trap", "south")
+
+    def test_malformed_is_none_not_locked(self):
+        assert classify_action(("fly", "north"), set()) is None
+
+    def test_base_action_never_locked(self):
+        assert classify_action(("move", "north"), set()) == ("move", "north")

@@ -200,7 +200,7 @@ def _run_match_loop(
     for round_num in range(1, mode.max_rounds + 1):
         if sum(b.alive for b in bots) <= 1:
             break
-        storm_border = get_storm_border_for_mode(round_num, mode)
+        storm_border = get_storm_border_for_mode(round_num, mode, grid_size)
         for b in bots:
             b._current_round = round_num
         round_data, round_elims, last_bump_events = _execute_round(

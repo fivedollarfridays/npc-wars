@@ -6,8 +6,38 @@ from engine.grid import (
     DIRECTIONS,
     apply_direction,
     calculate_grid_size,
+    get_storm_border,
     is_valid_position,
 )
+
+
+# --- get_storm_border clamp (safe zone never below 2x2) ---
+
+
+class TestStormBorderClamp:
+    def test_safe_zone_never_below_2x2_across_grid_sizes(self):
+        """Safe-zone side = grid_size - 2*border must stay >= 2 at all rounds."""
+        for grid_size in (10, 15, 20, 25, 30):
+            for round_num in range(0, 121):
+                border = get_storm_border(round_num, grid_size)
+                safe_side = grid_size - 2 * border
+                assert safe_side >= 2, (
+                    f"grid={grid_size} round={round_num} border={border} "
+                    f"safe_side={safe_side} < 2"
+                )
+
+    def test_clamp_bound_matches_formula(self):
+        """Late-game border is clamped to (grid_size - 2) // 2."""
+        for grid_size in (10, 12, 15, 20, 25, 30):
+            max_border = (grid_size - 2) // 2
+            assert get_storm_border(200, grid_size) == max_border
+
+    def test_returns_int(self):
+        assert isinstance(get_storm_border(100, 12), int)
+
+    def test_backward_compat_no_grid_size_unclamped(self):
+        """Without grid_size, value is unclamped (legacy behavior)."""
+        assert get_storm_border(49) == 14
 
 
 # --- is_valid_position ---

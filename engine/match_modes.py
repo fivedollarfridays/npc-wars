@@ -28,11 +28,17 @@ def get_mode(name: str = "standard") -> MatchMode:
     return MODES.get(name, STANDARD)
 
 
-def get_storm_border_for_mode(round_num: int, mode: MatchMode) -> int:
-    """Get storm border adjusted for match mode's storm delay multiplier."""
+def get_storm_border_for_mode(
+    round_num: int, mode: MatchMode, grid_size: int | None = None
+) -> int:
+    """Get storm border adjusted for match mode's storm delay multiplier.
+
+    When *grid_size* is provided it is forwarded to ``get_storm_border`` so the
+    border is clamped to keep the safe zone at least 2x2.
+    """
     from engine.grid import get_storm_border
 
     if mode.storm_delay_multiplier == 1.0:
-        return get_storm_border(round_num)
+        return get_storm_border(round_num, grid_size)
     adjusted_round = int(round_num / mode.storm_delay_multiplier)
-    return get_storm_border(adjusted_round)
+    return get_storm_border(adjusted_round, grid_size)

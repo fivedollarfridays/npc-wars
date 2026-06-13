@@ -3,7 +3,7 @@
 import multiprocessing
 import time
 
-from engine.sandbox import execute_decide, validate_action
+from engine.sandbox import LOCKED, classify_action, execute_decide, validate_action
 
 
 # --- validate_action ---
@@ -67,6 +67,48 @@ class TestValidateAction:
 
     def test_attack_invalid_direction(self):
         assert validate_action(("attack", "diagonal")) is None
+
+
+# --- classify_action (three-way: valid / malformed / locked) ---
+
+
+class TestClassifyAction:
+    def test_valid_base_action_returns_tuple(self):
+        assert classify_action(("move", "north"), set()) == ("move", "north")
+
+    def test_unlocked_action_returns_tuple(self):
+        assert classify_action(("trap", "north"), {"trap"}) == ("trap", "north")
+
+    def test_malformed_returns_none(self):
+        assert classify_action(("fly", "north"), set()) is None
+
+    def test_malformed_bad_direction_returns_none(self):
+        assert classify_action(("move", "up"), set()) is None
+
+    def test_non_tuple_returns_none(self):
+        assert classify_action("move north", set()) is None
+
+    def test_well_formed_but_locked_returns_locked(self):
+        """A valid trap action that is merely locked is LOCKED, not None."""
+        assert classify_action(("trap", "north"), set()) is LOCKED
+
+    def test_locked_use_ability_returns_locked(self):
+        assert classify_action(("use_ability",), set()) is LOCKED
+
+    def test_locked_distinct_from_malformed(self):
+        locked = classify_action(("trap", "north"), set())
+        malformed = classify_action(("nonsense", "north"), set())
+        assert locked is LOCKED
+        assert malformed is None
+        assert locked is not malformed
+
+    def test_locked_but_malformed_args_is_malformed(self):
+        """If the locked action also has bad args, it is malformed (None)."""
+        assert classify_action(("trap", "up"), set()) is None
+
+    def test_validate_action_unchanged_for_locked(self):
+        """validate_action still returns None for locked (existing contract)."""
+        assert validate_action(("trap", "north"), unlocked_actions=set()) is None
 
 
 # --- execute_decide ---

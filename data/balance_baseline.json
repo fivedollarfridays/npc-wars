@@ -10,24 +10,24 @@
     "\ud83c\udf1f"
   ],
   "per_bot_win_rate": {
-    "\ud83e\udd16": 0.1,
-    "\ud83c\udfaf": 0.1,
-    "\ud83c\udfb2": 0.133333,
-    "\ud83d\udc22": 0.233333,
-    "\ud83e\udde0": 0.0,
+    "\ud83e\udd16": 0.066667,
+    "\ud83c\udfaf": 0.066667,
+    "\ud83c\udfb2": 0.066667,
+    "\ud83d\udc22": 0.166667,
+    "\ud83e\udde0": 0.2,
     "\ud83c\udf1f": 0.433333
   },
   "per_archetype_win_rate": {
-    "Assassin": 0.1,
-    "Balanced": 0.566667,
-    "Bruiser": 0.1,
-    "Controller": 0.0,
-    "Tank": 0.233333
+    "Assassin": 0.066667,
+    "Balanced": 0.5,
+    "Bruiser": 0.066667,
+    "Controller": 0.2,
+    "Tank": 0.166667
   },
   "kill_cause_distribution": {
-    "combat": 108,
+    "combat": 107,
     "storm": 42,
     "disconnect": 0,
-    "tiebreaker": 0
+    "tiebreaker": 1
   }
 }

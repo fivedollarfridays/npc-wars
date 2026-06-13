@@ -197,6 +197,8 @@ class TestTrapInMatch:
 class TestStateDict:
     def test_self_dict_has_traps(self) -> None:
         bot = _bot()
+        # T73.5: trap keys are gated on the `trap` unlock.
+        bot.unlocked_actions = ["move", "attack", "rest", "defend", "trap"]
         d = bot.to_self_dict()
         assert "traps" in d
         assert "trap_cooldown" in d
@@ -219,6 +221,8 @@ class TestStateDict:
 
     def test_self_dict_shows_own_traps(self) -> None:
         bot = _bot()
+        # T73.5: trap keys are gated on the `trap` unlock.
+        bot.unlocked_actions = ["move", "attack", "rest", "defend", "trap"]
         tm = TrapManager()
         tm.place_trap("🤖", 5, 5, 30, round_num=1)
         bot._trap_manager = tm

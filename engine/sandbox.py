@@ -15,8 +15,25 @@ log = logging.getLogger(__name__)
 __all__ = [
     "BotExecutionError", "execute_decide",
     "VALID_DIRECTIONS", "VALID_ACTIONS", "validate_action",
+    "classify_action", "LOCKED",
     "BASE_ACTIONS", "ACTION_UNLOCK_THRESHOLDS",
 ]
+
+
+class _Locked:
+    """Sentinel for a well-formed action that the bot has not unlocked yet.
+
+    Distinct from None (malformed). Only the resolve_decisions caller checks
+    for this; validate_action's contract (valid tuple / None) is unchanged.
+    """
+
+    __slots__ = ()
+
+    def __repr__(self) -> str:  # pragma: no cover - cosmetic
+        return "LOCKED"
+
+
+LOCKED = _Locked()
 
 _STATUS_OK = "ok"
 _STATUS_ERROR = "error"
@@ -141,3 +158,25 @@ def validate_action(action: Any, unlocked_actions: set[str] | None = None) -> tu
         return (action_type, direction)
 
     return None
+
+
+def classify_action(action: Any, unlocked_actions: set[str]) -> tuple[str, ...] | None | _Locked:
+    """Three-way classification of a decide() action.
+
+    Returns one of:
+      * a normalized action tuple -- valid and unlocked,
+      * ``LOCKED`` -- well-formed but the bot has not unlocked this action,
+      * ``None`` -- malformed (bad type/shape/direction).
+
+    Malformed takes precedence over locked: a locked action with bad args is
+    still ``None``. This is a sibling of :func:`validate_action`; the latter's
+    contract is left untouched so existing callers keep working.
+    """
+    # Normalize ignoring unlock gating; None here means genuinely malformed.
+    normalized = validate_action(action, unlocked_actions=None)
+    if normalized is None:
+        return None
+    action_type = normalized[0]
+    if action_type not in BASE_ACTIONS and action_type not in unlocked_actions:
+        return LOCKED
+    return normalized

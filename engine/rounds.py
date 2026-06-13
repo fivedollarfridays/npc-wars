@@ -108,8 +108,13 @@ def apply_storm_damage(alive_bots: list[Bot], grid_size: int, storm_border: int)
 def apply_energy_and_rest(
     alive_bots: list[Bot], actions: _ActionsMap, forced_rest: set[str],
     terrain: TerrainMap | None = None,
+    grid_size: int | None = None, storm_border: int = 0,
 ) -> None:
-    """Phase 6+7: Deduct energy costs and apply explicit rest healing."""
+    """Phase 6+7: Deduct energy costs and apply explicit rest healing.
+
+    Resting inside the storm restores energy but NOT hp (endgame fix): when
+    *grid_size* is given and the bot is in the storm, the hp heal is skipped.
+    """
     for bot in alive_bots:
         action = actions.get(bot.emoji)
         if action and action[0] not in ("nothing", "disconnected") and bot.emoji not in forced_rest:
@@ -117,7 +122,11 @@ def apply_energy_and_rest(
     for bot in alive_bots:
         action = actions.get(bot.emoji)
         if action and action[0] == "rest":
-            if can_rest_heal(terrain, bot.x, bot.y):
+            in_storm = (
+                grid_size is not None
+                and is_in_storm(bot.x, bot.y, grid_size, storm_border)
+            )
+            if not in_storm and can_rest_heal(terrain, bot.x, bot.y):
                 bot.hp = min(float(bot.derived.max_hp), bot.hp + REST_HEAL)
             eq = bot.equipment_bonuses
             energy_restore = (

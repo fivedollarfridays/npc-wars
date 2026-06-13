@@ -10,12 +10,10 @@ broken example becomes impossible.
 Discovery is dynamic: any new bot file dropped into either directory is picked
 up automatically, with no edit to this module.
 
-Trapper, Viper, and Mage disconnect today because they emit locked
-``trap``/``use_ability`` actions, which the engine rejects until the bot has
-unlocked them — three rejections in a row trip ``MAX_CONSECUTIVE_FAILURES`` and
-the bot is disconnected. They are marked ``xfail(strict=True)`` until **T73.5**
-makes locked actions degrade gracefully; once it lands those cases will XPASS
-and the strict marker forces this module to drop the xfails.
+Trapper, Viper, and Mage emit locked ``trap``/``use_ability`` actions before
+those actions are unlocked. As of **T73.5** the engine degrades a locked but
+well-formed action to ``rest`` (without counting it toward
+``MAX_CONSECUTIVE_FAILURES``), so all three now survive the 20-round match.
 """
 
 from __future__ import annotations
@@ -37,10 +35,6 @@ from scripts.validate_bot import validate_bot
 _BOT_DIRS = ("bots", "agentgrounds/wars/builtin_bots")
 _SEED = 42
 _ROUNDS = 20
-
-# Bots that disconnect today because they emit locked trap/use_ability actions.
-# These xfails are flipped by T73.5 (locked actions degrade gracefully).
-_KNOWN_DISCONNECTS = frozenset({"Trapper", "Viper", "Mage"})
 
 
 def _dummy_config(taken_emoji: str) -> dict:
@@ -67,16 +61,10 @@ _SHIPPED = _load_shipped()
 
 
 def _liveness_params() -> list:
-    params = []
-    for label, cfg in _SHIPPED:
-        marks = []
-        if cfg["name"] in _KNOWN_DISCONNECTS:
-            marks.append(pytest.mark.xfail(
-                strict=True,
-                reason="locked trap/use_ability disconnect; flipped by T73.5",
-            ))
-        params.append(pytest.param(cfg, id=f"{label}:{cfg['name']}", marks=marks))
-    return params
+    return [
+        pytest.param(cfg, id=f"{label}:{cfg['name']}")
+        for label, cfg in _SHIPPED
+    ]
 
 
 def _validator_params() -> list:
