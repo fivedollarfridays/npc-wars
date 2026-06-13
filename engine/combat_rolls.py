@@ -156,6 +156,32 @@ def _d20_chance(min_roll_needed: int) -> float:
     return (21 - min_roll_needed) / 20 * 100
 
 
+def _expected_damage(
+    attacker: DerivedStats,
+    *,
+    hit_chance: float,
+    crit_chance: float,
+    dodge_chance: float,
+    equipment_min_dmg: int,
+    equipment_max_dmg: int,
+    equipment_crit_mult: float,
+) -> float:
+    """Analytic mean damage-per-attack mirroring ``roll_attack``.
+
+    Equipment adds to min/max damage and the crit multiplier; the result is
+    weighted by crit rate, dodge rate (halves on dodge), and hit rate.
+    """
+    avg_damage = (
+        (attacker.min_damage + equipment_min_dmg)
+        + (attacker.max_damage + equipment_max_dmg)
+    ) / 2
+    crit_mult = attacker.crit_multiplier + equipment_crit_mult
+    crit_frac = crit_chance / 100
+    dmg_per_hit = avg_damage * (1 - crit_frac) + avg_damage * crit_mult * crit_frac
+    dmg_after_dodge = dmg_per_hit * (1 - dodge_chance / 100 / 2)
+    return dmg_after_dodge * hit_chance / 100
+
+
 def calculate_hit_probability(
     attacker: DerivedStats,
     defender: DerivedStats,
@@ -167,6 +193,11 @@ def calculate_hit_probability(
     equipment_to_hit: int = 0,
     equipment_dodge: float = 0.0,
     equipment_crit_chance: float = 0.0,
+    equipment_min_dmg: int = 0,
+    equipment_max_dmg: int = 0,
+    equipment_crit_mult: float = 0.0,
+    equipment_dr: int = 0,
+    armor_pierce: int = 0,
 ) -> dict[str, float]:
     """Pure-math hit probability calculator. No RNG.
 
@@ -178,20 +209,21 @@ def calculate_hit_probability(
         (attacker.initiative + equipment_initiative) // 10
         + to_hit_modifier + equipment_to_hit
     )
-    ac = _compute_ac(defender, defending, momentum_defense_reduct)
+    ac = _compute_ac(
+        defender, defending, momentum_defense_reduct,
+        equipment_dr=equipment_dr, armor_pierce=armor_pierce,
+    )
 
     crit_threshold = max(1, CRIT_THRESHOLD - _crit_threshold_reduction(equipment_crit_chance))
     hit_chance = _d20_chance(ac - modifier)
     crit_chance = _d20_chance(ac + crit_threshold - modifier)
     dodge_chance = defender.dodge_chance + equipment_dodge
 
-    # Expected damage: weighted by crit rate, dodge rate, and hit rate
-    avg_damage = (attacker.min_damage + attacker.max_damage) / 2
-    crit_frac = crit_chance / 100
-    dmg_per_hit = avg_damage * (1 - crit_frac) + avg_damage * attacker.crit_multiplier * crit_frac
-    dodge_frac = dodge_chance / 100
-    dmg_after_dodge = dmg_per_hit * (1 - dodge_frac / 2)
-    expected_damage = dmg_after_dodge * hit_chance / 100
+    expected_damage = _expected_damage(
+        attacker, hit_chance=hit_chance, crit_chance=crit_chance,
+        dodge_chance=dodge_chance, equipment_min_dmg=equipment_min_dmg,
+        equipment_max_dmg=equipment_max_dmg, equipment_crit_mult=equipment_crit_mult,
+    )
 
     return {
         "hit_chance": round(hit_chance, 1),

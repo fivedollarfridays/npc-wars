@@ -4,8 +4,28 @@ from typing import Any
 
 from engine.combat import Bot
 from engine.combat_rolls import calculate_hit_probability
+from engine.equipment import EquipmentBonuses
 
 __all__ = ["build_state"]
+
+
+def _equip_kwargs(attacker: EquipmentBonuses, defender: EquipmentBonuses) -> dict[str, Any]:
+    """Build equipment kwargs for calculate_hit_probability.
+
+    Offensive terms come from the *attacker*'s loadout; defensive terms
+    (DR, dodge) come from the *defender*'s loadout. Mirrors roll_attack.
+    """
+    return {
+        "equipment_initiative": attacker.initiative,
+        "equipment_to_hit": attacker.to_hit,
+        "equipment_min_dmg": attacker.min_damage,
+        "equipment_max_dmg": attacker.max_damage,
+        "equipment_crit_mult": attacker.crit_mult,
+        "equipment_crit_chance": attacker.crit_chance,
+        "armor_pierce": attacker.armor_pierce,
+        "equipment_dr": defender.dr,
+        "equipment_dodge": defender.dodge,
+    }
 
 
 def _compute_incoming_threats(
@@ -14,7 +34,10 @@ def _compute_incoming_threats(
     """Compute incoming threat from each alive enemy, sorted by danger."""
     threats: list[tuple[float, dict[str, object]]] = []
     for enemy in alive_enemies:
-        prob = calculate_hit_probability(enemy.derived, bot.derived)
+        prob = calculate_hit_probability(
+            enemy.derived, bot.derived,
+            **_equip_kwargs(enemy.equipment_bonuses, bot.equipment_bonuses),
+        )
         entry: dict[str, object] = {
             "emoji": enemy.emoji,
             "hit_chance": prob["hit_chance"],
@@ -36,6 +59,7 @@ def build_state(
     for enemy in alive_enemies:
         hit_chance_vs[enemy.emoji] = calculate_hit_probability(
             bot.derived, enemy.derived,
+            **_equip_kwargs(bot.equipment_bonuses, enemy.equipment_bonuses),
         )
 
     # Incoming threats: how dangerous each enemy is TO this bot

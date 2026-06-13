@@ -81,6 +81,33 @@ agentgrounds killswitch init   # Creates bots/starter.py with guided TODOs
 # Open starter.py, follow the TODOs, run `play` after each change
 ```
 
+### Diagnose a Bot
+
+`doctor` runs your bot against the shipped pool for N seeded matches and prints a
+diagnostic report aimed at bot authors. For each run and aggregated, it reports:
+
+- **locked-action attempts** — actions your bot tried that it hasn't unlocked yet
+  (e.g. `trap`, `use_ability`). These silently degrade to a rest in-match, so
+  `doctor` is how you find them.
+- **plague rounds** — rounds your bot spent passive/idle and accrued plague damage.
+- **forced-rest rounds** — rounds where your bot ran out of energy and was forced
+  to rest (it couldn't afford any action).
+- **storm damage / storm deaths** — damage taken inside the storm and whether the
+  storm killed you.
+- **placement** — where your bot finished each match.
+
+```bash
+agentgrounds killswitch doctor bots/my_bot.py --matches 10 --seed 1
+agentgrounds killswitch doctor bots/my_bot.py --pool-dir bots   # vs your own pool
+```
+
+The command **exits non-zero** when your bot disconnects (crashes) or attempts any
+locked action, so you can drop it straight into CI:
+
+```bash
+agentgrounds killswitch doctor bots/my_bot.py --matches 20 || echo "bot has issues"
+```
+
 ## Game Features (Kill Switch)
 
 - D20 combat with crits, dodge, initiative
@@ -139,6 +166,7 @@ agentgrounds killswitch play --no-tv            # Skip TV generation
 agentgrounds killswitch generate --strategy "." # Build AI prompt for bot creation
 agentgrounds killswitch wizard                  # Interactive bot builder
 agentgrounds killswitch validate bots/my.py     # Check bot is valid
+agentgrounds killswitch doctor bots/my.py        # Diagnose a bot (CI-friendly)
 agentgrounds killswitch battle --replay dir     # Batch run, save replays
 agentgrounds killswitch sim --matches 100       # Batch simulation
 agentgrounds killswitch watch match.json        # Replay a match
