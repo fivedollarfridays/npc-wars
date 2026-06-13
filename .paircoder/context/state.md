@@ -18,9 +18,9 @@
 | T73.2 | Pool-bot liveness test | 8 | P0 | — | done ✓ |
 | T73.3 | Balance regression harness | 15 | P0 | — | done ✓ |
 | T73.10 | Scanner semicolon false-positive | 5 | P1 | — | done ✓ |
-| T73.4 | Wire dead equipment bonuses | 18 | P0 | T73.1, T73.3 | pending |
-| T73.5 | Locked-action graceful degrade | 12 | P0 | T73.2, T73.3 | pending |
-| T73.7 | Endgame forced-combat fix | 10 | P0 | T73.3 | pending |
+| T73.4 | Wire dead equipment bonuses | 18 | P0 | T73.1, T73.3 | done ✓ |
+| T73.5 | Locked-action graceful degrade | 12 | P0 | T73.2, T73.3 | done ✓ |
+| T73.7 | Endgame forced-combat fix | 10 | P0 | T73.3 | done ✓ |
 | T73.6 | Versatility bonus retune | 15 | P1 | T73.3, T73.4, T73.5 | pending |
 | T73.8 | Equipment-aware hit_chance_vs | 8 | P1 | T73.4 | pending |
 | T73.9 | killswitch doctor command | 15 | P2 | T73.5 | pending |
@@ -84,6 +84,8 @@ integration tests — run those out-of-band).
 S71 tech debt sprint: T71.1 + T71.2 done. Next up: T71.3 (`engine/rounds.py` at CI size boundary) and T71.4 (`server/lobby.py` fire-and-forget thread fix).
 
 ## What Was Just Done
+
+- **S73 Wave 2 done** (T73.4, T73.5, T73.7) — commits `bf8baad` (2a), `d3b1e84` (2b). T73.4 wired the 5 dead equipment bonuses (initiative→to-hit+sort, dodge, crit-chance, energy-regen/rest-bonus); all 6 T73.1 xfails now hard assertions. T73.5 added `classify_action`/`LOCKED` so locked actions degrade to rest instead of disconnecting — Trapper/Viper/Mage now survive (T73.2 xfails flipped); trap/ability keys gated out of `to_self_dict` for bots that can't use them. T73.7 clamped `get_storm_border` to a 2×2 floor + disabled rest HP-heal in-storm; balance baseline regenerated (ChaosBot rest-spam wins gone: 🎲 13→7pp, 🧠 0→20pp). Parent fixed 6 stale trap-contract tests. Scoped gate green; no new arch violations. **Next: Wave 3 = T73.6 + T73.8 + T73.9 (parallel).** Known gap: balance baseline pool = `builtin_bots` (6 bots, no equipment, no locked-action bots) — equipment/locked-action regressions are NOT covered; T73.6 should confront pool choice.
 
 - **S73 Wave 1 done** (T73.1, T73.2, T73.3, T73.10) — commit `1dde78d`. Verification harness landed: equipment-wiring audit (6 dead-field xfails awaiting T73.4), pool-bot liveness (Trapper/Viper/Mage xfails awaiting T73.5), `killswitch sim --balance-report` + `check_balance.py` + 30-seed `data/balance_baseline.json`, and the scanner trailing-comment semicolon fix. Note: engage ran Phase 1 concurrently and committed a raced `add -A` blob (T73.3 + T73.10 + transient db-wal/sim-results); reconstructed into a clean wave commit, junk gitignored. Engage circuit-breakered on the state.md gate after Phase 1 — remainder is hand-rolled. **Next: Wave 2a = T73.4 (solo).**
 
