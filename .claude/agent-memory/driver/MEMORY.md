@@ -15,4 +15,4 @@
 - Run from project root: `python -m pytest tests/ -v`
 
 ## Patterns Learned
-<!-- Add project-specific patterns as you discover them -->
+- [Mind is non-combat in duels](project_mind_noncombat_duels.md) — mage archetype can't be balanced via stat constants in stats-only 1v1 melee
