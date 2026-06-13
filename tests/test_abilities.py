@@ -308,6 +308,8 @@ def test_state_dict_ability_ready_when_no_cooldown():
     bot = _make_bot(emoji="M")
     bot.ability = _damage_ability(cost=10)
     bot.ability_cooldown = 0
+    # T73.5: ability.ready is gated on the use_ability unlock.
+    bot.unlocked_actions = ["move", "attack", "rest", "defend", "use_ability"]
     d = bot.to_self_dict()
     assert d["ability"]["ready"] is True
 

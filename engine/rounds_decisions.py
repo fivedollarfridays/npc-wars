@@ -98,6 +98,8 @@ def resolve_decisions(
             _degrade_locked(bot, raw_action, actions, override_events)
             continue
 
+        # LOCKED handled above: narrow classified to tuple|None for the typer.
+        assert classified is None or isinstance(classified, tuple)
         action = _apply_human_override(bot, state, classified, override_events)
 
         if action is None:

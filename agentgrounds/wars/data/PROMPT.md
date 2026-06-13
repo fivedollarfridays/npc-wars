@@ -47,8 +47,8 @@ state = {
         "momentum_name": "Momentum",  # tier display name
         "is_leader": False,        # True if you're the highest scorer
         "power": 25, "speed": 25, "armor": 25, "mind": 25,  # stat allocation
-        "max_hp": 145, "max_energy": 100,     # derived from stats
-        "min_damage": 35, "max_damage": 55,   # damage range from POWER
+        "max_hp": 102, "max_energy": 100,     # derived from stats
+        "min_damage": 28, "max_damage": 48,   # damage range from POWER
         "dodge_chance": 7.5,                   # % chance to halve incoming damage
         "damage_reduction": 0,                 # flat DR from ARMOR
         "equipment": {"weapon": "sword", "armor": "leather", "accessories": [], "tactical": None},
@@ -133,7 +133,7 @@ Simultaneous attacks: if two bots attack each other, both take damage. Both can 
 
 | Stat | Value |
 |------|-------|
-| Starting HP | 145 (max 145) |
+| Starting HP | 102 (max 102) |
 | Starting Energy | 100 (max 100) |
 | Base Attack Power | 25 damage |
 | Attack Scaling | +2 per 10 rounds after round 15 |
@@ -164,7 +164,7 @@ Bots earn points each round. Points build momentum tiers that grant combat bonus
 | Kill | +10 | Per kill |
 | Clean Kill | +5 | Got a kill AND took 0 damage that round |
 | Damage Dealt | +1 | Per 25 HP dealt |
-| Full HP | +2 | End round at 145 HP |
+| Full HP | +2 | End round at 102 HP |
 | Storm Survivor | +3 | Alive when storm first activates |
 | Last Standing | +15 | Only bot alive |
 
@@ -211,11 +211,11 @@ Default is 25/25/25/25 (balanced). Specializing creates tradeoffs — high POWER
 
 | Stat | Effect | At 25 (default) | At 50 (specialized) |
 |------|--------|-----------------|---------------------|
-| POWER | Damage range (min-max) | 35-55 (avg 45) | 22-55 (avg 38) |
+| POWER | Damage range (min-max) | 28-48 (avg 38) | 22-55 (avg 38) |
 | POWER | Crit multiplier | 1.5x | 2.0x |
 | SPEED | Dodge chance | 7.5% | 17.5% |
 | SPEED | Initiative (attack order) | 25 | 50 (attacks first) |
-| ARMOR | Max HP | 145 | 90 |
+| ARMOR | Max HP | 102 | 90 |
 | ARMOR | Damage reduction | 0 | 6 |
 | MIND | Max energy | 100 | 120 |
 | MIND | Energy regen per rest | +0 | +15 |
