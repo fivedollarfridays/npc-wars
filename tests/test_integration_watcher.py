@@ -65,7 +65,7 @@ def test_spawn_conditions_met() -> None:
     """Cringe should spawn when human survived 5+ rounds with >50% HP."""
     human = _make_bot("H", 5, 5, human=True)
     human.rounds_survived = 5
-    human.hp = 80  # >50% of derived max_hp (145 for default 25/25/25/25)
+    human.hp = 80  # >50% of derived max_hp (102 for default 25/25/25/25)
     bots = [human, _make_bot("A", 1, 1), _make_bot("B", 8, 8), _make_bot("C", 3, 7)]
 
     assert check_watcher_spawn(bots, round_num=5, watcher_present=False) is True

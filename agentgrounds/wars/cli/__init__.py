@@ -12,6 +12,7 @@ def _register_subcommands(subs: argparse._SubParsersAction) -> None:
     from agentgrounds.wars.cli import (
         cmd_analyze,
         cmd_battle,
+        cmd_doctor,
         cmd_generate,
         cmd_init,
         cmd_leaderboard,
@@ -28,7 +29,7 @@ def _register_subcommands(subs: argparse._SubParsersAction) -> None:
     for cmd in (
         cmd_init, cmd_wizard, cmd_validate, cmd_battle, cmd_watch, cmd_watch_web,
         cmd_generate, cmd_play, cmd_sim, cmd_analyze, cmd_profile,
-        cmd_upload, cmd_leaderboard,
+        cmd_upload, cmd_leaderboard, cmd_doctor,
     ):
         cmd.register(subs)
 

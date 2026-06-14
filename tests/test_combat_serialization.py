@@ -36,6 +36,8 @@ class TestDictSerialization:
         assert d["hp"] == 80
 
     def test_self_dict_keys(self):
+        # T73.5: a default bot has not unlocked `trap`, so `traps` /
+        # `trap_cooldown` are no longer exposed to it (see TestTrapKeysGated).
         d = make_bot().to_self_dict()
         assert set(d.keys()) == {
             "x", "y", "hp", "energy", "attack_power", "defense",
@@ -44,11 +46,20 @@ class TestDictSerialization:
             "power", "speed", "armor", "mind",
             "max_hp", "max_energy", "min_damage", "max_damage",
             "dodge_chance", "damage_reduction", "glyph",
-            "passive_rounds", "traps", "trap_cooldown", "callbacks",
+            "passive_rounds", "callbacks",
             "equipment", "equipment_bonuses",
             "ability", "tactical_cooldown",
             "on_terrain", "terrain",
         }
+
+    def test_trap_keys_gated_on_unlock(self):
+        # T73.5: trap keys appear only once `trap` is unlocked.
+        base = make_bot().to_self_dict()
+        assert "traps" not in base and "trap_cooldown" not in base
+        trapper = make_bot()
+        trapper.unlocked_actions = ["move", "attack", "rest", "defend", "trap"]
+        d = trapper.to_self_dict()
+        assert d["traps"] == [] and d["trap_cooldown"] == 0
 
     def test_self_dict_includes_energy(self):
         d = make_bot(energy=42).to_self_dict()
@@ -76,10 +87,10 @@ class TestDictSerialization:
     def test_self_dict_has_derived_fields(self):
         d = make_bot().to_self_dict()
         # Default 25/25/25/25 derived values (with versatility bonus)
-        assert d["max_hp"] == 145
+        assert d["max_hp"] == 102
         assert d["max_energy"] == 100
-        assert d["min_damage"] == 35
-        assert d["max_damage"] == 55
+        assert d["min_damage"] == 28
+        assert d["max_damage"] == 48
         assert d["dodge_chance"] == 7.5
         assert d["damage_reduction"] == 0
 

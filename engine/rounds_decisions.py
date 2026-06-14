@@ -11,7 +11,7 @@ from typing import Any
 from engine.combat import Bot, MAX_CONSECUTIVE_FAILURES
 from engine.grid import direction_toward
 from engine.state import build_state
-from engine.sandbox import execute_decide, validate_action
+from engine.sandbox import LOCKED, classify_action, execute_decide, validate_action
 
 __all__ = ["resolve_decisions", "_apply_taunt_override"]
 
@@ -58,6 +58,21 @@ def _apply_taunt_override(
     return action
 
 
+def _degrade_locked(
+    bot: Bot, raw_action: Any, actions: _ActionsMap,
+    override_events: list[_Event],
+) -> None:
+    """Locked-but-well-formed action: rest, emit event, no failure penalty."""
+    attempted = raw_action[0]
+    actions[bot.emoji] = ("rest",)
+    bot.consecutive_failures = 0
+    override_events.append({
+        "type": "locked_action",
+        "player": bot.emoji,
+        "action": attempted,
+    })
+
+
 def resolve_decisions(
     alive_bots: list[Bot], bots: list[Bot], round_num: int,
     grid_size: int, storm_border: int,
@@ -77,8 +92,15 @@ def resolve_decisions(
         state = build_state(bot, bots, round_num, grid_size, storm_border,
                             bumps_last_round=bumps_last_round)
         raw_action = execute_decide(bot.decide_func, state)
-        action = validate_action(raw_action, unlocked_actions=set(bot.unlocked_actions))
-        action = _apply_human_override(bot, state, action, override_events)
+        classified = classify_action(raw_action, set(bot.unlocked_actions))
+
+        if classified is LOCKED:
+            _degrade_locked(bot, raw_action, actions, override_events)
+            continue
+
+        # LOCKED handled above: narrow classified to tuple|None for the typer.
+        assert classified is None or isinstance(classified, tuple)
+        action = _apply_human_override(bot, state, classified, override_events)
 
         if action is None:
             bot.consecutive_failures += 1

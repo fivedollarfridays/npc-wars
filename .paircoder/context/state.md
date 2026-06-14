@@ -1,8 +1,35 @@
 # Current State
 
-> Last updated: 2026-04-16 S71 tech debt sprint planned
+> Last updated: 2026-06-13 S73 meta-remediation — ALL 10 tasks done (branch sprint-73-meta-remediation)
 
 ## Active Plans
+
+**Plan:** Sprint 73: Kill Switch Meta Remediation
+- **Sprint:** S73 | **Type:** bugfix | **Status:** done ✓ (all 10 tasks; awaiting PR/merge)
+- 10 tasks, 118 Cx, 3 phases. Running hand-rolled via `running-sprint-tasks`
+  (engage's circuit breaker tripped on the state.md completion gate after
+  Phase 1; engage will not resume).
+
+### S73 Tasks
+
+| Task | Title | Cx | P | Depends on | Status |
+|------|-------|----|---|------------|--------|
+| T73.1 | Equipment wiring audit test | 12 | P0 | — | done ✓ |
+| T73.2 | Pool-bot liveness test | 8 | P0 | — | done ✓ |
+| T73.3 | Balance regression harness | 15 | P0 | — | done ✓ |
+| T73.10 | Scanner semicolon false-positive | 5 | P1 | — | done ✓ |
+| T73.4 | Wire dead equipment bonuses | 18 | P0 | T73.1, T73.3 | done ✓ |
+| T73.5 | Locked-action graceful degrade | 12 | P0 | T73.2, T73.3 | done ✓ |
+| T73.7 | Endgame forced-combat fix | 10 | P0 | T73.3 | done ✓ |
+| T73.6 | Versatility bonus retune | 15 | P1 | T73.3, T73.4, T73.5 | done ✓ |
+| T73.8 | Equipment-aware hit_chance_vs | 8 | P1 | T73.4 | done ✓ |
+| T73.9 | killswitch doctor command | 15 | P2 | T73.5 | done ✓ |
+
+**Wave plan (file-collision-aware):** W1 = T73.1/2/3/10 ✓ · W2a = T73.4 (solo,
+collides w/ 5 on combat.py, w/ 7 on rounds.py) · W2b = T73.5+T73.7 (parallel) ·
+W3 = T73.6+T73.8+T73.9 (parallel). Per-wave commits; scoped test gate at
+`/tmp/sprint73_tests.txt` (full suite is wall-clock-bound on docker/youtube
+integration tests — run those out-of-band).
 
 **Plan:** Sprint 71: Tech Debt Cleanup
 - **Sprint:** S71 | **Type:** chore | **Status:** planned
@@ -57,6 +84,17 @@
 S71 tech debt sprint: T71.1 + T71.2 done. Next up: T71.3 (`engine/rounds.py` at CI size boundary) and T71.4 (`server/lobby.py` fire-and-forget thread fix).
 
 ## What Was Just Done
+
+- **S73 COMPLETE — all 10 tasks done** on branch `sprint-73-meta-remediation` (commits `8310004` scaffold → `f176ef0`). Three meta-breakers fixed (dead equipment wired, locked-action degrade, endgame forced-combat) + verification harness (equipment-wiring audit, pool-bot liveness, balance regression guard) + bot-author loop (equipment-aware EVs, `killswitch doctor`, scanner FP). Wave 3a (T73.8, T73.9) `23cc542`; Wave 3b (T73.6 versatility retune) `f176ef0`. Verified: sprint-scoped gate green (~600 tests + all stat-fallout files); integration smoke = full `killswitch play` match runs end-to-end + `killswitch doctor` exit codes correct (trapper→1, aggro→0). **Full suite NOT run locally** — environment is wall-clock-bound on docker/youtube/subprocess suites; covered the blast radius instead. **Next: PR + CI (CI runs full suite).**
+  - **Follow-ups discovered (out of S73 scope):** (1) **Mind/mage combat-value** — mage 15/20/20/45 can't reach the 40-60% duel band by any versatility retune; mind only buys energy/regen (HP 66 / dmg 9-21). Needs a mind→combat-value change (own balance task). (2) **Balance baseline pool = `builtin_bots`** (6 bots, no equipment, no locked-action bots) — `check_balance` can't catch equipment/locked-action regressions; switch the harness pool to `bots/` or add an equipped pool. (3) **Pre-existing arch debt** (not introduced): `combat.py::__init__` 66 lines, `game.py` 21 imports, `game_async.py` long functions.
+
+- **T73.9 done** (S73 Wave 3) — `killswitch doctor <bot.py>` diagnostic command for bot authors. New `agentgrounds/wars/cli/cmd_doctor.py` (153 LOC) + `doctor_report.py` helper (175 LOC); registered in `agentgrounds/wars/cli/__init__.py`. Pure wiring over `run_match`/`load_bots` — NO engine changes. Assembles a temp pool (builtin pool minus emoji-clash + target loaded first), runs N seeded matches, and reports per-run + aggregate: locked-action attempts (`locked_action` events, player==emoji), plague rounds (`plague` events), forced-rest rounds (prev-round energy < MOVE_COST=5 AND action=="rest"), storm damage (`storm_damage` events) + storm deaths (elim cause=="storm"), disconnects (position action=="disconnected"), and placements. Exit non-zero iff bot disconnects OR has any locked-action attempt (CI-friendly). Smoke: example_aggro → HEALTHY exit 0; example_trapper → 48 locked attempts, ISSUES FOUND exit 1 (survives, does not disconnect — T73.5 behavior). tests/test_cmd_doctor.py (5 tests: healthy/locked/plague fixtures + build_diagnostics structure). Scoped gate 634 passed; ruff clean; arch rc=0 both files. **Remaining Wave 3: T73.6, T73.8.**
+
+- **S73 Wave 2 done** (T73.4, T73.5, T73.7) — commits `bf8baad` (2a), `d3b1e84` (2b). T73.4 wired the 5 dead equipment bonuses (initiative→to-hit+sort, dodge, crit-chance, energy-regen/rest-bonus); all 6 T73.1 xfails now hard assertions. T73.5 added `classify_action`/`LOCKED` so locked actions degrade to rest instead of disconnecting — Trapper/Viper/Mage now survive (T73.2 xfails flipped); trap/ability keys gated out of `to_self_dict` for bots that can't use them. T73.7 clamped `get_storm_border` to a 2×2 floor + disabled rest HP-heal in-storm; balance baseline regenerated (ChaosBot rest-spam wins gone: 🎲 13→7pp, 🧠 0→20pp). Parent fixed 6 stale trap-contract tests. Scoped gate green; no new arch violations. **Next: Wave 3 = T73.6 + T73.8 + T73.9 (parallel).** Known gap: balance baseline pool = `builtin_bots` (6 bots, no equipment, no locked-action bots) — equipment/locked-action regressions are NOT covered; T73.6 should confront pool choice.
+
+- **S73 Wave 1 done** (T73.1, T73.2, T73.3, T73.10) — commit `1dde78d`. Verification harness landed: equipment-wiring audit (6 dead-field xfails awaiting T73.4), pool-bot liveness (Trapper/Viper/Mage xfails awaiting T73.5), `killswitch sim --balance-report` + `check_balance.py` + 30-seed `data/balance_baseline.json`, and the scanner trailing-comment semicolon fix. Note: engage ran Phase 1 concurrently and committed a raced `add -A` blob (T73.3 + T73.10 + transient db-wal/sim-results); reconstructed into a clean wave commit, junk gitignored. Engage circuit-breakered on the state.md gate after Phase 1 — remainder is hand-rolled. **Next: Wave 2a = T73.4 (solo).**
+
+- **bots/fable_strategist.py added** (ad-hoc, no task ID) — Competitive Kill Switch bot derived from engine math: 25/25/25/25 versatility build (145 HP, 35-55 dmg), spear+plate+cloak+compass loadout (AC 17, reach-2 attacks). Policy: storm prediction via `get_storm_border` formula, kill-secure, HP-race engagement rule from `hit_chance_vs`/`incoming_threat`, range-2 poking, full-storm endgame rest race. Exploits found while grounding: locked actions (`trap`/`use_ability`) make Trapper/Viper/Mage self-disconnect in ~3 rounds; equipment initiative/dodge/regen bonuses are not wired into the engine (boots_of_speed, charm_of_evasion are dead items). Verified: 23/30 wins across seeds 1-30 in the full 14-bot pool.
 
 - **T71.2 done** (auto-updated by hook)
 
@@ -171,10 +209,13 @@ S71 tech debt sprint: T71.1 + T71.2 done. Next up: T71.3 (`engine/rounds.py` at 
 - **T58.2 done**
 
 **T58.2: Kill Switch personality profiler** — Built `engine/personality.py` (API + aggregation, 142 LOC) and `engine/personality_traits.py` (trait detection + variants + bios, 128 LOC). `profile_bot(emoji, results_dir, patterns_dir)` returns profile dict with traits, archetype_variant, bio. 15 distinct traits detected from behavior patterns (aggressive, defensive, trap, ranged, mobile, tactical, equipment, pattern-based). Template-based bio generation. Graceful on first match. 16 tests covering aggressive, defensive, balanced, trap-heavy, pattern-based, and equipment bots. Ruff clean, arch clean.
+- Planned Sprint 73 (Meta Remediation): created plan plan-2026-06-sprint-73-meta-remediation (bugfix, ~118 Cx) with 10 task files (T73.1–T73.10), depends_on wired
+
 
 ## What's Next
 
-T66.3 complete. Ready for next sprint task.
+1. Ready to start harness wave: T73.1, T73.2, T73.3, T73.10 (fully parallel)
+
 
 ## Completed Sprints
 

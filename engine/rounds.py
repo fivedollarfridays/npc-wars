@@ -17,8 +17,7 @@ if TYPE_CHECKING:
 
 from engine.combat import (
     Bot, STORM_DAMAGE, REST_HEAL, REST_ENERGY_RESTORE, DEFEND_BONUS,
-    STARTING_DEFENSE,
-    KILL_BOUNTY_ENERGY, TAUNT_RANGE,
+    STARTING_DEFENSE, TAUNT_RANGE,
 )
 from engine.grid import is_in_storm, storm_depth  # noqa: F401
 from engine.terrain_combat import can_rest_heal
@@ -31,8 +30,9 @@ from engine.rounds_decisions import (  # noqa: F401 — re-exported for backward
 from engine.rounds_movement import (  # noqa: F401 — re-exported for backward compat
     resolve_movement,
 )
+from engine.rounds_upkeep import attribute_kills  # noqa: F401 — re-exported for backward compat
 from engine.event_meta import (
-    TICK_DEFENSE, TICK_STORM, TICK_DEATHS, position,
+    TICK_DEFENSE, TICK_STORM, position,
 )
 
 __all__ = [
@@ -45,9 +45,6 @@ __all__ = [
 _Action = tuple[str, ...]
 _ActionsMap = dict[str, _Action]
 _Event = dict[str, Any]
-
-
-_HIT_TYPES = frozenset({"hit", "ranged_hit"})
 
 
 def resolve_defense(alive_bots: list[Bot], actions: _ActionsMap) -> list[_Event]:
@@ -108,8 +105,13 @@ def apply_storm_damage(alive_bots: list[Bot], grid_size: int, storm_border: int)
 def apply_energy_and_rest(
     alive_bots: list[Bot], actions: _ActionsMap, forced_rest: set[str],
     terrain: TerrainMap | None = None,
+    grid_size: int | None = None, storm_border: int = 0,
 ) -> None:
-    """Phase 6+7: Deduct energy costs and apply explicit rest healing."""
+    """Phase 6+7: Deduct energy costs and apply explicit rest healing.
+
+    Resting inside the storm restores energy but NOT hp (endgame fix): when
+    *grid_size* is given and the bot is in the storm, the hp heal is skipped.
+    """
     for bot in alive_bots:
         action = actions.get(bot.emoji)
         if action and action[0] not in ("nothing", "disconnected") and bot.emoji not in forced_rest:
@@ -117,61 +119,18 @@ def apply_energy_and_rest(
     for bot in alive_bots:
         action = actions.get(bot.emoji)
         if action and action[0] == "rest":
-            if can_rest_heal(terrain, bot.x, bot.y):
+            in_storm = (
+                grid_size is not None
+                and is_in_storm(bot.x, bot.y, grid_size, storm_border)
+            )
+            if not in_storm and can_rest_heal(terrain, bot.x, bot.y):
                 bot.hp = min(float(bot.derived.max_hp), bot.hp + REST_HEAL)
-            energy_restore = REST_ENERGY_RESTORE + bot.derived.energy_regen + bot.momentum_energy_bonus
+            eq = bot.equipment_bonuses
+            energy_restore = (
+                REST_ENERGY_RESTORE + bot.derived.energy_regen + bot.momentum_energy_bonus
+                + eq.energy_regen + eq.rest_energy_bonus
+            )
             bot.energy = min(bot.derived.max_energy, bot.energy + energy_restore)
-
-
-def attribute_kills(
-    round_elims: list[_Event], round_events: list[_Event],
-    bots: list[Bot], round_num: int,
-) -> None:
-    """Find killing blow and attribute kills to attackers."""
-    for elim in round_elims:
-        killer_emoji: str | None = None
-        for evt in round_events:
-            if (evt.get("type") in _HIT_TYPES and evt.get("target") == elim["emoji"]
-                    and evt.get("hp_before", 1) > 0
-                    and evt["hp_before"] - evt["damage"] <= 0):
-                killer_emoji = evt["attacker"]
-                break
-        if killer_emoji is None:
-            for evt in round_events:
-                if evt.get("type") in _HIT_TYPES and evt.get("target") == elim["emoji"]:
-                    killer_emoji = evt["attacker"]
-        if killer_emoji is None:
-            for evt in round_events:
-                if (evt.get("type") == "trap_trigger" and evt.get("victim") == elim["emoji"]
-                        and evt.get("hp_before", 1) > 0
-                        and evt["hp_before"] - evt["damage"] <= 0):
-                    killer_emoji = evt["owner"]
-                    break
-        if killer_emoji is None:
-            for evt in round_events:
-                if evt.get("type") == "trap_trigger" and evt.get("victim") == elim["emoji"]:
-                    killer_emoji = evt["owner"]
-        if killer_emoji is None:
-            for evt in round_events:
-                if evt.get("type") == "storm_damage" and evt.get("target") == elim["emoji"]:
-                    killer_emoji = "storm"
-        elim["killed_by"] = killer_emoji or "unknown"
-        elim["cause"] = "storm" if killer_emoji == "storm" else "combat"
-        if killer_emoji and killer_emoji != "storm":
-            for b in bots:
-                if b.emoji == killer_emoji:
-                    b.kills += 1
-                    b.energy = min(b.energy + KILL_BOUNTY_ENERGY, b.derived.max_energy)
-        victim_pos: dict[str, int] | None = None
-        for b in bots:
-            if b.emoji == elim["emoji"]:
-                victim_pos = position(b)
-                break
-        round_events.append({
-            "type": "kill", "attacker": killer_emoji or "unknown",
-            "victim": elim["emoji"], "round": round_num,
-            "tick_in_round": TICK_DEATHS, "position": victim_pos,
-        })
 
 
 def build_round_record(

@@ -54,6 +54,19 @@ def _find_target(
     return None
 
 
+def _sort_by_initiative(alive_bots: list[Bot]) -> list[Bot]:
+    """Order bots by attack initiative (higher first; stable sort keeps ties).
+
+    Initiative includes derived speed, equipment initiative bonuses, and the
+    ability-slow debuff.
+    """
+    return sorted(
+        alive_bots,
+        key=lambda b: b.derived.initiative + b.equipment_bonuses.initiative - b.ability_slow,
+        reverse=True,
+    )
+
+
 def resolve_attacks(alive_bots: list[Bot], actions: _ActionsMap,
                     pos_map: defaultdict[tuple[int, int], list[Bot]] | None = None,
                     rng: random.Random | None = None,
@@ -63,7 +76,7 @@ def resolve_attacks(alive_bots: list[Bot], actions: _ActionsMap,
         pos_map = build_pos_map(alive_bots)
     events: list[_Event] = []
     # Initiative: higher SPEED resolves first (stable sort preserves ties)
-    sorted_bots = sorted(alive_bots, key=lambda b: b.derived.initiative - b.ability_slow, reverse=True)
+    sorted_bots = _sort_by_initiative(alive_bots)
     for bot in sorted_bots:
         if not bot.alive or bot.hp <= 0:
             continue
@@ -138,6 +151,9 @@ def _roll_melee(bot: Bot, target: Bot, actions: _ActionsMap,
         momentum_defense_reduct=target.momentum_defense_reduction,
         to_hit_modifier=to_hit_mod,
         equipment_to_hit=eq_to_hit,
+        equipment_initiative=atk_eq.initiative,
+        equipment_dodge=def_eq.dodge,
+        equipment_crit_chance=atk_eq.crit_chance,
         equipment_min_dmg=atk_eq.min_damage,
         equipment_max_dmg=atk_eq.max_damage,
         equipment_crit_mult=atk_eq.crit_mult,
@@ -171,7 +187,7 @@ def resolve_ranged_attacks(alive_bots: list[Bot], actions: _ActionsMap,
         pos_map = build_pos_map(alive_bots)
     events: list[_Event] = []
     # Initiative: higher SPEED resolves first (stable sort preserves ties)
-    sorted_bots = sorted(alive_bots, key=lambda b: b.derived.initiative - b.ability_slow, reverse=True)
+    sorted_bots = _sort_by_initiative(alive_bots)
     for bot in sorted_bots:
         if not bot.alive or bot.hp <= 0:
             continue
@@ -225,6 +241,9 @@ def _roll_ranged(bot: Bot, target: Bot, actions: _ActionsMap,
         momentum_defense_reduct=target.momentum_defense_reduction,
         to_hit_modifier=to_hit_mod,
         equipment_to_hit=eq_to_hit,
+        equipment_initiative=atk_eq.initiative,
+        equipment_dodge=def_eq.dodge,
+        equipment_crit_chance=atk_eq.crit_chance,
         equipment_min_dmg=atk_eq.min_damage,
         equipment_max_dmg=atk_eq.max_damage,
         equipment_crit_mult=atk_eq.crit_mult,

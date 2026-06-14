@@ -8,10 +8,14 @@ from engine.callbacks import CallbackSet
 
 
 def _bot(emoji: str = "🤖", x: int = 3, y: int = 3) -> Bot:
-    return Bot(
+    bot = Bot(
         name="Test", emoji=emoji, bio="test", author="test",
         decide_func=lambda s: ("rest",), x=x, y=y,
     )
+    # T73.5: trap info is only exposed to bots that have unlocked `trap`.
+    # These tests cover the placing bot, so unlock it.
+    bot.unlocked_actions = ["move", "attack", "rest", "defend", "trap"]
+    return bot
 
 
 class TestSelfDictTrapFields:

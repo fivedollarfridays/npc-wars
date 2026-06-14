@@ -157,7 +157,7 @@ async def run_match_async(
         if sum(b.alive for b in bots) <= 1:
             break
 
-        storm_border = get_storm_border_for_mode(round_num, mode)
+        storm_border = get_storm_border_for_mode(round_num, mode, grid_size)
         for b in bots:
             b._current_round = round_num
 

@@ -199,9 +199,14 @@ class Bot:
         return names
 
     def _ability_dict(self) -> dict[str, Any] | None:
-        """Build ability info dict for state exposure."""
+        """Build ability info dict for state exposure.
+
+        ``ready`` is forced False when ``use_ability`` is not unlocked, so bots
+        are not baited into emitting a locked action.
+        """
         if self.ability is None:
             return None
+        can_use = "use_ability" in self.unlocked_actions
         return {
             "name": self.ability.name,
             "type": self.ability.type,
@@ -211,7 +216,7 @@ class Bot:
             "energy_cost": self.ability.energy_cost,
             "cooldown_remaining": self.ability_cooldown,
             "uses": self.ability_uses,
-            "ready": self.ability_cooldown == 0,
+            "ready": can_use and self.ability_cooldown == 0,
         }
 
     def to_enemy_dict(self) -> dict[str, Any]:
@@ -276,8 +281,7 @@ class Bot:
         """Full bot info visible to self."""
         from engine.momentum import get_tier_name
         eq, bonuses = self._equipment_dicts()
-        trap_info, trap_cd = self._trap_state()
-        return {
+        d = {
             "x": self.x, "y": self.y, "glyph": self.glyph,
             "hp": self.hp, "energy": self.energy,
             "attack_power": self.attack_power, "defense": self.defense,
@@ -294,8 +298,6 @@ class Bot:
             "dodge_chance": self.derived.dodge_chance,
             "damage_reduction": self.derived.damage_reduction,
             "passive_rounds": self.passive_rounds,
-            "traps": trap_info,
-            "trap_cooldown": trap_cd,
             "tactical_cooldown": self.tactical_cooldown,
             "callbacks": self._get_active_callbacks(),
             "equipment": eq,
@@ -304,6 +306,12 @@ class Bot:
             "on_terrain": self._terrain.get_tile(self.x, self.y) if self._terrain else "open",
             "terrain": self._build_terrain_dict(),
         }
+        # Only expose trap state to bots that can actually place traps.
+        if "trap" in self.unlocked_actions:
+            trap_info, trap_cd = self._trap_state()
+            d["traps"] = trap_info
+            d["trap_cooldown"] = trap_cd
+        return d
 
 
 def get_round_bonus_attack(round_num: int) -> int:

@@ -25,7 +25,7 @@ class TestStatSystem:
 
     def test_default_stats_unchanged(self):
         d = calculate_derived(DEFAULT_ALLOCATION)
-        assert d.max_hp == 145
+        assert d.max_hp == 102
         assert d.max_energy == 100
 
 

@@ -90,10 +90,10 @@ def match_stats() -> dict:
 class TestBalancedBuildHP:
     """Verify HP calculation for balanced builds."""
 
-    def test_balanced_hp_is_145(self):
-        """25/25/25/25 should yield 145 HP (50 base + 20 armor + 75 versatility)."""
+    def test_balanced_hp_is_102(self):
+        """25/25/25/25 should yield 102 HP (50 base + 20 armor + 32 versatility)."""
         derived = calculate_derived(DEFAULT_ALLOCATION)
-        assert derived.max_hp == 145
+        assert derived.max_hp == 102
 
 
 class TestBalancedMatchCompletion:

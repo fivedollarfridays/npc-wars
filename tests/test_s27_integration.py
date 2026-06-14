@@ -63,8 +63,8 @@ class TestBackwardCompatibility:
         match = _seeded_match(configs=self._balanced_configs())
         r1 = match["rounds"][0]
         for pos in r1["positions"]:
-            # All 25/25/25/25 bots start at max_hp=145 with versatility bonus
-            assert pos["max_hp"] == 145, f"{pos['emoji']} max_hp != 145"
+            # All 25/25/25/25 bots start at max_hp=102 with versatility bonus
+            assert pos["max_hp"] == 102, f"{pos['emoji']} max_hp != 102"
 
     def test_default_bots_start_energy_100(self) -> None:
         for cfg in self._balanced_configs():

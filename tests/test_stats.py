@@ -113,9 +113,9 @@ def test_constants_values() -> None:
 
 
 def test_derived_default_max_hp() -> None:
-    """Default allocation → max_hp == 145 (50 base + 20 armor + 75 versatility)."""
+    """Default allocation → max_hp == 102 (50 base + 20 armor + 32 versatility)."""
     ds = calculate_derived(DEFAULT_ALLOCATION)
-    assert ds.max_hp == 145
+    assert ds.max_hp == 102
 
 
 def test_derived_default_max_energy() -> None:
@@ -125,10 +125,10 @@ def test_derived_default_max_energy() -> None:
 
 
 def test_derived_default_damage_range() -> None:
-    """Default allocation → min_damage == 35, max_damage == 55 (with versatility bonus)."""
+    """Default allocation → min_damage == 28, max_damage == 48 (with versatility bonus)."""
     ds = calculate_derived(DEFAULT_ALLOCATION)
-    assert ds.min_damage == 35
-    assert ds.max_damage == 55
+    assert ds.min_damage == 28
+    assert ds.max_damage == 48
 
 
 def test_derived_default_crit() -> None:
@@ -208,16 +208,16 @@ def test_derived_low_power_damage_unchanged() -> None:
     """Power below 25 uses original linear scaling plus versatility bonus."""
     ds = calculate_derived(StatAllocation(15, 25, 35, 25))
     # variance = (100+0+100+0)/4 = 50, ratio=0.5, v_ratio=0.5
-    # bonus_dmg = int(20 * 0.5) = 10
-    assert ds.min_damage == max(1, int(15 * 0.6)) + 10  # 9 + 10 = 19
-    assert ds.max_damage == int(15 * 1.4) + 10  # 21 + 10 = 31
+    # bonus_dmg = int(13 * 0.5) = 6
+    assert ds.min_damage == max(1, int(15 * 0.6)) + 6  # 9 + 6 = 15
+    assert ds.max_damage == int(15 * 1.4) + 6  # 21 + 6 = 27
 
 
 def test_derived_at_baseline_power_damage_unchanged() -> None:
-    """Power=25 (baseline, balanced) gives min=35, max=55 (with versatility bonus)."""
+    """Power=25 (baseline, balanced) gives min=28, max=48 (with versatility bonus)."""
     ds = calculate_derived(DEFAULT_ALLOCATION)
-    assert ds.min_damage == 35
-    assert ds.max_damage == 55
+    assert ds.min_damage == 28
+    assert ds.max_damage == 48
 
 
 def test_derived_extreme_power_damage_compressed() -> None:
@@ -239,8 +239,8 @@ def test_derived_dodge_below_baseline_unchanged() -> None:
 def test_versatility_bonus_default_full() -> None:
     """25/25/25/25 (zero variance) gets full versatility HP bonus."""
     ds = calculate_derived(DEFAULT_ALLOCATION)
-    # 50 + 25*0.8 + 75 = 145
-    assert ds.max_hp == 145
+    # 50 + 25*0.8 + 32 = 102
+    assert ds.max_hp == 102
 
 
 def test_versatility_bonus_specialist_zero() -> None:

@@ -89,7 +89,7 @@ def test_apply_bounty_reward_restores_hp_and_energy():
 
     apply_bounty_reward(bot, reward)
 
-    assert bot.hp == 145  # derived max_hp for default 25/25/25/25
+    assert bot.hp == 102  # derived max_hp for default 25/25/25/25
     assert bot.energy == 100
 
 

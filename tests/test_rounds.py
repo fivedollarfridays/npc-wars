@@ -66,6 +66,38 @@ def test_forced_rest_gets_healing_in_apply_energy_and_rest():
 
 
 # ---------------------------------------------------------------------------
+# Endgame forced-combat fix: rest inside storm restores energy but not HP
+# ---------------------------------------------------------------------------
+
+def test_rest_in_storm_restores_energy_not_hp():
+    """A bot resting inside the storm gains energy but NOT hp."""
+    # grid_size=10, storm_border=3 -> safe zone is [3, 7). (0,0) is in the storm.
+    bot = make_bot(name="StormRester", emoji="A", hp=50, energy=0, x=0, y=0)
+    actions = {bot.emoji: ("rest",)}
+    forced_rest: set[str] = set()
+
+    apply_energy_and_rest([bot], actions, forced_rest, grid_size=10, storm_border=3)
+
+    assert bot.hp == 50, f"Rest in storm should not heal hp (hp={bot.hp})"
+    assert bot.energy == REST_ENERGY_RESTORE, (
+        f"Rest in storm should still restore energy (energy={bot.energy})"
+    )
+
+
+def test_rest_in_safe_zone_heals_hp_with_storm_active():
+    """A bot resting in the safe zone still heals hp even when a storm exists."""
+    # grid_size=10, storm_border=3 -> safe zone is [3, 7). (5,5) is safe.
+    bot = make_bot(name="SafeRester", emoji="B", hp=50, energy=0, x=5, y=5)
+    actions = {bot.emoji: ("rest",)}
+    forced_rest: set[str] = set()
+
+    apply_energy_and_rest([bot], actions, forced_rest, grid_size=10, storm_border=3)
+
+    assert bot.hp == 50 + REST_HEAL, f"Rest in safe zone should heal hp (hp={bot.hp})"
+    assert bot.energy == REST_ENERGY_RESTORE
+
+
+# ---------------------------------------------------------------------------
 # Bug 2: Position map collision — two bots on same tile
 # ---------------------------------------------------------------------------
 

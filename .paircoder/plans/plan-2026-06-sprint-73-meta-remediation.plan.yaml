@@ -1,0 +1,31 @@
+created_at: '2026-06-12T21:36:05.670495'
+goals:
+- Fix three meta-breakers (locked-action self-disconnects, dead equipment bonuses,
+  rest-spam endgame)
+- Build a verification harness turning each finding into a failing test
+- Fix the bot-author feedback loop (equipment-aware EVs, doctor command, scanner FP)
+id: plan-2026-06-sprint-73-meta-remediation
+metadata:
+  pm_scope: story
+phases:
+- id: 1
+  tasks:
+  - T73.1
+  - T73.2
+  - T73.3
+- id: 2
+  tasks:
+  - T73.4
+  - T73.5
+  - T73.6
+  - T73.7
+- id: 3
+  tasks:
+  - T73.8
+  - T73.9
+  - T73.10
+skills:
+- planning-with-pm
+status: in_progress
+title: 'Sprint 73: Kill Switch Meta Remediation'
+type: bugfix

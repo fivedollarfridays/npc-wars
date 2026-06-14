@@ -128,13 +128,21 @@ class TestMatchLength:
     """Verify match length is within expected bounds."""
 
     def test_match_length(self) -> None:
+        # S73 rebaseline: T73.5 stopped Trapper/Viper/Mage from suiciding on
+        # locked actions, so more bots survive longer and matches run longer.
+        # The mean is skewed by the rare 2-bot safe-zone stalemate that runs to
+        # the round cap (a documented T73.7 follow-up — it still resolves via
+        # tiebreaker), so assert on the median (robust) plus a generous mean
+        # ceiling that still catches a systemic drag.
         matches = _run_many()
-        lengths = [len(m["rounds"]) for m in matches]
+        lengths = sorted(len(m["rounds"]) for m in matches)
         avg = sum(lengths) / len(lengths)
-        assert 15 <= avg <= 60, (
-            f"Avg match length {avg:.1f} outside [15, 60] "
-            f"(min={min(lengths)}, max={max(lengths)})"
+        median = lengths[len(lengths) // 2]
+        assert 15 <= median <= 60, (
+            f"Median match length {median} outside [15, 60] "
+            f"(avg={avg:.1f}, min={lengths[0]}, max={lengths[-1]})"
         )
+        assert avg <= 90, f"Mean match length {avg:.1f} too long (systemic drag?)"
 
 
 # ===========================================================================

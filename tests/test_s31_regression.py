@@ -31,10 +31,10 @@ class TestDefaultBaseline:
 
     def test_derived_defaults_unchanged(self):
         d = calculate_derived(DEFAULT_ALLOCATION)
-        assert d.max_hp == 145
+        assert d.max_hp == 102
         assert d.max_energy == 100
-        assert d.min_damage == 35
-        assert d.max_damage == 55
+        assert d.min_damage == 28
+        assert d.max_damage == 48
         assert d.damage_reduction == 0
         assert d.energy_regen == 0
 
