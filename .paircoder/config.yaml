@@ -2,8 +2,16 @@ version: 2.27.1
 project:
   name: npc-wars
   description: npc-wars project
-  primary_goal: Build engine, viewer, Discord bot, video renderer, and CI pipeline
-    for NPC Wars spectator battle royale
+  primary_goal: NPC Wars (Kill Switch) is a competitive-bot battle royale in the
+    agentgrounds arcade -- developers code a decide() bot to fight last-bot-standing on
+    a grid; its matches, replays, and AI-narrated broadcasts build the agentic-builder
+    community that feeds the Fractal Framework business. Built to run on the shared
+    npc-sandbox runtime; rendered cinematically by borst and to dev-content by Iris/2MP4.
+  lodestar:
+    stated: A competitive-bot battle-royale game in the agentgrounds arcade -- players
+      code agents to compete on a grid; matches/replays/broadcasts grow the agentic-builder
+      community and funnel it toward the Fractal Framework business.
+    tier: infra
   coverage_target: 80
 workflow:
   default_branch_type: feature
@@ -286,6 +294,12 @@ metrics:
   store_path: .paircoder/history/metrics.jsonl
 hooks:
   enabled: true
+  # TEMP (S74): relax the state.md completion gate so `bpsai-pair engage` can
+  # auto-complete tasks without circuit-breaking. Removed after the S74 run;
+  # state.md is updated once at sprint end instead of per task.
+  lifecycle_overrides:
+    task_update_done_args:
+    - --skip-state-check
   on_task_ready:
   - sync_pm
   - update_state
