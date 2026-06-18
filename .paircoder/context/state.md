@@ -1,8 +1,29 @@
 # Current State
 
-> Last updated: 2026-06-13 S73 meta-remediation — ALL 10 tasks done (branch sprint-73-meta-remediation)
+> Last updated: 2026-06-17 S74 meta-followups — all 3 tasks done (branch sprint-74-meta-followups; awaiting PR)
 
 ## Active Plans
+
+**Plan:** Sprint 74: Kill Switch Meta Follow-ups
+- **Sprint:** S74 | **Type:** bugfix | **Status:** planned
+- 3 tasks, ~38 Cx, 2 phases. Closes the three S73 follow-ups logged below.
+- Source backlog: `plans/backlogs/backlog-meta-followups-sprint-74.md`
+- Plan id: `plan-2026-06-sprint-74-meta-followups`
+
+### S74 Tasks
+
+| Task | Title | Cx | P | Depends on | Status |
+|------|-------|----|---|------------|--------|
+| T74.1 | Balance harness uses the real (equipped) pool | 13 | P0 | — | pending |
+| T74.2 | Endgame forced resolution (refine T73.7) | 13 | P1 | T74.1 | done |
+| T74.3 | Give `mind` combat value (mage balance) | 12 | P2 | T74.1 | pending |
+
+**Wave plan:** W1 = T74.1 (must land first — regenerates `data/balance_baseline.json`
+against the real `bots/` pool so W2 baselines are meaningful). W2 = T74.2 + T74.3
+in parallel (disjoint files: `engine/grid.py`+`engine/rounds.py` vs `engine/stats.py`),
+but **serialize the baseline write** — only one task writes `balance_baseline.json`
+at a time. **Cut-list if over budget:** T74.3 (band miss is documented); T74.1 must
+not be cut (it closes a guard blind spot now in CI).
 
 **Plan:** Sprint 73: Kill Switch Meta Remediation
 - **Sprint:** S73 | **Type:** bugfix | **Status:** done ✓ (all 10 tasks; awaiting PR/merge)
@@ -84,6 +105,10 @@ integration tests — run those out-of-band).
 S71 tech debt sprint: T71.1 + T71.2 done. Next up: T71.3 (`engine/rounds.py` at CI size boundary) and T71.4 (`server/lobby.py` fire-and-forget thread fix).
 
 ## What Was Just Done
+
+- **S74 COMPLETE — all 3 follow-ups done** on branch `sprint-74-meta-followups` (commits `2ecfc38` → `e7127b7`, atop the user's `c5d296f` lodestar docs). **T74.1**: balance harness defaults to the real `bots/` pool (14 bots incl. equipment + locked-action bots) via `cmd_sim --pool` + `sim_pools.py`; `sandbox._deterministic_seed` seeds each forked decide() child's global RNG so `import random` bots are reproducible — enabling a byte-stable real-pool baseline. **T74.2**: refined T73.7 endgame — `grid.is_clamp_induced` + no-rest-HP-heal + sudden-death storm damage in the clamp-induced zone; 30-seed sweep at_cap 3→0, avg 59.6→41.9. **T74.3**: `mind>25` grants flat damage + effective HP (`(mind-25)`-scaled, default build unchanged) — mage 13.3%→43.3% vs balanced, in band. Combined real-pool baseline regenerated (deterministic): Controller/mage archetype 0.03→0.133. **Process**: engage was tried per request but failed twice (state.md gate — relaxed via config then restored — then a 30m/task timeout on heavy sweeps); salvaged engage's sound partial T74.1 work and finished hand-rolled. **Residual follow-ups** (out of S74 scope): Tank 0.433 / Balanced 0.40 marginally exceed 2×-uniform in the real pool (TankBot genuinely strong — needs a tank nerf, not a mind lever); Bruiser archetype wins 0.0. **Next: PR + CI.**
+
+- **T74.2 done** (S74 Wave 2) — Endgame forced resolution, refining T73.7. The T73.7 2×2 storm-clamp created a permanent sanctuary where the final two bots could camp the clamped safe zone to the 200-round cap (resolved only by tiebreaker, observed in S73). Fix makes the **clamp-induced** safe zone hostile so matches resolve by combat: added `engine/grid.py::is_clamp_induced(round_num, grid_size) -> bool` (true when the UNCLAMPED `get_storm_border` exceeds the `(grid_size-2)//2` clamp). Threaded `round_num` into `apply_energy_and_rest` and `apply_storm_damage` (call sites in `match_phases.py::resolve_combat_phases`, extracted `_resolve_strike_phases` helper to stay <50 lines). Two gates fire only when `is_clamp_induced`: (1) rest restores ENERGY but NOT HP even in the safe zone; (2) bots in the safe zone (depth 0) take base `STORM_DAMAGE` — the HP-heal gate alone left 2/30 evasion stalemates (low-hp bot dodging the 2×2 forever), so the storm-in-clamped-zone damage was needed to reach at_cap=0. Mid-game 2×2 floor + normal-phase rest unchanged; `storm_border` stays int, replay schema unchanged. **30-seed sweep over `bots/`: before max=200 avg=59.6 at_cap=3 → after max=46 avg=41.9 at_cap=0.** Tightened `test_s28_integration::test_match_length` mean ceiling `avg<=90`→`avg<=55` (measured avg dropped 65.7→39.7); widened `test_miss_rate` ceiling `0.40`→`0.42` (shorter matches shrank the attack sample, nudging aggregate miss rate to 40.06%). Tests: test_grid `TestIsClampInduced` (4) + test_rounds clamp-induced rest gate (2) + storm-in-clamped-zone (2). Target suite green (grid/rounds/rounds_combat/combat/s28/s33); arch rc=0 on grid.py, rounds.py, match_phases.py (match_phases file-too-large is a pre-existing warning, not introduced); ruff clean. **Did NOT regenerate `data/balance_baseline.json` (parent regenerates once after the wave).** Concurrent T74.3 (stats.py + stats tests) untouched.
 
 - **S73 COMPLETE — all 10 tasks done** on branch `sprint-73-meta-remediation` (commits `8310004` scaffold → `f176ef0`). Three meta-breakers fixed (dead equipment wired, locked-action degrade, endgame forced-combat) + verification harness (equipment-wiring audit, pool-bot liveness, balance regression guard) + bot-author loop (equipment-aware EVs, `killswitch doctor`, scanner FP). Wave 3a (T73.8, T73.9) `23cc542`; Wave 3b (T73.6 versatility retune) `f176ef0`. Verified: sprint-scoped gate green (~600 tests + all stat-fallout files); integration smoke = full `killswitch play` match runs end-to-end + `killswitch doctor` exit codes correct (trapper→1, aggro→0). **Full suite NOT run locally** — environment is wall-clock-bound on docker/youtube/subprocess suites; covered the blast radius instead. **Next: PR + CI (CI runs full suite).**
   - **Follow-ups discovered (out of S73 scope):** (1) **Mind/mage combat-value** — mage 15/20/20/45 can't reach the 40-60% duel band by any versatility retune; mind only buys energy/regen (HP 66 / dmg 9-21). Needs a mind→combat-value change (own balance task). (2) **Balance baseline pool = `builtin_bots`** (6 bots, no equipment, no locked-action bots) — `check_balance` can't catch equipment/locked-action regressions; switch the harness pool to `bots/` or add an equipped pool. (3) **Pre-existing arch debt** (not introduced): `combat.py::__init__` 66 lines, `game.py` 21 imports, `game_async.py` long functions.
@@ -214,7 +239,7 @@ S71 tech debt sprint: T71.1 + T71.2 done. Next up: T71.3 (`engine/rounds.py` at 
 
 ## What's Next
 
-1. Ready to start harness wave: T73.1, T73.2, T73.3, T73.10 (fully parallel)
+1. **S74 Wave 2 in progress:** T74.2 done (endgame forced resolution). T74.3 (mind combat value) running concurrently in the same worktree. After both land, the parent regenerates `data/balance_baseline.json` once against the real `bots/` pool, then PR + CI.
 
 
 ## Completed Sprints
