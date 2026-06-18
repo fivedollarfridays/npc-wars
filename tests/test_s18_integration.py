@@ -16,21 +16,31 @@ client = TestClient(app)
 
 
 def _registered_paths() -> set[str]:
-    """Router paths on a freshly-(re)built ``server.app``.
+    """Router paths from ``server.app`` imported in a clean subprocess.
 
-    This gate historically read the module-level ``app`` singleton that the
-    whole suite shares via ``from server.app import app``. A sibling test that
-    reloads ``server.app`` (e.g. ``test_s49_middleware``) can leave that shared
-    reference stale under the full-suite + coverage run on CI, which stripped
-    the router routes here even though every other server test (which exercise
-    the app fresh) passed. Reload so the gate asserts the *actual* current
-    registration, not a polluted singleton.
+    This gate verifies the app wires its routers. It historically read the
+    module-level ``app`` singleton shared across the whole suite via
+    ``from server.app import app`` — but under CI's full-suite + coverage run,
+    in-process state contamination (a sibling test's reload / sys.modules
+    manipulation) intermittently stripped the router routes here, even though
+    the app registers all routers when imported cleanly (verified) and every
+    other server test passed. Importing in a subprocess answers the real
+    question — "does a fresh process register the routers?" — immune to any
+    in-process pollution.
     """
-    import importlib
+    import json
+    import subprocess
+    import sys
 
-    import server.app as _app_mod
-    importlib.reload(_app_mod)
-    return {r.path for r in _app_mod.app.routes if hasattr(r, "path")}
+    code = (
+        "import json; from server.app import app; "
+        "print(json.dumps([r.path for r in app.routes if hasattr(r, 'path')]))"
+    )
+    out = subprocess.run(
+        [sys.executable, "-c", code],
+        cwd=str(PROJECT_ROOT), capture_output=True, text=True, check=True,
+    )
+    return set(json.loads(out.stdout.strip().splitlines()[-1]))
 
 
 # ---------------------------------------------------------------------------
