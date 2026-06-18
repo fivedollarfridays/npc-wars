@@ -6,6 +6,7 @@ with a deep-copied state dict. Timed-out processes are killed (not abandoned).
 
 import logging
 import multiprocessing
+import zlib
 from typing import Any, Callable
 
 from engine.combat import DEFAULT_UNLOCKED_ACTIONS
@@ -43,6 +44,29 @@ class BotExecutionError(Exception):
     pass
 
 
+def _deterministic_seed(state: dict[str, Any]) -> int:
+    """Derive a reproducible RNG seed from observable game state.
+
+    Forked decide() children do NOT inherit the parent's seeded global
+    ``random`` state, so a bot using ``import random`` is otherwise
+    non-reproducible (breaking byte-stable balance baselines). We seed the
+    child's global RNG from the round + the bot's own position/vitals so the
+    decision is a deterministic function of identical inputs. CRC32 over a
+    string key keeps the value independent of PYTHONHASHSEED.
+    """
+    me = state.get("me", {}) if isinstance(state, dict) else {}
+    key = "|".join(
+        str(v)
+        for v in (
+            state.get("round", 0) if isinstance(state, dict) else 0,
+            me.get("x", 0), me.get("y", 0),
+            me.get("hp", 0), me.get("energy", 0),
+            me.get("emoji", ""),
+        )
+    )
+    return zlib.crc32(key.encode("utf-8"))
+
+
 def _run_decide(queue: multiprocessing.Queue, decide_func: Callable[..., Any], state: dict[str, Any]) -> None:  # type: ignore[type-arg]
     """Worker: call decide on state, put result on queue.
 
@@ -50,6 +74,9 @@ def _run_decide(queue: multiprocessing.Queue, decide_func: Callable[..., Any], s
     the multiprocessing boundary), so no deepcopy is needed.
     """
     try:
+        import random
+
+        random.seed(_deterministic_seed(state))
         result = decide_func(state)
         queue.put((_STATUS_OK, result))
     except Exception as e:
