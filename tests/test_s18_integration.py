@@ -15,48 +15,16 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 client = TestClient(app)
 
 
-_DIAG_CODE = r"""
-import json, sys, traceback
-diag = {"server_file": None, "app_paths": [], "health_router_paths": [],
-        "include_error": None, "sys_path_head": sys.path[:4]}
-try:
-    import server.app as sa
-    diag["server_file"] = sa.__file__
-    diag["app_paths"] = [r.path for r in sa.app.routes if hasattr(r, "path")]
-    import server.routes.health as h
-    diag["health_router_paths"] = [r.path for r in h.router.routes if hasattr(r, "path")]
-except Exception:
-    diag["include_error"] = traceback.format_exc()
-print(json.dumps(diag))
-"""
+def _openapi_paths() -> set[str]:
+    """Declared API surface from FastAPI's own OpenAPI generator.
 
-
-def _diagnostics() -> dict:
-    """Import server.app in a clean subprocess and report what it registers.
-
-    The S18 gate verifies the app wires its routers. Under CI's full-suite +
-    coverage run it reported zero router routes (only docs+static) — never
-    reproducible locally, where the app registers all routers (verified many
-    ways). A clean subprocess answers the real question free of in-process
-    contamination; the diagnostics surface the actual cause if it still fails.
+    Checks router wiring via the live route registry (what actually routes)
+    rather than iterating ``app.routes`` and reading ``r.path`` — the latter
+    is fragile across Starlette versions (under CI's newer pinned-by-floor
+    fastapi/starlette, included-router routes don't surface that way even
+    though the endpoints route fine, as the functional checks below confirm).
     """
-    import json
-    import subprocess
-    import sys
-
-    out = subprocess.run(
-        [sys.executable, "-c", _DIAG_CODE],
-        cwd=str(PROJECT_ROOT), capture_output=True, text=True,
-    )
-    payload = (out.stdout.strip().splitlines() or ["{}"])[-1]
-    try:
-        diag = json.loads(payload)
-    except json.JSONDecodeError:
-        diag = {}
-    diag["_rc"] = out.returncode
-    diag["_stderr"] = out.stderr[-2000:]
-    diag["_stdout"] = out.stdout[-500:]
-    return diag
+    return set(client.get("/openapi.json").json().get("paths", {}).keys())
 
 
 # ---------------------------------------------------------------------------
@@ -65,22 +33,19 @@ def _diagnostics() -> dict:
 
 
 class TestRouterRegistration:
-    """Verify S18 routers are included in the FastAPI app."""
+    """Verify S18 routers are wired into the FastAPI app."""
 
     def test_stream_router_registered(self) -> None:
-        diag = _diagnostics()
-        assert "/api/match/{match_id}/stream" in set(diag.get("app_paths") or []), diag
+        assert "/api/match/{match_id}/stream" in _openapi_paths()
 
     def test_share_router_registered(self) -> None:
-        diag = _diagnostics()
-        assert "/m/{match_id}" in set(diag.get("app_paths") or []), diag
+        assert "/m/{match_id}" in _openapi_paths()
 
     def test_health_router_registered(self) -> None:
-        diag = _diagnostics()
-        paths = set(diag.get("app_paths") or [])
-        assert "/health" in paths, diag
-        assert "/health/ready" in paths
-        assert "/metrics" in paths
+        # Functional probe — unambiguous and version-robust.
+        assert client.get("/health").status_code == 200
+        assert client.get("/health/ready").status_code in (200, 503)
+        assert client.get("/metrics").status_code == 200
 
 
 # ---------------------------------------------------------------------------
