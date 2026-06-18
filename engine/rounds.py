@@ -19,7 +19,7 @@ from engine.combat import (
     Bot, STORM_DAMAGE, REST_HEAL, REST_ENERGY_RESTORE, DEFEND_BONUS,
     STARTING_DEFENSE, TAUNT_RANGE,
 )
-from engine.grid import is_in_storm, storm_depth  # noqa: F401
+from engine.grid import is_clamp_induced, is_in_storm, storm_depth  # noqa: F401
 from engine.terrain_combat import can_rest_heal
 from engine.rounds_combat import (  # noqa: F401 — re-exported for backward compat
     resolve_attacks, resolve_ranged_attacks, build_pos_map,
@@ -82,8 +82,29 @@ def resolve_taunt(alive_bots: list[Bot], actions: _ActionsMap) -> list[_Event]:
     return events
 
 
-def apply_storm_damage(alive_bots: list[Bot], grid_size: int, storm_border: int) -> list[_Event]:
-    """Phase 5: Apply depth-scaled storm damage. Deeper = more damage."""
+def _storm_damage_event(bot: Bot, damage: float, depth: int) -> _Event:
+    """Apply *damage* to *bot* and build the storm_damage event."""
+    bot.hp -= damage
+    bot.damage_taken += int(damage)
+    return {
+        "type": "storm_damage", "target": bot.emoji,
+        "damage": round(damage, 1), "depth": depth,
+        "tick_in_round": TICK_STORM, "position": position(bot),
+    }
+
+
+def apply_storm_damage(
+    alive_bots: list[Bot], grid_size: int, storm_border: int, round_num: int = 0,
+) -> list[_Event]:
+    """Phase 5: Apply depth-scaled storm damage. Deeper = more damage.
+
+    Endgame forced resolution: when the safe zone exists ONLY because of the
+    2x2 clamp (``is_clamp_induced``), bots inside the safe zone (depth 0) also
+    take base storm damage so an evading low-hp bot cannot dodge to the cap.
+    """
+    # Sudden-death only when the storm is genuinely active AND clamped — never
+    # when storm is disabled/0 (e.g. mocked in tests or pre-storm rounds).
+    clamp_induced = storm_border > 0 and is_clamp_induced(round_num, grid_size)
     events: list[_Event] = []
     for bot in alive_bots:
         if not bot.alive:
@@ -92,13 +113,9 @@ def apply_storm_damage(alive_bots: list[Bot], grid_size: int, storm_border: int)
         if depth > 0:
             # Base 10 + 3 per tile of depth, with fractional component for tiebreaking
             damage = STORM_DAMAGE + (depth - 1) * 3.0 + depth * 0.1
-            bot.hp -= damage
-            bot.damage_taken += int(damage)
-            events.append({
-                "type": "storm_damage", "target": bot.emoji,
-                "damage": round(damage, 1), "depth": depth,
-                "tick_in_round": TICK_STORM, "position": position(bot),
-            })
+            events.append(_storm_damage_event(bot, damage, depth))
+        elif clamp_induced:
+            events.append(_storm_damage_event(bot, float(STORM_DAMAGE), 1))
     return events
 
 
@@ -106,12 +123,21 @@ def apply_energy_and_rest(
     alive_bots: list[Bot], actions: _ActionsMap, forced_rest: set[str],
     terrain: TerrainMap | None = None,
     grid_size: int | None = None, storm_border: int = 0,
+    round_num: int = 0,
 ) -> None:
     """Phase 6+7: Deduct energy costs and apply explicit rest healing.
 
     Resting inside the storm restores energy but NOT hp (endgame fix): when
     *grid_size* is given and the bot is in the storm, the hp heal is skipped.
+
+    Deep endgame: when the safe zone exists ONLY because of the 2x2 clamp
+    (``is_clamp_induced``), rest restores energy but NOT hp even inside the
+    safe zone, so the final bots cannot rest-camp to the round cap.
     """
+    clamp_induced = (
+        grid_size is not None and storm_border > 0
+        and is_clamp_induced(round_num, grid_size)
+    )
     for bot in alive_bots:
         action = actions.get(bot.emoji)
         if action and action[0] not in ("nothing", "disconnected") and bot.emoji not in forced_rest:
@@ -123,7 +149,7 @@ def apply_energy_and_rest(
                 grid_size is not None
                 and is_in_storm(bot.x, bot.y, grid_size, storm_border)
             )
-            if not in_storm and can_rest_heal(terrain, bot.x, bot.y):
+            if not in_storm and not clamp_induced and can_rest_heal(terrain, bot.x, bot.y):
                 bot.hp = min(float(bot.derived.max_hp), bot.hp + REST_HEAL)
             eq = bot.equipment_bonuses
             energy_restore = (

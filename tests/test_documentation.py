@@ -150,8 +150,11 @@ class TestDocsRender:
         assert "<script" not in text
 
     def test_readme_starts_with_heading(self):
+        import re
         text = (ROOT / "README.md").read_text()
-        assert text.strip().startswith("#")
+        # Allow a leading HTML comment block (c5d296f FF-framing) before the H1.
+        body = re.sub(r"^\s*<!--.*?-->\s*", "", text, count=1, flags=re.DOTALL)
+        assert body.strip().startswith("#")
 
     def test_contributing_starts_with_heading(self):
         text = (ROOT / "CONTRIBUTING.md").read_text()

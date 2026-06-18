@@ -11,6 +11,8 @@ from multiprocessing import cpu_count
 from pathlib import Path
 from typing import Any
 
+from agentgrounds.wars.cli.sim_pools import resolve_pool as _resolve_pool
+
 __all__ = ["register", "run_sim", "run_balance_report"]
 
 
@@ -28,12 +30,19 @@ def register(subparser: argparse._SubParsersAction) -> None:
         action="store_true",
         help="Emit a win-rate/archetype/kill-cause balance report instead of per-match files",
     )
+    p.add_argument(
+        "--pool",
+        choices=["bots", "builtin"],
+        default="bots",
+        help=(
+            "Bot pool for --balance-report: 'bots' (default) = the real equipped "
+            "pool (14 bots incl. equipment loadouts + Trapper/Viper/Mage, the "
+            "locked-action bots) so equipment/locked-action regressions are caught; "
+            "'builtin' = the 6-bot shipped pool. Ignored for plain --sim and when "
+            "--bots-dir is given."
+        ),
+    )
     p.set_defaults(func=_run_cli)
-
-
-def _builtin_bots_dir() -> str:
-    """Path to the shipped builtin bot pool (reproducible balance baseline)."""
-    return str(Path(__file__).resolve().parent.parent / "builtin_bots")
 
 
 def _run_cli(args: argparse.Namespace) -> None:
@@ -45,7 +54,7 @@ def _run_cli(args: argparse.Namespace) -> None:
 
     if args.balance_report:
         run_balance_report(
-            bots_dir=args.bots_dir or _builtin_bots_dir(),
+            bots_dir=args.bots_dir or _resolve_pool(args.pool),
             matches=args.matches,
             output=args.output or "balance_report.json",
             seed=seed if seed is not None else 1,
@@ -67,8 +76,17 @@ def _run_cli(args: argparse.Namespace) -> None:
 def _run_single_match(params: tuple[str, int, int | None]) -> dict[str, Any]:
     """Run one match. Accepts (bots_dir, match_index, seed) for pool.map compatibility."""
     bots_dir, match_index, seed = params
+    import random
+
     from engine.game import run_match
     from engine.loader import load_bots
+
+    # The engine seeds its own local Random(seed), but some bots use the
+    # global ``random`` module directly (idle-branch randomisation). Seed it
+    # per match so those bots are reproducible — required for a byte-stable
+    # balance baseline. Only meaningful sequentially (parallel shares globals).
+    if seed is not None:
+        random.seed(seed)
 
     bot_configs = load_bots(bots_dir)
     t0 = time.perf_counter()

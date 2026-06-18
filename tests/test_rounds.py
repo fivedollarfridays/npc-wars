@@ -1,8 +1,10 @@
 """Tests for engine/rounds.py — forced-rest healing timing and position map collisions."""
 
 from tests.conftest import make_bot
-from engine.rounds import resolve_decisions, apply_energy_and_rest, resolve_attacks
-from engine.combat import REST_HEAL, REST_ENERGY_RESTORE
+from engine.rounds import (
+    resolve_decisions, apply_energy_and_rest, resolve_attacks, apply_storm_damage,
+)
+from engine.combat import REST_HEAL, REST_ENERGY_RESTORE, STORM_DAMAGE
 
 
 # ---------------------------------------------------------------------------
@@ -95,6 +97,72 @@ def test_rest_in_safe_zone_heals_hp_with_storm_active():
 
     assert bot.hp == 50 + REST_HEAL, f"Rest in safe zone should heal hp (hp={bot.hp})"
     assert bot.energy == REST_ENERGY_RESTORE
+
+
+# ---------------------------------------------------------------------------
+# Endgame forced resolution: rest in a clamp-induced safe zone restores
+# energy but NOT hp, so the final bots cannot rest-camp to the round cap.
+# ---------------------------------------------------------------------------
+
+def test_rest_in_clamp_induced_safe_zone_restores_energy_not_hp():
+    """Deep endgame: safe zone exists only because of the clamp -> no hp heal."""
+    # grid_size=10 -> max_border=4. At round 49 raw border (14) > 4, so the
+    # safe zone is clamp-induced. (5,5) is inside the clamped 2x2 safe zone.
+    bot = make_bot(name="Camper", emoji="A", hp=50, energy=0, x=5, y=5)
+    actions = {bot.emoji: ("rest",)}
+    forced_rest: set[str] = set()
+
+    apply_energy_and_rest(
+        [bot], actions, forced_rest, grid_size=10, storm_border=4, round_num=49,
+    )
+
+    assert bot.hp == 50, f"Rest in clamp-induced zone should not heal hp (hp={bot.hp})"
+    assert bot.energy == REST_ENERGY_RESTORE, (
+        f"Rest in clamp-induced zone should still restore energy (energy={bot.energy})"
+    )
+
+
+def test_rest_in_real_safe_zone_heals_hp_pre_clamp():
+    """Mid-game: safe zone is real (raw border fits) -> hp heal works normally."""
+    # grid_size=10 -> max_border=4. At round 20 raw border (2) <= 4, real zone.
+    bot = make_bot(name="Healer", emoji="B", hp=50, energy=0, x=5, y=5)
+    actions = {bot.emoji: ("rest",)}
+    forced_rest: set[str] = set()
+
+    apply_energy_and_rest(
+        [bot], actions, forced_rest, grid_size=10, storm_border=2, round_num=20,
+    )
+
+    assert bot.hp == 50 + REST_HEAL, f"Rest in real safe zone should heal hp (hp={bot.hp})"
+    assert bot.energy == REST_ENERGY_RESTORE
+
+
+# ---------------------------------------------------------------------------
+# Endgame forced resolution: storm damages even the clamp-induced safe zone
+# so an evading low-hp bot can't dodge to the round cap.
+# ---------------------------------------------------------------------------
+
+def test_storm_damages_clamp_induced_safe_zone():
+    """Deep endgame: a bot in the clamp-induced safe zone takes storm damage."""
+    # grid_size=10, max_border=4. Round 49 -> raw border (14) > 4 = clamp-induced.
+    # storm_border clamped to 4 -> (5,5) is inside the 2x2 safe zone.
+    bot = make_bot(name="Camper", emoji="A", hp=100, energy=100, x=5, y=5)
+    events = apply_storm_damage([bot], grid_size=10, storm_border=4, round_num=49)
+
+    assert bot.hp == 100 - STORM_DAMAGE, (
+        f"Clamp-induced safe zone should deal storm damage (hp={bot.hp})"
+    )
+    assert any(e["type"] == "storm_damage" and e["target"] == "A" for e in events)
+
+
+def test_storm_spares_real_safe_zone():
+    """Mid-game: a bot in a REAL safe zone takes no storm damage."""
+    # grid_size=10, max_border=4. Round 20 -> raw border (2) <= 4 = real zone.
+    bot = make_bot(name="Safe", emoji="B", hp=100, energy=100, x=5, y=5)
+    events = apply_storm_damage([bot], grid_size=10, storm_border=2, round_num=20)
+
+    assert bot.hp == 100, f"Real safe zone should not deal storm damage (hp={bot.hp})"
+    assert not any(e["type"] == "storm_damage" and e["target"] == "B" for e in events)
 
 
 # ---------------------------------------------------------------------------

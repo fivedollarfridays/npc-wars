@@ -1,15 +1,16 @@
-"""Deterministic archetype-duel band test for the versatility retune (T73.6).
+"""Deterministic archetype-duel band test for the versatility retune (T73.6)
+and the mind-combat retune (T74.3).
 
 Pins the measured result that, after retuning the versatility bonus
 (engine.stats._VERSATILITY_HP_MAX / _DMG_BONUS), each *combat* specialist
 archetype (tank, bruiser, assassin) lands inside a 40-60% balanced-win band
 head-to-head vs the 25/25/25/25 build, with a fixed seed set.
 
-The mage archetype (15/20/20/45) is intentionally excluded from the band
-assertion: mind is a non-combat stat in a 1v1 melee duel driven purely by
-stats (the shared chase decide func never rests to bank energy or casts
-abilities), so mage is structurally weak regardless of the versatility
-constants. See docs/balance-versatility-s73.md for the full analysis.
+T74.3 gave the `mind` stat a modest combat contribution
+(engine.stats._DMG_PER_MIND / _HP_PER_MIND, applied to mind > 25). The mage
+archetype (15/20/20/45) — previously a documented structural weakness because
+mind only bought non-combat energy in a stats-only duel — now also lands inside
+the 40-60% band. See docs/balance-mind-s74.md for the before/after matrix.
 """
 
 from __future__ import annotations
@@ -93,10 +94,27 @@ def test_balanced_no_longer_dominant() -> None:
     assert all(_balanced_win_pct(a) <= 60.0 for a in SPECIALISTS.values())
 
 
-def test_mage_documented_structural_weakness() -> None:
-    """Mage stays balanced-favored (>60%): documented AC blocker, not a regression.
+def test_mage_in_band_after_mind_combat_retune() -> None:
+    """Mage now lands in the 40-60% balanced-win band (T74.3 mind-combat value).
 
-    This pins the known limitation so a future combat-model change that makes
-    mind matter in duels will surface here and prompt a re-tune.
+    Before T74.3, mind only bought non-combat energy, so balanced won ~87% of
+    mage duels (mage was a documented structural weakness). Adding a modest
+    mind-fueled damage + effective-HP bonus (engine.stats._DMG_PER_MIND /
+    _HP_PER_MIND, mind > 25) brings the mage into the same 40-60% band as the
+    combat specialists. Pinned with the fixed SEEDS set so a future regression
+    in either the mind constants or the combat model surfaces here.
     """
-    assert _balanced_win_pct(MAGE) > 60.0
+    pct = _balanced_win_pct(MAGE)
+    assert 40.0 <= pct <= 60.0, f"mage: balanced won {pct:.1f}% (out of 40-60 band)"
+
+
+def test_all_archetypes_including_mage_in_band() -> None:
+    """The full archetype roster (combat specialists + mage) is in band.
+
+    Sanity check that the mind retune did not knock any combat specialist out of
+    band while bringing the mage in.
+    """
+    all_specs = {**SPECIALISTS, "mage": MAGE}
+    for name, alloc in all_specs.items():
+        pct = _balanced_win_pct(alloc)
+        assert 40.0 <= pct <= 60.0, f"{name}: balanced won {pct:.1f}% (out of band)"

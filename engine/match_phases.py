@@ -133,6 +133,26 @@ def _tick_end_of_round_effects(alive_bots: list[Bot]) -> None:
     tick_ability_cooldowns(alive_bots)
 
 
+def _resolve_strike_phases(
+    alive_bots: list[Bot], actions: dict[str, tuple[str, ...]],
+    forced_rest: set[str], round_num: int, grid_size: int, storm_border: int,
+    rng: random.Random | None, terrain: Any | None,
+) -> list[dict[str, Any]]:
+    """Phases 4-7: melee/ranged attacks, storm damage, energy + rest."""
+    pos_map = build_pos_map(alive_bots)
+    taunt_events = resolve_taunt(alive_bots, actions)
+    events: list[dict[str, Any]] = []
+    events.extend(resolve_attacks(alive_bots, actions, pos_map, rng=rng))
+    events.extend(taunt_events)
+    events.extend(resolve_ranged_attacks(alive_bots, actions, pos_map, rng=rng))
+    events.extend(apply_storm_damage(alive_bots, grid_size, storm_border, round_num))
+    apply_energy_and_rest(
+        alive_bots, actions, forced_rest, terrain, grid_size, storm_border,
+        round_num=round_num,
+    )
+    return events
+
+
 def resolve_combat_phases(
     alive_bots: list[Bot], bots: list[Bot], actions: dict[str, tuple[str, ...]],
     forced_rest: set[str], override_events: list[dict[str, Any]],
@@ -158,14 +178,10 @@ def resolve_combat_phases(
         alive_bots, actions, trap_manager, round_num, grid_size,
     )
 
-    taunt_events = resolve_taunt(alive_bots, actions)
-    pos_map = build_pos_map(alive_bots)
     round_events = override_events + tactical_events + ability_events + defend_events + bump_events + trap_events
-    round_events.extend(resolve_attacks(alive_bots, actions, pos_map, rng=rng))
-    round_events.extend(taunt_events)
-    round_events.extend(resolve_ranged_attacks(alive_bots, actions, pos_map, rng=rng))
-    round_events.extend(apply_storm_damage(alive_bots, grid_size, storm_border))
-    apply_energy_and_rest(alive_bots, actions, forced_rest, terrain, grid_size, storm_border)
+    round_events.extend(_resolve_strike_phases(
+        alive_bots, actions, forced_rest, round_num, grid_size, storm_border, rng, terrain,
+    ))
 
     round_events.extend(apply_plague_phase(alive_bots, actions))
 

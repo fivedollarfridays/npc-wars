@@ -1,3 +1,11 @@
+<!--
+  This repo (package: agent-grounds) is the home of the agentgrounds arcade engine.
+  It ships TWO competitive-bot games: Kill Switch (battle royale, the original
+  "NPC Wars") and Code Circuit (racing). NPC Race and NPC Fighter are separate
+  repos that follow the same pattern. See "Place in the agentgrounds arcade" at the
+  bottom for how this fits the Fractal Framework business.
+-->
+
 # Agent Grounds
 
 Competitive bot arena platform. Write a `decide()` function, drop it in a folder, watch AI-generated sports broadcasts of your bots competing.
@@ -193,3 +201,30 @@ See the [Getting Started guide](docs/getting-started.md) for a complete walkthro
 ## License
 
 [MIT](LICENSE)
+
+## Place in the agentgrounds arcade
+
+NPC Wars / Kill Switch is a **competitive-bot product in the agentgrounds arcade** — the
+arm of the Fractal Framework business that builds a community of agentic builders. The
+loop: developers write a `decide()` bot, drop it in a folder, and watch AI-narrated
+broadcasts of their bots competing. Matches, replays, and broadcasts are the shareable
+artifacts that draw developers in and funnel them toward the wider Fractal Framework
+method-and-tooling business.
+
+- **Bot API** — you write one Python function, `decide(state)`, returning an action
+  (`attack`, `move_toward`, `rest`, etc.). The `agentgrounds.wars.helpers` module (`Me`,
+  `Enemies`, `Storm`) gives ergonomic accessors. See [`bots/template.py`](bots/template.py)
+  and the built-in bots under [`agentgrounds/wars/builtin_bots/`](agentgrounds/wars/builtin_bots/).
+- **Output** — every match writes a match JSON (the replay) under `results/`, enriched by
+  the TV pipeline (`engine/tv_pipeline.py`) with commentary, highlights, personality
+  profiles, rivalries, and episode structure. The browser viewer (`viewer/`) plays it back.
+- **Sibling games** — `npc-race` (Code Circuit racing, separate repo) and `npc-fighter`
+  (fighting game, spec-stage) follow the same code-a-bot / run-the-match / watch-the-replay
+  pattern. This repo also bundles Code Circuit directly (`agentgrounds circuit race`).
+- **Ecosystem** — the games are intended to run on the shared **npc-sandbox** secure
+  runtime and to be rendered cinematically by **borst** (→ Unreal) and to dev-content by
+  **Iris / 2MP4**. Those integrations live in sibling repos, not in this one.
+
+> Note: this package publishes as `agent-grounds` (see `pyproject.toml`), and the CLI is
+> `agentgrounds <game> ...`. The legacy `npc-wars` repo name and the `killswitch` / `wars`
+> CLI aliases all refer to the same battle-royale game.

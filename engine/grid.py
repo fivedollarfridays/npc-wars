@@ -6,8 +6,8 @@ from typing import Any
 
 __all__ = [
     "calculate_grid_size", "spawn_positions", "get_storm_border",
-    "is_in_storm", "is_valid_position", "DIRECTIONS", "apply_direction",
-    "direction_toward",
+    "is_clamp_induced", "is_in_storm", "is_valid_position", "DIRECTIONS",
+    "apply_direction", "direction_toward",
 ]
 
 
@@ -86,6 +86,19 @@ def get_storm_border(round_num: int, grid_size: int | None = None) -> int:
         max_border = max(0, (grid_size - 2) // 2)
         border = min(border, max_border)
     return border
+
+
+def is_clamp_induced(round_num: int, grid_size: int) -> bool:
+    """Whether the current safe zone exists ONLY because of the 2x2 clamp.
+
+    True in the deep endgame when the unclamped (raw) storm schedule would have
+    closed the zone past the 2x2 floor, i.e. the raw border exceeds
+    ``(grid_size - 2) // 2``. Used to make the clamp-induced sanctuary hostile
+    (rest restores energy but not hp) so the final bots resolve by combat.
+    """
+    raw_border = get_storm_border(round_num)
+    max_border = max(0, (grid_size - 2) // 2)
+    return raw_border > max_border
 
 
 def is_in_storm(x: int, y: int, grid_size: int, storm_border: int) -> bool:

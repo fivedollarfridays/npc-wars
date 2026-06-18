@@ -89,14 +89,17 @@ def test_kill_bounty_energy_caps_at_derived_max():
 def test_bounty_reward_uses_derived_max():
     """apply_bounty_reward should restore to derived max_hp/max_energy."""
     from engine.bounty import apply_bounty_reward
+    # mind=50 chosen for max_energy=120; HP now includes the T74.3 mind barrier
+    # (50 + 50*0.8 + 0 versatility + int(25*2.5)=62 = 152). The test pins that
+    # bounty restore targets bot.derived.max_hp/max_energy, whatever they are.
     bot = make_bot(emoji="🧪", stat_allocation=StatAllocation(15, 15, 50, 50))
-    assert bot.derived.max_hp == 90
+    assert bot.derived.max_hp == 152
     assert bot.derived.max_energy == 120
     bot.hp = 50
     bot.energy = 30
     reward = {"hp_restore": "full", "damage_bonus": 0.5, "bonus_rounds": 3}
     apply_bounty_reward(bot, reward)
-    assert bot.hp == 90
+    assert bot.hp == 152
     assert bot.energy == 120
 
 
