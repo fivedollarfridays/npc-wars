@@ -15,32 +15,48 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 client = TestClient(app)
 
 
-def _registered_paths() -> set[str]:
-    """Router paths from ``server.app`` imported in a clean subprocess.
+_DIAG_CODE = r"""
+import json, sys, traceback
+diag = {"server_file": None, "app_paths": [], "health_router_paths": [],
+        "include_error": None, "sys_path_head": sys.path[:4]}
+try:
+    import server.app as sa
+    diag["server_file"] = sa.__file__
+    diag["app_paths"] = [r.path for r in sa.app.routes if hasattr(r, "path")]
+    import server.routes.health as h
+    diag["health_router_paths"] = [r.path for r in h.router.routes if hasattr(r, "path")]
+except Exception:
+    diag["include_error"] = traceback.format_exc()
+print(json.dumps(diag))
+"""
 
-    This gate verifies the app wires its routers. It historically read the
-    module-level ``app`` singleton shared across the whole suite via
-    ``from server.app import app`` — but under CI's full-suite + coverage run,
-    in-process state contamination (a sibling test's reload / sys.modules
-    manipulation) intermittently stripped the router routes here, even though
-    the app registers all routers when imported cleanly (verified) and every
-    other server test passed. Importing in a subprocess answers the real
-    question — "does a fresh process register the routers?" — immune to any
-    in-process pollution.
+
+def _diagnostics() -> dict:
+    """Import server.app in a clean subprocess and report what it registers.
+
+    The S18 gate verifies the app wires its routers. Under CI's full-suite +
+    coverage run it reported zero router routes (only docs+static) — never
+    reproducible locally, where the app registers all routers (verified many
+    ways). A clean subprocess answers the real question free of in-process
+    contamination; the diagnostics surface the actual cause if it still fails.
     """
     import json
     import subprocess
     import sys
 
-    code = (
-        "import json; from server.app import app; "
-        "print(json.dumps([r.path for r in app.routes if hasattr(r, 'path')]))"
-    )
     out = subprocess.run(
-        [sys.executable, "-c", code],
-        cwd=str(PROJECT_ROOT), capture_output=True, text=True, check=True,
+        [sys.executable, "-c", _DIAG_CODE],
+        cwd=str(PROJECT_ROOT), capture_output=True, text=True,
     )
-    return set(json.loads(out.stdout.strip().splitlines()[-1]))
+    payload = (out.stdout.strip().splitlines() or ["{}"])[-1]
+    try:
+        diag = json.loads(payload)
+    except json.JSONDecodeError:
+        diag = {}
+    diag["_rc"] = out.returncode
+    diag["_stderr"] = out.stderr[-2000:]
+    diag["_stdout"] = out.stdout[-500:]
+    return diag
 
 
 # ---------------------------------------------------------------------------
@@ -52,14 +68,17 @@ class TestRouterRegistration:
     """Verify S18 routers are included in the FastAPI app."""
 
     def test_stream_router_registered(self) -> None:
-        assert "/api/match/{match_id}/stream" in _registered_paths()
+        diag = _diagnostics()
+        assert "/api/match/{match_id}/stream" in set(diag.get("app_paths") or []), diag
 
     def test_share_router_registered(self) -> None:
-        assert "/m/{match_id}" in _registered_paths()
+        diag = _diagnostics()
+        assert "/m/{match_id}" in set(diag.get("app_paths") or []), diag
 
     def test_health_router_registered(self) -> None:
-        paths = _registered_paths()
-        assert "/health" in paths
+        diag = _diagnostics()
+        paths = set(diag.get("app_paths") or [])
+        assert "/health" in paths, diag
         assert "/health/ready" in paths
         assert "/metrics" in paths
 
