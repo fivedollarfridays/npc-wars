@@ -15,6 +15,24 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 client = TestClient(app)
 
 
+def _registered_paths() -> set[str]:
+    """Router paths on a freshly-(re)built ``server.app``.
+
+    This gate historically read the module-level ``app`` singleton that the
+    whole suite shares via ``from server.app import app``. A sibling test that
+    reloads ``server.app`` (e.g. ``test_s49_middleware``) can leave that shared
+    reference stale under the full-suite + coverage run on CI, which stripped
+    the router routes here even though every other server test (which exercise
+    the app fresh) passed. Reload so the gate asserts the *actual* current
+    registration, not a polluted singleton.
+    """
+    import importlib
+
+    import server.app as _app_mod
+    importlib.reload(_app_mod)
+    return {r.path for r in _app_mod.app.routes if hasattr(r, "path")}
+
+
 # ---------------------------------------------------------------------------
 # 1. Router registration
 # ---------------------------------------------------------------------------
@@ -24,15 +42,13 @@ class TestRouterRegistration:
     """Verify S18 routers are included in the FastAPI app."""
 
     def test_stream_router_registered(self) -> None:
-        paths = {r.path for r in app.routes if hasattr(r, "path")}
-        assert "/api/match/{match_id}/stream" in paths
+        assert "/api/match/{match_id}/stream" in _registered_paths()
 
     def test_share_router_registered(self) -> None:
-        paths = {r.path for r in app.routes if hasattr(r, "path")}
-        assert "/m/{match_id}" in paths
+        assert "/m/{match_id}" in _registered_paths()
 
     def test_health_router_registered(self) -> None:
-        paths = {r.path for r in app.routes if hasattr(r, "path")}
+        paths = _registered_paths()
         assert "/health" in paths
         assert "/health/ready" in paths
         assert "/metrics" in paths
