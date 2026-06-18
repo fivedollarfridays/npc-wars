@@ -102,7 +102,9 @@ def apply_storm_damage(
     2x2 clamp (``is_clamp_induced``), bots inside the safe zone (depth 0) also
     take base storm damage so an evading low-hp bot cannot dodge to the cap.
     """
-    clamp_induced = is_clamp_induced(round_num, grid_size)
+    # Sudden-death only when the storm is genuinely active AND clamped — never
+    # when storm is disabled/0 (e.g. mocked in tests or pre-storm rounds).
+    clamp_induced = storm_border > 0 and is_clamp_induced(round_num, grid_size)
     events: list[_Event] = []
     for bot in alive_bots:
         if not bot.alive:
@@ -132,7 +134,10 @@ def apply_energy_and_rest(
     (``is_clamp_induced``), rest restores energy but NOT hp even inside the
     safe zone, so the final bots cannot rest-camp to the round cap.
     """
-    clamp_induced = grid_size is not None and is_clamp_induced(round_num, grid_size)
+    clamp_induced = (
+        grid_size is not None and storm_border > 0
+        and is_clamp_induced(round_num, grid_size)
+    )
     for bot in alive_bots:
         action = actions.get(bot.emoji)
         if action and action[0] not in ("nothing", "disconnected") and bot.emoji not in forced_rest:
