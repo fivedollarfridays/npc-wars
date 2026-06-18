@@ -294,12 +294,6 @@ metrics:
   store_path: .paircoder/history/metrics.jsonl
 hooks:
   enabled: true
-  # TEMP (S74): relax the state.md completion gate so `bpsai-pair engage` can
-  # auto-complete tasks without circuit-breaking. Removed after the S74 run;
-  # state.md is updated once at sprint end instead of per task.
-  lifecycle_overrides:
-    task_update_done_args:
-    - --skip-state-check
   on_task_ready:
   - sync_pm
   - update_state
