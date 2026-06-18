@@ -201,6 +201,68 @@ def test_derived_high_mind_regen() -> None:
     assert ds.energy_regen == 15
 
 
+# --- DerivedStats: mind combat value (T74.3) ---
+
+
+def test_mind_combat_bonus_default_unchanged() -> None:
+    """mind == 25 (baseline) grants NO mind-combat bonus → default unchanged.
+
+    The mind-combat term uses the (mind - 25) shape, so the 25/25/25/25 build
+    keeps its pre-T74.3 derived stats (HP 102, damage 28-48).
+    """
+    ds = calculate_derived(DEFAULT_ALLOCATION)
+    assert ds.max_hp == 102
+    assert ds.min_damage == 28
+    assert ds.max_damage == 48
+
+
+def test_mind_combat_bonus_below_baseline_unchanged() -> None:
+    """mind < 25 grants NO mind-combat bonus (term clamps at 0).
+
+    Bruiser (40/20/15/25 uses mind=25; pick a mind<25 build): a low-mind
+    specialist's HP/damage are untouched by the mind-combat term.
+    """
+    # 40/30/20/10: mind=10 (< 25). Damage from power=40, no mind add.
+    low_mind = calculate_derived(StatAllocation(40, 30, 20, 10))
+    no_mind = calculate_derived(StatAllocation(40, 30, 25, 5))  # also mind<25
+    # min/max damage depend only on power (40) + versatility here; both mind<25
+    # so neither gets a mind-combat damage add.
+    assert low_mind.min_damage == no_mind.min_damage
+    assert low_mind.max_damage == no_mind.max_damage
+
+
+def test_mage_mind_combat_damage_bonus() -> None:
+    """Mage (15/20/20/45): mind=45 → +16 flat damage (excess 20 * 0.8).
+
+    Base damage from power=15 with versatility bonus, plus the mind-combat add.
+    """
+    ds = calculate_derived(StatAllocation(15, 20, 20, 45))
+    # power=15 -> base 9-21; versatility: variance=(100+25+25+400)/4=137.5>=cap
+    # -> v_ratio=0 -> bonus_dmg=0. mind excess=20 -> +int(20*0.8)=+16.
+    assert ds.min_damage == 9 + 16  # 25
+    assert ds.max_damage == 21 + 16  # 37
+
+
+def test_mage_mind_combat_hp_bonus() -> None:
+    """Mage (15/20/20/45): mind=45 → +50 effective HP (excess 20 * 2.5).
+
+    Base HP from armor=20 (no versatility bonus at this variance) + mind barrier.
+    """
+    ds = calculate_derived(StatAllocation(15, 20, 20, 45))
+    # HP = 50 + 20*0.8 + 0(versatility) + int(20*2.5) = 50 + 16 + 0 + 50 = 116
+    assert ds.max_hp == 116
+
+
+def test_high_mind_combat_scales_with_excess() -> None:
+    """mind=50 (excess 25) → +20 damage (25*0.8) and +62 HP (25*2.5)."""
+    ds = calculate_derived(StatAllocation(15, 15, 20, 50))
+    # damage: power=15 base 9-21, versatility 0 at this variance, mind +20
+    assert ds.min_damage == 9 + 20  # 29
+    assert ds.max_damage == 21 + 20  # 41
+    # HP: 50 + 20*0.8 + 0 + int(25*2.5) = 50 + 16 + 62 = 128
+    assert ds.max_hp == 128
+
+
 # --- DerivedStats: below-baseline behavior unchanged ---
 
 

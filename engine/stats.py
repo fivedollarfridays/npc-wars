@@ -98,6 +98,24 @@ _DR_BASELINE = 25  # armor value that gives 0 DR
 _REGEN_PER_MIND = 0.6  # buffed from 0.4 — rewards Mage builds
 _REGEN_BASELINE = 25  # mind value that gives 0 regen
 
+# Mind combat value (T74.3) — before this, mind only bought energy/regen, which
+# is dead weight in a stats-only duel (the shared chase policy never rests/casts).
+# The mage archetype (15/20/20/45) therefore lost ~87% of duels vs balanced and
+# could not be tuned into the 40-60% band by any versatility constant.
+# Mind above baseline (mind > 25) now grants a modest "battle-magic" combat
+# contribution: a flat damage add (mind-fueled spell power) AND bonus effective
+# HP (a mental barrier). Both use the (mind - 25) shape so the DEFAULT 25/25/25/25
+# build and every sub-baseline build (mage's old fixtures all use mind<=25) are
+# UNCHANGED — only genuinely mind-heavy builds (mind > 25) gain anything.
+# Per-point values were tuned by the archetype duel sweep in
+# tests/test_versatility_balance.py: at these constants mage reaches ~43% vs
+# balanced (in band) while tank/bruiser/assassin stay in band and the full-pool
+# balance report keeps the mind/Controller archetype under 2x uniform share.
+# See docs/balance-mind-s74.md for the before/after duel matrix.
+_MIND_BASELINE = 25  # mind value that gives 0 combat bonus
+_DMG_PER_MIND = 0.8  # flat damage per mind point above baseline
+_HP_PER_MIND = 2.5  # bonus effective HP per mind point above baseline
+
 # Baseline values at power/speed = 25 (anchors for piecewise formulas)
 _BASELINE_MIN_DMG = 15  # 25 * 0.6
 _BASELINE_MAX_DMG = 35  # 25 * 1.4
@@ -152,11 +170,15 @@ def calculate_derived(alloc: StatAllocation) -> DerivedStats:
     v_ratio = _calc_versatility_ratio(alloc)
     bonus_hp = int(_VERSATILITY_HP_MAX * v_ratio)
     bonus_dmg = int(_VERSATILITY_DMG_BONUS * v_ratio)
+    # Mind combat value (T74.3): only mind > 25 contributes; default unchanged.
+    mind_excess = max(0, alloc.mind - _MIND_BASELINE)
+    mind_dmg = int(mind_excess * _DMG_PER_MIND)
+    mind_hp = int(mind_excess * _HP_PER_MIND)
     return DerivedStats(
-        max_hp=int(_BASE_HP + alloc.armor * _HP_PER_ARMOR) + bonus_hp,
+        max_hp=int(_BASE_HP + alloc.armor * _HP_PER_ARMOR) + bonus_hp + mind_hp,
         max_energy=int(_BASE_ENERGY + alloc.mind * _ENERGY_PER_MIND),
-        min_damage=min_dmg + bonus_dmg,
-        max_damage=max_dmg + bonus_dmg,
+        min_damage=min_dmg + bonus_dmg + mind_dmg,
+        max_damage=max_dmg + bonus_dmg + mind_dmg,
         crit_multiplier=round(_BASE_CRIT + (alloc.power - 25) * _CRIT_PER_POWER, 2),
         dodge_chance=_calc_dodge(alloc.speed),
         initiative=alloc.speed,

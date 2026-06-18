@@ -7,6 +7,7 @@ from engine.grid import (
     apply_direction,
     calculate_grid_size,
     get_storm_border,
+    is_clamp_induced,
     is_valid_position,
 )
 
@@ -38,6 +39,38 @@ class TestStormBorderClamp:
     def test_backward_compat_no_grid_size_unclamped(self):
         """Without grid_size, value is unclamped (legacy behavior)."""
         assert get_storm_border(49) == 14
+
+
+# --- is_clamp_induced (deep-endgame safe zone exists only due to clamp) ---
+
+
+class TestIsClampInduced:
+    def test_false_when_zone_is_real(self):
+        """Mid-game: raw schedule still fits, so the safe zone is real."""
+        # grid_size=10 -> max_border=4. Raw border <= 4 for rounds up to 30.
+        for round_num in (0, 9, 20, 29, 30):
+            assert is_clamp_induced(round_num, 10) is False, (
+                f"round={round_num} should NOT be clamp-induced"
+            )
+
+    def test_true_when_raw_exceeds_clamp(self):
+        """Deep endgame: raw border would close the zone, so clamp kicks in."""
+        # grid_size=10 -> max_border=4. Raw border first exceeds 4 at round 31.
+        for round_num in (31, 40, 49, 100):
+            assert is_clamp_induced(round_num, 10) is True, (
+                f"round={round_num} should be clamp-induced"
+            )
+
+    def test_transition_boundary_for_grid_10(self):
+        """Boundary: round 30 not induced, round 31 induced (grid_size=10)."""
+        assert is_clamp_induced(30, 10) is False
+        assert is_clamp_induced(31, 10) is True
+
+    def test_larger_grid_delays_clamp(self):
+        """A larger grid has a higher max_border, so clamp engages later."""
+        # grid_size=20 -> max_border=9. Raw border = 9 at round 39, 10 at round 41.
+        assert is_clamp_induced(39, 20) is False
+        assert is_clamp_induced(41, 20) is True
 
 
 # --- is_valid_position ---
