@@ -53,6 +53,11 @@ def init_db(db_path: str) -> sqlite3.Connection:
     from server.rival_db import init_rival_table
 
     init_rival_table(conn)
+
+    # Delegated identity refs (service-key relay)
+    from server.player_refs import init_player_ref_table
+
+    init_player_ref_table(conn)
     conn.commit()
     return conn
 

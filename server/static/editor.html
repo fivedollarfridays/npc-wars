@@ -324,6 +324,9 @@
                 } else if (result.status === 429) {
                     btn.disabled = false;
                     showErrors([result.data.detail || 'Rate limited. Try again later.']);
+                } else if (result.status === 401 || result.status === 403) {
+                    btn.disabled = false;
+                    showErrors([result.data.detail || 'An API key is required to submit.']);
                 } else if (result.status === 202) {
                     var lobbyEl = document.getElementById('lobby-status');
                     lobbyEl.textContent = 'Submitted! Waiting for match...';
