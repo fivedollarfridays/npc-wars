@@ -1,5 +1,6 @@
 """Rate limiting dependency for bot submissions."""
 
+import hashlib
 import time
 
 from fastapi import HTTPException, Request
@@ -36,9 +37,20 @@ def _cleanup_stale() -> None:
 
 
 def _get_client_key(request: Request) -> str:
-    """Derive rate-limit key: prefer X-API-Key, fall back to client IP."""
+    """Derive rate-limit key: prefer X-API-Key, fall back to client IP.
+
+    Delegated (service-key) requests carry an ``X-Player-Ref`` and are limited
+    per acting player rather than per relay — otherwise one shared key would
+    throttle every delegated player at once.  Auth rejects the ref unless the
+    key is the service key, so this cannot be used to evade the limit.  The
+    ref is hashed so the opaque token never lands in the in-memory map.
+    """
     api_key = request.headers.get("x-api-key")
     if api_key:
+        player_ref = request.headers.get("x-player-ref")
+        if player_ref:
+            digest = hashlib.sha256(player_ref.encode()).hexdigest()[:16]
+            return f"{api_key}:{digest}"
         return api_key
     host = getattr(request.client, "host", None) if request.client else None
     return host or "unknown"

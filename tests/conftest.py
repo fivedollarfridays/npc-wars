@@ -9,6 +9,12 @@ import discord
 from engine.combat import Bot
 
 
+# UP-2: keyless submissions are rejected in production.  The legacy suite
+# predates that gate and relies on auto-create-on-keyless, so the dev opt-in
+# is enabled for the whole test session.  Tests that assert the enforcement
+# itself remove it per-test with ``monkeypatch.delenv``/``setenv``.
+os.environ.setdefault("NPCWARS_ALLOW_KEYLESS", "1")
+
 # --- Sandbox opt-in (UP-1) ---
 #
 # server.docker_sandbox fails closed: with no Docker daemon it refuses to run
