@@ -1,0 +1,57 @@
+# Build-context ignore file SPECIFIC to Dockerfile.sandbox.
+#
+# BuildKit (Docker's default builder) uses "<dockerfile>.dockerignore" INSTEAD
+# of the shared ".dockerignore" when it exists. The shared .dockerignore
+# excludes data/ (the server image gets data via `pip install .`), but the
+# sandbox image does NO pip install and imports data.player_profiles directly,
+# so it MUST keep data/. This file un-ignores data/ for the sandbox build
+# without touching the server image's .dockerignore at all.
+#
+# COPY in Dockerfile.sandbox only pulls engine/, data/, sandbox_entry.py, so
+# the rest below is excluded purely to keep the build context small.
+
+# Version control / tooling
+.git
+.github
+.claude
+.paircoder
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.coverage
+htmlcov
+
+# Python build artifacts
+__pycache__
+*.pyc
+*.pyo
+*.egg-info
+dist
+build
+
+# Not needed by the sandbox entrypoint
+tests
+docs
+*.md
+bots
+scripts
+tools
+viewer
+results
+server
+plans
+showcase
+suggestions
+audio
+video
+youtube
+discord_bot
+realtime
+tv
+agentgrounds
+
+# Media / env
+*.mp4
+*.log
+.env
+.env.*

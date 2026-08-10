@@ -64,6 +64,41 @@ allow-list -- `true`, `yes`, `on`, `0`, blank, or any other value all mean
 
 Regression coverage: `tests/test_sandbox_fail_closed.py`.
 
+### Build the sandbox image (REQUIRED for bring-up)
+
+The fail-closed gate above is only *real* if the `npcwars-sandbox:latest`
+image actually exists and runs matches. Build it as part of bring-up:
+
+```bash
+docker build -f Dockerfile.sandbox -t npcwars-sandbox:latest .
+```
+
+The image is deliberately minimal: the engine is stdlib-only
+(`pyproject` `dependencies = []`), so there is **no `pip install`** — it copies
+only `engine/`, `data/`, and the `sandbox_entry.py` entrypoint. `sandbox_entry.py`
+reads a `{"bots":[...], "config":{...}}` payload on stdin, compiles each bot
+with `engine.bot_loader.load_bot_from_source`, runs a real match via
+`engine.game.run_match`, and prints the match JSON to stdout — which is exactly
+the contract `server/docker_sandbox.py::_run_in_docker` expects.
+
+> Before UP-4 this image failed to build (it copied a since-renamed `npcwars/`
+> dir) and its `CMD` was a stub that ignored stdin and returned
+> `{"status": "sandbox_ok"}` instead of a match. The Docker path had never run
+> a real match.
+
+**If the image is missing, submission matches fail closed** with
+`SandboxUnavailableError` (production leaves `NPCWARS_ALLOW_UNSANDBOXED` unset),
+so building the image is what makes safe production execution possible. Verify
+the built image on a Docker host with:
+
+```bash
+scripts/verify_sandbox_container.sh
+```
+
+It builds the image, pipes a real 3-bot payload through the container, and
+asserts the output is a genuine match (winner + rounds) and not the old
+`sandbox_ok` stub — printing a clear `PASS`/`FAIL`.
+
 ### Submission auth (UP-2)
 
 `POST /api/submit-bot` and the lobby routes require an API key. A request with

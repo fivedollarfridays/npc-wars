@@ -1,6 +1,18 @@
+# Ephemeral, network-less sandbox image that runs ONE match from a stdin
+# JSON payload and prints the match_data dict to stdout (see sandbox_entry.py).
+#
+# The engine is stdlib-only (pyproject dependencies = []), so there is NO pip
+# install here. We copy only what the entrypoint's import chain needs:
+#   engine/  -> run_match + bot_loader (compile bot source)
+#   data/    -> engine.game imports data.player_profiles
+#   sandbox_entry.py -> the entrypoint / CMD
+# bots/ is intentionally NOT copied: run_match takes compiled bot configs, it
+# never reads the bots/ directory.
 FROM python:3.13-slim
 WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1
 COPY engine/ engine/
-COPY bots/ bots/
-COPY npcwars/ npcwars/
-CMD ["python", "-c", "import sys, json; print(json.dumps({'status': 'sandbox_ok'}))"]
+COPY data/ data/
+COPY sandbox_entry.py sandbox_entry.py
+# No --entrypoint is passed by _run_in_docker, so this CMD is the entrypoint.
+CMD ["python", "sandbox_entry.py"]
