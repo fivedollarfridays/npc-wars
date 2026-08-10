@@ -97,6 +97,32 @@ The ref is an opaque token (PSC derives it via HMAC): it is stored only as a
 SHA-256 hash in the `player_refs` table, is never logged, and never appears in
 a player or bot display name.
 
+### Submission matches (UP-3)
+
+`POST /api/submit-bot` now enqueues a real match, not just a cosmetic
+`job_id`. Jobs on the match queue carry a `kind` discriminator:
+
+| `kind` | Executor | Bot payload | Source |
+|--------|----------|-------------|--------|
+| `"submission"` | `run_sandboxed()` | untrusted SOURCE strings | player submissions |
+| _(absent)_ | `run_match()` | pre-compiled `decide_func` configs | lobby / tournament |
+
+The **worker** routes on `kind`. A submission job runs the submitter's stored
+source plus AI fill-opponent sources through the fail-closed sandbox, writes a
+normal `match_NNN.json` (so SSE replay, `/m/{id}` share, and the ladder pick it
+up unchanged), binds the match to the submitting player in `match_players`
+(discoverable via `GET /api/lobby/history`), and credits the submitter's
+coins. There is **no new queue, port, or env var** — the same `redis` + single
+`worker` service handle both job kinds.
+
+Operational note: submission matches depend on the sandbox, so they obey the
+`NPCWARS_ALLOW_UNSANDBOXED` gate above. In production (Docker present, variable
+unset) they run in the container; if the sandbox is unavailable the job is
+logged and marked failed (`Submission job … FAILED closed`) with **no match
+file written** — the worker loop keeps running. Because the worker allocates
+each submission's `match_id` from the results directory at run time, keep a
+**single** worker replica (the default compose topology) to avoid id races.
+
 ## Data Persistence
 
 Match results and the database are stored in a Docker named volume `npcwars-data` mounted at `/data`.

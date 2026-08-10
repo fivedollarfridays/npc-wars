@@ -19,11 +19,15 @@ async def get_match(match_id: str, request: Request) -> dict:
 
     results_dir = Path(getattr(request.app.state, "results_dir", "results"))
 
-    # Try match_{id}.json first (numeric IDs), then {id}.json (UUID job IDs)
+    # Try match_{id}.json first (numeric IDs), then {id}.json (UUID job IDs).
+    # Matches are written zero-padded (match_{id:03d}.json), so a natural-id
+    # lookup like /api/match/1 must also try match_001.json (UP-3 submit->replay).
     candidates = [
         results_dir / f"match_{match_id}.json",
         results_dir / f"{match_id}.json",
     ]
+    if match_id.isdigit():
+        candidates.append(results_dir / f"match_{int(match_id):03d}.json")
 
     resolved_results = results_dir.resolve()
     for path in candidates:

@@ -18,6 +18,8 @@ from server.middleware.rate_limit import (
     clear_rate_limit_state,
     record_submission,
 )
+from server.queue import enqueue_match
+from server.submission import build_submission_job
 
 _logger = logging.getLogger(__name__)
 
@@ -97,6 +99,21 @@ async def submit_bot(
     bot_id = store_bot(conn, player["id"], bot_name, bot_emoji, body.source)
 
     job_id = str(uuid.uuid4())
+
+    # UP-3: enqueue a real submission match. The worker runs it through the
+    # sandbox (run_sandboxed) against AI fill opponents, then writes a result
+    # the SSE replay / share page / ladder pick up unchanged.
+    results_dir = getattr(request.app.state, "results_dir", "results")
+    enqueue_match(
+        build_submission_job(
+            job_id=job_id,
+            player_id=player["id"],
+            bot_id=bot_id,
+            source=body.source,
+            emoji=bot_emoji,
+            results_dir=results_dir,
+        )
+    )
 
     # Build response
     content: dict[str, Any] = {"job_id": job_id, "bot_id": bot_id}
