@@ -7,12 +7,18 @@ import os
 import subprocess
 from typing import Any
 
+# Re-exported: the reusable bot-compile logic now lives in a dep-light module
+# (engine.bot_loader) so the Docker sandbox image can import it without the
+# server package. Kept importable from here for backward compatibility.
+from engine.bot_loader import load_bot_from_source
+
 __all__ = [
     "DOCKER_IMAGE",
     "SANDBOX_OPT_IN_ENV",
     "SANDBOX_OPT_IN_VALUE",
     "SANDBOX_TIMEOUT",
     "SandboxUnavailableError",
+    "load_bot_from_source",
     "run_sandboxed",
 ]
 
@@ -55,67 +61,6 @@ def _docker_available() -> bool:
         return result.returncode == 0
     except (FileNotFoundError, subprocess.TimeoutExpired):
         return False
-
-
-def load_bot_from_source(source: str, label: str) -> dict[str, Any]:
-    """Exec bot source code and return a bot config dict.
-
-    Source is pre-scanned for security violations before execution.
-    Raises ValueError if scan fails or required attributes are missing.
-    """
-    from engine.bot_scanner import scan_bot_source
-
-    errors = scan_bot_source(source)
-    if errors:
-        raise ValueError(f"Bot '{label}' failed scan: {'; '.join(errors[:3])}")
-
-    import builtins as _builtins
-    from engine.bot_scanner import BLOCKED_MODULES
-
-    _safe_builtins = {
-        k: getattr(_builtins, k)
-        for k in (
-            "abs", "all", "any", "bool", "dict", "enumerate",
-            "float", "frozenset", "int", "len", "list", "max", "min",
-            "print", "range", "round", "set", "sorted", "str", "sum",
-            "tuple", "zip", "True", "False", "None",
-            "isinstance", "issubclass", "hasattr", "hash", "id", "repr",
-            "map", "filter", "reversed",
-            "ValueError", "TypeError", "KeyError", "IndexError",
-            "AttributeError", "StopIteration", "Exception",
-        )
-        if hasattr(_builtins, k)
-    }
-
-    _real_import = _builtins.__import__
-
-    def _restricted_import(name: str, *args: Any, **kwargs: Any) -> Any:
-        root = name.split(".")[0]
-        if root in BLOCKED_MODULES:
-            raise ImportError(f"Import blocked: '{name}'")
-        return _real_import(name, *args, **kwargs)
-
-    _safe_builtins["__import__"] = _restricted_import
-    namespace: dict[str, Any] = {"__builtins__": _safe_builtins}
-    exec(compile(source, f"<{label}>", "exec"), namespace)  # noqa: S102
-
-    name = namespace.get("BOT_NAME")
-    emoji = namespace.get("BOT_EMOJI")
-    decide = namespace.get("decide")
-
-    if not name or not emoji or not callable(decide):
-        raise ValueError(
-            f"Bot source '{label}' missing required attributes "
-            "(BOT_NAME, BOT_EMOJI, decide)"
-        )
-
-    return {
-        "name": name,
-        "emoji": emoji,
-        "bio": namespace.get("BOT_BIO", ""),
-        "author": namespace.get("BOT_AUTHOR", "unknown"),
-        "decide_func": decide,
-    }
 
 
 def _run_in_process(bot_sources: list[str], match_config: dict[str, Any]) -> dict[str, Any]:
