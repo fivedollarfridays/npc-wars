@@ -15,6 +15,17 @@ from engine.combat import Bot
 # itself remove it per-test with ``monkeypatch.delenv``/``setenv``.
 os.environ.setdefault("NPCWARS_ALLOW_KEYLESS", "1")
 
+# --- Sandbox opt-in (UP-1) ---
+#
+# server.docker_sandbox fails closed: with no Docker daemon it refuses to run
+# submitted bot source in-process unless NPCWARS_ALLOW_UNSANDBOXED is exactly
+# "1". CI and local dev machines usually have no daemon, so the suite opts in
+# here. Production/deploy MUST NOT set this variable.
+#
+# tests/test_sandbox_fail_closed.py deletes it again via monkeypatch so the
+# closed-by-default behavior is what actually gets asserted.
+os.environ["NPCWARS_ALLOW_UNSANDBOXED"] = "1"
+
 
 # --- Viewer helpers ---
 
