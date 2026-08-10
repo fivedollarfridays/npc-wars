@@ -20,6 +20,7 @@ __all__ = [
     "SandboxUnavailableError",
     "load_bot_from_source",
     "run_sandboxed",
+    "sandbox_preflight",
 ]
 
 SANDBOX_TIMEOUT: int = 10
@@ -61,6 +62,40 @@ def _docker_available() -> bool:
         return result.returncode == 0
     except (FileNotFoundError, subprocess.TimeoutExpired):
         return False
+
+
+def _image_present() -> bool:
+    """Whether the sandbox image exists on the daemon we can talk to."""
+    try:
+        result = subprocess.run(
+            ["docker", "image", "inspect", DOCKER_IMAGE],
+            capture_output=True,
+            timeout=10,
+        )
+        return result.returncode == 0
+    except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
+        return False
+
+
+def sandbox_preflight() -> dict[str, Any]:
+    """Report whether a real sandboxed run is possible *right now*.
+
+    Answers the two questions a fail-closed submission can't distinguish
+    between: is there a reachable Docker daemon (CLI on PATH + socket), and
+    does ``npcwars-sandbox:latest`` exist on it? Callers log this at startup
+    so an operator sees the cause once, instead of one opaque per-job error.
+
+    Never raises -- a preflight that crashed the worker would be worse than
+    the condition it reports.
+    """
+    docker_ok = _docker_available()
+    image_ok = _image_present() if docker_ok else False
+    return {
+        "docker": docker_ok,
+        "image": image_ok,
+        "ok": docker_ok and image_ok,
+        "image_name": DOCKER_IMAGE,
+    }
 
 
 def _run_in_process(bot_sources: list[str], match_config: dict[str, Any]) -> dict[str, Any]:

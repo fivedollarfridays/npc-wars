@@ -2,14 +2,24 @@ version: "3.8"
 
 services:
   app:
-    build: .
+    restart: unless-stopped
+    build:
+      context: .
+      target: app
     ports:
-      - "8000:8000"
+      # Host port is overridable (ARENA_HOST_PORT in .env) because :8000 is
+      # already taken on the target Mac Mini. Container port stays 8000.
+      - "${ARENA_HOST_PORT:-8000}:8000"
     environment:
       - REDIS_URL=redis://redis:6379
       - RESULTS_DIR=/data/results
       - DB_PATH=/data/npcwars.db
       - NPCWARS_CORS_ORIGINS=*
+      # Refuse the in-process queue fallback: an app that quietly enqueued
+      # into its own memory would 202 every submission and run none of them.
+      - NPCWARS_QUEUE_STRICT=1
+      - NPCWARS_LOG_LEVEL=${NPCWARS_LOG_LEVEL:-INFO}
+      - NPCWARS_SERVICE_API_KEY=${NPCWARS_SERVICE_API_KEY:-}
     volumes:
       - npcwars-data:/data
     depends_on:
@@ -22,6 +32,7 @@ services:
       retries: 3
 
   redis:
+    restart: unless-stopped
     image: redis:7-alpine
     volumes:
       - redis-data:/data
@@ -32,21 +43,57 @@ services:
       retries: 5
 
   worker:
-    build: .
+    restart: unless-stopped
+    build:
+      context: .
+      target: worker
     command: python -m server.worker
     environment:
       - REDIS_URL=redis://redis:6379
+      # Must match app: the worker writes match_NNN.json here and the API
+      # serves it from the same shared volume.
       - RESULTS_DIR=/data/results
+      - DB_PATH=/data/npcwars.db
+      - NPCWARS_QUEUE_STRICT=1
+      - NPCWARS_LOG_LEVEL=${NPCWARS_LOG_LEVEL:-INFO}
     volumes:
       - npcwars-data:/data
+      # docker-out-of-docker: the worker shells out to `docker run
+      # npcwars-sandbox:latest` to execute untrusted submitted bot source in
+      # an isolated container (--network=none --read-only --memory=256m
+      # --pids-limit=50). Without this socket the sandbox is unreachable and
+      # every submission fails closed.
+      #
+      # RESIDUAL RISK: socket access is host-root-equivalent for this
+      # container. The worker runs first-party code only; untrusted code
+      # still runs in the spawned container, never here. The app service
+      # deliberately does NOT get this mount.
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       redis:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "python", "-c", "print('ok')"]
-      interval: 30s
+      # Proves the POLL LOOP is alive, not just that python starts: the loop
+      # touches a heartbeat file every cycle and this exits non-zero once it
+      # goes stale. The old `python -c "print('ok')"` reported healthy while
+      # the loop was dead.
+      test: ["CMD", "python", "-m", "server.heartbeat"]
+      interval: 15s
       timeout: 5s
       retries: 3
+      start_period: 30s
+
+  # Build unit, not a service: `docker compose --profile tools build sandbox`
+  # builds npcwars-sandbox:latest on the HOST daemon -- the same daemon the
+  # worker reaches through the mounted socket, which is why the worker can
+  # then run it. Profiled so `docker compose up` never starts it.
+  sandbox:
+    profiles: ["tools"]
+    image: npcwars-sandbox:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.sandbox
+    command: ["python", "-c", "print('sandbox image built')"]
 
 volumes:
   npcwars-data:
