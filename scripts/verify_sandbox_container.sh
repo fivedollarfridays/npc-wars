@@ -25,16 +25,24 @@ DOCKER_BUILDKIT=1 docker build -f Dockerfile.sandbox -t "${IMAGE}" . \
   || fail "image build failed"
 
 echo "== Running a real 3-bot match through the container (stdin -> stdout) =="
-REST_BOT='def decide(state):\n    return ("rest",)'
-read -r -d '' PAYLOAD <<JSON || true
-{"bots":[
-  "BOT_NAME=\"Ay\"\nBOT_EMOJI=\"A\"\n${REST_BOT}",
-  "BOT_NAME=\"Bee\"\nBOT_EMOJI=\"B\"\n${REST_BOT}",
-  "BOT_NAME=\"Cee\"\nBOT_EMOJI=\"C\"\n${REST_BOT}"
-],"config":{"match_id":424242,"seed":7}}
-JSON
+# Build the payload with json.dumps so bot sources (which contain real
+# newlines) are escaped as valid JSON. A hand-written heredoc + `printf '%b'`
+# expands \n into literal control characters, which is invalid JSON and the
+# entrypoint's json.loads rejects it.
+PY="$(command -v python3 || command -v python)"
+[ -n "${PY}" ] || fail "python3 not found on PATH (needed to build the JSON payload)"
+PAYLOAD="$("${PY}" - <<'PYEOF'
+import json
+def bot(name, emoji):
+    return "BOT_NAME=%r\nBOT_EMOJI=%r\ndef decide(state):\n    return (\"rest\",)\n" % (name, emoji)
+print(json.dumps({
+    "bots": [bot("Ay", "A"), bot("Bee", "B"), bot("Cee", "C")],
+    "config": {"match_id": 424242, "seed": 7},
+}))
+PYEOF
+)"
 
-OUT="$(printf '%b' "$PAYLOAD" | docker run --rm -i --network=none "${IMAGE}")" \
+OUT="$(printf '%s' "$PAYLOAD" | docker run --rm -i --network=none "${IMAGE}")" \
   || fail "container exited non-zero"
 
 echo "---- container stdout (head) ----"
