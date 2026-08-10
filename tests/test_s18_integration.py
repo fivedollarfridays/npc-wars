@@ -20,19 +20,35 @@ client = TestClient(app)
 # ---------------------------------------------------------------------------
 
 
+def _registered_paths() -> set[str]:
+    """Paths registered on the app, including those from included routers.
+
+    FastAPI >=0.13x wraps ``include_router`` results in a lazy
+    ``_IncludedRouter`` object that has no ``.path``, so walking
+    ``app.routes`` only sees the app's own routes (the old shape of this
+    check silently lost every sub-router path).  The OpenAPI schema is
+    built from the fully resolved route table, so it sees all of them.
+    """
+    return set(app.openapi()["paths"])
+
+
 class TestRouterRegistration:
     """Verify S18 routers are included in the FastAPI app."""
 
+    def test_registered_paths_probe_is_not_vacuous(self) -> None:
+        """Positive control: the probe must actually see app routes."""
+        paths = _registered_paths()
+        assert paths
+        assert "/api/submit-bot" in paths
+
     def test_stream_router_registered(self) -> None:
-        paths = {r.path for r in app.routes if hasattr(r, "path")}
-        assert "/api/match/{match_id}/stream" in paths
+        assert "/api/match/{match_id}/stream" in _registered_paths()
 
     def test_share_router_registered(self) -> None:
-        paths = {r.path for r in app.routes if hasattr(r, "path")}
-        assert "/m/{match_id}" in paths
+        assert "/m/{match_id}" in _registered_paths()
 
     def test_health_router_registered(self) -> None:
-        paths = {r.path for r in app.routes if hasattr(r, "path")}
+        paths = _registered_paths()
         assert "/health" in paths
         assert "/health/ready" in paths
         assert "/metrics" in paths
