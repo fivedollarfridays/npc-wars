@@ -22,6 +22,11 @@ def _load_match(results_dir: Path, match_id: str) -> dict[str, Any]:
         results_dir / f"match_{match_id}.json",
         results_dir / f"{match_id}.json",
     ]
+    # Matches are written zero-padded (match_{id:03d}.json), so a natural-id
+    # permalink like /m/1 must also try match_001.json — the same resolution
+    # the JSON and SSE routes do. Without it every share link 404s.
+    if match_id.isdigit():
+        candidates.append(results_dir / f"match_{int(match_id):03d}.json")
     resolved = results_dir.resolve()
     for p in candidates:
         if p.resolve().is_relative_to(resolved) and p.is_file():
