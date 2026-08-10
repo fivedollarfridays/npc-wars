@@ -24,6 +24,21 @@ from server.queue import (
 )
 from server.submission import SUBMISSION_KIND, run_submission_job
 
+
+@pytest.fixture(autouse=True)
+def _force_in_process_sandbox(monkeypatch):
+    """Run the real match through the in-process executor deterministically.
+
+    These are wiring tests, not Docker tests. On a runner WITH a Docker daemon
+    but no built ``npcwars-sandbox`` image (CI), ``run_sandboxed`` would take the
+    Docker path and fail to find the image -- so pin the in-process path
+    regardless of the runner, with the opt-in the fail-closed gate requires.
+    Tests that assert the Docker branch patch ``run_sandboxed`` directly and are
+    unaffected by this.
+    """
+    monkeypatch.setenv("NPCWARS_ALLOW_UNSANDBOXED", "1")
+    monkeypatch.setattr("server.docker_sandbox._docker_available", lambda: False)
+
 SUBMITTER_SOURCE = """\
 BOT_NAME = "Challenger"
 BOT_EMOJI = "\U0001f9be"

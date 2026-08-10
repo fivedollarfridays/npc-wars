@@ -4,11 +4,22 @@ The worker writes match_{id:03d}.json; the by-id read routes looked only for
 match_{id}.json, so /api/match/1/stream 404'd on match_001.json. This pins the
 submit -> replay loop end to end.
 """
-import tempfile
+import pytest
 from fastapi.testclient import TestClient
 from server.app import app
 from server.submission import build_submission_job, run_submission_job
 from server.db import init_db, store_bot, create_player
+
+
+@pytest.fixture(autouse=True)
+def _force_in_process_sandbox(monkeypatch):
+    """Pin the in-process executor so the real match runs on any runner.
+
+    On CI (Docker daemon present, no built sandbox image) run_sandboxed would
+    take the Docker path and fail, leaving no match file to read back.
+    """
+    monkeypatch.setenv("NPCWARS_ALLOW_UNSANDBOXED", "1")
+    monkeypatch.setattr("server.docker_sandbox._docker_available", lambda: False)
 
 
 def _make_submission_match(results_dir):
