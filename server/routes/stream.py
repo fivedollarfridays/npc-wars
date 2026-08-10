@@ -41,6 +41,10 @@ async def stream_match(match_id: str, request: Request) -> StreamingResponse:
         results_dir / f"match_{match_id}.json",
         results_dir / f"{match_id}.json",
     ]
+    # Matches are written zero-padded (match_{id:03d}.json), so a natural-id
+    # lookup like /api/match/1 must also try match_001.json (UP-3 submit->replay).
+    if match_id.isdigit():
+        candidates.append(results_dir / f"match_{int(match_id):03d}.json")
 
     match_data = None
     for path in candidates:
