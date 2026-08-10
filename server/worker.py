@@ -5,12 +5,16 @@ from __future__ import annotations
 import logging
 import os
 import signal
+import sys
 
 from engine.game import run_match
 from engine.match_writer import write_match
 from server.coin_rewards import award_match_coins
 from server.db import init_db
-from server.queue import dequeue_match
+from server.docker_sandbox import SANDBOX_OPT_IN_ENV, sandbox_preflight
+from server.heartbeat import heartbeat_path, touch_heartbeat
+from server.logging_setup import configure_logging
+from server.queue import dequeue_match, init_backend
 from server.submission import SUBMISSION_KIND, run_submission_job
 
 _logger = logging.getLogger(__name__)
@@ -40,27 +44,108 @@ def _process_regular_job(conn: object, job: dict) -> None:
         _logger.error("Match %s failed: %s", match_id, exc)
 
 
-def main() -> None:
+def log_sandbox_preflight() -> dict:
+    """Log whether the worker can actually reach the Docker sandbox.
+
+    The worker runs untrusted submissions through an ephemeral container, so
+    it needs a docker CLI plus a mounted ``/var/run/docker.sock`` (see
+    docker-compose.yml) and the sandbox image built on the host daemon. When
+    that is missing every submission fails closed one job at a time; this
+    turns it into one unmistakable startup line.
+    """
+    report = sandbox_preflight()
+    if report["ok"]:
+        _logger.info(
+            "Sandbox preflight OK: docker daemon reachable, image %s present",
+            report["image_name"],
+        )
+        return report
+    _logger.error(
+        "Sandbox preflight FAILED (docker=%s image=%s, image %s): submissions "
+        "will fail closed. Mount /var/run/docker.sock into this container and "
+        "build the sandbox image on the host daemon. Do NOT set %s.",
+        report["docker"],
+        report["image"],
+        report["image_name"],
+        SANDBOX_OPT_IN_ENV,
+    )
+    return report
+
+
+def poll_once(conn: object) -> bool:
+    """Run one poll cycle: beat, take a job if there is one, run it.
+
+    Returns True when a job was taken. Nothing in a single cycle is allowed
+    to end the worker: both the dequeue and the job run are wrapped, because
+    a silently-exiting worker was exactly the UP-5 P2 failure mode. The
+    heartbeat is touched every cycle -- including empty and failed ones --
+    since it attests that *the loop* is running, not that work arrived.
+    """
+    touch_heartbeat()
+    try:
+        job = dequeue_match(timeout=1)
+    except Exception:
+        _logger.exception("Queue poll failed; continuing")
+        return False
+    if job is None:
+        return False
+
+    try:
+        if job.get("kind") == SUBMISSION_KIND:
+            run_submission_job(conn, job)
+        else:
+            _process_regular_job(conn, job)
+    except Exception:
+        _logger.exception("Job %s failed; continuing", job.get("job_id", "?"))
+    return True
+
+
+def startup() -> object:
+    """Wire signals, open the DB, and report the runtime the loop depends on.
+
+    Everything here is announced in the logs because each one has silently
+    diverged from the app's in a real bring-up: the DB path, the results
+    dir, the queue backend, and whether the sandbox is reachable at all.
+    """
+    signal.signal(signal.SIGTERM, _shutdown)
+    signal.signal(signal.SIGINT, _shutdown)
+
+    db_path = os.environ.get("DB_PATH", "data/npcwars.db")
+    conn = init_db(db_path)
+    _logger.info(
+        "Worker starting | DB=%s | results=%s | heartbeat=%s",
+        db_path,
+        os.environ.get("RESULTS_DIR", "results"),
+        heartbeat_path(),
+    )
+    init_backend()
+    log_sandbox_preflight()
+    return conn
+
+
+def main() -> int:
     """Poll the match queue and process jobs until shutdown.
 
     Jobs are routed by ``kind``: ``"submission"`` jobs carry untrusted bot
     SOURCE and run through the fail-closed sandbox (run_submission_job ->
     run_sandboxed); everything else is a trusted config job (run_match).
     """
-    signal.signal(signal.SIGTERM, _shutdown)
-    signal.signal(signal.SIGINT, _shutdown)
-    conn = init_db(os.environ.get("DB_PATH", "data/npcwars.db"))
-    _logger.info("Worker started, polling queue...")
+    configure_logging()
+    try:
+        conn = startup()
+        _logger.info("Worker started, polling queue...")
+        while _running:
+            poll_once(conn)
+    except BaseException:
+        # Never die quietly. This covers startup too: in strict queue mode an
+        # unreachable Redis raises here, and the operator needs the reason in
+        # `docker compose logs worker`, not a bare non-zero exit.
+        _logger.exception("Worker terminated by an unhandled exception")
+        return 1
 
-    while _running:
-        job = dequeue_match(timeout=1)
-        if job is None:
-            continue
-        if job.get("kind") == SUBMISSION_KIND:
-            run_submission_job(conn, job)
-        else:
-            _process_regular_job(conn, job)
+    _logger.info("Worker stopped cleanly")
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

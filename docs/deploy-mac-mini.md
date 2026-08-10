@@ -10,18 +10,94 @@
 ```bash
 git clone https://github.com/fivedollarfridays/npc-wars.git
 cd npc-wars
-docker compose up -d
+
+# 1. Pick a host port if 8000 is taken, and provision the service key
+cp .env.example .env
+echo "ARENA_HOST_PORT=8010" >> .env
+echo "NPCWARS_SERVICE_API_KEY=$(openssl rand -hex 32)" >> .env
+
+# 2. Build the sandbox image on the HOST daemon (REQUIRED -- see below)
+docker compose --profile tools build sandbox
+
+# 3. Bring the stack up
+docker compose up -d --build
+
+# 4. Prove the whole loop actually works
+NPCWARS_SERVICE_API_KEY=<the key from .env> scripts/verify_arena_e2e.sh
 ```
 
-The server is now running at `http://localhost:8000`.
+The server is now running at `http://localhost:${ARENA_HOST_PORT}`.
 
 ## Services
 
 | Service | Port | Description |
 |---------|------|-------------|
-| app     | 8000 | FastAPI web server |
+| app     | `${ARENA_HOST_PORT:-8000}` -> 8000 | FastAPI web server (image target `app`) |
 | redis   | 6379 | Match queue broker |
-| worker  | --   | Background match processor |
+| worker  | --   | Background match processor (image target `worker`) |
+| sandbox | --   | Build-only unit (profile `tools`) for `npcwars-sandbox:latest` |
+
+### Host port (`ARENA_HOST_PORT`)
+
+The app publishes `"${ARENA_HOST_PORT:-8000}:8000"`. The **container** port is
+always 8000; only the host side moves. The default is unchanged (8000), so
+existing deployments are unaffected — set `ARENA_HOST_PORT` in `.env` when
+something else already owns the port (on the Mac Mini, :8000 belongs to an
+unrelated app, so use 8010).
+
+Everything that talks to the arena — `scripts/verify_arena_e2e.sh`, the PSC
+relay, the tunnel — must use the same port. The verify script reads
+`ARENA_HOST_PORT` (or a full `ARENA_URL`) from the environment.
+
+## Worker sandbox access (docker-out-of-docker)
+
+The worker executes untrusted submitted bot source by shelling out to
+`docker run ... npcwars-sandbox:latest` (`server/docker_sandbox.py`). For that
+to work inside a container it needs two things, both wired in
+`docker-compose.yml`:
+
+1. **A docker CLI.** The `worker` stage of the `Dockerfile` extracts just the
+   client binary from Docker's static bundle (no daemon, no containerd — the
+   target host is disk-constrained). The `app` stage deliberately does **not**
+   get it.
+2. **The host docker socket**, bind-mounted read-write:
+   `/var/run/docker.sock:/var/run/docker.sock`. The worker therefore drives the
+   *host* daemon, and the sandbox container is a sibling of the worker rather
+   than a child.
+
+> **Residual risk — read this before exposing the host.**
+> Access to `/var/run/docker.sock` is **equivalent to root on the host**: any
+> code that runs in the worker container can start a privileged container with
+> the host filesystem mounted. This is an accepted trade for keeping the arena
+> in a single `docker compose up`. It is tolerable only because of what the
+> worker runs: first-party code. Untrusted submitted bot source never executes
+> in the worker — it executes in the container the worker spawns, with
+> `--network=none --read-only --memory=256m --cpus=1 --pids-limit=50`. The
+> internet-facing `app` service has **no** socket mount and no docker CLI, so a
+> compromise of the public surface does not directly hand over the daemon.
+> If that trade ever stops being acceptable, the alternative is a socket proxy
+> restricted to `container create/start/wait/logs/rm` on this one image, or a
+> worker running on the host outside compose.
+
+Verify the wiring from inside the worker (this single command proves the CLI,
+the socket, and the image all at once):
+
+```bash
+docker compose exec worker docker image inspect npcwars-sandbox:latest
+```
+
+The worker also runs this as a startup preflight and logs the result:
+
+```
+Sandbox preflight OK: docker daemon reachable, image npcwars-sandbox:latest present
+```
+
+or, when it is broken, one unmistakable line instead of one opaque error per
+job:
+
+```
+Sandbox preflight FAILED (docker=False image=False, image npcwars-sandbox:latest): ...
+```
 
 ## Environment Variables
 
@@ -37,7 +113,18 @@ Configure via `docker-compose.yml` environment block or a `.env` file:
 | `NPCWARS_ALLOW_KEYLESS` | _(unset)_ | Dev-only: re-enables keyless auto-create on submit. **NEVER set in production.** |
 | `HOST` | `0.0.0.0` | Bind address |
 | `PORT` | `8000` | API port |
+| `ARENA_HOST_PORT` | `8000` | **Host** port the app is published on (container stays 8000) |
+| `NPCWARS_QUEUE_STRICT` | `1` in compose | Require Redis; never fall back to an in-process queue. See below. |
+| `NPCWARS_LOG_LEVEL` | `INFO` | Log level for both the app and the worker |
+| `NPCWARS_WORKER_HEARTBEAT` | `/tmp/npcwars-worker.heartbeat` | Worker liveness file the healthcheck reads |
+| `NPCWARS_WORKER_HEARTBEAT_MAX_AGE` | `60` | Seconds before a heartbeat counts as dead |
 | `NPCWARS_ALLOW_UNSANDBOXED` | *(unset)* | **Never set this in production.** See below. |
+
+`RESULTS_DIR` and `DB_PATH` must be **identical for `app` and `worker`** and
+must point into the shared `npcwars-data` volume (`/data/...`). They are
+container-local paths otherwise: before UP-5 the app ignored `RESULTS_DIR`
+entirely and read `./results` inside its own container, so a match the worker
+had genuinely written was invisible to `/api/match/{id}` and the leaderboard.
 
 ### `NPCWARS_ALLOW_UNSANDBOXED` -- the fail-closed sandbox gate (UP-1)
 
@@ -67,7 +154,17 @@ Regression coverage: `tests/test_sandbox_fail_closed.py`.
 ### Build the sandbox image (REQUIRED for bring-up)
 
 The fail-closed gate above is only *real* if the `npcwars-sandbox:latest`
-image actually exists and runs matches. Build it as part of bring-up:
+image actually exists and runs matches. Build it as part of bring-up — it is a
+compose service under the `tools` profile, so it never *starts*, it only
+builds:
+
+```bash
+docker compose --profile tools build sandbox
+```
+
+It must be built on the **host** daemon, which is what the command above does
+and is exactly the daemon the worker reaches through the mounted socket. The
+equivalent plain-docker form is:
 
 ```bash
 docker build -f Dockerfile.sandbox -t npcwars-sandbox:latest .
@@ -171,11 +268,101 @@ docker run --rm -v npc-wars_npcwars-data:/data -v $(pwd):/backup alpine \
   tar czf /backup/npcwars-backup.tar.gz -C /data .
 ```
 
+## Queue integrity (`NPCWARS_QUEUE_STRICT`)
+
+`server/queue.py` falls back to an in-process `InMemoryQueue` when Redis is
+unreachable. That is fine for a single-process dev run and for the test suite.
+In compose it is a silent data-loss shape: the **app** would enqueue into its
+own container's memory and the **worker** would poll its own, so submissions
+return `202` and no match ever runs, with no error anywhere.
+
+Compose therefore sets `NPCWARS_QUEUE_STRICT=1` on both `app` and `worker`.
+With it on, an unreachable Redis raises `QueueBackendUnavailableError` instead
+of falling back — the app fails to boot, the worker logs it loudly. The gate
+is an exact match on `"1"`, same convention as the sandbox and keyless gates.
+
+Both processes log which backend they got at startup, so a split brain is
+visible in the first lines of each container's logs:
+
+```
+server.queue: Queue backend ready: redis (strict=True, key=npcwars:match_queue)
+```
+
+## Worker logs and liveness
+
+**Reading worker logs.** The worker configures the root logger to stdout at
+`NPCWARS_LOG_LEVEL` (default `INFO`) on startup — before UP-5 it never called
+`logging.basicConfig`, so `docker compose logs worker` was empty even with
+`PYTHONUNBUFFERED=1`.
+
+```bash
+docker compose logs -f worker          # follow
+docker compose logs --tail=200 worker  # recent
+NPCWARS_LOG_LEVEL=DEBUG docker compose up -d worker
+```
+
+A healthy worker prints, in order: its DB path, its heartbeat file, its queue
+backend, its sandbox preflight, then `Worker started, polling queue...`, then
+one `Submission match N completed for player ...` per submission.
+
+**Liveness.** The healthcheck is `python -m server.heartbeat`, not the old
+`python -c "print('ok')"` — that stub reported `Up (healthy)` during a live
+bring-up while the poll loop was not running at all. The loop now touches
+`NPCWARS_WORKER_HEARTBEAT` every cycle (including idle cycles) and the
+healthcheck exits non-zero once that file is missing or older than
+`NPCWARS_WORKER_HEARTBEAT_MAX_AGE` (60s), so a stalled loop turns the
+container **unhealthy**.
+
+The loop also log-and-continues: a poisoned job or a transient queue error is
+logged with a traceback and the worker keeps polling, and any unhandled
+exception is logged before the process exits.
+
+```bash
+docker compose ps                                   # worker must be (healthy)
+docker compose exec worker python -m server.heartbeat  # prints the age
+```
+
+## Verifying the whole loop (`scripts/verify_arena_e2e.sh`)
+
+Health checks prove the containers are up; they do not prove a bot can be
+submitted and come back as a replay. This script does, against a running
+stack:
+
+```bash
+NPCWARS_SERVICE_API_KEY=<service key> scripts/verify_arena_e2e.sh
+```
+
+It prints `PASS` only if **all five** hold:
+
+1. a bot submits through the UP-2 delegated contract (service key +
+   `X-Player-Ref`) and gets `202` + a `job_id`;
+2. the worker produces a match within a bounded wait (`ARENA_WAIT_SECS`,
+   default 180s);
+3. the match ran **through the Docker sandbox** — asserted by proving
+   `NPCWARS_ALLOW_UNSANDBOXED` is unset *inside the worker* (so the in-process
+   path is impossible), that the worker reaches `npcwars-sandbox:latest`
+   through the mounted socket, and that the worker logged the submission
+   completing with no `FAILED closed`;
+4. the match is readable by its natural id at `/api/match/{id}` **and**
+   `/api/match/{id}/stream`;
+5. the submitter appears on `/api/leaderboard`.
+
+On failure it prints `FAIL: <reason>` plus the last 40 lines of the worker log
+and exits non-zero. Knobs: `ARENA_HOST_PORT`, `ARENA_URL`,
+`ARENA_WORKER_SERVICE`, `ARENA_APP_SERVICE`, `ARENA_WAIT_SECS`,
+`DOCKER_COMPOSE`. It mints a fresh `X-Player-Ref` per run, so back-to-back
+runs do not trip the 1-submission-per-30s rate limit.
+
+The application-side contracts it depends on are also pinned by
+`tests/test_up5_arena_e2e_contract.py`, which rehearses the same five steps
+in-process (real queue, real worker, real match) so drift fails in CI rather
+than on the host.
+
 ## Health Checks
 
 ```bash
-# App health
-curl http://localhost:8000/health
+# App health (use your ARENA_HOST_PORT)
+curl http://localhost:8010/health
 
 # Redis health
 docker compose exec redis redis-cli ping
@@ -188,9 +375,15 @@ docker compose ps
 
 ```bash
 git pull
-docker compose build
+docker compose build                          # app + worker
+docker compose --profile tools build sandbox  # rebuild the sandbox image too
 docker compose up -d
+NPCWARS_SERVICE_API_KEY=<service key> scripts/verify_arena_e2e.sh
 ```
+
+Rebuild the sandbox image whenever `engine/`, `data/` or `sandbox_entry.py`
+changes: `docker compose build` alone skips it (it is behind the `tools`
+profile), and the worker would keep running matches with stale engine code.
 
 ## Stopping
 

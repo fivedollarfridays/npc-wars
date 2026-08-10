@@ -20,22 +20,37 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
 
 class TestRouterRegistration:
-    """Verify app.py imports and includes all expected routers."""
+    """Verify all expected routers are wired into the FastAPI app.
+
+    These used to grep ``server/app.py`` for literal import lines. That broke
+    the moment the routers moved behind ``server.routes.ALL_ROUTERS`` (UP-5,
+    to get app.py under the import limit) -- and it was always the weaker
+    check: the import text can be present while registration is broken. The
+    OpenAPI schema is built from the fully resolved route table, so it
+    asserts the property the import line was only a proxy for. Same shape as
+    TestRouterRegistration in test_s18_integration.py.
+    """
+
+    @staticmethod
+    def _registered_paths() -> set[str]:
+        return set(app.openapi()["paths"])
+
+    def test_registration_probe_is_not_vacuous(self) -> None:
+        """Positive control: a path that is NOT registered must be absent."""
+        paths = self._registered_paths()
+        assert paths
+        assert "/api/definitely-not-a-route" not in paths
 
     def test_submit_router_registered(self) -> None:
-        source = (PROJECT_ROOT / "server" / "app.py").read_text()
-        assert "from server.routes.submit import router" in source
-        assert "submit_router" in source
+        assert "/api/submit-bot" in self._registered_paths()
 
     def test_match_router_registered(self) -> None:
-        source = (PROJECT_ROOT / "server" / "app.py").read_text()
-        assert "from server.routes.match import router" in source
-        assert "match_router" in source
+        assert "/api/match/{match_id}" in self._registered_paths()
 
     def test_stats_router_registered(self) -> None:
-        source = (PROJECT_ROOT / "server" / "app.py").read_text()
-        assert "from server.routes.stats import router" in source
-        assert "stats_router" in source
+        paths = self._registered_paths()
+        assert "/api/leaderboard" in paths
+        assert "/api/stats/{player_id}" in paths
 
 
 # ── Cycle 2: Endpoint Existence (non-405) ───────────────────────────
